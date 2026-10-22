@@ -19,6 +19,10 @@ begin
  if g.id<>g2.id then raise exception 'SESSION_RESUME_FAILED'; end if;
  if (select count(*) from public.population_cohorts where government_id=g.id)<>2 then
   raise exception 'COHORT_SEED_FAILED'; end if;
+ if not exists(select 1 from public.dossiers where id='energy-resilience' and version=1) then
+  raise exception 'DOSSIER_LOOKUP_FAILED'; end if;
+ if public.get_game_day()<>(now() at time zone 'UTC')::date then
+  raise exception 'SERVER_DAY_MISMATCH'; end if;
  funds:=g.treasury_m_eur;
  caught:=false;
  begin
@@ -41,6 +45,11 @@ begin
  begin perform public.submit_decision(g.id,'energy-resilience',1,'industry-investment');
  exception when sqlstate 'P0001' then caught:=true; end;
  if not caught then raise exception 'CONFLICTING_RETRY_ACCEPTED'; end if;
+ caught:=false;
+ begin
+  update public.governments set treasury_m_eur=99999 where id=g.id;
+ exception when insufficient_privilege then caught:=true; end;
+ if not caught then raise exception 'UNAUTHORIZED_DIRECT_WRITE_ACCEPTED'; end if;
  perform set_config('request.jwt.claim.sub',
   '10000000-0000-4000-8000-000000000002',true);
  caught:=false;
@@ -49,6 +58,12 @@ begin
  if not caught then raise exception 'UNAUTHORIZED_DECISION_ACCEPTED'; end if;
  if exists(select 1 from public.governments where id=g.id) then
   raise exception 'GOVERNMENT_RLS_BROKEN'; end if;
+ if exists(select 1 from public.decision_events where government_id=g.id) then
+  raise exception 'DECISION_RLS_BROKEN'; end if;
+ g2:=public.start_government();
+ ev2:=public.submit_decision(g2.id,'energy-resilience',1,'household-support');
+ if ev2.state_after<>ev.state_after or ev2.cohort_effects<>ev.cohort_effects then
+  raise exception 'DETERMINISM_ACROSS_GOVERNMENTS_FAILED'; end if;
  raise notice 'AOS transactional integration tests passed';
 end $$;
 rollback;
