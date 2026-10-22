@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: '22'
       # Use npm ci once package-lock.json is committed.
+      - run: npm run test:oracle
       - run: npm install --no-audit --no-fund
       - run: npm run typecheck
       - run: npm test

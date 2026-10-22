@@ -54,3 +54,7 @@ docs/MVP_TRACKER.md              Evidence-based MVP statuses
 The current SQL function encapsulates the simulation transaction. A reusable standalone domain engine package may be extracted only when multiple backend consumers justify it.
 
 Review \`docs/MVP_TRACKER.md\` for status, blockers and subsequent increments.
+
+### Deterministic contract oracle
+
+Run `npm run test:oracle` independently of npm dependencies. These six tests specify the exact three option outcomes and numeric rounding for `weighted-cohorts-v1`. They ran successfully under Node 22 during source preparation, but **do not replace PostgreSQL integration tests**. Every persisted decision also retains `parameters_snapshot` for reproducibility.

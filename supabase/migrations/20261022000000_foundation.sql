@@ -43,6 +43,7 @@ create table public.decision_events (
  government_id uuid not null references public.governments(id) on delete cascade,
  dossier_id text not null, dossier_version int not null, option_id text not null,
  engine_version text not null default 'weighted-cohorts-v1',
+ parameters_snapshot jsonb not null,
  decided_on date not null, state_before jsonb not null, state_after jsonb not null,
  cohort_effects jsonb not null, created_at timestamptz not null default now(),
  unique(government_id,dossier_id,dossier_version),
@@ -197,9 +198,13 @@ begin
  v_after:=jsonb_build_object('treasury_m_eur',v_g.treasury_m_eur,
   'approval',v_g.approval,'trust',v_g.trust);
  insert into public.decision_events(government_id,dossier_id,dossier_version,
-  option_id,decided_on,state_before,state_after,cohort_effects,engine_version)
+  option_id,decided_on,state_before,state_after,cohort_effects,engine_version,parameters_snapshot)
  values(v_g.id,p_dossier_id,p_dossier_version,p_option_id,v_day,v_before,
-  v_after,v_effects,'weighted-cohorts-v1') returning * into v_event;
+  v_after,v_effects,'weighted-cohorts-v1',jsonb_build_object(
+   'treasury_delta_m_eur',v_o.treasury_delta_m_eur,
+   'policy_target',v_o.policy_target,
+   'response_intensity',v_o.response_intensity,
+   'trust_base_delta',v_o.trust_base_delta)) returning * into v_event;
  return v_event;
 end $$;
 -- SECURITY DEFINER never exposed to anonymous/public callers.

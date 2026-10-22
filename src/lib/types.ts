@@ -70,6 +70,12 @@ export interface DecisionEvent {
   state_before: GovernmentState
   state_after: GovernmentState
   cohort_effects: CohortEffect[]
+  parameters_snapshot: {
+    treasury_delta_m_eur: number
+    policy_target: number
+    response_intensity: number
+    trust_base_delta: number
+  }
   created_at: string
 }
 

@@ -37,6 +37,21 @@ begin
   raise exception 'DUPLICATE_APPLIED'; end if;
  if (select treasury_m_eur from public.governments where id=g.id)<>funds-1400 then
   raise exception 'BAD_TREASURY_CHANGE'; end if;
+ if (ev.state_after->>'approval')::int <> 62 or
+    (ev.state_after->>'trust')::int <> 58 then
+  raise exception 'INVALID_DETERMINISTIC_NATIONAL_STATE'; end if;
+ if ev.parameters_snapshot <> jsonb_build_object(
+     'treasury_delta_m_eur', -1400,
+     'policy_target', 25, 'response_intensity', 35,
+     'trust_base_delta', 2) then
+  raise exception 'PARAMETERS_SNAPSHOT_MISSING_OR_INCORRECT'; end if;
+ if (ev.cohort_effects->0->>'code') <> 'households' or
+    (ev.cohort_effects->0->>'support_after')::int <> 68 or
+    (ev.cohort_effects->0->>'trust_after')::int <> 61 or
+    (ev.cohort_effects->1->>'code') <> 'industry' or
+    (ev.cohort_effects->1->>'support_after')::int <> 50 or
+    (ev.cohort_effects->1->>'trust_after')::int <> 52 then
+  raise exception 'COHORT_RESPONSE_DRIFT'; end if;
  if jsonb_array_length(ev.cohort_effects)<>2 then
   raise exception 'MISSING_COHORT_EFFECTS'; end if;
  if (select count(*) from public.decision_events where government_id=g.id)<>1 then
@@ -64,6 +79,11 @@ begin
  ev2:=public.submit_decision(g2.id,'energy-resilience',1,'household-support');
  if ev2.state_after<>ev.state_after or ev2.cohort_effects<>ev.cohort_effects then
   raise exception 'DETERMINISM_ACROSS_GOVERNMENTS_FAILED'; end if;
+ perform set_config('request.jwt.claim.sub','',true);
+ caught:=false;
+ begin perform public.start_government();
+ exception when insufficient_privilege then caught:=true; end;
+ if not caught then raise exception 'NULL_IDENTITY_ACCEPTED'; end if;
  raise notice 'AOS transactional integration tests passed';
 end $$;
 rollback;

@@ -47,3 +47,9 @@ Free-to-play browser game. 1 real day = 1 in-game day. Ten Monday dossiers and a
 6. Add weekly calendar, publication and Friday settlement as later increments.
 
 Progress: GLOBAL MVP UNKNOWN; P01 UNKNOWN; AOS-MVP-001 PARTIAL. No speculative percentages.
+
+## AOS-MVP-001 verification hardening
+
+- Every decision now stores the exact chosen option parameters in `parameters_snapshot` alongside `engine_version` and historical before/after snapshots. Enables defensible retrospective audits even if the editorial catalog later changes.
+- SQL integration assertions include golden national/cohort values, exact parameter snapshot, direct-write denial and missing-JWT denial; NOT YET EXECUTED against PostgreSQL.
+- `tests/reference-simulation.test.mjs` is a pure offline specification oracle and is NOT the authoritative backend. Six tests pass locally using Node 22; database parity still requires integration execution.

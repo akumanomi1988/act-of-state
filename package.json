@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:oracle": "node --test tests/reference-simulation.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.95.0",
