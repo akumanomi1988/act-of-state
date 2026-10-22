@@ -46,7 +46,7 @@ create table public.decision_events (
  parameters_snapshot jsonb not null,
  decided_on date not null, state_before jsonb not null, state_after jsonb not null,
  cohort_effects jsonb not null, created_at timestamptz not null default now(),
- unique(government_id,dossier_id,dossier_version),
+ unique(government_id,dossier_id),
  foreign key(dossier_id,dossier_version,option_id)
  references public.dossier_options(dossier_id,dossier_version,id)
 );
@@ -145,10 +145,9 @@ begin
  end if;
  -- Retried identical requests return the same persisted event.
  select * into v_event from public.decision_events
- where government_id=v_g.id and dossier_id=p_dossier_id
- and dossier_version=p_dossier_version;
+ where government_id=v_g.id and dossier_id=p_dossier_id;
  if found then
-  if v_event.option_id<>p_option_id then
+  if v_event.option_id<>p_option_id or v_event.dossier_version<>p_dossier_version then
    raise exception 'DOSSIER_ALREADY_DECIDED' using errcode='P0001';
   end if;
   return v_event;

@@ -53,3 +53,6 @@ Progress: GLOBAL MVP UNKNOWN; P01 UNKNOWN; AOS-MVP-001 PARTIAL. No speculative p
 - Every decision now stores the exact chosen option parameters in `parameters_snapshot` alongside `engine_version` and historical before/after snapshots. Enables defensible retrospective audits even if the editorial catalog later changes.
 - SQL integration assertions include golden national/cohort values, exact parameter snapshot, direct-write denial and missing-JWT denial; NOT YET EXECUTED against PostgreSQL.
 - `tests/reference-simulation.test.mjs` is a pure offline specification oracle and is NOT the authoritative backend. Six tests pass locally using Node 22; database parity still requires integration execution.
+
+- **Logical decision integrity:** uniqueness is now `(government_id, dossier_id)` regardless of dossier editorial version. A different version/option cannot reapply effects. SQL regression covers replay on version 2. Frontend reflects decision history across versions.
+- **Auth resiliency:** login/logout request rejection now releases UI pending state in `finally` and surfaces an error.

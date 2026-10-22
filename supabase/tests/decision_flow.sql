@@ -7,6 +7,16 @@ values
   'authenticated','authenticated','aos-one@example.invalid','',now(),now(),now()),
  ('10000000-0000-4000-8000-000000000002','00000000-0000-0000-0000-000000000000',
   'authenticated','authenticated','aos-two@example.invalid','',now(),now(),now());
+-- A second editorial version must NOT create a new logical decision slot.
+insert into public.dossiers(id,version,title,context,category,release_kind)
+select id,2,title,context,category,release_kind
+from public.dossiers where id='energy-resilience';
+insert into public.dossier_options
+ (dossier_id,dossier_version,id,title,description,treasury_delta_m_eur,
+  policy_target,response_intensity,trust_base_delta)
+select dossier_id,2,id,title,description,treasury_delta_m_eur,
+ policy_target,response_intensity,trust_base_delta
+from public.dossier_options where dossier_id='energy-resilience' and dossier_version=1;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000001',true);
 do $$
@@ -60,6 +70,13 @@ begin
  begin perform public.submit_decision(g.id,'energy-resilience',1,'industry-investment');
  exception when sqlstate 'P0001' then caught:=true; end;
  if not caught then raise exception 'CONFLICTING_RETRY_ACCEPTED'; end if;
+ caught:=false;
+ begin perform public.submit_decision(g.id,'energy-resilience',2,'household-support');
+ exception when sqlstate 'P0001' then caught:=true; end;
+ if not caught then raise exception 'VERSION_REPLAY_ACCEPTED'; end if;
+ if (select count(*) from public.decision_events where government_id=g.id)<>1
+    or (select treasury_m_eur from public.governments where id=g.id)<>funds-1400 then
+  raise exception 'VERSION_REPLAY_MUTATED_STATE'; end if;
  caught:=false;
  begin
   update public.governments set treasury_m_eur=99999 where id=g.id;

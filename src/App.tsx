@@ -72,20 +72,25 @@ export default function App() {
     : []), [world, dossier])
 
   const decision = useMemo(() => world?.events.find(e =>
-    e.dossier_id === dossier?.id && e.dossier_version === dossier?.version) ?? null, [world, dossier])
+    e.dossier_id === dossier?.id) ?? null, [world, dossier])
 
   async function onLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!client) return
     setPending(true)
     setError('')
-    const { error: authError } = await client.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: window.location.origin }
-    })
-    setPending(false)
-    if (authError) setError(friendlyError(authError))
-    else setMailSent(true)
+    try {
+      const { error: authError } = await client.auth.signInWithOtp({
+        email: email.trim(),
+        options: { emailRedirectTo: window.location.origin }
+      })
+      if (authError) setError(friendlyError(authError))
+      else setMailSent(true)
+    } catch (reason) {
+      setError(friendlyError(reason))
+    } finally {
+      setPending(false)
+    }
   }
 
   async function onDecision() {
@@ -108,10 +113,15 @@ export default function App() {
   async function signOut() {
     if (!client) return
     setPending(true)
-    const { error: signOutError } = await client.auth.signOut()
-    if (signOutError) setError(friendlyError(signOutError))
-    else { setUser(null); setWorld(null); setMailSent(false) }
-    setPending(false)
+    try {
+      const { error: signOutError } = await client.auth.signOut()
+      if (signOutError) setError(friendlyError(signOutError))
+      else { setUser(null); setWorld(null); setMailSent(false) }
+    } catch (reason) {
+      setError(friendlyError(reason))
+    } finally {
+      setPending(false)
+    }
   }
 
   function selectDossier(d: Dossier) {
@@ -182,7 +192,7 @@ export default function App() {
               <div className="section-heading"><h2>Expedientes</h2><span>{world.dossiers.length} disponibles en catálogo</span></div>
               <div className="dossier-list">
                 {world.dossiers.map(d => {
-                  const done = world.events.some(e => e.dossier_id === d.id && e.dossier_version === d.version)
+                  const done = world.events.some(e => e.dossier_id === d.id)
                   return <button type="button" className={'dossier-item ' + (dossier?.id === d.id && dossier.version === d.version ? 'selected' : '')}
                     key={dossierKey(d)} onClick={() => selectDossier(d)}
                     aria-pressed={dossierKey(d) === dossierKey(dossier ?? d)}>
@@ -203,7 +213,7 @@ export default function App() {
                   <div className="fictitious-notice">EXPEDIENTE INTRODUCTORIO · ESCENARIO FICTICIO, NO NOTICIA ACTUAL</div>
                   {decision ? (
                     <Outcome event={decision} optionTitle={
-                      options.find(o => o.id === decision.option_id)?.title ?? decision.option_id} />
+                      world.options.find(o => o.id === decision.option_id && o.dossier_id === decision.dossier_id && o.dossier_version === decision.dossier_version)?.title ?? decision.option_id} />
                   ) : available(dossier, world.gameDay) ? (
                     <fieldset className="choice-list" disabled={pending}>
                       <legend>Elige una línea de actuación</legend>
