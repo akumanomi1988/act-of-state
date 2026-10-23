@@ -11,6 +11,8 @@ const mocks = vi.hoisted(() => ({
   mandateApproved: { value: true }
 }))
 
+vi.mock('./FiscalPanel', () => ({ default: () => <div>National fiscal panel fixture</div> }))
+
 vi.mock('./lib/game', () => ({
   client: { auth: {
     getUser: mocks.getUser, onAuthStateChange: mocks.onAuthStateChange,

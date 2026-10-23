@@ -12,20 +12,20 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | MVP-F002 | Dossiers and options | PARTIAL | Two fictional intro dossiers, weekly release and editorial workbench with secure draft/publish RPCs; actual news and authenticated live workflow untested |
 | MVP-F003 | Persistent validated decisions | PARTIAL | `submit_decision()`, unique logical key and SQL rollback assertions; committed browser path pending |
 | MVP-F004 | Synthetic households/cohorts | PARTIAL | Two weighted cohorts, deterministic SQL results; broader MVP household model pending |
-| MVP-F005 | National state | PARTIAL | Treasury/approval/trust in DB and UI; other political-social dimensions future |
+| MVP-F005 | National state | PARTIAL | Treasury/approval/trust plus AOS-027 versioned budget, debt, GDP index, simulated unemployment/inflation and sector-driven household response. Full macroeconomic calibration and real-user acceptance pending |
 | MVP-F006 | Daily/weekly calendar | PARTIAL | AOS-023 adds scheduled settlement of expired ballots, due elections and immutable Friday acts, with member-only shared calendar readout; real-news editorial operation and authenticated live cycle remain untested |
 | MVP-F007 | Elections | PARTIAL | AOS-021 adds deterministic cohort forecast, 100-seat D'Hondt elections, manifesto freeze, immutable acts, incumbent transition and seat-weighted Parliament; server-driven certification added in AOS-023; AOS-025 adds cabinet handover through constructive confidence; real-user E2E and richer political systems pending |
 | MVP-F008 | Async multiplayer | PARTIAL | Ten-party shared-nation RPCs/UI; binding parliament AOS-019 and seat-weighted mandates AOS-021; synthetic ten-party electoral tests and concurrency CI cover server contracts; AOS-025 adds voluntary coalitions and weighted constructive confidence; ten real browser accounts untested |
-| MVP-T001 | Transactional persistence | PARTIAL | SQL atomicity/rollback tested; committed read-after-write not E2E verified |
+| MVP-T001 | Transactional persistence | DONE | AOS-027: committed decision survives a separate database connection; persisted snapshot, retry idempotence, second-user isolation and synthetic-user cleanup verified in disposable CI and dedicated Supabase Cloud. Browser Auth itself is tracked separately under MVP-F001/T002 |
 | MVP-T002 | Auth, isolation | PARTIAL | Owned SECURITY DEFINER RPC, invoker snapshot RPC, RLS; email login untested |
 | MVP-T003 | Deterministic versioned outcomes | DONE | SQL golden fixtures and 6/6 offline Node oracle pass |
 | MVP-T004 | Safe retries, concurrency | PARTIAL | Decision row locks/unique key, editorial CAS, match-capacity row locks, idempotent join/start/stance and immutable approved content; parallel runtime not load-tested |
-| MVP-T005 | Automated quality | PARTIAL | SQL tests pass and new React adapter tests exist; GitHub Actions TypeScript + Vitest + Vite build PASS; browser E2E pending |
+| MVP-T005 | Automated quality | PARTIAL | Disposable PostgreSQL regression, committed cross-connection smoke, Node/Vitest/TypeScript/build; AOS-027 adds headless Chromium/axe mobile, mocked Auth/error, national decision and fiscal policy browser tests. Hosted real-Auth E2E remains pending |
 | MVP-T006 | Operations and deployment | PARTIAL | Reproducible DB/quality CI and Vercel deployment; AOS-023 adds database-native scheduled jobs and failure diagnostics; long-running production and live-session checks pending |
 | MVP-V001 | Approved identity | PARTIAL | Provisional typography/UI palette; final official art assets not verified |
-| MVP-V002 | Core dashboard and dossier | PARTIAL | Government dashboard, dossier, shared ten-seat assembly, party stance and result views committed; browser render against real backend not verified |
-| MVP-V003 | Responsive accessibility | PARTIAL | Layout, native controls, labels; audit unexecuted |
-| MVP-V004 | Visual consistency QA | TODO | No screenshot acceptance available |
+| MVP-V002 | Core dashboard and dossier | PARTIAL | Government dashboard, dossiers, Parliament, elections, governance and AOS-027 national fiscal panel; browser HTTP simulation verified, live authenticated end-to-end render pending |
+| MVP-V003 | Responsive accessibility | PARTIAL | AOS-027 adds Chromium 375/390/1440px overflow and axe WCAG2A/AA/2.1 checks plus screenshot artifacts. Manual keyboard/screen reader and real authenticated UX acceptance pending |
+| MVP-V004 | Visual consistency QA | PARTIAL | AOS-027 captures mobile/desktop government, login and multiplayer screenshots as retained CI artifacts; human visual approval remains pending |
 
 ## Implemented evidence (AOS-MVP-001)
 
@@ -239,3 +239,15 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - Hard acceptance baseline is unchanged: **1/18 fully accepted = 5.6%**. AOS-025 strengthens MVP-F007, F008, T002, T004, T005 and V002 but cannot promote them to DONE without real multi-account Auth browser play and visual/security operations signoff. The user's aspirational 20% milestone (at least 4/18 accepted requirements) is NOT yet verified. Do not count components or passing synthetic tests as three fully accepted requirements.
 - Real-user access is blocked by the free Supabase SMTP quota until the sender/provider configuration is completed. Source code cannot provision a third-party Gmail app password or modify Auth SMTP settings through database SQL. Avoid insecure login bypass.
 - Detailed rules: docs/GOVERNANCE_RULES.md.
+
+## AOS-027 — National fiscal engine + real browser quality gates (2026-10-23)
+
+- Production-ready source lives in PR #21, branch `feat/aos-027-fiscal-world-and-browser-qa`; the release record must link to the final green CI and Vercel deployment commit before closing.
+- New authoritative budget: four allocations always sum to 100%, one bounded revision per UTC week, validated/locked with cabinet-only authorization; partner and opposition have read access without edit rights. Immutable effective-week policy snapshots.
+- Autonomous national fiscal close after each fully elapsed Friday. Version `national-fiscal-v1`: projected/settled revenues, expenses, balances, debt issuance/paydown, treasury, bounded GDP/unemployment/inflation indicators and distinct cohort responses. The existing 15-minute Cron wraps the established Parliament/election/Friday scheduler, with idempotent close and private retry failures.
+- Gameplay UI: a responsive national budget screen on solo and multiplayer, reviewing budget transfers before server authorization, forecast, historical ledgers, policy audit and active cabinet authority.
+- Tests: rollback-only Cloud fiscal SQL suite, full PostgreSQL CI integration, **committed** read-after-write under real separate DB calls in dedicated Supabase DEV, idempotent re-execution, outsider isolation and verified complete synthetic cleanup. Simulated Chromium HTTP E2E probes startup/login limits, national decisions and fiscal budget across page reload, responsive width and WCAG accessibility; this is explicitly **not** real SMTP/Auth E2E.
+- **Strict accepted-requirements baseline:** MVP-T003 and MVP-T001 = **2/18 = 11.1%**. AOS-027 materially raises implementation maturity but does not prove 40% accepted. Crossing 40% requires at least 8/18 accepted. T002 and F001 still require working email/Auth flow; ten real editorial dossiers, distinct-account multiplayer E2E, live national decision UX and human visual review remain open.
+- No authenticated users were created through the browser test; Cloud checks used controlled synthetic Postgres Auth identities without email sending, removed after verified checks.
+- Economics deliberately represents invented game rules, **not factual GDP, CPI or official unemployment**. Live economic balancing and institutional approval of tax policy remain pending.
+- Operating handbook: `docs/NATIONAL_FISCAL_OPERATIONS.md`.

@@ -4,6 +4,7 @@ import { client, fetchWorld, friendlyError, startGovernment, submitDecision } fr
 import { number } from './lib/format'
 import type { Dossier, DossierOption, GovernmentWorld } from './lib/types'
 import Outcome from './components/Outcome'
+import FiscalPanel from './FiscalPanel'
 
 function dossierKey(d: Dossier): string {
   return d.id + ':' + d.version
@@ -279,6 +280,7 @@ export default function App() {
       ) : (
         <>
           <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
+          <FiscalPanel key={world.government.id} governmentId={world.government.id} />
           <main className="government-layout">
             <aside className="side-panel">
               <div className="eyebrow">01 / DESPACHO</div>

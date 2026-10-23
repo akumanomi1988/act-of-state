@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
   submitDecision: vi.fn()
 }))
 
+vi.mock('./FiscalPanel', () => ({ default: () => <div>National fiscal panel fixture</div> }))
+
 vi.mock('./lib/game', () => ({
   client: { auth: {
     getUser: mocks.getUser,
