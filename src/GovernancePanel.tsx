@@ -170,7 +170,7 @@ export default function GovernancePanel({
         <p className="muted">El cambio de gobierno se calcula y ejecuta exclusivamente en el servidor. Ningún usuario puede asignarse escaños ni reemplazar al gobernante mediante el navegador.</p>
       </div>
       {notice && <p className="editorial-success" role="status">{notice}</p>}
-      {error && <p className="editorial-alert" role="alert">{error}</p>}
     </>}
+    {error && <p className="editorial-alert" role="alert">{error}</p>}
   </section>
 }
