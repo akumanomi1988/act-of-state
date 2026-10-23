@@ -41,7 +41,8 @@ end $$;
 reset role;
 update public.matches set started_at=now()-interval '91 days'
  where id=(select match_id from pg_temp.calendar_fixture);
-update public.parliament_bills set closes_at=now()-interval '1 minute'
+update public.parliament_bills set created_at=now()-interval '2 days',
+  closes_at=now()-interval '1 minute'
  where id=(select bill_id from pg_temp.calendar_fixture);
 
 do $$
