@@ -8,7 +8,7 @@ const entry = (title, url, date = 'Fri, 23 Oct 2026 15:00:00 GMT') =>
 const rss = (...items) => '<?xml version="1.0"?><rss version="2.0"><channel>' + items.join('') + '</channel></rss>'
 
 test('only catalogued, exact, HTTPS RSS sources can be queried', () => {
-  assert.equal(Object.keys(FEEDS).length, 4)
+  assert.equal(Object.keys(FEEDS).length, 6)
   for (const feed of Object.values(FEEDS)) assert.ok(feed.url.startsWith('https://'))
   assert.deepEqual(parseRss(rss(entry('Current policy news', 'https://www.theguardian.com/politics/news')), 'fake-feed', now), [])
 })
