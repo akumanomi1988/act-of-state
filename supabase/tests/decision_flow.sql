@@ -36,12 +36,26 @@ insert into public.dossier_options
  (dossier_id,dossier_version,id,title,description,treasury_delta_m_eur,
   policy_target,response_intensity,trust_base_delta)
 values('published-monday-brief',1,'hold','Hold','No action',0,50,0,0);
+-- A second fictional dossier exercises cumulative decisions and insufficient funds.
+insert into public.dossiers(id,version,title,context,category,release_kind)
+values('sequence-stress',1,'Cumulative policy stress','Rollback-only fixture',
+ 'Economy','intro');
+insert into public.dossier_options
+ (dossier_id,dossier_version,id,title,description,treasury_delta_m_eur,
+  policy_target,response_intensity,trust_base_delta)
+values
+ ('sequence-stress',1,'over-budget','Unaffordable policy','Must fail atomically',
+  -12000,50,0,0),
+ ('sequence-stress',1,'moderate-investment','Moderate policy','Second valid transition',
+  -300,50,40,1);
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000001',true);
 do $$
 declare g public.governments%rowtype; g2 public.governments%rowtype;
  ev public.decision_events%rowtype; ev2 public.decision_events%rowtype;
  funds integer; caught boolean;
+ seq_event public.decision_events%rowtype; seq_retry public.decision_events%rowtype;
+ cohort_before_failure jsonb; world_snapshot jsonb;
 begin
  g:=public.start_government();
  g2:=public.start_government();
@@ -108,6 +122,51 @@ begin
  if (select count(*) from public.decision_events where government_id=g.id)<>1
     or (select treasury_m_eur from public.governments where id=g.id)<>funds-1400 then
   raise exception 'VERSION_REPLAY_MUTATED_STATE'; end if;
+ -- A failed expensive decision must leave government, cohorts and history intact.
+ select jsonb_agg(to_jsonb(c) order by c.code) into cohort_before_failure
+ from public.population_cohorts c where c.government_id=g.id;
+ caught:=false;
+ begin
+  perform public.submit_decision(g.id,'sequence-stress',1,'over-budget');
+ exception when sqlstate 'P0001' then
+  caught := sqlerrm='INSUFFICIENT_TREASURY';
+ end;
+ if not caught then raise exception 'INSUFFICIENT_TREASURY_NOT_REJECTED'; end if;
+ if (select treasury_m_eur from public.governments where id=g.id)<>10600
+  or (select approval from public.governments where id=g.id)<>62
+  or (select trust from public.governments where id=g.id)<>58
+  or (select count(*) from public.decision_events where government_id=g.id)<>1 then
+  raise exception 'INSUFFICIENT_TREASURY_CHANGED_NATIONAL_STATE';
+ end if;
+ if (select jsonb_agg(to_jsonb(c) order by c.code)
+     from public.population_cohorts c where c.government_id=g.id)
+    <>cohort_before_failure then
+  raise exception 'INSUFFICIENT_TREASURY_CHANGED_COHORTS';
+ end if;
+ -- A different dossier must compound its effects on the first decision.
+ seq_event:=public.submit_decision(g.id,'sequence-stress',1,'moderate-investment');
+ if seq_event.state_before<>ev.state_after or
+    (seq_event.state_after->>'treasury_m_eur')::int<>10300 or
+    (seq_event.state_after->>'approval')::int<>72 or
+    (seq_event.state_after->>'trust')::int<>64 then
+  raise exception 'CUMULATIVE_DECISION_STATE_DRIFT';
+ end if;
+ if (seq_event.cohort_effects->0->>'support_after')::int<>78 or
+    (seq_event.cohort_effects->0->>'trust_after')::int<>67 or
+    (seq_event.cohort_effects->1->>'support_after')::int<>60 or
+    (seq_event.cohort_effects->1->>'trust_after')::int<>58 then
+  raise exception 'CUMULATIVE_COHORT_RESPONSE_DRIFT';
+ end if;
+ seq_retry:=public.submit_decision(g.id,'sequence-stress',1,'moderate-investment');
+ if seq_retry.id<>seq_event.id or
+    (select count(*) from public.decision_events where government_id=g.id)<>2 then
+  raise exception 'CUMULATIVE_DECISION_RETRY_DUPLICATED';
+ end if;
+ world_snapshot:=public.get_government_world(g.id);
+ if jsonb_array_length(world_snapshot->'events')<>2 or
+    (world_snapshot->'government'->>'treasury_m_eur')::int<>10300 then
+  raise exception 'CUMULATIVE_HISTORY_SNAPSHOT_DRIFT';
+ end if;
  caught:=false;
  begin
   update public.governments set treasury_m_eur=99999 where id=g.id;

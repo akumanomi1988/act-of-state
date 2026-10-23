@@ -6,7 +6,10 @@ import { describe, it } from 'node:test';
 const options = Object.freeze({
   'household-support': { treasuryDelta: -1400, policyTarget: 25, responseIntensity: 35, trustBaseDelta: 2 },
   'industry-investment': { treasuryDelta: -850, policyTarget: 75, responseIntensity: 35, trustBaseDelta: 0 },
-  'fiscal-restraint': { treasuryDelta: 200, policyTarget: 50, responseIntensity: 20, trustBaseDelta: -2 }
+  'fiscal-restraint': { treasuryDelta: 200, policyTarget: 50, responseIntensity: 20, trustBaseDelta: -2 },
+  // Rollback-only editorial fixtures shared with the SQL integration test.
+  'moderate-investment': { treasuryDelta: -300, policyTarget: 50, responseIntensity: 40, trustBaseDelta: 1 },
+  'over-budget': { treasuryDelta: -12000, policyTarget: 50, responseIntensity: 0, trustBaseDelta: 0 }
 });
 const cohorts = Object.freeze([
   { code: 'households', weight: 65, idealPolicy: 25, support: 50, trust: 50 },
@@ -16,10 +19,17 @@ const clamp = (x) => Math.max(0, Math.min(100, x));
 // PostgreSQL round(numeric) breaks ties away from zero, unlike JS Math.round(-0.5).
 const pgRound = (value) => value >= 0 ? Math.floor(value + 0.5) : Math.ceil(value - 0.5);
 
-function referenceOutcome(optionName) {
+function referenceOutcome(optionName, previous = null) {
   const option = options[optionName];
   if (!option) throw new Error('INVALID_OPTION');
-  const changes = cohorts.map(cohort => {
+  const treasury = (previous?.treasury ?? 12000) + option.treasuryDelta;
+  if (treasury < 0) throw new Error('INSUFFICIENT_TREASURY');
+  const currentCohorts = previous ? cohorts.map(cohort => {
+    const prior = previous.changes.find(change => change.code === cohort.code);
+    if (!prior) throw new Error('POPULATION_NOT_INITIALIZED');
+    return { ...cohort, support: prior.support, trust: prior.trust };
+  }) : cohorts;
+  const changes = currentCohorts.map(cohort => {
     const affinity = 50 - Math.abs(cohort.idealPolicy - option.policyTarget);
     return {
       code: cohort.code,
@@ -30,7 +40,7 @@ function referenceOutcome(optionName) {
   });
   const population = changes.reduce((sum, cohort) => sum + cohort.weight, 0);
   return {
-    treasury: 12000 + option.treasuryDelta,
+    treasury,
     approval: pgRound(changes.reduce((sum, cohort) => sum + cohort.weight * cohort.support, 0) / population),
     trust: pgRound(changes.reduce((sum, cohort) => sum + cohort.weight * cohort.trust, 0) / population),
     changes
@@ -68,4 +78,20 @@ describe('weighted-cohorts-v1 specification oracle (offline)', () => {
   it('rejects invalid options without applying effects', () => {
     assert.throws(() => referenceOutcome('not-an-option'), /INVALID_OPTION/);
   });
+  it('compounds two distinct dossier choices over the same population', () => {
+    const first = referenceOutcome('household-support');
+    const second = referenceOutcome('moderate-investment', first);
+    assert.deepEqual([second.treasury, second.approval, second.trust], [10300, 72, 64]);
+    assert.deepEqual(second.changes, [
+      { code: 'households', weight: 65, support: 78, trust: 67 },
+      { code: 'industry', weight: 35, support: 60, trust: 58 }
+    ]);
+  });
+  it('rejects unaffordable policy without mutating the preceding outcome', () => {
+    const first = referenceOutcome('household-support');
+    const before = structuredClone(first);
+    assert.throws(() => referenceOutcome('over-budget', first), /INSUFFICIENT_TREASURY/);
+    assert.deepEqual(first, before);
+  });
+
 });
