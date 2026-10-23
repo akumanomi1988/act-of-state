@@ -73,7 +73,7 @@ describe('editorial workbench', () => {
 
   it('saves edited data through the persistent revisioned API', async () => {
     mocks.fetchEditorialRole.mockResolvedValue('editor')
-    mocks.saveEditorialWeek.mockImplementation(async (target: string, revision: number,
+    mocks.saveEditorialWeek.mockImplementation(async (_target: string, revision: number,
       dossiers: EditorialDossier[]) => snapshot(dossiers, revision + 1))
     render(<EditorialApp />)
     await screen.findByText('Ficha de decisión')
