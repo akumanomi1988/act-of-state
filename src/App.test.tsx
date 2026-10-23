@@ -53,6 +53,8 @@ const event: DecisionEvent = {
 }
 const initial: GovernmentWorld = {
   government, gameDay: '2026-10-23',
+  calendar: { weekStart: '2026-10-19', friday: '2026-10-23', dayOfWeek: 5,
+    fridayReached: true, weeklyTotal: 0, weeklyResolved: 0, weeklyTreasuryDeltaM: 0 },
   dossiers: [{ id: 'energy-resilience', version: 1, title: 'Plan de resiliencia energética',
     context: 'Escenario ficticio de energía', category: 'Economía', release_kind: 'intro',
     available_from: null, available_until: null }],
@@ -373,6 +375,43 @@ describe('browser decision flow with controlled Supabase adapter', () => {
     expect(mocks.fetchWorld).toHaveBeenCalledTimes(3)
     expect(screen.getByText(/Plan de resiliencia energética · 2026-10-23/)).toBeInTheDocument()
     expect(screen.getByText(/Plan de seguridad hídrica · 2026-10-23/)).toBeInTheDocument()
+  })
+
+  it('renders the server weekly milestone and cited editorial dossier without inventing results', async () => {
+    const weekly: GovernmentWorld['dossiers'][number] = {
+      id: 'weekly-test-1', version: 1, title: 'Expediente semanal de prueba',
+      context: 'Contexto editorial de prueba', category: 'Instituciones',
+      release_kind: 'weekly', available_from: '2026-10-19', available_until: null,
+      source_url: 'https://example.invalid/weekly-fixture-1',
+      source_title: 'Fuente editorial de prueba',
+      source_published_at: '2026-10-20T00:00:00Z'
+    }
+    const weeklyOption: GovernmentWorld['options'][number] = {
+      dossier_id: weekly.id, dossier_version: 1, id: 'act',
+      title: 'Actuar', description: 'Opción editorial de prueba',
+      treasury_delta_m_eur: -100, policy_target: 50,
+      response_intensity: 10, trust_base_delta: 0
+    }
+    mocks.fetchWorld.mockResolvedValue({
+      ...initial,
+      calendar: { ...initial.calendar, weeklyTotal: 1 },
+      dossiers: [...initial.dossiers, weekly],
+      options: [...initial.options, weeklyOption]
+    })
+    render(<App />)
+    await screen.findByRole('button', { name: /Expediente semanal de prueba/ })
+    const calendar = screen.getByRole('region', { name: 'Ciclo político semanal' })
+    expect(calendar).toHaveTextContent('2026-10-19')
+    expect(calendar).toHaveTextContent('2026-10-23')
+    expect(calendar).toHaveTextContent('0 / 1')
+    expect(calendar).toHaveTextContent('Hito del viernes alcanzado')
+    expect(screen.getByRole('progressbar', { name: 'Expedientes semanales resueltos' }))
+      .toHaveAttribute('aria-valuemax', '1')
+    fireEvent.click(screen.getByRole('button', { name: /Expediente semanal de prueba/ }))
+    expect(screen.getByRole('link', { name: /Fuente editorial de prueba/ }))
+      .toHaveAttribute('href', 'https://example.invalid/weekly-fixture-1')
+    expect(screen.queryByText(/ESCENARIO FICTICIO, NO NOTICIA ACTUAL/)).not.toBeInTheDocument()
+    expect(mocks.submitDecision).not.toHaveBeenCalled()
   })
 
 })

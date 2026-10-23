@@ -51,7 +51,7 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f supabase/tests/access_contract.sql
       - name: Run transactional game integration suites
         run: |
-          for suite in decision_flow world_snapshot historical_decision; do
+          for suite in decision_flow world_snapshot historical_decision weekly_release; do
             psql -v ON_ERROR_STOP=1 -f "supabase/tests/$suite.sql"
           done
       - name: Confirm rollback left no synthetic game state

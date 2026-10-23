@@ -3,6 +3,7 @@
 -- It preserves the database role/JWT context that game SQL functions use.
 create role anon nologin;
 create role authenticated nologin;
+create role service_role nologin;
 
 create schema auth;
 create table auth.users (

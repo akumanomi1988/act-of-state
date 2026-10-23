@@ -34,6 +34,11 @@ export async function fetchWorld(governmentId: string): Promise<GovernmentWorld>
   if (
     snapshot.government?.id !== governmentId ||
     typeof snapshot.gameDay !== 'string' ||
+    typeof snapshot.calendar?.weekStart !== 'string' ||
+    typeof snapshot.calendar?.friday !== 'string' ||
+    typeof snapshot.calendar?.weeklyTotal !== 'number' ||
+    typeof snapshot.calendar?.weeklyResolved !== 'number' ||
+    typeof snapshot.calendar?.weeklyTreasuryDeltaM !== 'number' ||
     !Array.isArray(snapshot.dossiers) ||
     !Array.isArray(snapshot.options) ||
     !Array.isArray(snapshot.cohorts) ||
