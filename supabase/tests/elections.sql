@@ -91,11 +91,12 @@ begin
     '30000000-0000-4000-8000-000000000002'::uuid or
     e.incumbent_user_id<>'30000000-0000-4000-8000-000000000001'::uuid then
    raise exception 'PEACEFUL_TRANSFER_INCORRECT'; end if;
- select * into m from public.matches where id=f.match_id;
- if m.host_user_id<>e.winner_user_id then raise exception 'GOVERNMENT_NOT_TRANSFERRED'; end if;
- if (select sum(mandate_seats) from public.match_players where match_id=f.match_id)<>100 then
+ if (public.get_match_world(f.match_id)->'match'->>'host_user_id')::uuid<>e.winner_user_id then
+   raise exception 'GOVERNMENT_NOT_TRANSFERRED'; end if;
+ if (select sum((p->>'mandate_seats')::integer)
+     from jsonb_array_elements(public.get_match_world(f.match_id)->'players') p)<>100 then
    raise exception 'PERSISTED_MANDATES_NOT_100'; end if;
- if (select count(*) from public.match_elections where match_id=f.match_id)<>1 then
+ if jsonb_array_length(public.get_election_state(f.match_id)->'history')<>1 then
    raise exception 'ELECTION_NOT_EXACTLY_ONCE'; end if;
  denied:=false;
  begin perform public.certify_match_election(f.match_id);
@@ -130,8 +131,9 @@ begin
    raise exception 'ELECTION_ACT_NOT_VISIBLE'; end if;
  if (state->'history'->0->>'model_version')<>'electoral-cohorts-v1' then
    raise exception 'ELECTION_MODEL_VERSION_MISSING'; end if;
- select mandate_seats into my_seats from public.match_players
-   where match_id=f.match_id and user_id=auth.uid();
+ select (p->>'mandate_seats')::integer into my_seats
+   from jsonb_array_elements(public.get_match_world(f.match_id)->'players') p
+   where (p->>'user_id')::uuid=auth.uid();
  if my_seats<=50 then raise exception 'TEST_WINNER_NO_MAJORITY'; end if;
  b:=public.propose_parliament_bill(
    f.match_id,'energy-resilience',1,'household-support');
@@ -140,8 +142,9 @@ begin
  e:=public.submit_decision(f.government_id,'energy-resilience',1,'household-support');
  if (e.state_after->>'treasury_m_eur')::integer<>10600 then
    raise exception 'ELECTED_CABINET_DECISION_FAILED'; end if;
- if (select seat_weight from public.parliament_votes
-     where bill_id=b.id and user_id=auth.uid())<>my_seats then
+ if (select (v->>'seat_weight')::integer
+     from jsonb_array_elements(public.get_parliament_state(f.match_id)->'votes') v
+     where (v->>'bill_id')::uuid=b.id and (v->>'user_id')::uuid=auth.uid())<>my_seats then
    raise exception 'PARLIAMENT_VOTE_WEIGHT_NOT_SNAPSHOTTED'; end if;
 end $$;
 
