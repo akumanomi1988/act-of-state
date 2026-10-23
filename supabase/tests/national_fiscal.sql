@@ -8,7 +8,7 @@ select ('70000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,
   now(),now(),now()
 from generate_series(1,3) n;
 create temporary table fiscal_fixture (gov_id uuid, other_id uuid);
-grant select,insert on pg_temp.fiscal_fixture to authenticated;
+grant select,insert,update on pg_temp.fiscal_fixture to authenticated;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','70000000-0000-4000-8000-000000000001',true);
 do $$
