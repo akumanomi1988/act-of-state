@@ -26,6 +26,8 @@ vi.mock('./lib/multiplayer', () => ({
   matchError: (error: unknown) => error instanceof Error ? error.message : String(error)
 }))
 
+vi.mock('./ElectionPanel', () => ({ default: () => <div>Electoral mandate test fixture</div> }))
+
 vi.mock('./ParliamentPanel', async () => {
   const { useEffect } = await import('react')
   return { default: ({ onMandateChange }: {
@@ -51,6 +53,7 @@ function world(status: 'lobby' | 'active', count: number, owner = hostId, decide
     match_id: matchId, user_id: i === 0 ? hostId : i === 1 ? guestId :
       '00000000-0000-4000-8000-' + String(i + 1).padStart(12, '0'),
     seat_no: i + 1, party_name: 'Party ' + (i + 1),
+    manifesto_policy: 50, mandate_seats: 10,
     joined_at: '2026-10-23T00:00:00Z'
   }))
   return {
