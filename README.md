@@ -14,8 +14,8 @@ The React/TypeScript frontend uses Supabase Auth and displays only state returne
 
 Requires Node.js 22, npm, and a **separate** Supabase project reserved for ACT OF STATE.
 
-1. Clone this repository and run \`npm install\`.
-2. The dedicated Akumanomi ACT OF STATE project already has all three migrations applied. For a **new empty** isolated project, apply the three versioned files under \`supabase/migrations/\` in order using the approved migration workflow. Do **not** apply them again to this project, Anvil Fitness, Moncloa-AI, or production databases of other products.
+1. Clone this repository and run \`npm ci\` (uses the committed integrity-checked lockfile).
+2. The dedicated Akumanomi ACT OF STATE project already has all five migrations applied. For a **new empty** isolated project, apply the five versioned files under \`supabase/migrations/\` in order using the approved migration workflow. Do **not** apply them again to this project, Anvil Fitness, Moncloa-AI, or production databases of other products.
 3. Enable Supabase Auth email magic-link sign in and configure the permitted redirect URL for this frontend origin.
 4. Copy \`.env.example\` to \`.env.local\`; set \`VITE_SUPABASE_URL\` and \`VITE_SUPABASE_PUBLISHABLE_KEY\` from the dedicated project. These are browser-safe public values, never a service-role/secret key.
 5. Run \`npm run dev\` and open the shown local URL.
