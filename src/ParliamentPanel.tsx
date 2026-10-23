@@ -32,7 +32,6 @@ export default function ParliamentPanel({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
-  const [revision, setRevision] = useState(0)
 
   useEffect(() => {
     let alive = true
@@ -55,7 +54,7 @@ export default function ParliamentPanel({
     void refresh()
     const interval = window.setInterval(() => { void refresh() }, 15000)
     return () => { alive = false; window.clearInterval(interval) }
-  }, [matchId, dossierId, userId, revision, onMandateChange])
+  }, [matchId, dossierId, userId, onMandateChange])
 
   const relevant = useMemo(() => state?.bills.filter(b =>
     b.dossier_id === dossierId) ?? [], [state, dossierId])
