@@ -8,7 +8,7 @@ Free-to-play, browser-based, persistent political simulation. This codebase is i
 
 The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events, ten-party shared-nation matches and a deterministic, server-authoritative simulation engine.
 
-**Deployment status:** frontend not deployed. The dedicated Akumanomi Supabase project `Act-of-state` (`nwlxkqwbusrrldveijzb`, eu-central-1) now hosts the migrated schema. SQL integration assertions, including a synthetic ten-identity match, were executed in rolled-back transactions; browser E2E and real email authentication remain unverified. Never connect this application to Anvil Fitness.
+**Deployment status:** frontend deployed at https://act-of-state.vercel.app/; authenticated ten-browser end-to-end play remains unverified. The dedicated Akumanomi Supabase project `Act-of-state` (`nwlxkqwbusrrldveijzb`, eu-central-1) now hosts the migrated schema. SQL integration assertions, including a synthetic ten-identity match, were executed in rolled-back transactions; browser E2E and real email authentication remain unverified. Never connect this application to Anvil Fitness.
 
 ## Set up
 
@@ -36,13 +36,13 @@ GitHub Actions quality CI runs on pull requests to `main` or manually. A separat
 
 ## Ten-party shared-nation multiplayer
 
-Open `/multiplayer` after configuring Supabase Auth's magic-link redirect for that origin. One authenticated account hosts a match, receiving a 32-character invite code and government seat 1. Up to nine different authenticated accounts join with unique party names. The host starts the match when at least two parties have joined; the ten seats remain visible to all members. Each member can record a single immutable dossier stance with a deterministic `policy-affinity-v1` cohort score. This is **policy affinity, not an election forecast or vote share**. The host alone can execute the national government's authoritative decision; every member reads the same persisted state, outcome, and history. The shared world refreshes every 15 seconds and on demand.
+Open `/multiplayer` after configuring Supabase Auth's magic-link redirect for that origin. One authenticated account hosts a match, receiving a 32-character invite code and government seat 1. Up to nine different authenticated accounts join with unique party names. The host starts the match when at least two parties have joined; the ten seats remain visible to all members. Each member can record a single immutable dossier stance with a deterministic `policy-affinity-v1` cohort score. This is **policy affinity, not an election forecast or vote share**. The government proposes one dossier option to Parliament. Every seated party casts one immutable yes/no/abstain ballot. A six-of-ten absolute majority approves immediately; otherwise, after all ballots or a 24-hour deadline, quorum of at least five and more yes than no are required. A rejected measure may be replaced. Only an approved option can be signed by the host: a database trigger rejects any attempt to bypass the parliamentary mandate, including direct calls to the original decision RPC. Every member reads the same persisted votes, result, national state and history. The shared world refreshes every 15 seconds and on demand.
 
-All match mutations/readbacks go through authenticated PostgreSQL RPCs. The private match tables have RLS and no direct browser Data API table grants. A match is bound to one host-owned government; in this foundation each account can host only one government and therefore one match. There is no matchmaking, live push transport, campaigning, parliamentary vote, negotiation, AI-controlled party, or automated electoral outcome yet.
+All match mutations/readbacks go through authenticated PostgreSQL RPCs. The private match tables have RLS and no direct browser Data API table grants. A match is bound to one host-owned government; in this foundation each account can host only one government and therefore one match. There is no matchmaking, live push transport, campaigning, negotiation, AI-controlled party, or automated electoral outcome yet.
 
 ### Honest ten-user test gate
 
-The `supabase/tests/multiplayer_ten_party.sql` rollback-only suite creates ten synthetic Auth identities and verifies create/join/start, ten-seat cap, eleventh-user rejection, outsider denial, duplicate retries, stance affinity, host-only national decision, and the shared post-decision national state. CI also checks RLS and RPC grants. **This is an integration simulation, not ten human browsers online.**
+The `supabase/tests/multiplayer_ten_party.sql` rollback-only suite creates ten synthetic Auth identities and verifies create/join/start, ten-seat cap, eleventh-user rejection, outsider denial, duplicate retries, stance affinity, binding ten-party ballots, prohibited cabinet bypass, host-only execution after approval, and the shared post-decision national state. CI also checks RLS and RPC grants. **This is an integration simulation, not ten human browsers online.**
 
 To accept real ten-user play, provision ten distinct authorized test email accounts, allow the preview domain as an Auth redirect, open ten independent browser sessions, join by code, exercise both host and opposition actions, reload, and confirm identical persisted national data with no cross-match leakage. Run this against the dedicated ACT OF STATE DEV/preview environment only. Until this succeeds, multiplayer is `PARTIAL`.
 
@@ -148,3 +148,11 @@ Configure the frontend origin and \`<origin>/editorial\` as permitted Supabase A
 There is no live news, no seeded staff user, no deployment and no authenticated browser E2E claim. The next gate is an authorized preview environment plus real email/role verification across a clean user session.
 
 Migration `aos_016` indexes the three Auth-user foreign keys on the editorial audit rows. Supabase performance advisors were rechecked after this change.
+
+## Parliamentary legislation macroincrement (AOS-019)
+
+Migration `20261023150000_aos_019_parliamentary_mandate.sql` adds persistent bills and immutable per-party votes. A host-only proposal creates a 24-hour ballot; match members vote via authenticated RPCs. The tally is serialized under a PostgreSQL row lock, and a mandatory `decision_events` trigger prevents the government from signing a non-approved option in an active match. Reads and mutations require membership; bills and votes have RLS and no direct browser table grants. Rejected legislation may be reproposed, while approved legislation cannot be replaced.
+
+The `/multiplayer` screen now renders the proposal, counts, deadline, recorded vote, result and signing authorization. Browser state is refreshed from the server after every mutation and every 15 seconds. The PostgreSQL integration suite exercises ten identities, outsider denial, immutable retries, proposal replay, rejection/reproposal and decision atomicity; its concurrent runner first passes a bill and then races ten identical cabinet decisions. These tests do not substitute for ten real authenticated browsers.
+
+**Still outside MVP acceptance:** real ten-user browser playtest, full electoral simulation and campaigning, real-news ingestion/editorial operation, Friday settlement/daily economic ticks and visual/accessibility sign-off. The game must not be described as feature-complete until those gates pass.
