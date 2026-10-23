@@ -229,3 +229,21 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 .news-discovery-list strong,.news-discovery-list small,.news-discovery-list a{display:block;line-height:1.5}
 .news-discovery-list strong{font-size:13px}.news-discovery-list small{font-size:11px;color:var(--muted);margin:5px 0}
 .news-discovery-list a{font-size:12px}
+
+
+/* AOS-025: constructive confidence and opt-in cabinet coalitions. */
+.governance-panel{display:grid;gap:15px}
+.governance-panel h4{font:500 23px 'IBM Plex Serif',Georgia,serif;margin:0 0 10px}
+.governance-mandates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.governance-mandates>div{border:1px solid var(--line);background:var(--panel2);padding:15px;min-width:0}
+.governance-mandates span,.governance-mandates strong{display:block;overflow-wrap:anywhere}
+.governance-mandates span{font:500 10px 'IBM Plex Mono',monospace;color:var(--muted);margin-bottom:10px}
+.governance-mandates strong{font:500 17px 'IBM Plex Serif',Georgia,serif}
+.governance-form{display:flex;align-items:end;flex-wrap:wrap;gap:12px}
+.governance-form label{flex:1;min-width:210px;display:grid;gap:10px;font-size:12px}
+.governance-form select{min-height:45px;width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);padding:10px}
+.governance-form button,.governance-invitation button,.governance-confidence button{padding:12px 14px;min-height:44px}
+.governance-invitation{border:1px solid var(--gold);padding:15px}
+.governance-confidence{margin-top:6px;border-top:1px solid var(--line);padding-top:19px}
+.governance-confidence p{line-height:1.6}
+@media(max-width:750px){.governance-mandates{grid-template-columns:1fr}}
