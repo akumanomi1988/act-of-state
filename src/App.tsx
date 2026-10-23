@@ -25,6 +25,7 @@ export default function App() {
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [optionId, setOptionId] = useState('')
+  const [reviewingDecision, setReviewingDecision] = useState(false)
   const [pending, setPending] = useState(false)
   const [needsReconciliation, setNeedsReconciliation] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -66,6 +67,7 @@ export default function App() {
     setSelectedKey(null)
     setSelectedEventId(null)
     setOptionId('')
+    setReviewingDecision(false)
     setNeedsReconciliation(false)
     setLoading(true)
     setError('')
@@ -96,6 +98,8 @@ export default function App() {
     ? world.options.filter(o => o.dossier_id === dossier.id && o.dossier_version === dossier.version)
     : []), [world, dossier])
 
+  const selectedOption = options.find(option => option.id === optionId) ?? null
+
   const decision = useMemo(() => world?.events.find(e =>
     e.dossier_id === dossier?.id) ?? null, [world, dossier])
   const historicalEvent = useMemo(() => world?.events.find(e =>
@@ -121,7 +125,7 @@ export default function App() {
   }
 
   async function onDecision() {
-    if (!world || !dossier || !optionId || !user || pending || decision || needsReconciliation) return
+    if (!world || !dossier || !selectedOption || !reviewingDecision || !user || pending || decision || needsReconciliation) return
     const ownerId = user.id
     setPending(true)
     setError('')
@@ -143,6 +147,7 @@ export default function App() {
       const recorded = persisted.events.find(event => event.dossier_id === dossier.id)
       if (recorded) {
         setOptionId('')
+        setReviewingDecision(false)
         setNeedsReconciliation(false)
         if (recorded.option_id !== optionId || recorded.dossier_version !== dossier.version) {
           setError('Este expediente ya se resolvió con otra opción.')
@@ -177,6 +182,7 @@ export default function App() {
       if (persisted.government.owner_id !== ownerId) throw new Error('El estado nacional no pertenece a la sesión actual.')
       setWorld(persisted)
       setOptionId('')
+      setReviewingDecision(false)
       setNeedsReconciliation(false)
     } catch (reason) {
       if (authenticatedOwnerRef.current === ownerId) {
@@ -194,7 +200,7 @@ export default function App() {
     try {
       const { error: signOutError } = await client.auth.signOut()
       if (signOutError) setError(friendlyError(signOutError))
-      else { acceptUser(null); setWorld(null); setMailSent(false); setNeedsReconciliation(false) }
+      else { acceptUser(null); setWorld(null); setMailSent(false); setReviewingDecision(false); setNeedsReconciliation(false) }
     } catch (reason) {
       setError(friendlyError(reason))
     } finally {
@@ -206,11 +212,13 @@ export default function App() {
     setSelectedKey(dossierKey(d))
     setSelectedEventId(null)
     setOptionId('')
+    setReviewingDecision(false)
     setError('')
   }
 
   function selectHistory(eventId: string) {
     setSelectedEventId(eventId)
+    setReviewingDecision(false)
     setError('')
   }
 
@@ -324,15 +332,40 @@ export default function App() {
                       {options.map((option: DossierOption) => (
                         <label className={'choice-card ' + (optionId === option.id ? 'checked' : '')} key={option.id}>
                           <input type="radio" name="policy" value={option.id} checked={optionId === option.id}
-                            onChange={() => setOptionId(option.id)} />
+                            onChange={() => { setOptionId(option.id); setReviewingDecision(false) }} />
                           <span className="choice-body"><strong>{option.title}</strong><small>{option.description}</small></span>
                           <span className="choice-arrow" aria-hidden="true">↗</span>
                         </label>
                       ))}
-                      <button className="primary-button decide" type="button" disabled={!optionId || pending || needsReconciliation} onClick={() => void onDecision()}>
-                        {pending ? 'Registrando decisión…' : 'Firmar y ejecutar decisión'}
-                      </button>
-                      <p className="muted fine">La resolución es vinculante y no puede modificarse después de su registro.</p>
+                      <button className="primary-button decide" type="button"
+                        disabled={!selectedOption || pending || needsReconciliation}
+                        onClick={() => setReviewingDecision(true)}>Revisar decisión</button>
+                      {reviewingDecision && selectedOption && (
+                        <section className="decision-review" aria-labelledby="decision-review-title" data-testid="decision-review">
+                          <div className="eyebrow">REVISIÓN DEL DECRETO · EXPEDIENTE {dossier.version.toString().padStart(2, '0')}</div>
+                          <h3 id="decision-review-title">Antes de firmar</h3>
+                          <p className="review-intro">Comprueba la medida y su compromiso fiscal. La firma es definitiva.</p>
+                          <div className="review-facts">
+                            <div><span>MEDIDA SELECCIONADA</span><strong>{selectedOption.title}</strong>
+                              <small>{selectedOption.description}</small></div>
+                            <div><span>VARIACIÓN FISCAL DEL EXPEDIENTE</span>
+                              <strong>{selectedOption.treasury_delta_m_eur > 0 ? '+' : ''}{number(selectedOption.treasury_delta_m_eur)} M€</strong>
+                              <small>Parámetro editorial de la opción, no resultado ejecutado.</small></div>
+                            <div><span>TESORERÍA ACTUAL</span><strong>{number(world.government.treasury_m_eur)} M€</strong>
+                              <small>Estado persistido antes de decidir.</small></div>
+                          </div>
+                          <p className="review-warning">La aprobación, la confianza y la respuesta de la población se calcularán en el servidor tras la firma. No es posible deshacer la decisión.</p>
+                          <div className="review-actions">
+                            <button className="text-button" type="button" disabled={pending || needsReconciliation}
+                              onClick={() => setReviewingDecision(false)}>Volver a elegir</button>
+                            <button className="primary-button" type="button" disabled={pending || needsReconciliation}
+                              onClick={() => void onDecision()}>
+                              {pending ? 'Registrando decisión…' : 'Firmar y ejecutar decisión'}
+                            </button>
+                          </div>
+                        </section>
+                      )}
+                      {!reviewingDecision && <p className="muted fine">La resolución será vinculante después de confirmar la firma.</p>}
                     </fieldset>
                   ) : <div className="fictitious-notice">Este expediente aún no está habilitado.</div>}
                 </>
