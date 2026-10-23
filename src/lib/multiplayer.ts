@@ -18,6 +18,8 @@ export interface MatchPlayer {
   user_id: string
   seat_no: number
   party_name: string
+  manifesto_policy: number
+  mandate_seats: number
   joined_at: string
 }
 
@@ -130,6 +132,12 @@ const messages: Record<string, string> = {
   PARLIAMENT_VOTE_CLOSED: 'La votación ya está cerrada.',
   PARLIAMENT_INVALID_VOTE: 'El voto seleccionado no es válido.',
   PARLIAMENT_INVALID_RESPONSE: 'La respuesta del Parlamento no es válida.',
+  ELECTION_NOT_DUE: 'Aún no ha llegado la fecha de las elecciones.',
+  ELECTION_CAMPAIGN_CLOSED: 'La campaña está cerrada: ya no puedes cambiar el programa.',
+  ELECTION_INVALID_POLICY: 'La posición política debe estar entre 0 y 100.',
+  ELECTION_PARLIAMENT_OPEN: 'Cierra primero las votaciones parlamentarias abiertas.',
+  ELECTION_NO_MANDATE: 'Tu partido no tiene escaños y no puede votar.',
+  ELECTION_INVALID_RESPONSE: 'El estado electoral recibido no es válido.',
   DOSSIER_NOT_AVAILABLE: 'Este expediente todavía no está disponible.',
   INVALID_OPTION: 'La opción seleccionada no existe.'
 }
