@@ -25,6 +25,18 @@ vi.mock('./lib/editorial', async importOriginal => ({
   publishEditorialWeek: mocks.publishEditorialWeek
 }))
 
+vi.mock('./NewsDiscoveryPanel', () => ({
+  default: ({ onPick, disabled }: {
+    onPick: (article: { title: string; url: string; source: string; publishedAt: string }) => void
+    disabled: boolean
+  }) => <button type="button" disabled={disabled} onClick={() => onPick({
+    title: 'Verifiable public news citation',
+    url: 'https://elpais.com/espana/2026-10-23/source',
+    source: 'EL PAÍS · España',
+    publishedAt: '2026-10-23T12:00:00Z'
+  })}>Importar referencia probada</button>
+}))
+
 const user = { id: '10000000-0000-4000-8000-000000000082' }
 const week = nextMondayUtc()
 
@@ -88,6 +100,26 @@ describe('editorial workbench', () => {
     expect(dossiers[0].title).toBe('A binding energy decision')
     expect(await screen.findByText(/Borrador guardado en el servidor/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Revisar publicación' })).not.toBeInTheDocument()
+  })
+
+  it('imports only source metadata into a draft and requires explicit save', async () => {
+    mocks.fetchEditorialRole.mockResolvedValue('editor')
+    mocks.saveEditorialWeek.mockImplementation(async (_target: string, revision: number,
+      dossiers: EditorialDossier[]) => snapshot(dossiers, revision + 1))
+    render(<EditorialApp />)
+    await screen.findByText('Ficha de decisión')
+    fireEvent.click(screen.getByRole('button', { name: 'Importar referencia probada' }))
+    expect(screen.getByRole('textbox', { name: 'Título de la fuente' }))
+      .toHaveValue('Verifiable public news citation')
+    expect(screen.getByRole('textbox', { name: 'Enlace a la fuente' }))
+      .toHaveValue('https://elpais.com/espana/2026-10-23/source')
+    expect(mocks.saveEditorialWeek).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar borrador' }))
+    await waitFor(() => expect(mocks.saveEditorialWeek).toHaveBeenCalledTimes(1))
+    const submitted = mocks.saveEditorialWeek.mock.calls[0][2] as EditorialDossier[]
+    expect(submitted[0].source_published_at).toBe('2026-10-23T12:00:00Z')
+    expect(submitted[0].context).toBe('')
+    expect(submitted[0].options.every(option => option.title === '')).toBe(true)
   })
 
   it('blocks publication until all ten dossiers pass validation', async () => {

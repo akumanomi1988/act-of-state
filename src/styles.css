@@ -215,3 +215,17 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 .election-result li{padding:3px 0}
 @media(max-width:900px){.election-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:490px){.election-summary{grid-template-columns:1fr}.election-panel{padding:16px}}
+
+/* AOS-024: editorial real-news discovery remains an opt-in sourcing tool. */
+.news-discovery{border:1px solid var(--line);background:#1c2728;padding:18px;margin:22px 0}
+.news-discovery h4{font:500 21px 'IBM Plex Serif',Georgia,serif;margin:8px 0}
+.news-discovery-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.news-discovery-controls label{display:grid;gap:8px;font-size:12px;flex:1;min-width:210px}
+.news-discovery-controls select{width:100%;min-height:42px;background:#10191a;color:var(--text);border:1px solid var(--line);padding:8px}
+.news-discovery button{background:var(--panel2);border:1px solid var(--gold);color:var(--gold-strong);padding:11px 13px}
+.news-discovery-list{padding:0;list-style:none;margin:15px 0 0;max-height:380px;overflow-y:auto}
+.news-discovery-list li{display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between;border-top:1px solid var(--line);padding:13px 0}
+.news-discovery-list li>div{flex:1;min-width:190px}
+.news-discovery-list strong,.news-discovery-list small,.news-discovery-list a{display:block;line-height:1.5}
+.news-discovery-list strong{font-size:13px}.news-discovery-list small{font-size:11px;color:var(--muted);margin:5px 0}
+.news-discovery-list a{font-size:12px}
