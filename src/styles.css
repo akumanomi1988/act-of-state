@@ -184,3 +184,34 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 .match-feed p{font-size:12px;color:var(--muted);line-height:1.5;margin:0}
 @media(max-width:1160px){.match-layout{grid-template-columns:minmax(250px,32%) minmax(0,1fr)}.match-seats{grid-template-columns:repeat(2,minmax(0,1fr))}.match-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.match-metrics>div:nth-child(2){border-right:0}.match-metrics>div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
 @media(max-width:760px){.match-layout{display:block}.match-sidebar,.match-main{padding:26px 20px}.match-sidebar{border-right:0;border-bottom:1px solid var(--line)}.match-heading{flex-direction:column}.match-seats{grid-template-columns:repeat(2,minmax(0,1fr))}.match-invite{align-items:flex-start;flex-direction:column}.match-dossier{padding:20px}.match-option{padding:12px}.match-entry{padding:55px 22px}}
+
+/* Electoral mandate: accessible, responsive and visually consistent with the assembly. */
+.election-panel{margin:0 0 34px}
+.election-panel h2{margin:8px 0 12px}
+.election-panel>p.muted{max-width:850px;font-size:13px;line-height:1.7}
+.election-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin:22px 0}
+.election-summary>div{min-width:0;background:#202b2c;padding:15px;display:grid;gap:8px}
+.election-summary span{font:500 10px 'IBM Plex Mono',monospace;color:var(--gold)}
+.election-summary strong{font-size:13px;overflow-wrap:anywhere}
+.election-projection{display:grid;gap:9px}
+.election-projection h3{margin:0}
+.election-projection>.muted{font-size:11px;margin:0 0 6px}
+.election-party{border:1px solid var(--line);background:#192325;padding:13px 15px;display:grid;gap:8px}
+.election-party-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap;font-size:12px}
+.election-party-head>span{font-family:'IBM Plex Mono',monospace;color:var(--gold-strong)}
+.election-track{height:7px;background:#3a4645;overflow:hidden}
+.election-track>div{height:100%;background:var(--gold);min-width:0;transition:width .25s ease}
+.election-party small{font-size:10px;color:var(--muted)}
+.election-manifesto,.election-certify,.election-result{margin-top:22px;padding:20px;border:1px solid #5c5849;background:#282d2a}
+.election-manifesto h3,.election-result h3{margin:0 0 8px}
+.election-manifesto>.muted,.election-certify p,.election-result p{font-size:12px;line-height:1.6;color:var(--muted)}
+.election-manifesto label{display:grid;gap:12px;font-size:12px;font-weight:600;margin:16px 0}
+.election-manifesto input{width:100%;accent-color:var(--gold)}
+.election-manifesto button,.election-certify button{padding:12px 18px;background:var(--gold);color:#142022;border:1px solid var(--gold);font-weight:600}
+.election-result{border-color:#658d73;background:#213329}
+.election-result h3{color:#d8ebd9}
+.election-result details{font-size:12px}
+.election-result summary{cursor:pointer;color:var(--gold-strong);padding:8px 0}
+.election-result li{padding:3px 0}
+@media(max-width:900px){.election-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:490px){.election-summary{grid-template-columns:1fr}.election-panel{padding:16px}}

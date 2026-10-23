@@ -3,6 +3,7 @@ import type { User } from '@supabase/supabase-js'
 import { client, friendlyError, submitDecision } from './lib/game'
 import { number } from './lib/format'
 import ParliamentPanel from './ParliamentPanel'
+import ElectionPanel from './ElectionPanel'
 import {
   createMatch, fetchMatchWorld, joinMatch, listMyMatches, matchError,
   recordMatchStance, startMatch, type MatchSummary, type MatchWorld
@@ -323,11 +324,14 @@ export default function MultiplayerApp() {
               return <div className={'match-seat ' + (player ? 'occupied' : '')} key={i}>
                 <span>{String(i + 1).padStart(2, '0')}</span>
                 <strong>{player?.party_name ?? 'Escaño disponible'}</strong>
-                <small>{player?.user_id === world.match.host_user_id ? 'GOBIERNO' :
-                  player ? 'OPOSICIÓN' : 'LIBRE'}</small>
+                <small>{player ? (player.user_id === world.match.host_user_id ? 'GOBIERNO' : 'OPOSICIÓN') +
+                  ' · ' + player.mandate_seats + ' escaños' : 'LIBRE'}</small>
               </div>
             })}
           </div>
+          <ElectionPanel matchId={world.match.id} userId={user!.id}
+            active={world.match.status === 'active'}
+            onElectionCertified={() => setReload(value => value + 1)} />
           {world.match.status === 'lobby' ? <div className="match-waiting">
             <h2>Convocatoria abierta</h2>
             <p>La partida comienza con al menos dos partidos. Las plazas se bloquean cuando el anfitrión la activa.</p>
