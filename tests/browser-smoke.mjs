@@ -217,7 +217,7 @@ try {
     await page.goto(BASE+'/',{waitUntil:'networkidle'})
     await page.getByLabel('Correo electrónico').fill('browser@example.invalid')
     await page.getByRole('button',{name:'Enviar enlace de acceso'}).click()
-    try { await page.getByText(/se ha solicitado el enlace de acceso/).waitFor({timeout:8000}) }
+    try { await page.getByText(/se ha solicitado el enlace de acceso/i).waitFor({timeout:8000}) }
     catch (err) {
       console.error('Browser OTP diagnostics:', JSON.stringify({
         count:state.otpCount,lastOtp:state.lastOtp,
@@ -243,7 +243,7 @@ try {
     await page.getByLabel('Correo electrónico').fill('browser@example.invalid')
     await page.getByRole('button',{name:'Enviar enlace de acceso'}).click()
     await page.getByRole('alert').waitFor()
-    assert.equal(await page.getByText(/se ha solicitado el enlace de acceso/).count(),0)
+    assert.equal(await page.getByText(/se ha solicitado el enlace de acceso/i).count(),0)
     assert.equal(state.otpCount,1)
     await context.close()
   })
