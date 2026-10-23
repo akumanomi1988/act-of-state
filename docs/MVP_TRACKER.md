@@ -14,8 +14,8 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | MVP-F004 | Synthetic households/cohorts | PARTIAL | Two weighted cohorts, deterministic SQL results; broader MVP household model pending |
 | MVP-F005 | National state | PARTIAL | Treasury/approval/trust in DB and UI; other political-social dimensions future |
 | MVP-F006 | Daily/weekly calendar | PARTIAL | AOS-023 adds scheduled settlement of expired ballots, due elections and immutable Friday acts, with member-only shared calendar readout; real-news editorial operation and authenticated live cycle remain untested |
-| MVP-F007 | Elections | PARTIAL | AOS-021 adds deterministic cohort forecast, 100-seat D'Hondt elections, manifesto freeze, immutable acts, incumbent transition and seat-weighted Parliament; server-driven certification added in AOS-023; real-user E2E and richer political systems pending |
-| MVP-F008 | Async multiplayer | PARTIAL | Ten-party shared-nation RPCs/UI; binding parliament AOS-019 and seat-weighted mandates AOS-021; synthetic ten-party electoral tests and concurrency CI cover server contracts; ten real browser accounts untested |
+| MVP-F007 | Elections | PARTIAL | AOS-021 adds deterministic cohort forecast, 100-seat D'Hondt elections, manifesto freeze, immutable acts, incumbent transition and seat-weighted Parliament; server-driven certification added in AOS-023; AOS-025 adds cabinet handover through constructive confidence; real-user E2E and richer political systems pending |
+| MVP-F008 | Async multiplayer | PARTIAL | Ten-party shared-nation RPCs/UI; binding parliament AOS-019 and seat-weighted mandates AOS-021; synthetic ten-party electoral tests and concurrency CI cover server contracts; AOS-025 adds voluntary coalitions and weighted constructive confidence; ten real browser accounts untested |
 | MVP-T001 | Transactional persistence | PARTIAL | SQL atomicity/rollback tested; committed read-after-write not E2E verified |
 | MVP-T002 | Auth, isolation | PARTIAL | Owned SECURITY DEFINER RPC, invoker snapshot RPC, RLS; email login untested |
 | MVP-T003 | Deterministic versioned outcomes | DONE | SQL golden fixtures and 6/6 offline Node oracle pass |
@@ -228,3 +228,14 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - Regression coverage: parser security/date/duplicate tests and source-picker interaction/error tests; integrated into existing quality CI paths.
 - Deployment and testing results belong to the associated PR and Edge deployment checks. Real authorized editor-browser E2E and independently checked political dossiers remain **PARTIAL**, and SMTP exhaustion remains an Auth/operations release blocker.
 - No evidence supports promoting additional 18-point MVP acceptance criteria to DONE without actual live editorial publication and real-browser E2E. Strict completion remains **1/18 = 5.6%** pending those gates. Refer to `docs/NEWS_DISCOVERY_OPERATIONS.md`.
+
+## AOS-025 — Coalition negotiations and constructive confidence (2026-10-23)
+
+- PR #20: one large integrated nation-governance increment (SQL authority, React UI, calendar scheduling, audit, permission and regression coverage).
+- The cabinet leader can invite other elected parties to a coalition. Coalition partners independently accept/decline or leave. Coalition support is calculated from persisted mandate weights; partner acceptance does not transfer unilateral national decision rights. On a government change previous leader-specific agreements are inactive.
+- Parties with positive mandates can initiate one 24h constructive confidence motion per match. All seated parties cast immutable, seat-weighted votes; more than half of total mandates immediately installs the proposed new leader in a row-locked transaction. Full participation or expiry otherwise rejects.
+- The existing Supabase Cron worker now closes expired motions before due national elections; election-act insertion is blocked while a motion remains open. Original Parliamentary mandate and executive owner checks continue to protect national decisions.
+- New server-only tables have RLS and no direct Auth browser table grants. The integration suite uses four synthetic accounts and rolls back every mutation. UI tests verify invitations, responses, votes, handover notifications, and error handling. Existing SQL concurrency and electoral suites remain release gates.
+- Hard acceptance baseline is unchanged: **1/18 fully accepted = 5.6%**. AOS-025 strengthens MVP-F007, F008, T002, T004, T005 and V002 but cannot promote them to DONE without real multi-account Auth browser play and visual/security operations signoff. The user's aspirational 20% milestone (at least 4/18 accepted requirements) is NOT yet verified. Do not count components or passing synthetic tests as three fully accepted requirements.
+- Real-user access is blocked by the free Supabase SMTP quota until the sender/provider configuration is completed. Source code cannot provision a third-party Gmail app password or modify Auth SMTP settings through database SQL. Avoid insecure login bypass.
+- Detailed rules: docs/GOVERNANCE_RULES.md.
