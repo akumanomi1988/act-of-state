@@ -84,3 +84,10 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 - Supabase migration `aos_005_historical_decision_titles` verified with the exact repository SQL test `supabase/tests/historical_decision.sql`; all assertions PASS in rolled-back isolated database transaction. Post-test state: zero governments, decisions and disposable users, 5 RLS-protected game tables, no anonymous decision RPC execution.
 - Supabase security advisor retains 2 authenticated privileged RPC warnings with explicit owner validation. Performance advisor: no findings. See [advisor remediation](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable).
 - Remaining release blockers: `package-lock.json` not committed, no authorized preview frontend hosting (connected Vercel team returned HTTP 403 for project creation), live Auth email redirect/browser E2E and responsive screenshot validation not executed. **AOS-MVP-001 remains PARTIAL; 1/18 globally accepted (MVP-T003).**
+
+## AOS-MVP-001 — Reproducible frontend dependencies (2026-10-23)
+
+- Discovered canonical `main` at `beba3cdbd3e61f54c709b6ea9eb38a040d229f2f`; dedicated Akumanomi Supabase project holds the same five migrations and 5 RLS-protected tables.
+- Local `npm ping` failed `EAI_AGAIN`. An isolated same-repository PR workflow generated and committed `package-lock.json` using `npm install --package-lock-only --ignore-scripts`. The lockfile uses v3 and contains 225 package entries with 224 resolved integrity hashes.
+- Removed the **temporary** privileged bootstrapping workflow before merging. Permanent GitHub Actions quality has `contents:read`, npm caching, PR concurrency cancellation, and reproducible `npm ci` instead of `npm install`.
+- This validates dependency reproducibility, not real logged-in browser play. The browser login/decision/reload test and approved preview host still block full AOS-MVP-001 acceptance; global MVP verified remains 1/18 (T003); P01 percentage UNKNOWN.
