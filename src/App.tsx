@@ -235,6 +235,7 @@ export default function App() {
           <div><div className="wordmark">ACT OF STATE</div><div className="brand-caption">EVERY DECISION SHAPES A NATION.</div></div>
         </div>
         <div className="header-end"><span className="online-dot" aria-hidden="true" /> SIMULACIÓN POLÍTICA PERSISTENTE
+          <a href="/multiplayer" className="text-button">Multijugador</a>
           {user && <button type="button" className="text-button" onClick={() => void signOut()} disabled={pending}>Cerrar sesión</button>}
         </div>
       </header>
