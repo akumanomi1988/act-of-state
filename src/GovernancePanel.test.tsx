@@ -93,7 +93,7 @@ describe('governance panel', () => {
     mocks.fetchGovernanceState.mockRejectedValue(new Error('MATCH_FORBIDDEN'))
     render(<GovernancePanel matchId={matchId} userId={user3}
       players={players} active={true} onGovernmentChanged={vi.fn()} />)
-    expect(await screen.findByRole('alert')).toHaveTextContent('MATCH_FORBIDDEN')
+    expect(await screen.findByRole('alert')).toHaveTextContent('No perteneces a esta partida')
     expect(screen.getByRole('status')).toHaveTextContent('No se pudo recuperar')
     expect(screen.queryByRole('button',{name:'Registrar moción'})).not.toBeInTheDocument()
   })
