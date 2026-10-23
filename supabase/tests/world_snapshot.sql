@@ -18,6 +18,12 @@ begin
   raise exception 'WORLD_OWNER_ID_MISMATCH'; end if;
  if (v->>'gameDay') <> ((now() at time zone 'UTC')::date)::text then
   raise exception 'WORLD_DAY_INCORRECT'; end if;
+ if v->'calendar'->>'weekStart' <> (((now() at time zone 'UTC')::date -
+      (extract(isodow from (now() at time zone 'UTC')::date)::integer-1))::date)::text
+ or (v->'calendar'->>'weeklyTotal')::integer<>0
+ or (v->'calendar'->>'weeklyResolved')::integer<>0
+ or (v->'calendar'->>'weeklyTreasuryDeltaM')::integer<>0 then
+  raise exception 'WORLD_CALENDAR_INITIAL_DRIFT'; end if;
  if jsonb_array_length(v->'cohorts') <> 2
  or jsonb_array_length(v->'dossiers') <> 2
  or jsonb_array_length(v->'options') <> 6
