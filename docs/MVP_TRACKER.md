@@ -184,3 +184,13 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - `src/MultiplayerApp.test.tsx` and PostgreSQL CI gating added. CI results and ten-browser test are tracked separately; no claim of production end-to-end play.
 - Status impact: **MVP-F008 PARTIAL**, stronger evidence for **MVP-F001/F002/F003/F004/F005, T001/T002/T003/T004/T005/T006 and V002/V003**. No new requirement is fully accepted until real Auth/preview/browser verification. Global **1/18 DONE**, P01 percentage **UNKNOWN**, current iteration **PARTIAL**.
 - Explicit next gates: green quality/PostgreSQL CI, real ten-account preview smoke test, authenticated cross-match isolation, concurrent join/retry load, responsive/keyboard screenshots, scheduler and election mechanics. A synthetic ten-identity SQL suite is not an actual multiplayer playtest.
+
+
+## AOS-MVP-001 — Concurrent ten-player integrity gate (2026-10-23)
+
+- Branch `aos/concurrent-ten-player-integrity`, PR #14, based on `main` at `1426e104fd2388ab790a7b3e3ef3d22b426c9dd9`. No schema or production change.
+- `supabase/tests/multiplayer_concurrency.sh` uses distinct PostgreSQL connections with the CI-only Auth role adapter. Eleven accounts race for nine remaining seats: exactly **nine joins succeed** and **two return MATCH_FULL**, with ten unique members and ten distinct seats.
+- The host then issues ten simultaneous, identical calls to the server-authoritative decision RPC. Exactly **one event** survives and treasury changes **once** from 12,000 to 10,600 M€. The disposable fixture is deleted and the zero-residue check includes accounts, governments, matches, players, stances and events.
+- The PostgreSQL CI workflow executes this gate after replaying all 18 migrations and the existing rollback suites. This validates database-level concurrency and transaction ordering, not real simultaneous browsers, user Auth refresh/reconnection, web hosting or load at scale.
+- Preview E2E blocker: the connected Vercel account exposes only the `nexttapstudios` team labeled `Anvil-fitness`, and no ACT OF STATE project. To avoid crossing product ownership and deployment scope, no project was created there. A dedicated authorized Vercel destination or alternative approved preview host is needed before browser E2E.
+- Requirement impact: stronger evidence for **MVP-F008**, **MVP-T001**, **MVP-T002**, **MVP-T004**, **MVP-T005**; statuses remain **PARTIAL** pending real authenticated browser E2E. Global full acceptance remains **1/18**, phase P01 percentage **UNKNOWN**.
