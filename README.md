@@ -83,8 +83,9 @@ Applied migrations (the filenames below match the actual remote migration histor
 - `20261023123541_aos_009_weekly_freeze.sql` — immutable approved dossiers, options and release state.
 - `20261023123543_aos_010_weekly_decision_gate.sql` — transaction-level publication defense.
 - `20261023123545_aos_011_weekly_calendar.sql` — owner-scoped weekly calendar and dashboard snapshot.
+- `20261023123752_aos_012_weekly_integrity_hardening.sql` — editorial approval serialized against concurrent writes and result-derived fiscal readout.
 
-Security advisors show two intentional authenticated `SECURITY DEFINER` RPC warnings: `start_government()` and `submit_decision()`. Both are explicitly granted only to `authenticated`, inspect `auth.uid()`, and restrict to the owning government; `anon` execute is denied. This is a documented least-privilege exception, not a suppressed warning. [Supabase remediation guidance](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable). Performance advisors return no issues.
+Security advisors show two intentional authenticated `SECURITY DEFINER` RPC warnings: `start_government()` and `submit_decision()`. Both are explicitly granted only to `authenticated`, inspect `auth.uid()`, and restrict to the owning government; `anon` execute is denied. This is a documented least-privilege exception, not a suppressed warning. [Supabase remediation guidance](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable). Performance advisors report one informational unused-index finding on the newly empty `weekly_releases` table; reassess after editorial traffic begins.
 
 Observed after weekly DEV deployment: 6 RLS-protected game tables; 2 fictional introductory dossiers; 6 decision options; 0 weekly releases, 0 weekly dossiers, 0 user governments and 0 decision events. The weekly publication pipeline has only been exercised with rollback fixtures.
 
