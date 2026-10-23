@@ -11,7 +11,7 @@ export interface ParliamentBill {
   option_id: string
   proposed_by: string
   status: ParliamentStatus
-  rule_version: 'parliament-majority-v1'
+  rule_version: 'parliament-majority-v1' | 'parliament-mandates-v2'
   created_at: string
   closes_at: string
   closed_at: string | null
