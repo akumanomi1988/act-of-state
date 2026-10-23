@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DecisionEvent, GovernmentWorld } from './lib/types'
 import App from './App'
 
@@ -68,6 +68,8 @@ const decided: GovernmentWorld = {
   cohorts: initial.cohorts.map(cohort => ({ ...cohort, support: 68, trust: 61 }))
 }
 
+afterEach(() => cleanup())
+
 beforeEach(() => {
   vi.clearAllMocks()
   mocks.getUser.mockResolvedValue({ data: { user: { id: government.owner_id } }, error: null })
@@ -107,7 +109,7 @@ describe('browser decision flow with controlled Supabase adapter', () => {
     })
     render(<App />)
     await screen.findByText('No hay expedientes disponibles.')
-    expect(screen.getByText('Proteger a los hogares')).toBeInTheDocument()
+    expect(screen.getAllByText('Proteger a los hogares')).toHaveLength(2)
     expect(screen.getByText(/Plan de resiliencia energética · 2026-10-23/))
       .toBeInTheDocument()
     expect(mocks.submitDecision).not.toHaveBeenCalled()
