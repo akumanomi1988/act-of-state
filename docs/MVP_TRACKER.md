@@ -21,7 +21,7 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | MVP-T003 | Deterministic versioned outcomes | DONE | SQL golden fixtures and 6/6 offline Node oracle pass |
 | MVP-T004 | Safe retries, concurrency | PARTIAL | Row locks & unique index SQL-tested; parallel runtime not load-tested |
 | MVP-T005 | Automated quality | PARTIAL | SQL tests pass and new React adapter tests exist; GitHub Actions TypeScript + Vitest + Vite build PASS; browser E2E pending |
-| MVP-T006 | Operations and deployment | PARTIAL | 4 applied DB migrations; frontend build verified in CI; hosting and package-lock remain pending |
+| MVP-T006 | Operations and deployment | PARTIAL | 5 applied DB migrations; reproducible `npm ci` and frontend build verified in CI; preview hosting pending |
 | MVP-V001 | Approved identity | PARTIAL | Provisional typography/UI palette; final official art assets not verified |
 | MVP-V002 | Core dashboard and dossier | PARTIAL | React UI committed; browser render against real backend not verified |
 | MVP-V003 | Responsive accessibility | PARTIAL | Layout, native controls, labels; audit unexecuted |
@@ -40,15 +40,15 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 
 ## Verification and risk notes
 
-- Supabase reports 4 applied migrations in the dedicated project; public game tables have RLS; security advisor flags two intentional authenticated SECURITY DEFINER RPCs; no performance findings.
+- Supabase reports 5 applied migrations in the dedicated project; public game tables have RLS; security advisor flags two intentional authenticated SECURITY DEFINER RPCs; no performance findings.
 - All SQL fixtures roll back and leave no committed test governments/users. A separate cross-request committed synthetic-user test was blocked by connection safety controls. Do not bypass those controls or claim browser E2E success.
-- Container: `node --test` 6/6 PASS; local `npm ping` EAI_AGAIN. Hosted GitHub Actions verified TypeScript, Vitest (7/7) and Vite production build on 2026-10-23. Lockfile generation, real browser E2E and accessibility screenshots remain unverified.
+- Container: `node --test` 6/6 PASS; local `npm ping` EAI_AGAIN. Hosted GitHub Actions verified `npm ci`, TypeScript, Vitest (7/7) and Vite production build on 2026-10-23. Real browser E2E and accessibility screenshots remain unverified.
 - No dedicated Vercel ACT OF STATE project is linked in the connected account. Deployment to production is not authorized.
 - Current repository has no verified working local Git checkout; only GitHub remote branch SHA, tree, and write result are verifiable.
 
 ## Remaining critical gate for AOS-MVP-001
 
-1. Install dependencies and commit `package-lock.json`; execute `npm run typecheck`, `npm test`, `npm run build`.
+1. Reuse the committed `package-lock.json` and green GitHub Actions gates (`npm ci`, oracle, TypeScript, Vitest, Vite build); repeat on subsequent code changes.
 2. Configure Supabase Auth email-link allowed redirect origin for an authorized test/preview site.
 3. Run true browser E2E: sign in, retrieve world, choose action, inspect result and history, reload, repeat request (idempotence), use another account (RLS).
 4. Review final brand assets, responsive/keyboard QA and release criteria.
@@ -97,3 +97,9 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 On 2026-10-23, [PR #2](https://github.com/akumanomi1988/act-of-state/pull/2) generated an npm v3 lockfile and switched GitHub Actions to `npm ci`, with dependency caching, cancellation of superseded PR checks, and read-only repository permissions. The [final reviewed PR build](https://github.com/akumanomi1988/act-of-state/actions/runs/39915400041) passed npm clean install, 6 deterministic reference tests, TypeScript, 7 Vitest cases, and the Vite production build. The temporary privileged bootstrap workflow was removed prior to merge.
 
 This validates a reproducible browser bundle, **not** a real authenticated game session. A preview host, Supabase redirect configuration, browser sign-in, persisted decision readback after reload, accessibility checks and visual design acceptance remain open.
+
+## AOS-MVP-001 — Archived outcome navigation (2026-10-23)
+
+- Reconciled the five applied Akumanomi migrations and committed npm lockfile against stale earlier tracker entries. Re-ran `supabase/tests/decision_flow.sql`, `world_snapshot.sql` and `historical_decision.sql` in rollback transactions: all returned without SQL errors. Post-test readback: 0 governments, 0 cohorts, 0 decision events and 0 synthetic users; 1 fictional dossier and 3 options preserved.
+- Frontend improvement under review: the history list now opens the full **persisted** decision outcome (treasury, approval, trust and cohort response), even when its dossier is expired and absent from the current catalog. It uses `decision_events` snapshots; no client-side recomputation or extra database write. Added a React regression test for review and back navigation.
+- This enhancement does not satisfy the remaining real authenticated browser E2E gate or final visual acceptance. AOS-MVP-001 stays **PARTIAL**; globally accepted requirements remain **1/18** until those gates are verified.

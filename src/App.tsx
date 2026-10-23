@@ -21,6 +21,7 @@ export default function App() {
   const [mailSent, setMailSent] = useState(false)
   const [world, setWorld] = useState<GovernmentWorld | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [optionId, setOptionId] = useState('')
   const [pending, setPending] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -73,6 +74,8 @@ export default function App() {
 
   const decision = useMemo(() => world?.events.find(e =>
     e.dossier_id === dossier?.id) ?? null, [world, dossier])
+  const historicalEvent = useMemo(() => world?.events.find(e =>
+    e.id === selectedEventId) ?? null, [world, selectedEventId])
 
   async function onLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -126,7 +129,13 @@ export default function App() {
 
   function selectDossier(d: Dossier) {
     setSelectedKey(dossierKey(d))
+    setSelectedEventId(null)
     setOptionId('')
+    setError('')
+  }
+
+  function selectHistory(eventId: string) {
+    setSelectedEventId(eventId)
     setError('')
   }
 
@@ -204,7 +213,16 @@ export default function App() {
               </div>
             </aside>
             <section className="main-panel" aria-label="Expediente político">
-              {dossier ? (
+              {historicalEvent ? (
+                <>
+                  <div className="eyebrow">02 / ARCHIVO DE DECISIONES · {historicalEvent.decided_on}</div>
+                  <h2>{historicalEvent.dossier_title_snapshot}</h2>
+                  <button type="button" className="text-button archive-back"
+                    onClick={() => setSelectedEventId(null)}>Volver a la agenda</button>
+                  <div className="rule" />
+                  <Outcome event={historicalEvent} optionTitle={historicalEvent.option_title_snapshot} />
+                </>
+              ) : dossier ? (
                 <>
                   <div className="eyebrow">02 / CONSEJO DE MINISTROS · EXPEDIENTE {dossier.version.toString().padStart(2, '0')}</div>
                   <h2>{dossier.title}</h2>
@@ -250,8 +268,11 @@ export default function App() {
               <h3 className="metric-subheading">Historial de decisiones</h3>
               {world.events.length === 0 ? <p className="muted">Todavía no hay decisiones registradas.</p>
                 : <ol className="history">{world.events.map(event => <li key={event.id}>
-                  <strong>{event.option_title_snapshot}</strong>
-                  <small>{event.dossier_title_snapshot} · {event.decided_on} · {event.engine_version}</small>
+                  <button type="button" className={'history-entry ' + (selectedEventId === event.id ? 'selected' : '')}
+                    aria-pressed={selectedEventId === event.id} onClick={() => selectHistory(event.id)}>
+                    <strong>{event.option_title_snapshot}</strong>
+                    <small>{event.dossier_title_snapshot} · {event.decided_on} · {event.engine_version}</small>
+                  </button>
                 </li>)}</ol>}
             </aside>
           </main>
