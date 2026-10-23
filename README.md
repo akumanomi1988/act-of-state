@@ -134,3 +134,5 @@ Configure the frontend origin and \`<origin>/editorial\` as permitted Supabase A
 \`supabase/tests/editorial_workflow.sql\` is rollback-only: it checks denied nonmember writes, editor/publisher separation, partial draft save, stale revision refusal, atomic publication, a safe repeated request, immutable published weeks, and invalid option rollback. \`supabase/tests/access_contract.sql\` extends RLS/grant assertions to both new tables and RPCs.
 
 There is no live news, no seeded staff user, no deployment and no authenticated browser E2E claim. The next gate is an authorized preview environment plus real email/role verification across a clean user session.
+
+Migration `aos_016` indexes the three Auth-user foreign keys on the editorial audit rows. Supabase performance advisors were rechecked after this change.
