@@ -120,7 +120,7 @@ select public.approve_weekly_release(monday+7) from pg_temp.test_calendar_dates;
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000071',true);
-do $
+do $$
 declare g public.governments%rowtype; caught boolean:=false;
 begin
   select * into strict g from public.governments where owner_id=auth.uid();
@@ -130,7 +130,7 @@ begin
   begin perform public.submit_decision(g.id,'future-weekly-test-1',1,'act');
   exception when sqlstate 'P0001' then caught:=true; end;
   if not caught then raise exception 'FUTURE_WEEKLY_DECISION_ACCEPTED'; end if;
-end $;
+end $$;
 reset role;
 
 -- Approved editorial content is immutable even for privileged data writes.
