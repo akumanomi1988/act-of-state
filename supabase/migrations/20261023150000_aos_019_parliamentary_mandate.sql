@@ -15,7 +15,7 @@ create table public.parliament_bills (
   foreign key (dossier_id,dossier_version,option_id)
     references public.dossier_options(dossier_id,dossier_version,id),
   foreign key (match_id,proposed_by)
-    references public.match_players(match_id,user_id),
+    references public.match_players(match_id,user_id) on delete cascade,
   unique (id,match_id),
   check (closes_at>created_at),
   check ((status='open' and closed_at is null) or
@@ -39,7 +39,7 @@ create table public.parliament_votes (
   primary key (bill_id,user_id),
   foreign key (bill_id,match_id) references public.parliament_bills(id,match_id)
     on delete cascade,
-  foreign key (match_id,user_id) references public.match_players(match_id,user_id)
+  foreign key (match_id,user_id) references public.match_players(match_id,user_id) on delete cascade
 );
 create index parliament_vote_member_fk
   on public.parliament_votes(match_id,user_id);
