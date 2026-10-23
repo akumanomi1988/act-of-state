@@ -278,6 +278,7 @@ language plpgsql volatile security definer set search_path=''
 as $$
 declare
  v_owner uuid:=auth.uid();
+ v_active_host uuid;
  v_g public.governments%rowtype;
  v_d public.dossiers%rowtype;
  v_o public.dossier_options%rowtype;
@@ -295,12 +296,12 @@ begin
  if not found then
   raise exception 'GOVERNMENT_NOT_FOUND_OR_FORBIDDEN' using errcode='42501';
  end if;
- if not (
-   (v_g.owner_id=v_owner and not exists(select 1 from public.matches
-      where government_id=v_g.id and status='active'))
-   or exists(select 1 from public.matches
-      where government_id=v_g.id and status='active' and host_user_id=v_owner)
- ) then
+ -- Hold a shared match lock through commit: election certification takes an
+ -- exclusive lock, so no outgoing cabinet may sign after power has changed.
+ select host_user_id into v_active_host from public.matches
+   where government_id=v_g.id and status='active' for share;
+ if (v_active_host is not null and v_active_host<>v_owner)
+    or (v_active_host is null and v_g.owner_id<>v_owner) then
    raise exception 'GOVERNMENT_NOT_FOUND_OR_FORBIDDEN' using errcode='42501';
  end if;
  -- Retried identical requests return the same persisted event.
