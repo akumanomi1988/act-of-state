@@ -1,6 +1,16 @@
-// Only extracts metadata from four explicitly approved, public RSS sources.
+// Only extracts metadata from six explicitly approved, public RSS sources.
 // Neither the feed content nor this parser can publish dossiers or policy outcomes.
 export const FEEDS = Object.freeze({
+  'elpais-spain': {
+    label: 'EL PAÍS · España',
+    url: 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/espana/portada',
+    allowedHosts: ['elpais.com', 'www.elpais.com']
+  },
+  'elpais-economy': {
+    label: 'EL PAÍS · Economía',
+    url: 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada',
+    allowedHosts: ['elpais.com', 'www.elpais.com']
+  },
   'guardian-politics': {
     label: 'The Guardian · UK politics',
     url: 'https://www.theguardian.com/politics/rss',
