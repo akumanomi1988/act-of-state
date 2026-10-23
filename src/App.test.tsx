@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DecisionEvent, GovernmentWorld } from './lib/types'
 import App from './App'
@@ -25,6 +25,8 @@ vi.mock('./lib/game', () => ({
   submitDecision: mocks.submitDecision,
   friendlyError: (error: unknown) => error instanceof Error ? error.message : String(error)
 }))
+
+let emitAuthChange: ((user: { id: string } | null) => void) | null = null
 
 const government = {
   id: '00000000-0000-4000-8000-000000000001',
@@ -73,7 +75,11 @@ afterEach(() => cleanup())
 beforeEach(() => {
   vi.resetAllMocks()
   mocks.getUser.mockResolvedValue({ data: { user: { id: government.owner_id } }, error: null })
-  mocks.onAuthStateChange.mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } })
+  emitAuthChange = null
+  mocks.onAuthStateChange.mockImplementation((callback: (event: string, session: { user: { id: string } } | null) => void) => {
+    emitAuthChange = user => callback('SIGNED_IN', user ? { user } : null)
+    return { data: { subscription: { unsubscribe: vi.fn() } } }
+  })
   mocks.startGovernment.mockResolvedValue(government)
   mocks.submitDecision.mockResolvedValue(event)
 })
@@ -190,4 +196,63 @@ describe('browser decision flow with controlled Supabase adapter', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('GOVERNMENT_NOT_FOUND_OR_FORBIDDEN')
     expect(screen.queryByTestId('persisted-outcome')).not.toBeInTheDocument()
   })
+  it('hides the previous account world after an account switch and retries a failed bootstrap', async () => {
+    const otherId = '00000000-0000-4000-8000-000000000099'
+    const otherGovernment = {
+      ...government,
+      id: '00000000-0000-4000-8000-000000000098',
+      owner_id: otherId,
+      country_name: 'República de Borealia'
+    }
+    const otherWorld: GovernmentWorld = {
+      ...initial, government: otherGovernment, dossiers: [], options: [], cohorts: [], events: []
+    }
+    mocks.startGovernment.mockResolvedValueOnce(government)
+      .mockRejectedValueOnce(new Error('Network unavailable'))
+      .mockResolvedValueOnce(otherGovernment)
+    mocks.fetchWorld.mockResolvedValueOnce(initial).mockResolvedValueOnce(otherWorld)
+    render(<App />)
+    await screen.findByRole('button', { name: /Plan de resiliencia energética/ })
+
+    await act(async () => { emitAuthChange?.({ id: otherId }) })
+    const retry = await screen.findByRole('button', { name: 'Reintentar acceso al gobierno' })
+    expect(screen.queryByRole('button', { name: /Plan de resiliencia energética/ })).not.toBeInTheDocument()
+    expect(screen.queryByText('12.000 M€')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Firmar y ejecutar decisión' })).not.toBeInTheDocument()
+    fireEvent.click(retry)
+    await screen.findByText('República de Borealia')
+    expect(mocks.startGovernment).toHaveBeenCalledTimes(3)
+  })
+
+  it('ignores an old account decision readback after another account signs in', async () => {
+    const otherId = '00000000-0000-4000-8000-000000000099'
+    const otherGovernment = {
+      ...government,
+      id: '00000000-0000-4000-8000-000000000098',
+      owner_id: otherId,
+      country_name: 'República de Borealia'
+    }
+    const otherWorld: GovernmentWorld = {
+      ...initial, government: otherGovernment, dossiers: [], options: [], cohorts: [], events: []
+    }
+    let resolveOldSnapshot!: (snapshot: GovernmentWorld) => void
+    const oldSnapshot = new Promise<GovernmentWorld>(resolve => { resolveOldSnapshot = resolve })
+    mocks.startGovernment.mockResolvedValueOnce(government).mockResolvedValueOnce(otherGovernment)
+    mocks.fetchWorld.mockResolvedValueOnce(initial)
+      .mockReturnValueOnce(oldSnapshot)
+      .mockResolvedValueOnce(otherWorld)
+    render(<App />)
+    await screen.findByRole('button', { name: 'Firmar y ejecutar decisión' })
+    fireEvent.click(screen.getByLabelText(/Proteger a los hogares/))
+    fireEvent.click(screen.getByRole('button', { name: 'Firmar y ejecutar decisión' }))
+    await waitFor(() => expect(mocks.fetchWorld).toHaveBeenCalledTimes(2))
+
+    await act(async () => { emitAuthChange?.({ id: otherId }) })
+    await screen.findByText('República de Borealia')
+    await act(async () => { resolveOldSnapshot(decided) })
+    expect(screen.getByText('República de Borealia')).toBeInTheDocument()
+    expect(screen.queryByTestId('persisted-outcome')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Plan de resiliencia energética/ })).not.toBeInTheDocument()
+  })
+
 })
