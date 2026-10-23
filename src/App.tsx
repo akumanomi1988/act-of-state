@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, fetchWorld, friendlyError, startGovernment, submitDecision } from './lib/game'
 import { number } from './lib/format'
@@ -19,7 +19,9 @@ export default function App() {
   const [authReady, setAuthReady] = useState(false)
   const [email, setEmail] = useState('')
   const [mailSent, setMailSent] = useState(false)
-  const [world, setWorld] = useState<GovernmentWorld | null>(null)
+  const [storedWorld, setWorld] = useState<GovernmentWorld | null>(null)
+  const [bootRevision, setBootRevision] = useState(0)
+  const authenticatedOwnerRef = useRef<string | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [optionId, setOptionId] = useState('')
@@ -28,40 +30,61 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // A previous account's in-memory world must never be rendered for a new user.
+  const world = user && storedWorld?.government.owner_id === user.id ? storedWorld : null
+
+  function acceptUser(nextUser: User | null) {
+    authenticatedOwnerRef.current = nextUser?.id ?? null
+    setUser(nextUser)
+  }
+
   useEffect(() => {
     if (!client) { setAuthReady(true); return }
     let alive = true
+    let authRevision = 0
+    const initialRevision = authRevision
     client.auth.getUser().then(({ data, error: authError }) => {
-      if (!alive) return
-      if (authError) setUser(null)
-      else setUser(data.user)
+      // A slower getUser response cannot undo a newer sign-in or account switch.
+      if (!alive || authRevision !== initialRevision) return
+      acceptUser(authError ? null : data.user)
       setAuthReady(true)
     }).catch(() => { if (alive) setAuthReady(true) })
-    const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
-      if (alive) { setUser(session?.user ?? null); setAuthReady(true) }
+    const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
+      if (!alive) return
+      if (event !== 'INITIAL_SESSION') authRevision += 1
+      acceptUser(session?.user ?? null)
+      setAuthReady(true)
     })
     return () => { alive = false; subscription.unsubscribe() }
   }, [])
 
   useEffect(() => {
-    if (!user) { setWorld(null); return }
+    if (!user) { setWorld(null); setLoading(false); return }
+    const ownerId = user.id
     let active = true
+    setWorld(null)
+    setSelectedKey(null)
+    setSelectedEventId(null)
+    setOptionId('')
+    setNeedsReconciliation(false)
     setLoading(true)
     setError('')
     const boot = async () => {
       try {
         const government = await startGovernment()
+        if (government.owner_id !== ownerId) throw new Error('El gobierno no pertenece a la sesión actual.')
         const data = await fetchWorld(government.id)
-        if (active) { setWorld(data); setSelectedKey(null); setNeedsReconciliation(false) }
+        if (data.government.owner_id !== ownerId) throw new Error('El estado nacional no pertenece a la sesión actual.')
+        if (active && authenticatedOwnerRef.current === ownerId) setWorld(data)
       } catch (reason) {
-        if (active) setError(friendlyError(reason))
+        if (active && authenticatedOwnerRef.current === ownerId) setError(friendlyError(reason))
       } finally {
-        if (active) setLoading(false)
+        if (active && authenticatedOwnerRef.current === ownerId) setLoading(false)
       }
     }
     void boot()
     return () => { active = false }
-  }, [user?.id])
+  }, [user?.id, bootRevision])
 
   const dossier = useMemo(() => {
     if (!world) return null
@@ -98,7 +121,8 @@ export default function App() {
   }
 
   async function onDecision() {
-    if (!world || !dossier || !optionId || pending || decision || needsReconciliation) return
+    if (!world || !dossier || !optionId || !user || pending || decision || needsReconciliation) return
+    const ownerId = user.id
     setPending(true)
     setError('')
 
@@ -113,6 +137,8 @@ export default function App() {
 
     try {
       const persisted = await fetchWorld(world.government.id)
+      if (authenticatedOwnerRef.current !== ownerId) return
+      if (persisted.government.owner_id !== ownerId) throw new Error('El estado nacional no pertenece a la sesión actual.')
       setWorld(persisted)
       const recorded = persisted.events.find(event => event.dossier_id === dossier.id)
       if (recorded) {
@@ -131,25 +157,32 @@ export default function App() {
         setError('La decisión fue recibida, pero no aparece en el estado nacional. Sincroniza antes de continuar.')
       }
     } catch {
-      setNeedsReconciliation(true)
-      setError('No se pudo verificar si la decisión quedó registrada. Sincroniza antes de continuar.')
+      if (authenticatedOwnerRef.current === ownerId) {
+        setNeedsReconciliation(true)
+        setError('No se pudo verificar si la decisión quedó registrada. Sincroniza antes de continuar.')
+      }
     } finally {
       setPending(false)
     }
   }
 
   async function reconcileWorld() {
-    if (!world || pending) return
+    if (!world || !user || pending) return
+    const ownerId = user.id
     setPending(true)
     setError('')
     try {
       const persisted = await fetchWorld(world.government.id)
+      if (authenticatedOwnerRef.current !== ownerId) return
+      if (persisted.government.owner_id !== ownerId) throw new Error('El estado nacional no pertenece a la sesión actual.')
       setWorld(persisted)
       setOptionId('')
       setNeedsReconciliation(false)
     } catch (reason) {
-      setNeedsReconciliation(true)
-      setError('No se ha podido actualizar el estado nacional: ' + friendlyError(reason))
+      if (authenticatedOwnerRef.current === ownerId) {
+        setNeedsReconciliation(true)
+        setError('No se ha podido actualizar el estado nacional: ' + friendlyError(reason))
+      }
     } finally {
       setPending(false)
     }
@@ -161,7 +194,7 @@ export default function App() {
     try {
       const { error: signOutError } = await client.auth.signOut()
       if (signOutError) setError(friendlyError(signOutError))
-      else { setUser(null); setWorld(null); setMailSent(false); setNeedsReconciliation(false) }
+      else { acceptUser(null); setWorld(null); setMailSent(false); setNeedsReconciliation(false) }
     } catch (reason) {
       setError(friendlyError(reason))
     } finally {
@@ -226,7 +259,14 @@ export default function App() {
           </section>
         </main>
       ) : loading || !world ? (
-        <main className="entry-content" role="status">{loading ? 'Abriendo la sesión de gobierno…' : 'Sin sesión de gobierno disponible.'}</main>
+        <main className="entry-content">
+          {loading ? <p role="status">Abriendo la sesión de gobierno…</p> : <>
+            <p>No se ha podido recuperar la sesión de gobierno.</p>
+            <button type="button" className="primary-button" onClick={() => setBootRevision(revision => revision + 1)}>
+              Reintentar acceso al gobierno
+            </button>
+          </>}
+        </main>
       ) : (
         <>
           <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
