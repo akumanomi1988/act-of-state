@@ -156,3 +156,17 @@ Migration `20261023150000_aos_019_parliamentary_mandate.sql` adds persistent bil
 The `/multiplayer` screen now renders the proposal, counts, deadline, recorded vote, result and signing authorization. Browser state is refreshed from the server after every mutation and every 15 seconds. The PostgreSQL integration suite exercises ten identities, outsider denial, immutable retries, proposal replay, rejection/reproposal and decision atomicity; its concurrent runner first passes a bill and then races ten identical cabinet decisions. These tests do not substitute for ten real authenticated browsers.
 
 **Still outside MVP acceptance:** real ten-user browser playtest, full electoral simulation and campaigning, real-news ingestion/editorial operation, Friday settlement/daily economic ticks and visual/accessibility sign-off. The game must not be described as feature-complete until those gates pass.
+
+
+## AOS-027 — National treasury and fiscal policy
+
+The government and multiplayer views now include a read-only macroeconomic dashboard and an incumbent-only budget control. Cabinet policy assigns percentages to healthcare, education, infrastructure and security, with one bounded weekly revision and a synthetic tax-pressure setting. The calendar closes each full Friday on Saturday UTC, posting versioned receipts, expenditure, debt financing, macro indicators and cohort responses without requiring a browser session. The model explicitly does not represent calibrated real-world economic forecasts.
+
+- Backend migration: `supabase/migrations/20261023200000_aos_027_national_fiscal_engine.sql`.
+- RPCs: `get_fiscal_state(uuid)` and `set_fiscal_policy(uuid,int,int,int,int,int)`; never access the underlying private tables from frontend code.
+- Playability/security: solo owner or current elected multiplayer cabinet can modify a policy; opposition can inspect it but cannot edit. One policy revision per UTC week; retries and Cron settlements are idempotent.
+- Regression coverage: `supabase/tests/national_fiscal.sql` and `supabase/tests/persistent_cross_session.sh` run in the SQL integration job; `src/FiscalPanel.test.tsx` and `tests/browser-smoke.mjs` cover React and actual headless Chromium with intercepted HTTP. The browser tests do **not** authenticate real players or send real email.
+- UX regression artifacts: the PR Quality workflow captures screenshot evidence in GitHub Actions artifacts, with a seven-day retention.
+- Operator manual: `docs/NATIONAL_FISCAL_OPERATIONS.md`. Strict requirements tally: `docs/MVP_TRACKER.md`.
+
+The custom SMTP/Auth free-tier quota remains a real onboarding blocker. No secret, fake token or privileged credential used in testing is embedded in the deployed frontend.
