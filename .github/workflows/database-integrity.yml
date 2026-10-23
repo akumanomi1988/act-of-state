@@ -51,7 +51,7 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f supabase/tests/access_contract.sql
       - name: Run transactional game integration suites
         run: |
-          for suite in decision_flow world_snapshot historical_decision weekly_release editorial_workflow multiplayer_ten_party elections autonomous_calendar; do
+          for suite in decision_flow world_snapshot historical_decision weekly_release editorial_workflow multiplayer_ten_party elections autonomous_calendar coalitions_confidence; do
             psql -v ON_ERROR_STOP=1 -f "supabase/tests/$suite.sql"
           done
       - name: Exercise concurrent match capacity and decision retries
@@ -68,5 +68,8 @@ jobs:
             (select count(*) from public.match_stances)::text || ':' ||
             (select count(*) from public.match_elections)::text || ':' ||
             (select count(*) from public.match_weekly_closures)::text || ':' ||
-            (select count(*) from game_internal.calendar_failures)::text")
-          test "$counts" = "0:0:0:0:0:0:0:0:0:0"
+            (select count(*) from game_internal.calendar_failures)::text || ':' ||
+            (select count(*) from public.match_coalition_members)::text || ':' ||
+            (select count(*) from public.match_confidence_motions)::text || ':' ||
+            (select count(*) from public.match_confidence_votes)::text")
+          test "$counts" = "0:0:0:0:0:0:0:0:0:0:0:0:0"
