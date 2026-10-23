@@ -22,6 +22,7 @@ export interface ParliamentVote {
   match_id: string
   user_id: string
   choice: ParliamentChoice
+  seat_weight: number
   created_at: string
 }
 
