@@ -122,8 +122,10 @@ export default function App() {
           setError('Este expediente ya se resolvió con otra opción.')
         }
       } else if (submissionError) {
-        setNeedsReconciliation(false)
-        setError(friendlyError(submissionError))
+        // A transport failure may outlive this read. Require an explicit
+        // fresh snapshot before allowing a second signature.
+        setNeedsReconciliation(true)
+        setError(friendlyError(submissionError) + ' Sincroniza antes de volver a firmar.')
       } else {
         setNeedsReconciliation(true)
         setError('La decisión fue recibida, pero no aparece en el estado nacional. Sincroniza antes de continuar.')
