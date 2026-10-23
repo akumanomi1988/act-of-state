@@ -16,8 +16,9 @@ create table public.match_weekly_closures (
   engine_version text not null default 'friday-ledger-v1',
   primary key (match_id, week_start)
 );
-create index match_weekly_closures_latest
-  on public.match_weekly_closures(match_id,week_start desc);
+-- Due work is fetched every 15 minutes; avoid scanning the full vote ledger.
+create index parliament_due_calendar_idx
+  on public.parliament_bills(closes_at,id) where status='open';
 alter table public.match_weekly_closures enable row level security;
 revoke all on public.match_weekly_closures from public,anon,authenticated;
 
