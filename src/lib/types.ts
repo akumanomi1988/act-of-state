@@ -29,6 +29,9 @@ export interface Dossier {
   release_kind: 'intro' | 'weekly'
   available_from: string | null
   available_until: string | null
+  source_url?: string | null
+  source_title?: string | null
+  source_published_at?: string | null
 }
 
 export interface DossierOption {
@@ -81,9 +84,20 @@ export interface DecisionEvent {
   created_at: string
 }
 
+export interface WeeklyCalendar {
+  weekStart: string
+  friday: string
+  dayOfWeek: number
+  fridayReached: boolean
+  weeklyTotal: number
+  weeklyResolved: number
+  weeklyTreasuryDeltaM: number
+}
+
 export interface GovernmentWorld {
   government: Government
   gameDay: string
+  calendar: WeeklyCalendar
   dossiers: Dossier[]
   options: DossierOption[]
   cohorts: PopulationCohort[]
