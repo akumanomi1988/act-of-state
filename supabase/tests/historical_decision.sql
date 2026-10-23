@@ -29,9 +29,15 @@ declare g public.governments%rowtype; w jsonb; e public.decision_events%rowtype;
 begin
  select * into strict g from public.governments where owner_id=auth.uid();
  w:=public.get_government_world(g.id);
- if jsonb_array_length(w->'dossiers') <> 0
- or jsonb_array_length(w->'options') <> 0 then
+ if exists(select 1 from jsonb_array_elements(w->'dossiers') d
+   where d->>'id'='energy-resilience')
+ or exists(select 1 from jsonb_array_elements(w->'options') o
+   where o->>'dossier_id'='energy-resilience') then
   raise exception 'EXPIRED_EDITORIAL_CATALOG_VISIBLE'; end if;
+ if jsonb_array_length(w->'dossiers') <> 1
+ or jsonb_array_length(w->'options') <> 3
+ or w->'dossiers'->0->>'id'<>'water-security' then
+  raise exception 'OTHER_AVAILABLE_DOSSIER_HIDDEN'; end if;
  if jsonb_array_length(w->'events') <> 1 then
   raise exception 'HISTORICAL_DECISION_DISAPPEARED'; end if;
  if w->'events'->0->>'dossier_title_snapshot' <> 'Plan de resiliencia energética'
