@@ -8,9 +8,10 @@ begin
       where n.nspname = 'public'
         and c.relname = any(array[
           'governments','population_cohorts','dossiers',
-          'dossier_options','decision_events','weekly_releases'
+          'dossier_options','decision_events','weekly_releases',
+          'editorial_members','editorial_weeks'
         ])
-        and c.relrowsecurity) <> 6 then
+        and c.relrowsecurity) <> 8 then
     raise exception 'GAME_TABLE_RLS_NOT_ENABLED';
   end if;
 
@@ -20,6 +21,8 @@ begin
     or not has_table_privilege('authenticated', 'public.dossier_options', 'SELECT')
     or not has_table_privilege('authenticated', 'public.decision_events', 'SELECT')
     or not has_table_privilege('authenticated', 'public.weekly_releases', 'SELECT')
+    or not has_table_privilege('authenticated', 'public.editorial_members', 'SELECT')
+    or not has_table_privilege('authenticated', 'public.editorial_weeks', 'SELECT')
     then
     raise exception 'AUTHENTICATED_READ_GRANT_MISSING';
   end if;
@@ -34,6 +37,13 @@ begin
     or has_table_privilege('authenticated', 'public.weekly_releases', 'INSERT')
     or has_table_privilege('authenticated', 'public.weekly_releases', 'UPDATE')
     or has_table_privilege('anon', 'public.weekly_releases', 'SELECT')
+    or has_table_privilege('anon', 'public.editorial_members', 'SELECT')
+    or has_table_privilege('anon', 'public.editorial_weeks', 'SELECT')
+    or has_table_privilege('authenticated', 'public.editorial_members', 'INSERT')
+    or has_table_privilege('authenticated', 'public.editorial_members', 'UPDATE')
+    or has_table_privilege('authenticated', 'public.editorial_weeks', 'INSERT')
+    or has_table_privilege('authenticated', 'public.editorial_weeks', 'UPDATE')
+    or has_table_privilege('authenticated', 'public.editorial_weeks', 'DELETE')
     then
     raise exception 'UNEXPECTED_DATA_API_WRITE_OR_ANON_GRANT';
   end if;
@@ -49,6 +59,10 @@ begin
     or has_function_privilege('authenticated', 'public.approve_weekly_release(date)', 'EXECUTE')
     or has_function_privilege('anon', 'public.approve_weekly_release(date)', 'EXECUTE')
     or not has_function_privilege('service_role', 'public.approve_weekly_release(date)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.save_editorial_week(date,integer,jsonb)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.publish_editorial_week(date,integer)', 'EXECUTE')
+    or not has_function_privilege('authenticated', 'public.save_editorial_week(date,integer,jsonb)', 'EXECUTE')
+    or not has_function_privilege('authenticated', 'public.publish_editorial_week(date,integer)', 'EXECUTE')
     then
     raise exception 'RPC_EXECUTE_PERMISSION_DRIFT';
   end if;

@@ -28,11 +28,11 @@ Requires Node.js 22, npm, and a **separate** Supabase project reserved for ACT O
 - `npm test` — React flow and outcome rendering from persisted event fixtures.
 - `npm run test:oracle` — dependency-free deterministic calculation oracle.
 - `npm run build` — production frontend bundle.
-- `supabase/tests/decision_flow.sql`, `world_snapshot.sql` and `historical_decision.sql` — rollback-only database assertions covering ownership, budget atomicity, retry safety, cross-account isolation, and durable history. Execute only in a dedicated disposable environment where inserting test users is permitted.
+- `supabase/tests/decision_flow.sql`, `world_snapshot.sql`, `historical_decision.sql`, `weekly_release.sql` and `editorial_workflow.sql` — rollback-only database assertions covering ownership, budget atomicity, retry safety, cross-account isolation, and durable history. Execute only in a dedicated disposable environment where inserting test users is permitted.
 - `supabase/tests/access_contract.sql` — explicit table privileges, RPC execution grants, and RLS assertions.
 - E2E (manual until provisioned): sign-in, seed, dossier retrieval, decision, reload, retry and account isolation. Verify responsive/mobile and keyboard navigation.
 
-GitHub Actions quality CI runs on pull requests to `main` or manually. A separate path-filtered PostgreSQL 17 integration workflow runs only when SQL migrations/tests or its workflow change (or on manual invocation), limiting extra CI minutes. It creates a disposable database, applies every migration, executes RLS/privilege assertions and the three rollback suites, then verifies that no synthetic users or game state remain. The CI-only `ci_auth_adapter.sql` emulates role/JWT lookup for plain PostgreSQL; it is **not** real Supabase Auth and must never be applied to Supabase Cloud. Authenticated browser E2E and approved preview hosting remain release blockers.
+GitHub Actions quality CI runs on pull requests to `main` or manually. A separate path-filtered PostgreSQL 17 integration workflow runs only when SQL migrations/tests or its workflow change (or on manual invocation), limiting extra CI minutes. It creates a disposable database, applies every migration, executes RLS/privilege assertions and the rollback integration suites, then verifies that no synthetic users or game state remain. The CI-only `ci_auth_adapter.sql` emulates role/JWT lookup for plain PostgreSQL; it is **not** real Supabase Auth and must never be applied to Supabase Cloud. Authenticated browser E2E and approved preview hosting remain release blockers.
 
 ## Boundaries
 
@@ -114,3 +114,25 @@ RLS keeps an approved future slate and its options hidden until its Monday. The 
 The owned world snapshot includes `calendar` with week start, Friday date, real UTC weekday, published dossier count, resolved count and the sum of persisted fiscal effects for the current week. The UI renders this readout and source citation. Friday is presently a reporting milestone only; automatic Friday settlement/cutoff and recurring real-news ingestion remain future requirements.
 
 Migration `aos_007_weekly_cycle` and rollback suite `supabase/tests/weekly_release.sql` define the contract. The PostgreSQL CI role adapter includes a service-role stub solely to exercise the admin function in a disposable database. It must never be deployed to Supabase Cloud.
+
+
+## Editorial control room (AOS-MVP-001, editorial macroincrement)
+
+The independent staff workbench is served at **\`/editorial\`** by the same React application, without a new frontend dependency. It supports ten stable dossier slots for a Monday UTC publication, source provenance, 2–4 political options per dossier, versioned simulation inputs, draft autosafety through explicit save, revision conflict reporting, final two-step review and published read-only state. It does **not** ingest or assert that any source is true. The journalist/editor must verify the news externally.
+
+Database migrations \`aos_013\`–\`aos_015\` add:
+
+- \`editorial_members\` with explicit \`editor\`/\`publisher\` membership; only an operator using trusted database privileges may provision staff.
+- \`editorial_weeks\` with durable JSONB drafts, optimistic revision compare-and-swap, row-level security and 150 KB bounded payloads.
+- \`save_editorial_week\` for staff-only draft persistence.
+- \`publish_editorial_week\` for publisher-only atomic materialization of exactly ten dossiers and options, followed by the existing release approval gate. Retrying a completed publication does not reapply effects.
+
+**Provisioning:** first, the staff member must sign in using their own legitimate email magic link. An authorized operator then looks up their verified \`auth.users.id\` in the dedicated ACT OF STATE DEV project and inserts their UUID and designated role into \`public.editorial_members\`. The browser cannot grant itself editorial permission. At least one \`publisher\` must be provisioned for an actual publication; this has **not** been done in DEV.
+
+Configure the frontend origin and \`<origin>/editorial\` as permitted Supabase Auth redirect URLs. The browser needs only the project URL and publishable key, **never** a service-role secret.
+
+\`supabase/tests/editorial_workflow.sql\` is rollback-only: it checks denied nonmember writes, editor/publisher separation, partial draft save, stale revision refusal, atomic publication, a safe repeated request, immutable published weeks, and invalid option rollback. \`supabase/tests/access_contract.sql\` extends RLS/grant assertions to both new tables and RPCs.
+
+There is no live news, no seeded staff user, no deployment and no authenticated browser E2E claim. The next gate is an authorized preview environment plus real email/role verification across a clean user session.
+
+Migration `aos_016` indexes the three Auth-user foreign keys on the editorial audit rows. Supabase performance advisors were rechecked after this change.
