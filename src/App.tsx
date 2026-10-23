@@ -24,6 +24,7 @@ export default function App() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [optionId, setOptionId] = useState('')
   const [pending, setPending] = useState(false)
+  const [needsReconciliation, setNeedsReconciliation] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -51,7 +52,7 @@ export default function App() {
       try {
         const government = await startGovernment()
         const data = await fetchWorld(government.id)
-        if (active) { setWorld(data); setSelectedKey(null) }
+        if (active) { setWorld(data); setSelectedKey(null); setNeedsReconciliation(false) }
       } catch (reason) {
         if (active) setError(friendlyError(reason))
       } finally {
@@ -97,17 +98,56 @@ export default function App() {
   }
 
   async function onDecision() {
-    if (!world || !dossier || !optionId || pending || decision) return
+    if (!world || !dossier || !optionId || pending || decision || needsReconciliation) return
+    setPending(true)
+    setError('')
+
+    // The RPC may commit even if its HTTP response is lost. Reconcile against
+    // the authoritative event history before reporting a failed decision.
+    let submissionError: unknown = null
+    try {
+      await submitDecision(world.government.id, dossier.id, dossier.version, optionId)
+    } catch (reason) {
+      submissionError = reason
+    }
+
+    try {
+      const persisted = await fetchWorld(world.government.id)
+      setWorld(persisted)
+      const recorded = persisted.events.find(event => event.dossier_id === dossier.id)
+      if (recorded) {
+        setOptionId('')
+        setNeedsReconciliation(false)
+        if (recorded.option_id !== optionId || recorded.dossier_version !== dossier.version) {
+          setError('Este expediente ya se resolvió con otra opción.')
+        }
+      } else if (submissionError) {
+        setNeedsReconciliation(false)
+        setError(friendlyError(submissionError))
+      } else {
+        setNeedsReconciliation(true)
+        setError('La decisión fue recibida, pero no aparece en el estado nacional. Sincroniza antes de continuar.')
+      }
+    } catch {
+      setNeedsReconciliation(true)
+      setError('No se pudo verificar si la decisión quedó registrada. Sincroniza antes de continuar.')
+    } finally {
+      setPending(false)
+    }
+  }
+
+  async function reconcileWorld() {
+    if (!world || pending) return
     setPending(true)
     setError('')
     try {
-      await submitDecision(world.government.id, dossier.id, dossier.version, optionId)
-      // Reload all state from PostgreSQL. No client-generated political impacts.
       const persisted = await fetchWorld(world.government.id)
       setWorld(persisted)
       setOptionId('')
+      setNeedsReconciliation(false)
     } catch (reason) {
-      setError(friendlyError(reason))
+      setNeedsReconciliation(true)
+      setError('No se ha podido actualizar el estado nacional: ' + friendlyError(reason))
     } finally {
       setPending(false)
     }
@@ -119,7 +159,7 @@ export default function App() {
     try {
       const { error: signOutError } = await client.auth.signOut()
       if (signOutError) setError(friendlyError(signOutError))
-      else { setUser(null); setWorld(null); setMailSent(false) }
+      else { setUser(null); setWorld(null); setMailSent(false); setNeedsReconciliation(false) }
     } catch (reason) {
       setError(friendlyError(reason))
     } finally {
@@ -213,6 +253,11 @@ export default function App() {
               </div>
             </aside>
             <section className="main-panel" aria-label="Expediente político">
+              {needsReconciliation && <div className="fictitious-notice" role="status">
+                El resultado de la última operación está pendiente de confirmar.
+                <button type="button" className="text-button" disabled={pending}
+                  onClick={() => void reconcileWorld()}>Reintentar sincronización</button>
+              </div>}
               {historicalEvent ? (
                 <>
                   <div className="eyebrow">02 / ARCHIVO DE DECISIONES · {historicalEvent.decided_on}</div>
@@ -232,7 +277,7 @@ export default function App() {
                   {decision ? (
                     <Outcome event={decision} optionTitle={decision.option_title_snapshot} />
                   ) : available(dossier, world.gameDay) ? (
-                    <fieldset className="choice-list" disabled={pending}>
+                    <fieldset className="choice-list" disabled={pending || needsReconciliation}>
                       <legend>Elige una línea de actuación</legend>
                       {options.map((option: DossierOption) => (
                         <label className={'choice-card ' + (optionId === option.id ? 'checked' : '')} key={option.id}>
@@ -242,7 +287,7 @@ export default function App() {
                           <span className="choice-arrow" aria-hidden="true">↗</span>
                         </label>
                       ))}
-                      <button className="primary-button decide" type="button" disabled={!optionId || pending} onClick={() => void onDecision()}>
+                      <button className="primary-button decide" type="button" disabled={!optionId || pending || needsReconciliation} onClick={() => void onDecision()}>
                         {pending ? 'Registrando decisión…' : 'Firmar y ejecutar decisión'}
                       </button>
                       <p className="muted fine">La resolución es vinculante y no puede modificarse después de su registro.</p>
