@@ -99,7 +99,6 @@ begin
     state->'latestFriday' is null or state->'latestFriday'='null'::jsonb then
    raise exception 'CALENDAR_READ_MODEL_INVALID %',state; end if;
  if has_schema_privilege('authenticated','game_internal','USAGE') or
-    has_function_privilege('authenticated','game_internal.process_calendar()','EXECUTE') or
     has_table_privilege('authenticated','public.match_weekly_closures','SELECT') then
    raise exception 'CALENDAR_PRIVATE_SURFACE_EXPOSED'; end if;
  begin perform game_internal.process_calendar();
