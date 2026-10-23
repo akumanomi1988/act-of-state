@@ -9,9 +9,10 @@ begin
         and c.relname = any(array[
           'governments','population_cohorts','dossiers',
           'dossier_options','decision_events','weekly_releases',
-          'editorial_members','editorial_weeks'
+          'editorial_members','editorial_weeks',
+          'matches','match_players','match_stances'
         ])
-        and c.relrowsecurity) <> 8 then
+        and c.relrowsecurity) <> 11 then
     raise exception 'GAME_TABLE_RLS_NOT_ENABLED';
   end if;
 
@@ -44,6 +45,18 @@ begin
     or has_table_privilege('authenticated', 'public.editorial_weeks', 'INSERT')
     or has_table_privilege('authenticated', 'public.editorial_weeks', 'UPDATE')
     or has_table_privilege('authenticated', 'public.editorial_weeks', 'DELETE')
+    or has_table_privilege('anon', 'public.matches', 'SELECT')
+    or has_table_privilege('anon', 'public.match_players', 'SELECT')
+    or has_table_privilege('anon', 'public.match_stances', 'SELECT')
+    or has_table_privilege('authenticated', 'public.matches', 'SELECT')
+    or has_table_privilege('authenticated', 'public.match_players', 'SELECT')
+    or has_table_privilege('authenticated', 'public.match_stances', 'SELECT')
+    or has_table_privilege('authenticated', 'public.matches', 'INSERT')
+    or has_table_privilege('authenticated', 'public.match_players', 'INSERT')
+    or has_table_privilege('authenticated', 'public.match_stances', 'INSERT')
+    or has_table_privilege('authenticated', 'public.matches', 'UPDATE')
+    or has_table_privilege('authenticated', 'public.match_players', 'UPDATE')
+    or has_table_privilege('authenticated', 'public.match_stances', 'UPDATE')
     then
     raise exception 'UNEXPECTED_DATA_API_WRITE_OR_ANON_GRANT';
   end if;
@@ -63,6 +76,20 @@ begin
     or has_function_privilege('anon', 'public.publish_editorial_week(date,integer)', 'EXECUTE')
     or not has_function_privilege('authenticated', 'public.save_editorial_week(date,integer,jsonb)', 'EXECUTE')
     or not has_function_privilege('authenticated', 'public.publish_editorial_week(date,integer)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.create_match(text,text)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.join_match(text,text)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.start_match(uuid)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.leave_match(uuid)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.list_my_matches()', 'EXECUTE')
+    or has_function_privilege('anon', 'public.get_match_world(uuid)', 'EXECUTE')
+    or has_function_privilege('anon', 'public.record_match_stance(uuid,text,integer,text)', 'EXECUTE')
+    or not has_function_privilege('authenticated', 'public.create_match(text,text)', 'EXECUTE')
+    or not has_function_privilege('authenticated', 'public.join_match(text,text)', 'EXECUTE')
+    or not has_function_privilege('authenticated', 'public.start_match(uuid)', 'EXECUTE')
+    or not has_function_privilege('authenticated', 'public.leave_match(uuid)', 'EXECUTE')
+    or not has_function_privilege('authenticated', 'public.list_my_matches()', 'EXECUTE')
+    or not has_function_privilege('authenticated', 'public.get_match_world(uuid)', 'EXECUTE')
+    or not has_function_privilege('authenticated', 'public.record_match_stance(uuid,text,integer,text)', 'EXECUTE')
     then
     raise exception 'RPC_EXECUTE_PERMISSION_DRIFT';
   end if;
