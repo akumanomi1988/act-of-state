@@ -91,3 +91,9 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 - Local `npm ping` failed `EAI_AGAIN`. An isolated same-repository PR workflow generated and committed `package-lock.json` using `npm install --package-lock-only --ignore-scripts`. The lockfile uses v3 and contains 225 package entries with 224 resolved integrity hashes.
 - Removed the **temporary** privileged bootstrapping workflow before merging. Permanent GitHub Actions quality has `contents:read`, npm caching, PR concurrency cancellation, and reproducible `npm ci` instead of `npm install`.
 - This validates dependency reproducibility, not real logged-in browser play. The browser login/decision/reload test and approved preview host still block full AOS-MVP-001 acceptance; global MVP verified remains 1/18 (T003); P01 percentage UNKNOWN.
+
+## AOS-MVP-001 — Verified dependency lock milestone
+
+On 2026-10-23, [PR #2](https://github.com/akumanomi1988/act-of-state/pull/2) generated an npm v3 lockfile and switched GitHub Actions to `npm ci`, with dependency caching, cancellation of superseded PR checks, and read-only repository permissions. The [final reviewed PR build](https://github.com/akumanomi1988/act-of-state/actions/runs/39915400041) passed npm clean install, 6 deterministic reference tests, TypeScript, 7 Vitest cases, and the Vite production build. The temporary privileged bootstrap workflow was removed prior to merge.
+
+This validates a reproducible browser bundle, **not** a real authenticated game session. A preview host, Supabase redirect configuration, browser sign-in, persisted decision readback after reload, accessibility checks and visual design acceptance remain open.
