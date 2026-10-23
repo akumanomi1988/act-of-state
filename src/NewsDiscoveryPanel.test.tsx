@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import NewsDiscoveryPanel from './NewsDiscoveryPanel'
 
 const mocks = vi.hoisted(() => ({ invoke: vi.fn() }))
-vi.mock('./lib/game', () => ({ requireClient: () => ({ functions: { mocks.invoke } }) }))
+vi.mock('./lib/game', () => ({ requireClient: () => ({ functions: { invoke: mocks.invoke } }) }))
 
 const article = {
   title: 'Government announces major policy review',
