@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, friendlyError, submitDecision } from './lib/game'
 import { number } from './lib/format'
+import ParliamentPanel from './ParliamentPanel'
 import {
   createMatch, fetchMatchWorld, joinMatch, listMyMatches, matchError,
   recordMatchStance, startMatch, type MatchSummary, type MatchWorld
@@ -22,6 +23,7 @@ export default function MultiplayerApp() {
   const [selectedDossierId, setSelectedDossierId] = useState<string | null>(null)
   const [selectedOptionId, setSelectedOptionId] = useState('')
   const [reviewCabinet, setReviewCabinet] = useState(false)
+  const [mandateOptionId, setMandateOptionId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [pending, setPending] = useState(false)
   const [reload, setReload] = useState(0)
@@ -38,6 +40,7 @@ export default function MultiplayerApp() {
       setPending(false)
       setActiveId(null)
       setWorld(null)
+      setMandateOptionId(null)
       setMatches([])
       setError('')
     }
@@ -93,6 +96,7 @@ export default function MultiplayerApp() {
     setSelectedDossierId(null)
     setSelectedOptionId('')
     setReviewCabinet(false)
+    setMandateOptionId(null)
     const refresh = async () => {
       try {
         const fresh = await fetchMatchWorld(id)
@@ -123,6 +127,7 @@ export default function MultiplayerApp() {
   const cabinetEvent = world?.events.find(event => event.dossier_id === dossier?.id)
   const host = !!world && world.match.host_user_id === user?.id
   const active = world?.match.status === 'active'
+  const mandateReady = !!mandateOptionId && selectedOptionId === mandateOptionId
 
   async function onLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -182,7 +187,7 @@ export default function MultiplayerApp() {
 
   async function onCabinetDecision() {
     if (!world || !dossier || !selectedOption || !host || !active ||
-      cabinetEvent || !reviewCabinet) return
+      cabinetEvent || !reviewCabinet || !mandateReady) return
     const owner = user?.id
     setPending(true); setError(''); setNotice('')
     let failed: unknown = null
@@ -335,7 +340,7 @@ export default function MultiplayerApp() {
             <h2>Dossiers del gobierno</h2>
             <div className="match-dossiers">
               {world.dossiers.map(item => <button className={dossier?.id === item.id ? 'selected' : ''}
-                key={item.id} onClick={() => { setSelectedDossierId(item.id);setSelectedOptionId('');setReviewCabinet(false) }}>
+                key={item.id} onClick={() => { setSelectedDossierId(item.id);setSelectedOptionId('');setReviewCabinet(false);setMandateOptionId(null) }}>
                 {item.title}</button>)}
             </div>
             {dossier ? <div className="match-dossier">
@@ -353,6 +358,12 @@ export default function MultiplayerApp() {
                     <em>Impacto fiscal: {number(option.treasury_delta_m_eur)} M€</em></span>
                 </label>)}
               </fieldset>
+              <ParliamentPanel key={world.match.id + ':' + dossier.id}
+                matchId={world.match.id} dossierId={dossier.id}
+                dossierVersion={dossier.version} options={options}
+                selectedOptionId={selectedOptionId} userId={user!.id}
+                players={world.players} host={host} decided={!!cabinetEvent}
+                onMandateChange={setMandateOptionId} />
               {myStance ? <p className="match-recorded" role="status">
                 Posición de tu partido registrada: {options.find(item => item.id === myStance.option_id)?.title}.
                 Afinidad política calculada: {myStance.policy_affinity}/100.
@@ -364,12 +375,13 @@ export default function MultiplayerApp() {
                   Tesoro: {number(cabinetEvent.state_after.treasury_m_eur)} M€;
                   confianza: {cabinetEvent.state_after.trust}%.</p>
                 : <>
-                  <p>Solo el anfitrión puede ejecutar una decisión nacional. Se utiliza el motor determinista existente y su historial persistente.</p>
-                  {!reviewCabinet ? <button disabled={pending || !selectedOptionId}
+                  <p>Solo el gobierno firma la decisión nacional, y únicamente después de que la asamblea apruebe esa opción. El mandato se verifica también en la base de datos.</p>
+                  {!mandateReady && <p role="status">Selecciona la opción aprobada por el Parlamento para poder firmarla.</p>}
+                  {!reviewCabinet ? <button disabled={pending || !mandateReady}
                     onClick={() => setReviewCabinet(true)}>Revisar decisión de gobierno</button>
                   : <div className="match-confirm">
                     <p>¿Ejecutar «{selectedOption?.title}» para toda la nación? Esta operación es irreversible.</p>
-                    <button disabled={pending || !selectedOptionId}
+                    <button disabled={pending || !mandateReady}
                       onClick={() => void onCabinetDecision()}>Firmar y ejecutar</button>
                     <button className="text-button" disabled={pending}
                       onClick={() => setReviewCabinet(false)}>Cancelar</button>

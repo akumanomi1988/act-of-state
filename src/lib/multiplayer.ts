@@ -123,6 +123,13 @@ const messages: Record<string, string> = {
   MATCH_NOT_ACTIVE: 'La partida aún no está activa.',
   MATCH_STANCE_ALREADY_RECORDED: 'Ya fijaste una posición distinta para este expediente.',
   MATCH_INVALID_RESPONSE: 'La respuesta de la partida no es válida.',
+  PARLIAMENT_APPROVAL_REQUIRED: 'El Parlamento debe aprobar la medida antes de firmarla.',
+  PARLIAMENT_BILL_OPEN: 'Ya existe una propuesta abierta para este expediente.',
+  PARLIAMENT_ALREADY_APPROVED: 'El Parlamento ya aprobó una medida para este expediente.',
+  PARLIAMENT_VOTE_LOCKED: 'Tu voto es definitivo y no puede cambiarse.',
+  PARLIAMENT_VOTE_CLOSED: 'La votación ya está cerrada.',
+  PARLIAMENT_INVALID_VOTE: 'El voto seleccionado no es válido.',
+  PARLIAMENT_INVALID_RESPONSE: 'La respuesta del Parlamento no es válida.',
   DOSSIER_NOT_AVAILABLE: 'Este expediente todavía no está disponible.',
   INVALID_OPTION: 'La opción seleccionada no existe.'
 }

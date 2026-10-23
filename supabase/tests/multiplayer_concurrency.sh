@@ -67,6 +67,19 @@ seat_counts="$(psql -X -Atq -v ON_ERROR_STOP=1 -c "select count(*) || ':' || cou
 if [[ "$seat_counts" != "10:10:10" ]]; then echo "SEAT_INTEGRITY_FAILED: $seat_counts" >&2; exit 1; fi
 run_as_user "$host_id" "select status from public.start_match('$match_id');" >"$test_dir/start.log" 2>&1
 
+# Parliament authorizes the exact measure before the concurrency race.
+run_as_user "$host_id" "select id from public.propose_parliament_bill('$match_id','energy-resilience',1,'household-support');" >"$test_dir/propose.log" 2>&1
+bill_id="$(psql -X -Atq -v ON_ERROR_STOP=1 -c "select id from public.parliament_bills where match_id='$match_id' and dossier_id='energy-resilience';")"
+mapfile -t player_ids < <(psql -X -Atq -v ON_ERROR_STOP=1 -c "select user_id from public.match_players where match_id='$match_id' order by seat_no;")
+if [[ "${#player_ids[@]}" -ne 10 ]]; then echo "PARLIAMENT_SEAT_COUNT_FAILED" >&2; exit 1; fi
+for i in "${!player_ids[@]}"; do
+  choice=no
+  if (( i < 5 || i == 9 )); then choice=yes; fi
+  run_as_user "${player_ids[$i]}" "select status from public.cast_parliament_vote('$bill_id','$choice');" >"$test_dir/vote-$i.log" 2>&1 || fail_with_log vote "$i"
+done
+bill_status="$(psql -X -Atq -v ON_ERROR_STOP=1 -c "select status from public.parliament_bills where id='$bill_id';")"
+if [[ "$bill_status" != "passed" ]]; then echo "PARLIAMENT_MANDATE_FAILED: $bill_status" >&2; exit 1; fi
+
 # Ten concurrent retries of one national decision must execute once.
 declare -a decision_pids=()
 for n in $(seq 1 10); do
@@ -88,6 +101,8 @@ retained="$(psql -X -Atq -v ON_ERROR_STOP=1 -c "select
     (select count(*) from public.matches) || ':' ||
     (select count(*) from public.match_players) || ':' ||
     (select count(*) from public.match_stances) || ':' ||
-    (select count(*) from public.decision_events);")"
-if [[ "$retained" != "0:0:0:0:0:0" ]]; then echo "FIXTURE_LEAK: $retained" >&2; exit 1; fi
-echo "AOS_CONCURRENCY_PASS: nine admissions, two full rejections, ten safe decision retries, zero retained rows"
+    (select count(*) from public.decision_events) || ':' ||
+    (select count(*) from public.parliament_bills) || ':' ||
+    (select count(*) from public.parliament_votes);")"
+if [[ "$retained" != "0:0:0:0:0:0:0:0" ]]; then echo "FIXTURE_LEAK: $retained" >&2; exit 1; fi
+echo "AOS_CONCURRENCY_PASS: nine admissions, two full rejections, ten binding ballots, ten safe decision retries, zero retained rows"
