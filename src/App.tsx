@@ -288,6 +288,32 @@ export default function App() {
                 <strong>{world.gameDay}</strong>
                 <small>Un día real equivale a un día de juego. Hora de referencia: UTC.</small>
               </div>
+              <section className="weekly-card" aria-label="Ciclo político semanal">
+                <div className="eyebrow">SEMANA POLÍTICA · RELOJ DEL SERVIDOR</div>
+                <div className="week-dates">
+                  <div><span>LUNES · PUBLICACIÓN</span><strong>{world.calendar.weekStart}</strong></div>
+                  <div><span>VIERNES · HITO</span><strong>{world.calendar.friday}</strong></div>
+                </div>
+                <div className="week-progress-label">
+                  <span>Expedientes semanales resueltos</span>
+                  <strong>{world.calendar.weeklyResolved} / {world.calendar.weeklyTotal}</strong>
+                </div>
+                {world.calendar.weeklyTotal > 0 ? (
+                  <div className="week-progress" role="progressbar" aria-label="Expedientes semanales resueltos"
+                    aria-valuemin={0} aria-valuemax={world.calendar.weeklyTotal}
+                    aria-valuenow={world.calendar.weeklyResolved}>
+                    <span style={{ width: (100 * world.calendar.weeklyResolved / world.calendar.weeklyTotal) + '%' }} />
+                  </div>
+                ) : <p className="week-note">Todavía no hay una agenda semanal aprobada y publicada.</p>}
+                <p className="week-note">{world.calendar.fridayReached
+                  ? 'Hito del viernes alcanzado. El balance refleja las decisiones registradas.'
+                  : 'El hito del viernes mostrará el balance de las decisiones registradas.'}</p>
+                {world.calendar.weeklyTotal > 0 && <div className="week-balance">
+                  <span>IMPACTO FISCAL DE LA SEMANA</span>
+                  <strong>{world.calendar.weeklyTreasuryDeltaM > 0 ? '+' : ''}
+                    {number(world.calendar.weeklyTreasuryDeltaM)} M€</strong>
+                </div>}
+              </section>
               <div className="section-heading"><h2>Expedientes</h2><span>{world.dossiers.length} disponibles en catálogo</span></div>
               <div className="dossier-list">
                 {world.dossiers.map(d => {
@@ -323,7 +349,18 @@ export default function App() {
                   <h2>{dossier.title}</h2>
                   <div className="rule" />
                   <p className="dossier-context">{dossier.context}</p>
-                  <div className="fictitious-notice">EXPEDIENTE INTRODUCTORIO · ESCENARIO FICTICIO, NO NOTICIA ACTUAL</div>
+                  {dossier.release_kind === 'intro' ? (
+                    <div className="fictitious-notice">EXPEDIENTE INTRODUCTORIO · ESCENARIO FICTICIO, NO NOTICIA ACTUAL</div>
+                  ) : (
+                    <div className="editorial-source">
+                      <span>EXPEDIENTE SEMANAL · FUENTE EDITORIAL</span>
+                      {dossier.source_url && <a href={dossier.source_url}
+                        target="_blank" rel="noopener noreferrer">
+                        {dossier.source_title || 'Consultar fuente de referencia'} ↗
+                      </a>}
+                      {dossier.source_published_at && <small>Fuente publicada: {dossier.source_published_at.slice(0, 10)}</small>}
+                    </div>
+                  )}
                   {decision ? (
                     <Outcome event={decision} optionTitle={decision.option_title_snapshot} />
                   ) : available(dossier, world.gameDay) ? (
