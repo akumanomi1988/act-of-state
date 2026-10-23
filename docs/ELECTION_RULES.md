@@ -47,8 +47,11 @@ Parliamentary votes use the elected seat count as immutable ballot weight. A nat
 
 ## Not yet complete
 
-Automatic scheduled election certification, coalition and confidence votes, multidimensional ideologies, turnout, campaigns/persuasion, geographic electorate, richer households, real-user load tests, operated news ingestion and Friday economic settlement.
+Multidimensional ideologies, turnout, campaigning/persuasion, geographic electorate, richer households, real-user load tests, ten operated source-verified Monday dossiers and a full macroeconomic model (beyond the immutable Friday ledger). Basic automated certification/Friday closure were delivered in AOS-023; voluntary coalition agreements and constructive confidence motions were added in AOS-025.
 
 ## Autonomous calendar integration (AOS-023)
 
 The `aos-calendar-v1` Supabase Cron job runs every 15 minutes. It finalizes expired 24-hour parliamentary bills before attempting due elections. An unfinished, not-yet-expired bill delays certification rather than being bypassed. Certification remains idempotent and the authoritative outcome cannot be selected by a client. See `docs/CALENDAR_OPERATIONS.md` for monitoring and recovery.
+
+## Government accountability (AOS-025)
+A constructive confidence vote may transfer executive authority between ordinary elections, requiring an absolute majority of mandate-weighted seats. An open confidence motion blocks election certification and is settled by the existing Cron job before the electoral calculation. Each leadership change invalidates former cabinet coalition support. See docs/GOVERNANCE_RULES.md.
