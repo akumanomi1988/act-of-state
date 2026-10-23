@@ -88,3 +88,7 @@ The UI flow tests in `src/App.test.tsx` are included, but npm packages could not
 ## Durable political decision history
 
 Migration `20261023064252_aos_005_historical_decision_titles.sql` records the original dossier and option titles at decision time. Historical outcomes remain understandable after a dossier's publishing window expires or editors revise its catalog entry. Names and parameter snapshots are read from the authoritative `decision_events` table; the frontend does not reconstruct these from the currently accessible dossier catalog. The expiry/rename scenario is regression-tested in `supabase/tests/historical_decision.sql` (transaction rollback).
+
+## Reproducible dependency installation (AOS-MVP-001)
+
+`package-lock.json` is committed (npm lockfile v3; generated on Node 22 with npm). Use `npm ci` for local clean installs and CI; `npm install` is reserved for intentional dependency updates, whose lockfile changes must be reviewed and committed together with `package.json`. The GitHub Actions quality workflow runs from an isolated pull request and gates TypeScript, Node reference fixtures, React tests and Vite build. The temporary lockfile-generation workflow was removed after producing and verifying the lockfile.
