@@ -1,11 +1,11 @@
--- AOS-021: real shared election from 3 authenticated party accounts. Rolled back.
+-- AOS-021: real shared election from 10 authenticated party accounts. Rolled back.
 begin;
 insert into auth.users
   (id,instance_id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at)
 select ('30000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,
  '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
  'election-'||n||'@example.invalid','',now(),now(),now()
-from generate_series(1,4) n;
+from generate_series(1,11) n;
 
 create temporary table election_fixture(match_id uuid,government_id uuid,invite_code text);
 grant select,insert on pg_temp.election_fixture to authenticated;
@@ -25,7 +25,7 @@ begin
 end $$;
 
 do $$
-declare f record; p public.match_players%rowtype;
+declare f record; p public.match_players%rowtype; n integer;
 begin
  select * into f from pg_temp.election_fixture;
  perform set_config('request.jwt.claim.sub','30000000-0000-4000-8000-000000000002',true);
@@ -36,6 +36,13 @@ begin
  p:=public.join_match(f.invite_code,'Enterprise Front');
  perform public.set_party_manifesto(f.match_id,75);
  if p.seat_no<>3 then raise exception 'THIRD_PARTY_NOT_JOINED'; end if;
+ for n in 4..10 loop
+   perform set_config('request.jwt.claim.sub',
+     ('30000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid::text,true);
+   p:=public.join_match(f.invite_code,'Regional Party '||n);
+   perform public.set_party_manifesto(f.match_id,100);
+   if p.seat_no<>n then raise exception 'TEN_PARTY_ELECTION_SEATING_FAILED'; end if;
+ end loop;
  perform set_config('request.jwt.claim.sub','30000000-0000-4000-8000-000000000001',true);
  perform public.set_party_manifesto(f.match_id,100);
  perform public.start_match(f.match_id);
@@ -50,6 +57,8 @@ begin
     (state->>'nextDueOn')::date<>(now() at time zone 'UTC')::date+90 then
    raise exception 'ELECTION_SCHEDULE_WRONG'; end if;
  if state->>'canCertify'<>'false' then raise exception 'PREMATURE_CAN_CERTIFY'; end if;
+ if jsonb_array_length(state->'projection'->'parties')<>10 then
+   raise exception 'ELECTION_DID_NOT_INCLUDE_TEN_PARTIES'; end if;
  if (state->'projection'->'parties'->0->>'partyName')<>'Social Alliance' then
    raise exception 'ELECTORAL_MODEL_UNEXPECTED_WINNER'; end if;
  if (select sum((x->>'seats')::integer)
@@ -137,7 +146,7 @@ begin
 end $$;
 
 -- Non-members never see projections or election history.
-select set_config('request.jwt.claim.sub','30000000-0000-4000-8000-000000000004',true);
+select set_config('request.jwt.claim.sub','30000000-0000-4000-8000-000000000011',true);
 do $$
 declare f record; denied boolean:=false;
 begin
