@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
-import type { DecisionEvent, Dossier, DossierOption, Government, GovernmentWorld, PopulationCohort } from './types'
+import type { DecisionEvent, Government, GovernmentWorld } from './types'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
@@ -21,27 +21,27 @@ export async function startGovernment(): Promise<Government> {
 }
 
 export async function fetchWorld(governmentId: string): Promise<GovernmentWorld> {
-  const db = requireClient()
-  const [government, dossiers, options, cohorts, events, day] = await Promise.all([
-    db.from('governments').select('*').eq('id', governmentId).single(),
-    db.from('dossiers').select('*').order('id').order('version', { ascending: false }),
-    db.from('dossier_options').select('*').order('dossier_id').order('id'),
-    db.from('population_cohorts').select('*').eq('government_id', governmentId).order('code'),
-    db.from('decision_events').select('*').eq('government_id', governmentId).order('created_at', { ascending: false }),
-    db.rpc('get_game_day')
-  ])
-  for (const response of [government, dossiers, options, cohorts, events, day]) {
-    if (response.error) throw response.error
+  // One PostgreSQL statement: state, choices, cohorts and history share a
+  // consistent database snapshot. SECURITY INVOKER/RLS enforce ownership.
+  const { data, error } = await requireClient().rpc('get_government_world', {
+    p_government_id: governmentId
+  })
+  if (error) throw error
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error('GOVERNMENT_NOT_FOUND_OR_FORBIDDEN')
   }
-  if (!government.data || !day.data) throw new Error('No se pudo recuperar el estado nacional.')
-  return {
-    government: government.data as Government,
-    dossiers: (dossiers.data ?? []) as Dossier[],
-    options: (options.data ?? []) as DossierOption[],
-    cohorts: (cohorts.data ?? []) as PopulationCohort[],
-    events: (events.data ?? []) as DecisionEvent[],
-    gameDay: day.data as string
+  const snapshot = data as Partial<GovernmentWorld>
+  if (
+    snapshot.government?.id !== governmentId ||
+    typeof snapshot.gameDay !== 'string' ||
+    !Array.isArray(snapshot.dossiers) ||
+    !Array.isArray(snapshot.options) ||
+    !Array.isArray(snapshot.cohorts) ||
+    !Array.isArray(snapshot.events)
+  ) {
+    throw new Error('El estado nacional recibido no es válido.')
   }
+  return snapshot as GovernmentWorld
 }
 
 export async function submitDecision(

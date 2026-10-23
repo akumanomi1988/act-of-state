@@ -78,3 +78,9 @@ Security advisors show two intentional authenticated `SECURITY DEFINER` RPC warn
 Last observed: 5 RLS-protected game tables; 1 fictional dossier; 3 decision options; 0 user governments, 0 decision events after test rollback.
 
 **Remaining browser setup:** add the selected localhost/preview origin to Supabase Auth URL Configuration; provide project publishable key in `.env.local` or deployment environment; verify real email link and return session flow.
+
+## Consistent government-world retrieval (AOS-MVP-001)
+
+As of migration `20261023052739_aos_004_consistent_world_snapshot.sql`, the authenticated frontend reads the owned government, visible dossiers/options, cohorts, event history and UTC day through a **single** `get_government_world` RPC. The RPC runs as SECURITY INVOKER, retaining owner RLS; it returns `null` for governments outside the caller's authorization. This removes cross-request state skew from the earlier six concurrent HTTP reads. Its behavior was verified against the Akumanomi database using `supabase/tests/world_snapshot.sql` inside a transaction rolled back after execution.
+
+The UI flow tests in `src/App.test.tsx` are included, but npm packages could not be installed because the execution container cannot resolve the npm registry. They therefore remain **unexecuted**; no end-to-end browser verification has been claimed.
