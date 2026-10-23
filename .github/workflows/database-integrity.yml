@@ -1,0 +1,64 @@
+name: PostgreSQL integrity (SQL changes)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/tests/**'
+      - '.github/workflows/database-integrity.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: aos-db-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: aos_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d aos_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: aos_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify PostgreSQL client
+        run: psql --version
+      - name: Initialize isolated Auth role adapter
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/ci_auth_adapter.sql
+      - name: Apply every production migration in order
+        run: |
+          for migration in supabase/migrations/*.sql; do
+            psql -v ON_ERROR_STOP=1 -f "$migration"
+          done
+      - name: Check grants and RLS
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/access_contract.sql
+      - name: Run transactional game integration suites
+        run: |
+          for suite in decision_flow world_snapshot historical_decision; do
+            psql -v ON_ERROR_STOP=1 -f "supabase/tests/$suite.sql"
+          done
+      - name: Confirm rollback left no synthetic game state
+        run: |
+          counts=$(psql -Atqc "select
+            (select count(*) from auth.users)::text || ':' ||
+            (select count(*) from public.governments)::text || ':' ||
+            (select count(*) from public.population_cohorts)::text || ':' ||
+            (select count(*) from public.decision_events)::text")
+          test "$counts" = "0:0:0:0"
