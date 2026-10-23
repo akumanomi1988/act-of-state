@@ -64,7 +64,7 @@ Run `npm run test:oracle` independently of npm dependencies. These eight tests s
 
 ### Editorial embargo invariant
 
-Weekly dossiers require an explicit Monday `available_from` date (UTC). The authenticated Data API cannot read dossiers or option rows before publication; the privileged mutation validates the same window. Week-specific dossiers must use distinct stable IDs to allow new decisions in subsequent weeks. This still does not implement the ten-dossier Monday scheduler or Friday resolution.
+Weekly dossiers require an explicit Monday `available_from` date (UTC). The authenticated Data API cannot read dossiers or option rows before publication; the privileged mutation validates the same window. Week-specific dossiers must use distinct stable IDs to allow new decisions in subsequent weeks. The ten-dossier publication gate and Friday readout now exist; automated real-news ingestion, scheduled release creation and Friday settlement remain unimplemented.
 
 ## Backend connection (Akumanomi)
 
@@ -78,11 +78,15 @@ Applied migrations (the filenames below match the actual remote migration histor
 - `20261023052739_aos_004_consistent_world_snapshot.sql` — owner-scoped read-consistent government snapshot.
 - `20261023064252_aos_005_historical_decision_titles.sql` — immutable historical decision labels.
 - `20261023120307_aos_006_second_intro_dossier.sql` — second fictional policy dossier.
-- `aos_007_weekly_cycle` — governed sourced weekly slates and Friday readout (pending remote version reconciliation).
+- `20261023123534_aos_007_weekly_schema.sql` — weekly release state, mandatory source metadata, publication RLS.
+- `20261023123538_aos_008_weekly_approval.sql` — trusted editorial approval of exactly ten dossiers.
+- `20261023123541_aos_009_weekly_freeze.sql` — immutable approved dossiers, options and release state.
+- `20261023123543_aos_010_weekly_decision_gate.sql` — transaction-level publication defense.
+- `20261023123545_aos_011_weekly_calendar.sql` — owner-scoped weekly calendar and dashboard snapshot.
 
 Security advisors show two intentional authenticated `SECURITY DEFINER` RPC warnings: `start_government()` and `submit_decision()`. Both are explicitly granted only to `authenticated`, inspect `auth.uid()`, and restrict to the owning government; `anon` execute is denied. This is a documented least-privilege exception, not a suppressed warning. [Supabase remediation guidance](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable). Performance advisors return no issues.
 
-Last observed before the weekly-cycle migration: 5 RLS-protected game tables; 2 fictional introductory dossiers; 6 decision options; 0 user governments, 0 decision events after test rollback.
+Observed after weekly DEV deployment: 6 RLS-protected game tables; 2 fictional introductory dossiers; 6 decision options; 0 weekly releases, 0 weekly dossiers, 0 user governments and 0 decision events. The weekly publication pipeline has only been exercised with rollback fixtures.
 
 **Remaining browser setup:** add the selected localhost/preview origin to Supabase Auth URL Configuration; provide project publishable key in `.env.local` or deployment environment; verify real email link and return session flow.
 
