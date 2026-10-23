@@ -129,7 +129,7 @@ end $$;
 
 -- A cabinet bypass must fail atomically, leaving treasury and cohorts unchanged.
 select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000001',true);
-do $
+do $$
 declare m record; blocked boolean:=false; g public.governments%rowtype;
 begin
   select * into m from pg_temp.multiplayer_fixture;
@@ -140,10 +140,10 @@ begin
   if g.treasury_m_eur<>12000 or exists(select 1 from public.decision_events
       where government_id=m.government_id) then
     raise exception 'REJECTED_CABINET_WRITE_NOT_ATOMIC'; end if;
-end $;
+end $$;
 
 -- Government introduces a bill. Identical retries cannot create a second ballot.
-do $
+do $$
 declare m record; b public.parliament_bills%rowtype; retry public.parliament_bills%rowtype;
 begin
   select * into m from pg_temp.multiplayer_fixture;
@@ -154,11 +154,11 @@ begin
   insert into pg_temp.parliament_fixture values(b.id);
   if jsonb_array_length(public.get_parliament_state(m.match_id)->'bills')<>1 then
     raise exception 'PARLIAMENT_BILL_NOT_VISIBLE'; end if;
-end $;
+end $$;
 
 -- Eleven is forbidden; ten seats each have one immutable ballot.
 select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000011',true);
-do $
+do $$
 declare b uuid; m record; denied boolean:=false;
 begin
   select bill_id into b from pg_temp.parliament_fixture;
@@ -170,8 +170,8 @@ begin
   begin perform public.get_parliament_state(m.match_id);
   exception when insufficient_privilege then denied:=true; end;
   if not denied then raise exception 'OUTSIDER_READ_PARLIAMENT'; end if;
-end $;
-do $
+end $$;
+do $$
 declare n integer; b uuid; user_id uuid; result public.parliament_bills%rowtype;
   choice text; denied boolean;
 begin
@@ -195,9 +195,9 @@ begin
   if not denied then raise exception 'IMMUTABLE_BALLOT_CHANGED'; end if;
   if (select count(*) from public.parliament_votes where bill_id=b)<>10 then
     raise exception 'TEN_BALLOTS_NOT_PERSISTED'; end if;
-end $;
+end $$;
 select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000001',true);
-do $
+do $$
 declare m record; denied boolean:=false;
 begin
   select * into m from pg_temp.multiplayer_fixture;
@@ -205,7 +205,7 @@ begin
     m.match_id,'energy-resilience',1,'industry-investment');
   exception when sqlstate 'P0001' then denied:=sqlerrm='PARLIAMENT_ALREADY_APPROVED'; end;
   if not denied then raise exception 'SECOND_BILL_AFTER_PASS'; end if;
-end $;
+end $$;
 
 -- The government controls the shared nation's existing deterministic engine.
 select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000001',true);
@@ -237,7 +237,7 @@ end $$;
 
 -- A second dossier can fail in Parliament and be proposed anew.
 select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000001',true);
-do $
+do $$
 declare m record; b public.parliament_bills%rowtype;
   n integer; choice text; result public.parliament_bills%rowtype;
 begin
@@ -257,10 +257,10 @@ begin
   if (select count(*) from public.parliament_bills
       where match_id=m.match_id and dossier_id='water-security')<>2 then
     raise exception 'PARLIAMENT_HISTORY_NOT_DURABLE'; end if;
-end $;
+end $$;
 
 -- Direct Data API access stays denied; only authenticated RPCs are public.
-do $
+do $$
 begin
   if has_table_privilege('authenticated','public.parliament_bills','SELECT') or
      has_table_privilege('authenticated','public.parliament_votes','SELECT') or
@@ -269,6 +269,6 @@ begin
      not has_function_privilege('authenticated',
        'public.cast_parliament_vote(uuid,text)','EXECUTE') then
     raise exception 'PARLIAMENT_DATA_API_ACCESS_CONTRACT_BROKEN'; end if;
-end $;
+end $$;
 
 rollback;
