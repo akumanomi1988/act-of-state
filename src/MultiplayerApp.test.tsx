@@ -7,7 +7,8 @@ const mocks = vi.hoisted(() => ({
   getUser: vi.fn(), onAuthStateChange: vi.fn(), signInWithOtp: vi.fn(),
   signOut: vi.fn(), listMyMatches: vi.fn(), createMatch: vi.fn(),
   joinMatch: vi.fn(), startMatch: vi.fn(), fetchMatchWorld: vi.fn(),
-  recordMatchStance: vi.fn(), submitDecision: vi.fn()
+  recordMatchStance: vi.fn(), submitDecision: vi.fn(),
+  mandateApproved: { value: true }
 }))
 
 vi.mock('./lib/game', () => ({
@@ -24,6 +25,18 @@ vi.mock('./lib/multiplayer', () => ({
   fetchMatchWorld: mocks.fetchMatchWorld, recordMatchStance: mocks.recordMatchStance,
   matchError: (error: unknown) => error instanceof Error ? error.message : String(error)
 }))
+
+vi.mock('./ParliamentPanel', async () => {
+  const { useEffect } = await import('react')
+  return { default: ({ onMandateChange }: {
+    onMandateChange: (value: string | null) => void
+  }) => {
+    useEffect(() => {
+      onMandateChange(mocks.mandateApproved.value ? 'household-support' : null)
+    }, [onMandateChange])
+    return <div>Parliamentary mandate test fixture</div>
+  } }
+})
 
 const hostId = '00000000-0000-4000-8000-000000000001'
 const guestId = '00000000-0000-4000-8000-000000000002'
@@ -94,6 +107,7 @@ function currentSummary(status: 'lobby' | 'active' = 'active', count = 10) {
 beforeEach(() => {
   vi.resetAllMocks()
   signedInAs = hostId
+  mocks.mandateApproved.value = true
   mocks.getUser.mockResolvedValue({ data: { user: { id: hostId } }, error: null })
   mocks.onAuthStateChange.mockReturnValue({
     data: { subscription: { unsubscribe: vi.fn() } }
@@ -181,12 +195,24 @@ describe('ten-party multiplayer assembly', () => {
     render(<MultiplayerApp />)
     await screen.findByText('Energy resilience plan', { selector: 'h3' })
     fireEvent.click(screen.getByRole('radio', { name: /Protect households/ }))
-    fireEvent.click(screen.getByRole('button', { name: 'Revisar decisión de gobierno' }))
+    const review = screen.getByRole('button', { name: 'Revisar decisión de gobierno' })
+    await waitFor(() => expect(review).toBeEnabled())
+    fireEvent.click(review)
     fireEvent.click(screen.getByRole('button', { name: 'Firmar y ejecutar' }))
     await waitFor(() => expect(mocks.submitDecision).toHaveBeenCalledWith(
       governmentId, dossierId, 1, optionId))
     expect(await screen.findByText('10.600 M€')).toBeInTheDocument()
     expect(screen.getByText(/Los diez partidos comparten el nuevo estado nacional/))
       .toBeInTheDocument()
+  })
+  it('blocks a host cabinet signature until Parliament approves the selected option', async () => {
+    mocks.mandateApproved.value = false
+    mocks.listMyMatches.mockResolvedValue(currentSummary())
+    render(<MultiplayerApp />)
+    await screen.findByText('Energy resilience plan', { selector: 'h3' })
+    fireEvent.click(screen.getByRole('radio', { name: /Protect households/ }))
+    expect(screen.getByRole('button', { name: 'Revisar decisión de gobierno' }))
+      .toBeDisabled()
+    expect(mocks.submitDecision).not.toHaveBeenCalled()
   })
 })
