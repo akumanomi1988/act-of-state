@@ -9,7 +9,7 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | ID | Requirement | Status | Evidence |
 | --- | --- | --- | --- |
 | MVP-F001 | Persistent government session | PARTIAL | `start_government()` + rollback SQL recovery; live email session untested |
-| MVP-F002 | Dossiers and options | PARTIAL | Versioned editorial seed, server UTC embargo and UI; user flow untested |
+| MVP-F002 | Dossiers and options | PARTIAL | Two versioned fictional intro dossiers (6 options), server UTC embargo and UI; authenticated browser flow untested |
 | MVP-F003 | Persistent validated decisions | PARTIAL | `submit_decision()`, unique logical key and SQL rollback assertions; committed browser path pending |
 | MVP-F004 | Synthetic households/cohorts | PARTIAL | Two weighted cohorts, deterministic SQL results; broader MVP household model pending |
 | MVP-F005 | National state | PARTIAL | Treasury/approval/trust in DB and UI; other political-social dimensions future |
@@ -21,7 +21,7 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | MVP-T003 | Deterministic versioned outcomes | DONE | SQL golden fixtures and 6/6 offline Node oracle pass |
 | MVP-T004 | Safe retries, concurrency | PARTIAL | Row locks & unique index SQL-tested; parallel runtime not load-tested |
 | MVP-T005 | Automated quality | PARTIAL | SQL tests pass and new React adapter tests exist; GitHub Actions TypeScript + Vitest + Vite build PASS; browser E2E pending |
-| MVP-T006 | Operations and deployment | PARTIAL | 5 applied DB migrations; reproducible `npm ci` and frontend build verified in CI; preview hosting pending |
+| MVP-T006 | Operations and deployment | PARTIAL | 6 applied DB migrations; reproducible `npm ci` and frontend build verified in CI; preview hosting pending |
 | MVP-V001 | Approved identity | PARTIAL | Provisional typography/UI palette; final official art assets not verified |
 | MVP-V002 | Core dashboard and dossier | PARTIAL | React UI committed; browser render against real backend not verified |
 | MVP-V003 | Responsive accessibility | PARTIAL | Layout, native controls, labels; audit unexecuted |
@@ -40,7 +40,7 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 
 ## Verification and risk notes
 
-- Supabase reports 5 applied migrations in the dedicated project; public game tables have RLS; security advisor flags two intentional authenticated SECURITY DEFINER RPCs; no performance findings.
+- Supabase reports 6 applied migrations in the dedicated project; public game tables have RLS; security advisor flags two intentional authenticated SECURITY DEFINER RPCs; no performance findings.
 - All SQL fixtures roll back and leave no committed test governments/users. A separate cross-request committed synthetic-user test was blocked by connection safety controls. Do not bypass those controls or claim browser E2E success.
 - Container: `node --test` 6/6 PASS; local `npm ping` EAI_AGAIN. Hosted GitHub Actions verified `npm ci`, TypeScript, Vitest (7/7) and Vite production build on 2026-10-23. Real browser E2E and accessibility screenshots remain unverified.
 - No dedicated Vercel ACT OF STATE project is linked in the connected account. Deployment to production is not authorized.
@@ -143,3 +143,11 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - [PostgreSQL CI 39949835234](https://github.com/akumanomi1988/act-of-state/actions/runs/39949835234): migration replay **PASS**, grant/RLS contract **PASS**, three rollback SQL suites **PASS**, zero-retained-fixtures **PASS**. [Quality CI 39949835093](https://github.com/akumanomi1988/act-of-state/actions/runs/39949835093): npm install, **8/8 Node oracle**, **15/15 Vitest**, TypeScript and Vite build **PASS**.
 - This increment adds only CI/tests/documentation. No game schema or cloud data changed. Supabase's announced October 2026 Data API auto-exposure change does not invalidate the current explicit SQL `GRANT SELECT` / `GRANT EXECUTE` model, as verified by the contract test; cloud behavior still requires separate verification.
 - Improves repeatable evidence for **MVP-T001, MVP-T002, MVP-T004 and MVP-T005**; none of them becomes DONE until the remaining real Auth/cross-request E2E gate closes. Globally **1/18 fully accepted requirements**, P01 **UNKNOWN**, AOS-MVP-001 **PARTIAL**.
+
+## AOS-MVP-001 — Second playable dossier (2026-10-23)
+
+- Migration `20261023120307_aos_006_second_intro_dossier.sql` introduces a second explicitly fictional introductory scenario, `water-security`, with three fiscal/policy alternatives. Seed validated in a rollback transaction before applying to the isolated Akumanomi DEV project.
+- Existing server-authoritative `submit_decision` and owned snapshot API were reused unchanged. A government can decide `energy-resilience` and then `water-security`; the second operation compounds real treasury, approval, trust and weighted cohort state.
+- `supabase/tests/decision_flow.sql` now verifies the seeded second dossier, cumulative state, cohort response, idempotent retry and two-event history. `world_snapshot.sql` checks both seeded dossiers (six options). `src/App.test.tsx` exercises dossier switching, two signatures, fiscal review and persisted readback.
+- The second scenario is **not** presented as current news. Automated weekly publication of ten news-linked dossiers remains outside this increment.
+- The authenticated real-browser/preview-host gate remains open. Do not classify this as production E2E, and do not advance global verified acceptance beyond 1/18 without closing the relevant full requirement gates.
