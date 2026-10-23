@@ -25,7 +25,7 @@ describe('trusted editorial news discovery', () => {
     expect(mocks.invoke).not.toHaveBeenCalled()
     fireEvent.click(screen.getByRole('button', { name: 'Consultar titulares' }))
     expect(await screen.findByText(article.title)).toBeInTheDocument()
-    expect(mocks.invoke).toHaveBeenCalledWith('news-discovery?feed=guardian-politics', { method: 'GET' })
+    expect(mocks.invoke).toHaveBeenCalledWith('news-discovery?feed=elpais-spain', { method: 'GET' })
     fireEvent.click(screen.getByRole('button', { name: 'Vincular fuente' }))
     expect(onPick).toHaveBeenCalledWith(article)
   })
