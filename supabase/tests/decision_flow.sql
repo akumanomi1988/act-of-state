@@ -64,6 +64,9 @@ begin
   raise exception 'COHORT_SEED_FAILED'; end if;
  if not exists(select 1 from public.dossiers where id='energy-resilience' and version=1) then
   raise exception 'DOSSIER_LOOKUP_FAILED'; end if;
+ if not exists(select 1 from public.dossiers where id='water-security' and version=1) or
+    (select count(*) from public.dossier_options where dossier_id='water-security' and dossier_version=1)<>3 then
+  raise exception 'SECOND_EDITORIAL_DOSSIER_MISSING'; end if;
  if public.get_game_day()<>(now() at time zone 'UTC')::date then
   raise exception 'SERVER_DAY_MISMATCH'; end if;
  if exists(select 1 from public.dossiers where id='future-monday-brief') then
@@ -144,27 +147,27 @@ begin
   raise exception 'INSUFFICIENT_TREASURY_CHANGED_COHORTS';
  end if;
  -- A different dossier must compound its effects on the first decision.
- seq_event:=public.submit_decision(g.id,'sequence-stress',1,'moderate-investment');
+ seq_event:=public.submit_decision(g.id,'water-security',1,'industrial-reuse');
  if seq_event.state_before<>ev.state_after or
-    (seq_event.state_after->>'treasury_m_eur')::int<>10300 or
-    (seq_event.state_after->>'approval')::int<>72 or
-    (seq_event.state_after->>'trust')::int<>64 then
+    (seq_event.state_after->>'treasury_m_eur')::int<>9650 or
+    (seq_event.state_after->>'approval')::int<>67 or
+    (seq_event.state_after->>'trust')::int<>61 then
   raise exception 'CUMULATIVE_DECISION_STATE_DRIFT';
  end if;
- if (seq_event.cohort_effects->0->>'support_after')::int<>78 or
-    (seq_event.cohort_effects->0->>'trust_after')::int<>67 or
-    (seq_event.cohort_effects->1->>'support_after')::int<>60 or
-    (seq_event.cohort_effects->1->>'trust_after')::int<>58 then
+ if (seq_event.cohort_effects->0->>'support_after')::int<>68 or
+    (seq_event.cohort_effects->0->>'trust_after')::int<>61 or
+    (seq_event.cohort_effects->1->>'support_after')::int<>65 or
+    (seq_event.cohort_effects->1->>'trust_after')::int<>60 then
   raise exception 'CUMULATIVE_COHORT_RESPONSE_DRIFT';
  end if;
- seq_retry:=public.submit_decision(g.id,'sequence-stress',1,'moderate-investment');
+ seq_retry:=public.submit_decision(g.id,'water-security',1,'industrial-reuse');
  if seq_retry.id<>seq_event.id or
     (select count(*) from public.decision_events where government_id=g.id)<>2 then
   raise exception 'CUMULATIVE_DECISION_RETRY_DUPLICATED';
  end if;
  world_snapshot:=public.get_government_world(g.id);
  if jsonb_array_length(world_snapshot->'events')<>2 or
-    (world_snapshot->'government'->>'treasury_m_eur')::int<>10300 then
+    (world_snapshot->'government'->>'treasury_m_eur')::int<>9650 then
   raise exception 'CUMULATIVE_HISTORY_SNAPSHOT_DRIFT';
  end if;
  caught:=false;
