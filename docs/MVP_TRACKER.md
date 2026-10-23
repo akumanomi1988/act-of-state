@@ -154,7 +154,7 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 
 ## AOS-MVP-001 — Governed weekly cabinet cycle (2026-10-23)
 
-- Migration `aos_007_weekly_cycle` adds `weekly_releases`, mandatory HTTPS source metadata for weekly dossiers, a trusted-editorial-only `approve_weekly_release` RPC, and immutable approved dossier/option content.
+- Five DEV-applied migrations (`aos_007`–`aos_011`) add `weekly_releases`, mandatory HTTPS source metadata for weekly dossiers, a trusted-editorial-only `approve_weekly_release` RPC, immutable approved dossier/option content, a decision publication gate and the weekly calendar. The GitHub filenames match the remote migration versions.
 - Approval requires **exactly ten distinct dossiers**, with at least two options and non-future source timestamps each. A slate may be approved ahead of time; RLS and the existing decision RPC expose it only from its Monday UTC release date. No synthetic news is published into DEV.
 - `get_weekly_calendar` is owner-scoped, derives the real-day/game-day week and Friday milestone from server UTC, and counts weekly resolutions and fiscal impact from persisted decision events. `get_government_world` returns this calendar in the same read-consistent snapshot.
 - React displays the Monday/Friday dates, weekly completion, actual aggregate fiscal impact, and a link to the dossier's editorial source. The Friday milestone is **informational**, not yet a binding decision cutoff or fully simulated settlement; this rule still requires product acceptance.
