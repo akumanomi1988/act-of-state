@@ -15,15 +15,15 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | MVP-F005 | National state | PARTIAL | Treasury/approval/trust in DB and UI; other political-social dimensions future |
 | MVP-F006 | Daily/weekly calendar | PARTIAL | Server UTC day, ten-item Monday approval/embargo, editorial publication interface and Friday readout; actual weekly operation and settlement untested |
 | MVP-F007 | Elections | TODO | No voting engine in repository |
-| MVP-F008 | Async multiplayer | PARTIAL | RLS isolation SQL-tested; true concurrent multiuser play untested |
+| MVP-F008 | Async multiplayer | PARTIAL | Ten-party shared-nation RPCs/UI and rollback SQL suite PASS in DEV with ten synthetic identities; ten real browser accounts and concurrency/load untested |
 | MVP-T001 | Transactional persistence | PARTIAL | SQL atomicity/rollback tested; committed read-after-write not E2E verified |
 | MVP-T002 | Auth, isolation | PARTIAL | Owned SECURITY DEFINER RPC, invoker snapshot RPC, RLS; email login untested |
 | MVP-T003 | Deterministic versioned outcomes | DONE | SQL golden fixtures and 6/6 offline Node oracle pass |
-| MVP-T004 | Safe retries, concurrency | PARTIAL | Decision row locks/unique key, editorial revision CAS, idempotent publication and immutable approved content; parallel runtime not load-tested |
+| MVP-T004 | Safe retries, concurrency | PARTIAL | Decision row locks/unique key, editorial CAS, match-capacity row locks, idempotent join/start/stance and immutable approved content; parallel runtime not load-tested |
 | MVP-T005 | Automated quality | PARTIAL | SQL tests pass and new React adapter tests exist; GitHub Actions TypeScript + Vitest + Vite build PASS; browser E2E pending |
-| MVP-T006 | Operations and deployment | PARTIAL | 16 applied DB migrations; reproducible `npm ci` and frontend build verified in CI; preview hosting pending |
+| MVP-T006 | Operations and deployment | PARTIAL | 18 applied DB migrations; reproducible `npm ci` and frontend build verified in CI; preview hosting pending |
 | MVP-V001 | Approved identity | PARTIAL | Provisional typography/UI palette; final official art assets not verified |
-| MVP-V002 | Core dashboard and dossier | PARTIAL | React dashboard, dossier, server weekly calendar and source citation committed; browser render against real backend not verified |
+| MVP-V002 | Core dashboard and dossier | PARTIAL | Government dashboard, dossier, shared ten-seat assembly, party stance and result views committed; browser render against real backend not verified |
 | MVP-V003 | Responsive accessibility | PARTIAL | Layout, native controls, labels; audit unexecuted |
 | MVP-V004 | Visual consistency QA | TODO | No screenshot acceptance available |
 
@@ -172,3 +172,15 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - Requirement statuses remain **PARTIAL** for MVP-F002/F006, MVP-T001/T002/T004/T005 and MVP-V002/V003. The entire acceptance contract is not closed. **Global accepted: 1/18 (MVP-T003)**, P01 **UNKNOWN**, iteration **PARTIAL** until end-to-end gates pass.
 
 - `aos_016` adds indexes for editorial user foreign keys after the DEV performance advisor flagged them; this is a database-maintenance refinement of the same macroincrement.
+
+
+## AOS-MVP-001 — Ten-party shared-nation foundation (2026-10-23)
+
+- Canonical base: `main` at `c156b6a35f92497e4d461cad23c0edd024b788d8` after editorial PR #12 merge. Working branch: `aos/multiplayer-ten-party-foundation`. No Moncloa-AI changes or deployment.
+- Dedicated DEV migrations `20261023130040_aos_017_multiplayer_ten_party_foundation.sql` and `20261023130434_aos_018_index_match_stance_option_fk.sql` applied and source-controlled. They add one government-backed match with ten unique party seats, private invitation, host-only start, immutable dossier stances, deterministic cohort policy-affinity score and an authorized, embargo-aware shared-state read model. Existing `submit_decision` remains the sole national political/economic mutation engine.
+- `src/lib/multiplayer.ts`, `src/MultiplayerApp.tsx`, the `/multiplayer` route and institutional responsive styles implement authenticated create/join, match list, ten-seat lobby, invitation, host start, shared dossier/party stance, cabinet signature, real persisted treasury/approval/trust and political history. Fifteen-second polling is used; no Realtime claim.
+- `supabase/tests/multiplayer_ten_party.sql` executed in rollback on dedicated Supabase DEV: **PASS**. Ten synthetic identities filled all ten seats; eleventh denied; outsider denied; duplicate create/join/start/stance safe; conflicting stance rejected; guest could not submit a national decision; the host's one decision changed treasury from **12,000 to 10,600 M€ exactly once**, and seat 10 read that state. These were transient fixtures, not human accounts.
+- Expanded `supabase/tests/access_contract.sql` passed on DEV: match tables have RLS with no direct browser grants, while only authorized-user RPC invocation is possible. Zero retained matches/players/stances after rollback. Security advisor: 11 intentionally authenticated SECURITY DEFINER RPCs, all under explicit identity checks; three no-policy notices on private RPC-only tables. Performance advisor's one new missing FK index was addressed by migration `aos_018`; unused-index infos may remain.
+- `src/MultiplayerApp.test.tsx` and PostgreSQL CI gating added. CI results and ten-browser test are tracked separately; no claim of production end-to-end play.
+- Status impact: **MVP-F008 PARTIAL**, stronger evidence for **MVP-F001/F002/F003/F004/F005, T001/T002/T003/T004/T005/T006 and V002/V003**. No new requirement is fully accepted until real Auth/preview/browser verification. Global **1/18 DONE**, P01 percentage **UNKNOWN**, current iteration **PARTIAL**.
+- Explicit next gates: green quality/PostgreSQL CI, real ten-account preview smoke test, authenticated cross-match isolation, concurrent join/retry load, responsive/keyboard screenshots, scheduler and election mechanics. A synthetic ten-identity SQL suite is not an actual multiplayer playtest.
