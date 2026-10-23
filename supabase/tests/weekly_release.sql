@@ -188,14 +188,14 @@ set parameters_snapshot=jsonb_set(parameters_snapshot,'{treasury_delta_m_eur}','
 where dossier_id='weekly-test-1';
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000071',true);
-do $
+do $$
 declare g uuid;
 begin
  select id into strict g from public.governments where owner_id=auth.uid();
  if (public.get_weekly_calendar(g)->>'weeklyTreasuryDeltaM')::integer<>-100 then
   raise exception 'WEEKLY_READOUT_USES_UNTRUSTED_PARAMETERS';
  end if;
-end $;
+end $$;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000072',true);
 do $$
 declare g public.governments%rowtype; other_id uuid;
