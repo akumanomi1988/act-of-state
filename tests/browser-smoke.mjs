@@ -308,7 +308,7 @@ try {
     const state=createServerState()
     await routeApi(page,state)
     await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
-    await page.getByRole('heading',{name:'El poder no se ejer solo.'}).waitFor()
+    await page.getByRole('heading',{name:'El poder no se ejerce solo.'}).waitFor()
     await checkMobileOverflow(page,'anonymous multiplayer')
     await checkA11y(page,'anonymous multiplayer')
     await page.screenshot({path:OUT+'/multiplayer-mobile.png',fullPage:true})
