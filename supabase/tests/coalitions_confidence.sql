@@ -100,11 +100,12 @@ begin
   perform set_config('request.jwt.claim.sub','50000000-0000-4000-8000-000000000002',true);
   if (public.cast_confidence_vote(m.id,'yes')).status<>'passed' then
     raise exception 'CONSTRUCTIVE_CONFIDENCE_NOT_PASSED'; end if;
-  if (select host_user_id from public.matches where id=f.match_id)<>
+  if (public.get_governance_state(f.match_id)->>'hostUserId')::uuid<>
      '50000000-0000-4000-8000-000000000002'::uuid then
     raise exception 'CONFIDENCE_DID_NOT_TRANSFER_CABINET'; end if;
-  if (select count(*) from public.match_confidence_votes
-    where motion_id=m.id)<>4 then
+  if (select count(*) from jsonb_array_elements(
+     public.get_governance_state(f.match_id)->'votes') v
+     where v->>'motion_id'=m.id::text)<>4 then
     raise exception 'CONFIDENCE_BALLOT_DUPLICATED'; end if;
   if (public.get_governance_state(f.match_id)->>'coalitionSeats')::integer<>10 then
     raise exception 'PREVIOUS_CABINET_COALITION_STILL_ACTIVE'; end if;
@@ -138,8 +139,10 @@ begin
       ('50000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid::text,true);
     perform public.cast_confidence_vote(m.id,'no');
   end loop;
-  if (select status from public.match_confidence_motions where id=m.id)<>'rejected' or
-     (select host_user_id from public.matches where id=f.match_id)<>
+  if (select x->>'status' from jsonb_array_elements(
+       public.get_governance_state(f.match_id)->'motions') x
+       where x->>'id'=m.id::text)<>'rejected' or
+     (public.get_governance_state(f.match_id)->>'hostUserId')::uuid<>
        '50000000-0000-4000-8000-000000000002'::uuid then
     raise exception 'FAILED_MOTION_TRANSFERRED_POWER'; end if;
 end $$;
@@ -154,6 +157,9 @@ begin
   perform public.cast_confidence_vote(m.id,'yes');
 end $$;
 reset role;
+create temporary table confidence_reference as
+select id from public.match_confidence_motions order by created_at limit 1;
+grant select on pg_temp.confidence_reference to authenticated;
 update public.match_confidence_motions
 set closes_at=now()-interval '2 minutes',created_at=now()-interval '26 hours'
 where status='open' and match_id=(select match_id from pg_temp.governance_fixture);
@@ -188,7 +194,7 @@ begin
       f.match_id,'50000000-0000-4000-8000-000000000003');
   exception when insufficient_privilege then denied:=true; end;
   if not denied then raise exception 'OUTSIDER_COULD_CENSURE'; end if;
-  select id into m from public.match_confidence_motions limit 1;
+  select id into m from pg_temp.confidence_reference limit 1;
   denied:=false;
   begin perform public.cast_confidence_vote(m,'yes');
   exception when insufficient_privilege then denied:=true; end;
