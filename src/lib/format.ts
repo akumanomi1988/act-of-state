@@ -1,5 +1,5 @@
 export function number(value: number): string {
-  return new Intl.NumberFormat('es-ES').format(value)
+  return new Intl.NumberFormat('es-ES', { useGrouping: true }).format(value)
 }
 
 export function signed(value: number): string {

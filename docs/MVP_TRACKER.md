@@ -61,3 +61,17 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 - The mapped Vercel CLI fallback is not installed in this execution environment, so the authorized preview operation cannot be completed here. Do not retry unchanged or present it as deployed.
 - Local dependency-free Node reference tests remain 6/6 PASS. npm registry DNS is unresolved, so React/Vitest, TypeScript build and browser E2E remain NOT EXECUTED. Missing package-lock and no authorized preview host remain active blockers.
 - Next gate: obtain project-create access to a suitable isolated preview host (or connect an authorized account) and run reviewed build/tests, configure Supabase Auth redirect for that preview, exercise real browser session/decision/reload. No production deployment authorized.
+
+## AOS-MVP-001 — Historical integrity improvement (2026-10-23)
+
+- Identified defect: once a dossier expires, its RLS-protected option titles disappear from the catalog, so decision history previously degraded to opaque option identifiers.
+- Migration `20261023064252_aos_005_historical_decision_titles.sql` applied to isolated Akumanomi Supabase project. Stores server-derived `dossier_title_snapshot` and `option_title_snapshot` in each immutable decision event, with backfill for existing events.
+- SQL rollback regression tested the sequence decide → expire and rename dossier/option → re-read historical event: catalog stays hidden; event titles and economic effects remain unchanged; identical retry stays idempotent. SQL execution PASS.
+- React now reads persisted event titles for the outcome and history, not the live catalog. Added a test for an expired dossier returning empty visible catalog; React test execution remains pending unless CI runs successfully.
+- Global MVP verified requirements remain 1/18; no real authentication-based browser E2E has yet occurred. AOS-MVP-001 remains PARTIAL.
+
+## AOS-MVP-001 — First real GitHub CI diagnosis and fixes
+
+- Pull request #1 triggered the GitHub Actions quality workflow; first run `39913296154` executed npm dependency installation and TypeScript successfully, proving those steps work in hosted CI.
+- Vitest found three failures: Spanish `Intl.NumberFormat('es-ES')` did not group four-digit negative deltas by default; React Testing Library retained DOM nodes between tests, producing duplicate matches and misleading authorization-test results.
+- Corrected number formatter with explicit `useGrouping: true`, added `src/lib/format.test.ts`, and added explicit `afterEach(cleanup)` to React suite plus a scoped duplicate-label assertion. A repeat of quality workflow is required before acceptance; first run had skipped the production build.

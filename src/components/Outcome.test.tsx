@@ -6,7 +6,8 @@ import type { DecisionEvent } from '../lib/types'
 const persisted: DecisionEvent = {
   id: 'event-123', government_id: 'government-123',
   dossier_id: 'energy-resilience', dossier_version: 1,
-  option_id: 'household-support', engine_version: 'weighted-cohorts-v1',
+  option_id: 'household-support', dossier_title_snapshot: 'Plan de resiliencia energética',
+  option_title_snapshot: 'Proteger a los hogares', engine_version: 'weighted-cohorts-v1',
   decided_on: '2026-10-22', created_at: '2026-10-22T00:00:00Z',
   parameters_snapshot: { treasury_delta_m_eur: -1400, policy_target: 25, response_intensity: 35, trust_base_delta: 2 },
   state_before: { treasury_m_eur: 12000, approval: 50, trust: 50 },
