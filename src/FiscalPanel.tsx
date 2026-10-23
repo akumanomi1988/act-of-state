@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FISCAL_SECTORS, fetchFiscalState, setFiscalPolicy,
   type FiscalPolicy, type FiscalSector, type FiscalState } from './lib/fiscal'
 import { number } from './lib/format'
@@ -26,6 +26,7 @@ export default function FiscalPanel({ governmentId, compact = false }: Props) {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [lastFetchFailed, setLastFetchFailed] = useState(false)
+  const initializedId = useRef<string | null>(null)
 
   useEffect(() => {
     let alive = true
@@ -36,7 +37,10 @@ export default function FiscalPanel({ governmentId, compact = false }: Props) {
         if (!alive) return
         setState(fresh)
         setLastFetchFailed(false)
-        setTax(current => current === 25 || !state ? fresh.policy.tax_rate : current)
+        if (initializedId.current !== governmentId || !fresh.canRevise) {
+          initializedId.current = governmentId
+          setTax(fresh.policy.tax_rate)
+        }
       } catch (reason) {
         if (alive) { setError(matchError(reason)); setLastFetchFailed(true) }
       }
