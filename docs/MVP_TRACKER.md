@@ -54,3 +54,10 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 4. Review final brand assets, responsive/keyboard QA and release criteria.
 
 **Evidence-backed MVP completion:** 1/18 requirement fully accepted (MVP-T003). **P01 percentage:** UNKNOWN. **Iteration:** PARTIAL. Never convert backend assertions into a frontend E2E claim.
+
+## AOS-MVP-001 — 2026-10-23 preview deployment attempt
+
+- Attempted to provision an **isolated Vercel preview project** for ACT OF STATE under the currently connected Vercel team, with a Vite build, test/typecheck gates and only the dedicated Akumanomi Supabase project's public URL/publishable-key settings. The Vercel API refused project creation with HTTP **403 forbidden** (insufficient create permissions). No new project or deployment was created, and Anvil Fitness was not modified.
+- The mapped Vercel CLI fallback is not installed in this execution environment, so the authorized preview operation cannot be completed here. Do not retry unchanged or present it as deployed.
+- Local dependency-free Node reference tests remain 6/6 PASS. npm registry DNS is unresolved, so React/Vitest, TypeScript build and browser E2E remain NOT EXECUTED. Missing package-lock and no authorized preview host remain active blockers.
+- Next gate: obtain project-create access to a suitable isolated preview host (or connect an authorized account) and run reviewed build/tests, configure Supabase Auth redirect for that preview, exercise real browser session/decision/reload. No production deployment authorized.
