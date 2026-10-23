@@ -71,7 +71,7 @@ const decided: GovernmentWorld = {
 afterEach(() => cleanup())
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  vi.resetAllMocks()
   mocks.getUser.mockResolvedValue({ data: { user: { id: government.owner_id } }, error: null })
   mocks.onAuthStateChange.mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } })
   mocks.startGovernment.mockResolvedValue(government)
@@ -91,6 +91,49 @@ describe('browser decision flow with controlled Supabase adapter', () => {
     expect(outcome).toHaveTextContent('10.600 M€')
     expect(outcome).toHaveTextContent('62%')
     expect(mocks.fetchWorld).toHaveBeenCalledTimes(2)
+  })
+
+  it('recovers a committed decision after the RPC response is lost', async () => {
+    mocks.fetchWorld.mockResolvedValueOnce(initial).mockResolvedValueOnce(decided)
+    mocks.submitDecision.mockRejectedValue(new Error('Network request failed'))
+    render(<App />)
+    await screen.findByRole('button', { name: 'Firmar y ejecutar decisión' })
+    fireEvent.click(screen.getByLabelText(/Proteger a los hogares/))
+    fireEvent.click(screen.getByRole('button', { name: 'Firmar y ejecutar decisión' }))
+    const outcome = await screen.findByTestId('persisted-outcome')
+    expect(outcome).toHaveTextContent('10.600 M€')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(mocks.submitDecision).toHaveBeenCalledTimes(1)
+  })
+
+  it('blocks another signature until an uncertain read-after-write is reconciled', async () => {
+    mocks.fetchWorld.mockResolvedValueOnce(initial)
+      .mockRejectedValueOnce(new Error('Network unavailable'))
+      .mockResolvedValueOnce(decided)
+    render(<App />)
+    await screen.findByRole('button', { name: 'Firmar y ejecutar decisión' })
+    fireEvent.click(screen.getByLabelText(/Proteger a los hogares/))
+    fireEvent.click(screen.getByRole('button', { name: 'Firmar y ejecutar decisión' }))
+    const retry = await screen.findByRole('button', { name: 'Reintentar sincronización' })
+    expect(screen.getByRole('button', { name: 'Firmar y ejecutar decisión' })).toBeDisabled()
+    expect(screen.queryByTestId('persisted-outcome')).not.toBeInTheDocument()
+    fireEvent.click(retry)
+    const outcome = await screen.findByTestId('persisted-outcome')
+    expect(outcome).toHaveTextContent('10.600 M€')
+    expect(screen.queryByRole('button', { name: 'Reintentar sincronización' })).not.toBeInTheDocument()
+    expect(mocks.submitDecision).toHaveBeenCalledTimes(1)
+  })
+
+  it('preserves a rejected decision error when no event was committed', async () => {
+    mocks.fetchWorld.mockResolvedValue(initial)
+    mocks.submitDecision.mockRejectedValue(new Error('INVALID_OPTION'))
+    render(<App />)
+    await screen.findByRole('button', { name: 'Firmar y ejecutar decisión' })
+    fireEvent.click(screen.getByLabelText(/Proteger a los hogares/))
+    fireEvent.click(screen.getByRole('button', { name: 'Firmar y ejecutar decisión' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('INVALID_OPTION')
+    expect(screen.queryByTestId('persisted-outcome')).not.toBeInTheDocument()
+    expect(mocks.submitDecision).toHaveBeenCalledTimes(1)
   })
 
   it('recovers the previous decision on a fresh session without resubmitting', async () => {
