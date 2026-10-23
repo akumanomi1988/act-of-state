@@ -21,7 +21,7 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | MVP-T003 | Deterministic versioned outcomes | DONE | SQL golden fixtures and 6/6 offline Node oracle pass |
 | MVP-T004 | Safe retries, concurrency | PARTIAL | Decision row locks/unique key, editorial revision CAS, idempotent publication and immutable approved content; parallel runtime not load-tested |
 | MVP-T005 | Automated quality | PARTIAL | SQL tests pass and new React adapter tests exist; GitHub Actions TypeScript + Vitest + Vite build PASS; browser E2E pending |
-| MVP-T006 | Operations and deployment | PARTIAL | 15 applied DB migrations; reproducible `npm ci` and frontend build verified in CI; preview hosting pending |
+| MVP-T006 | Operations and deployment | PARTIAL | 16 applied DB migrations; reproducible `npm ci` and frontend build verified in CI; preview hosting pending |
 | MVP-V001 | Approved identity | PARTIAL | Provisional typography/UI palette; final official art assets not verified |
 | MVP-V002 | Core dashboard and dossier | PARTIAL | React dashboard, dossier, server weekly calendar and source citation committed; browser render against real backend not verified |
 | MVP-V003 | Responsive accessibility | PARTIAL | Layout, native controls, labels; audit unexecuted |
@@ -170,3 +170,5 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - \`supabase/tests/editorial_workflow.sql\` and the expanded \`access_contract.sql\` cover RBAC, RLS/grants, revision conflicts, atomic publish, duplicate submit, bad-input rollback, and persistence. \`src/EditorialApp.test.tsx\` tests role denial, save, incomplete publication blocking, published UI and conflict handling. These are automated fixture-based tests, not a real authenticated browser E2E.
 - No staff membership or real news article was created in DEV. A trusted operator must provision a verified user into \`editorial_members\` before the workbench is operable end-to-end by a human. The real editorial workflow and preview deployment remain **BLOCKED** pending that setup.
 - Requirement statuses remain **PARTIAL** for MVP-F002/F006, MVP-T001/T002/T004/T005 and MVP-V002/V003. The entire acceptance contract is not closed. **Global accepted: 1/18 (MVP-T003)**, P01 **UNKNOWN**, iteration **PARTIAL** until end-to-end gates pass.
+
+- `aos_016` adds indexes for editorial user foreign keys after the DEV performance advisor flagged them; this is a database-maintenance refinement of the same macroincrement.
