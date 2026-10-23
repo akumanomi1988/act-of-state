@@ -20,17 +20,19 @@ Requires Node.js 22, npm, and a **separate** Supabase project reserved for ACT O
 4. Copy \`.env.example\` to \`.env.local\`; set \`VITE_SUPABASE_URL\` and \`VITE_SUPABASE_PUBLISHABLE_KEY\` from the dedicated project. These are browser-safe public values, never a service-role/secret key.
 5. Run \`npm run dev\` and open the shown local URL.
 6. Log in via email link; a government and exactly two representative cohorts are seeded on first successful session. Returning players resume the same government.
-7. Open the fictional energy dossier and sign one decision. Reload: the same choice and calculated state must remain persisted; duplicate RPC execution must not apply twice.
+7. Open the fictional energy dossier, select an option, review its authored fiscal commitment, then explicitly sign one decision. Reload: the same choice and calculated state must remain persisted; duplicate RPC execution must not apply twice.
 
 ## Verification
 
-- \`npm run typecheck\` — TypeScript.
-- \`npm test\` — outcome rendering from persisted event fixtures.
-- \`npm run build\` — production frontend bundle.
-- \`supabase/tests/decision_flow.sql\` — disposable database integration assertions covering session recovery, ownership, invalid options, one-time effects, and history. The SQL script wraps fixtures in \`BEGIN/ROLLBACK\`. Execute only in a dedicated disposable environment where inserting test users is permitted.
+- `npm run typecheck` — TypeScript.
+- `npm test` — React flow and outcome rendering from persisted event fixtures.
+- `npm run test:oracle` — dependency-free deterministic calculation oracle.
+- `npm run build` — production frontend bundle.
+- `supabase/tests/decision_flow.sql`, `world_snapshot.sql` and `historical_decision.sql` — rollback-only database assertions covering ownership, budget atomicity, retry safety, cross-account isolation, and durable history. Execute only in a dedicated disposable environment where inserting test users is permitted.
+- `supabase/tests/access_contract.sql` — explicit table privileges, RPC execution grants, and RLS assertions.
 - E2E (manual until provisioned): sign-in, seed, dossier retrieval, decision, reload, retry and account isolation. Verify responsive/mobile and keyboard navigation.
 
-Automated CI is deliberately opt-in through a pull request or manual invocation to avoid unnecessary GitHub Actions consumption. Dependency versions are pinned in `package.json`, and the committed `package-lock.json` is verified with `npm ci` in GitHub Actions. Authenticated browser E2E and approved preview hosting remain release blockers.
+GitHub Actions quality CI runs on pull requests to `main` or manually. A separate path-filtered PostgreSQL 17 integration workflow runs only when SQL migrations/tests or its workflow change (or on manual invocation), limiting extra CI minutes. It creates a disposable database, applies every migration, executes RLS/privilege assertions and the three rollback suites, then verifies that no synthetic users or game state remain. The CI-only `ci_auth_adapter.sql` emulates role/JWT lookup for plain PostgreSQL; it is **not** real Supabase Auth and must never be applied to Supabase Cloud. Authenticated browser E2E and approved preview hosting remain release blockers.
 
 ## Boundaries
 
@@ -57,7 +59,7 @@ Review \`docs/MVP_TRACKER.md\` for status, blockers and subsequent increments.
 
 ### Deterministic contract oracle
 
-Run `npm run test:oracle` independently of npm dependencies. These six tests specify the exact three option outcomes and numeric rounding for `weighted-cohorts-v1`. They ran successfully under Node 22 during source preparation, but **do not replace PostgreSQL integration tests**. Every persisted decision also retains `parameters_snapshot` for reproducibility.
+Run `npm run test:oracle` independently of npm dependencies. These eight tests specify the exact three option outcomes and numeric rounding for `weighted-cohorts-v1`. They ran successfully under Node 22 during source preparation, but **do not replace PostgreSQL integration tests**. Every persisted decision also retains `parameters_snapshot` for reproducibility.
 
 ### Editorial embargo invariant
 
