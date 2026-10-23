@@ -201,10 +201,16 @@ async function checkMobileOverflow(page,label) {
 }
 let browser
 const passed=[]
+const failed=[]
 async function run(name,fn) {
-  await fn()
-  passed.push(name)
-  console.log('PASS '+name)
+  try {
+    await fn()
+    passed.push(name)
+    console.log('PASS '+name)
+  } catch (error) {
+    failed.push(name)
+    console.error('FAIL '+name,error)
+  }
 }
 try {
   browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']})
@@ -308,7 +314,8 @@ try {
     await page.screenshot({path:OUT+'/multiplayer-mobile.png',fullPage:true})
     await context.close()
   })
-  console.log('PASS total browser scenarios: '+passed.length)
+  console.log('Browser scenarios passed: '+passed.length+'/5')
+  if (failed.length) throw new Error('Failed scenarios: '+failed.join(', '))
 } catch (error) {
   console.error('BROWSER SMOKE FAILED',error)
   process.exitCode=1
