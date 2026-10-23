@@ -46,6 +46,9 @@ The last statement is an administrative recovery command, **not** a browser/RPC 
 - Manual `certify_match_election()` remains a safe, authorized fallback; it shares exactly the same election core as Cron.
 - Raw Friday act tables and Cron helpers are not granted directly to client roles. Match members read the calendar through `get_match_calendar()`.
 
+## Migration-order note
+The existing repository contains legacy migration filenames whose timestamp prefixes do not match the applied Supabase migration-history versions. This AOS-023 file deliberately sorts after the electoral migrations in disposable CI. Do **not** assume a fresh `supabase db push` can reconcile the historical filename/version drift; audit and repair migration history as a dedicated, reviewed operation before adopting CLI-based releases.
+
 ## Release gates
 1. Disposable PostgreSQL applies all migrations and passes `autonomous_calendar.sql`, elections, ten-party, RLS and concurrency tests.
 2. Hosted Supabase migration applies successfully, `pg_cron` job is present, administrative dry run reports zero errors, and security advisors show no newly public private functions.
