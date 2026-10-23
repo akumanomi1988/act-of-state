@@ -15,7 +15,7 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | MVP-F005 | National state | PARTIAL | Treasury/approval/trust in DB and UI; other political-social dimensions future |
 | MVP-F006 | Daily/weekly calendar | PARTIAL | Server UTC day, ten-item Monday approval/embargo, editorial publication interface and Friday readout; actual weekly operation and settlement untested |
 | MVP-F007 | Elections | TODO | No voting engine in repository |
-| MVP-F008 | Async multiplayer | PARTIAL | Ten-party shared-nation RPCs/UI and rollback SQL suite PASS in DEV with ten synthetic identities; ten real browser accounts and concurrency/load untested |
+| MVP-F008 | Async multiplayer | PARTIAL | Ten-party shared-nation RPCs/UI; binding parliament proposal/vote/tally/mandate added in AOS-019; synthetic tests and concurrency CI cover the server contract; ten real browser accounts untested |
 | MVP-T001 | Transactional persistence | PARTIAL | SQL atomicity/rollback tested; committed read-after-write not E2E verified |
 | MVP-T002 | Auth, isolation | PARTIAL | Owned SECURITY DEFINER RPC, invoker snapshot RPC, RLS; email login untested |
 | MVP-T003 | Deterministic versioned outcomes | DONE | SQL golden fixtures and 6/6 offline Node oracle pass |
@@ -194,3 +194,11 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - The PostgreSQL CI workflow executes this gate after replaying all 18 migrations and the existing rollback suites. This validates database-level concurrency and transaction ordering, not real simultaneous browsers, user Auth refresh/reconnection, web hosting or load at scale.
 - Preview E2E blocker: the connected Vercel account exposes only the `nexttapstudios` team labeled `Anvil-fitness`, and no ACT OF STATE project. To avoid crossing product ownership and deployment scope, no project was created there. A dedicated authorized Vercel destination or alternative approved preview host is needed before browser E2E.
 - Requirement impact: stronger evidence for **MVP-F008**, **MVP-T001**, **MVP-T002**, **MVP-T004**, **MVP-T005**; statuses remain **PARTIAL** pending real authenticated browser E2E. Global full acceptance remains **1/18**, phase P01 percentage **UNKNOWN**.
+
+## AOS-MVP-001 — Binding parliamentary legislation macroincrement (2026-10-23)
+
+- PR [#16](https://github.com/akumanomi1988/act-of-state/pull/16) introduces `aos_019`, `src/lib/parliament.ts` and `src/ParliamentPanel.tsx`. It turns opposition into a material gameplay actor: government proposal, immutable per-party yes/no/abstain ballots, automatic absolute-majority approval, final quorum/majority after all ballots or 24 hours, rejection and new proposal, and a mandate tied to the exact dossier version and option.
+- PostgreSQL is authoritative: authentication and match-membership checks, host-only proposals, serialized row-locked tally and approval, RLS and revoked direct table grants. A `decision_events` trigger prevents any active multiplayer government's original decision RPC from bypassing Parliament; rejected attempts leave no fiscal/state mutation.
+- The assembly UI shows the proposed option, live tally, participation, deadline, personal recorded ballot and approved mandate. The host can sign only the approved measure. Fresh RPC reads reconcile mutations and polling refreshes every 15 seconds.
+- The rollback-only ten-identity integration suite now checks the mandate gate, outsider denial, immutable ballots, all ten participants, rejected/reproposed measures, idempotency and durable shared state. The cross-connection stress script first passes a bill, then races ten identical cabinet requests. Foreign keys cascade during synthetic account cleanup.
+- Deployment/acceptance boundary: real browser magic-link login and ten independent authenticated sessions are still not verified, nor are full elections, real-news ingestion, Friday settlement, responsive screenshot QA or completed launch readiness. **MVP-F008 remains PARTIAL; global fully accepted requirements remain 1/18.**
