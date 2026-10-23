@@ -54,6 +54,8 @@ jobs:
           for suite in decision_flow world_snapshot historical_decision weekly_release editorial_workflow multiplayer_ten_party; do
             psql -v ON_ERROR_STOP=1 -f "supabase/tests/$suite.sql"
           done
+      - name: Exercise concurrent match capacity and decision retries
+        run: bash supabase/tests/multiplayer_concurrency.sh
       - name: Confirm rollback left no synthetic game state
         run: |
           counts=$(psql -Atqc "select
