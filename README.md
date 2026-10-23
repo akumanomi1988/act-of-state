@@ -30,7 +30,7 @@ Requires Node.js 22, npm, and a **separate** Supabase project reserved for ACT O
 - \`supabase/tests/decision_flow.sql\` — disposable database integration assertions covering session recovery, ownership, invalid options, one-time effects, and history. The SQL script wraps fixtures in \`BEGIN/ROLLBACK\`. Execute only in a dedicated disposable environment where inserting test users is permitted.
 - E2E (manual until provisioned): sign-in, seed, dossier retrieval, decision, reload, retry and account isolation. Verify responsive/mobile and keyboard navigation.
 
-Automated CI is deliberately opt-in through a pull request or manual invocation to avoid unnecessary GitHub Actions consumption. Dependency versions are pinned in \`package.json\`; a lockfile has not yet been generated in this network-restricted environment and is a release blocker.
+Automated CI is deliberately opt-in through a pull request or manual invocation to avoid unnecessary GitHub Actions consumption. Dependency versions are pinned in `package.json`, and the committed `package-lock.json` is verified with `npm ci` in GitHub Actions. Authenticated browser E2E and approved preview hosting remain release blockers.
 
 ## Boundaries
 
@@ -83,11 +83,11 @@ Last observed: 5 RLS-protected game tables; 1 fictional dossier; 3 decision opti
 
 As of migration `20261023052739_aos_004_consistent_world_snapshot.sql`, the authenticated frontend reads the owned government, visible dossiers/options, cohorts, event history and UTC day through a **single** `get_government_world` RPC. The RPC runs as SECURITY INVOKER, retaining owner RLS; it returns `null` for governments outside the caller's authorization. This removes cross-request state skew from the earlier six concurrent HTTP reads. Its behavior was verified against the Akumanomi database using `supabase/tests/world_snapshot.sql` inside a transaction rolled back after execution.
 
-The UI flow tests in `src/App.test.tsx` are included, but npm packages could not be installed because the execution container cannot resolve the npm registry. They therefore remain **unexecuted**; no end-to-end browser verification has been claimed.
+The UI flow tests in `src/App.test.tsx` run successfully in [GitHub Actions quality CI](https://github.com/akumanomi1988/act-of-state/actions/runs/39915400041), alongside TypeScript and the production Vite build. These are mocked-adapter component tests, **not** authenticated browser E2E tests.
 
 ## Durable political decision history
 
-Migration `20261023064252_aos_005_historical_decision_titles.sql` records the original dossier and option titles at decision time. Historical outcomes remain understandable after a dossier's publishing window expires or editors revise its catalog entry. Names and parameter snapshots are read from the authoritative `decision_events` table; the frontend does not reconstruct these from the currently accessible dossier catalog. The expiry/rename scenario is regression-tested in `supabase/tests/historical_decision.sql` (transaction rollback).
+Migration `20261023064252_aos_005_historical_decision_titles.sql` records the original dossier and option titles at decision time. Historical outcomes remain understandable after a dossier's publishing window expires or editors revise its catalog entry. Names and parameter snapshots are read from the authoritative `decision_events` table; the frontend does not reconstruct these from the currently accessible dossier catalog. The expiry/rename scenario is regression-tested in `supabase/tests/historical_decision.sql` (transaction rollback). The interface also allows reopening archived decisions to inspect their original persisted national-state changes and cohort effects, even after the dossier leaves the visible catalog.
 
 ## Reproducible dependency installation (AOS-MVP-001)
 
