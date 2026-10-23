@@ -58,3 +58,7 @@ Review \`docs/MVP_TRACKER.md\` for status, blockers and subsequent increments.
 ### Deterministic contract oracle
 
 Run `npm run test:oracle` independently of npm dependencies. These six tests specify the exact three option outcomes and numeric rounding for `weighted-cohorts-v1`. They ran successfully under Node 22 during source preparation, but **do not replace PostgreSQL integration tests**. Every persisted decision also retains `parameters_snapshot` for reproducibility.
+
+### Editorial embargo invariant
+
+Weekly dossiers require an explicit Monday `available_from` date (UTC). The authenticated Data API cannot read dossiers or option rows before publication; the privileged mutation validates the same window. Week-specific dossiers must use distinct stable IDs to allow new decisions in subsequent weeks. This still does not implement the ten-dossier Monday scheduler or Friday resolution.

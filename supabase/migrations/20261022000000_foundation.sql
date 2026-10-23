@@ -26,7 +26,12 @@ create table public.dossiers (
  release_kind text not null default 'intro' check(release_kind in ('intro','weekly')),
  available_from date, available_until date,
  primary key(id,version),
- check(available_until is null or available_from is null or available_until >= available_from)
+ check(available_until is null or available_from is null or available_until >= available_from),
+ -- Weekly dossiers are always released on Monday, never without a server release date.
+ constraint weekly_monday_publication check (
+  release_kind <> 'weekly' or
+  (available_from is not null and extract(isodow from available_from)=1)
+ )
 );
 create table public.dossier_options (
  dossier_id text not null, dossier_version int not null, id text not null,
@@ -73,10 +78,21 @@ create policy decisions_owner_read on public.decision_events for select
  to authenticated using(exists(
  select 1 from public.governments g where g.id=government_id
  and g.owner_id=(select auth.uid())));
+-- Game-authoritative visibility: never disclose a scheduled dossier/options early.
 create policy dossiers_authenticated_read on public.dossiers
- for select to authenticated using(true);
+ for select to authenticated using (
+  (release_kind='intro' or
+    (release_kind='weekly' and available_from is not null))
+  and (available_from is null or available_from <= (now() at time zone 'UTC')::date)
+  and (available_until is null or available_until >= (now() at time zone 'UTC')::date)
+ );
 create policy options_authenticated_read on public.dossier_options
- for select to authenticated using(true);
+ for select to authenticated using (
+  exists (
+   select 1 from public.dossiers d
+   where d.id=dossier_id and d.version=dossier_version
+  )
+ );
 -- Fictional editorial scenario, not a real-world news report.
 insert into public.dossiers(id,version,title,context,category,release_kind)
 values('energy-resilience',1,'Plan de resiliencia energética',
@@ -154,7 +170,8 @@ begin
  end if;
  select * into v_d from public.dossiers
  where id=p_dossier_id and version=p_dossier_version;
- if not found or (v_d.available_from is not null and v_day<v_d.available_from)
+ if not found or (v_d.release_kind='weekly' and v_d.available_from is null)
+ or (v_d.available_from is not null and v_day<v_d.available_from)
  or (v_d.available_until is not null and v_day>v_d.available_until) then
   raise exception 'DOSSIER_NOT_AVAILABLE' using errcode='P0001';
  end if;

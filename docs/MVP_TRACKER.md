@@ -56,3 +56,12 @@ Progress: GLOBAL MVP UNKNOWN; P01 UNKNOWN; AOS-MVP-001 PARTIAL. No speculative p
 
 - **Logical decision integrity:** uniqueness is now `(government_id, dossier_id)` regardless of dossier editorial version. A different version/option cannot reapply effects. SQL regression covers replay on version 2. Frontend reflects decision history across versions.
 - **Auth resiliency:** login/logout request rejection now releases UI pending state in `finally` and surfaces an error.
+
+## AOS-MVP-001 — Publication privacy gate
+
+- Authenticated Data API RLS now limits dossier visibility to the server-controlled UTC publication interval.
+- Dossier options cannot be read until their parent dossier is visible.
+- The SECURITY DEFINER decision RPC enforces the same date boundary itself.
+- Weekly dossiers must have an explicit Monday publication date; they cannot be silently exposed before scheduling.
+- Added disposable SQL fixtures for future, published and unpublished decision rejection.
+- **Verification status: PARTIAL**. SQL changes committed but not applied to a dedicated ACT OF STATE database. No real integration PASS asserted.

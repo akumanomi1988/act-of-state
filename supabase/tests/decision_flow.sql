@@ -17,6 +17,25 @@ insert into public.dossier_options
 select dossier_id,2,id,title,description,treasury_delta_m_eur,
  policy_target,response_intensity,trust_base_delta
 from public.dossier_options where dossier_id='energy-resilience' and dossier_version=1;
+-- Scheduling fixtures stay isolated inside this rolled-back transaction.
+-- Next Monday is guaranteed to be in the future, including on Mondays.
+insert into public.dossiers(id,version,title,context,category,release_kind,available_from)
+values('future-monday-brief',1,'Embargoed weekly dossier','Fictional unpublished event',
+ 'Institutions','weekly',
+ (current_date + ((8-extract(isodow from current_date)::int)%7) + 7));
+insert into public.dossier_options
+ (dossier_id,dossier_version,id,title,description,treasury_delta_m_eur,
+  policy_target,response_intensity,trust_base_delta)
+values('future-monday-brief',1,'hold','Hold','No action',0,50,0,0);
+-- Published fixtures: the previous Monday is already past.
+insert into public.dossiers(id,version,title,context,category,release_kind,available_from)
+values('published-monday-brief',1,'Published dossier','Fictional public event',
+ 'Institutions','weekly',
+ (current_date - ((extract(isodow from current_date)::int+6)%7) - 7));
+insert into public.dossier_options
+ (dossier_id,dossier_version,id,title,description,treasury_delta_m_eur,
+  policy_target,response_intensity,trust_base_delta)
+values('published-monday-brief',1,'hold','Hold','No action',0,50,0,0);
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000001',true);
 do $$
@@ -33,6 +52,18 @@ begin
   raise exception 'DOSSIER_LOOKUP_FAILED'; end if;
  if public.get_game_day()<>(now() at time zone 'UTC')::date then
   raise exception 'SERVER_DAY_MISMATCH'; end if;
+ if exists(select 1 from public.dossiers where id='future-monday-brief') then
+  raise exception 'PREPUBLICATION_DOSSIER_DISCLOSURE'; end if;
+ if exists(select 1 from public.dossier_options where dossier_id='future-monday-brief') then
+  raise exception 'PREPUBLICATION_OPTIONS_DISCLOSURE'; end if;
+ if not exists(select 1 from public.dossiers where id='published-monday-brief') then
+  raise exception 'PUBLISHED_DOSSIER_INVISIBLE'; end if;
+ if not exists(select 1 from public.dossier_options where dossier_id='published-monday-brief') then
+  raise exception 'PUBLISHED_OPTIONS_INVISIBLE'; end if;
+ caught:=false;
+ begin perform public.submit_decision(g.id,'future-monday-brief',1,'hold');
+ exception when sqlstate 'P0001' then caught:=true; end;
+ if not caught then raise exception 'PREPUBLICATION_DECISION_ALLOWED'; end if;
  funds:=g.treasury_m_eur;
  caught:=false;
  begin
