@@ -65,6 +65,8 @@ export interface DecisionEvent {
   dossier_id: string
   dossier_version: number
   option_id: string
+  dossier_title_snapshot: string
+  option_title_snapshot: string
   engine_version: string
   decided_on: string
   state_before: GovernmentState

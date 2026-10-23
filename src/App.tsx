@@ -212,8 +212,7 @@ export default function App() {
                   <p className="dossier-context">{dossier.context}</p>
                   <div className="fictitious-notice">EXPEDIENTE INTRODUCTORIO · ESCENARIO FICTICIO, NO NOTICIA ACTUAL</div>
                   {decision ? (
-                    <Outcome event={decision} optionTitle={
-                      world.options.find(o => o.id === decision.option_id && o.dossier_id === decision.dossier_id && o.dossier_version === decision.dossier_version)?.title ?? decision.option_id} />
+                    <Outcome event={decision} optionTitle={decision.option_title_snapshot} />
                   ) : available(dossier, world.gameDay) ? (
                     <fieldset className="choice-list" disabled={pending}>
                       <legend>Elige una línea de actuación</legend>
@@ -251,8 +250,8 @@ export default function App() {
               <h3 className="metric-subheading">Historial de decisiones</h3>
               {world.events.length === 0 ? <p className="muted">Todavía no hay decisiones registradas.</p>
                 : <ol className="history">{world.events.map(event => <li key={event.id}>
-                  <strong>{world.options.find(o => o.id === event.option_id && o.dossier_id === event.dossier_id)?.title ?? event.option_id}</strong>
-                  <small>{event.decided_on} · {event.engine_version}</small>
+                  <strong>{event.option_title_snapshot}</strong>
+                  <small>{event.dossier_title_snapshot} · {event.decided_on} · {event.engine_version}</small>
                 </li>)}</ol>}
             </aside>
           </main>

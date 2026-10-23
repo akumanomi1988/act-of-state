@@ -39,6 +39,8 @@ const event: DecisionEvent = {
   id: '00000000-0000-4000-8000-000000000003',
   government_id: government.id, dossier_id: 'energy-resilience',
   dossier_version: 1, option_id: 'household-support',
+  dossier_title_snapshot: 'Plan de resiliencia energética',
+  option_title_snapshot: 'Proteger a los hogares',
   engine_version: 'weighted-cohorts-v1',
   decided_on: '2026-10-23', created_at: '2026-10-23T00:00:00Z',
   parameters_snapshot: { treasury_delta_m_eur: -1400, policy_target: 25, response_intensity: 35, trust_base_delta: 2 },
@@ -94,6 +96,20 @@ describe('browser decision flow with controlled Supabase adapter', () => {
     render(<App />)
     const outcome = await screen.findByTestId('persisted-outcome')
     expect(outcome).toHaveTextContent('10.600 M€')
+    expect(mocks.submitDecision).not.toHaveBeenCalled()
+  })
+
+  it('preserves readable decision history after the editorial dossier expires', async () => {
+    mocks.fetchWorld.mockResolvedValue({
+      ...decided,
+      dossiers: [],
+      options: []
+    })
+    render(<App />)
+    await screen.findByText('No hay expedientes disponibles.')
+    expect(screen.getByText('Proteger a los hogares')).toBeInTheDocument()
+    expect(screen.getByText(/Plan de resiliencia energética · 2026-10-23/))
+      .toBeInTheDocument()
     expect(mocks.submitDecision).not.toHaveBeenCalled()
   })
 

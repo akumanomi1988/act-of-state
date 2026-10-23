@@ -84,3 +84,7 @@ Last observed: 5 RLS-protected game tables; 1 fictional dossier; 3 decision opti
 As of migration `20261023052739_aos_004_consistent_world_snapshot.sql`, the authenticated frontend reads the owned government, visible dossiers/options, cohorts, event history and UTC day through a **single** `get_government_world` RPC. The RPC runs as SECURITY INVOKER, retaining owner RLS; it returns `null` for governments outside the caller's authorization. This removes cross-request state skew from the earlier six concurrent HTTP reads. Its behavior was verified against the Akumanomi database using `supabase/tests/world_snapshot.sql` inside a transaction rolled back after execution.
 
 The UI flow tests in `src/App.test.tsx` are included, but npm packages could not be installed because the execution container cannot resolve the npm registry. They therefore remain **unexecuted**; no end-to-end browser verification has been claimed.
+
+## Durable political decision history
+
+Migration `20261023064252_aos_005_historical_decision_titles.sql` records the original dossier and option titles at decision time. Historical outcomes remain understandable after a dossier's publishing window expires or editors revise its catalog entry. Names and parameter snapshots are read from the authoritative `decision_events` table; the frontend does not reconstruct these from the currently accessible dossier catalog. The expiry/rename scenario is regression-tested in `supabase/tests/historical_decision.sql` (transaction rollback).
