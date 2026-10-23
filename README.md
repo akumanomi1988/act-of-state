@@ -6,9 +6,9 @@ Free-to-play, browser-based, persistent political simulation. This codebase is i
 
 ## Current implementation (AOS-MVP-001)
 
-The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events and a deterministic, server-authoritative simulation engine.
+The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events, ten-party shared-nation matches and a deterministic, server-authoritative simulation engine.
 
-**Deployment status:** frontend not deployed. The dedicated Akumanomi Supabase project `Act-of-state` (`nwlxkqwbusrrldveijzb`, eu-central-1) now hosts the migrated schema. SQL integration assertions were executed in rolled-back transactions; browser E2E and real email authentication remain unverified. Never connect this application to Anvil Fitness.
+**Deployment status:** frontend not deployed. The dedicated Akumanomi Supabase project `Act-of-state` (`nwlxkqwbusrrldveijzb`, eu-central-1) now hosts the migrated schema. SQL integration assertions, including a synthetic ten-identity match, were executed in rolled-back transactions; browser E2E and real email authentication remain unverified. Never connect this application to Anvil Fitness.
 
 ## Set up
 
@@ -28,11 +28,23 @@ Requires Node.js 22, npm, and a **separate** Supabase project reserved for ACT O
 - `npm test` — React flow and outcome rendering from persisted event fixtures.
 - `npm run test:oracle` — dependency-free deterministic calculation oracle.
 - `npm run build` — production frontend bundle.
-- `supabase/tests/decision_flow.sql`, `world_snapshot.sql`, `historical_decision.sql`, `weekly_release.sql` and `editorial_workflow.sql` — rollback-only database assertions covering ownership, budget atomicity, retry safety, cross-account isolation, and durable history. Execute only in a dedicated disposable environment where inserting test users is permitted.
+- `supabase/tests/decision_flow.sql`, `world_snapshot.sql`, `historical_decision.sql`, `weekly_release.sql`, `editorial_workflow.sql` and `multiplayer_ten_party.sql` — rollback-only database assertions covering ownership, budget atomicity, retry safety, cross-account isolation, and durable history. Execute only in a dedicated disposable environment where inserting test users is permitted.
 - `supabase/tests/access_contract.sql` — explicit table privileges, RPC execution grants, and RLS assertions.
 - E2E (manual until provisioned): sign-in, seed, dossier retrieval, decision, reload, retry and account isolation. Verify responsive/mobile and keyboard navigation.
 
 GitHub Actions quality CI runs on pull requests to `main` or manually. A separate path-filtered PostgreSQL 17 integration workflow runs only when SQL migrations/tests or its workflow change (or on manual invocation), limiting extra CI minutes. It creates a disposable database, applies every migration, executes RLS/privilege assertions and the rollback integration suites, then verifies that no synthetic users or game state remain. The CI-only `ci_auth_adapter.sql` emulates role/JWT lookup for plain PostgreSQL; it is **not** real Supabase Auth and must never be applied to Supabase Cloud. Authenticated browser E2E and approved preview hosting remain release blockers.
+
+## Ten-party shared-nation multiplayer
+
+Open `/multiplayer` after configuring Supabase Auth's magic-link redirect for that origin. One authenticated account hosts a match, receiving a 32-character invite code and government seat 1. Up to nine different authenticated accounts join with unique party names. The host starts the match when at least two parties have joined; the ten seats remain visible to all members. Each member can record a single immutable dossier stance with a deterministic `policy-affinity-v1` cohort score. This is **policy affinity, not an election forecast or vote share**. The host alone can execute the national government's authoritative decision; every member reads the same persisted state, outcome, and history. The shared world refreshes every 15 seconds and on demand.
+
+All match mutations/readbacks go through authenticated PostgreSQL RPCs. The private match tables have RLS and no direct browser Data API table grants. A match is bound to one host-owned government; in this foundation each account can host only one government and therefore one match. There is no matchmaking, live push transport, campaigning, parliamentary vote, negotiation, AI-controlled party, or automated electoral outcome yet.
+
+### Honest ten-user test gate
+
+The `supabase/tests/multiplayer_ten_party.sql` rollback-only suite creates ten synthetic Auth identities and verifies create/join/start, ten-seat cap, eleventh-user rejection, outsider denial, duplicate retries, stance affinity, host-only national decision, and the shared post-decision national state. CI also checks RLS and RPC grants. **This is an integration simulation, not ten human browsers online.**
+
+To accept real ten-user play, provision ten distinct authorized test email accounts, allow the preview domain as an Auth redirect, open ten independent browser sessions, join by code, exercise both host and opposition actions, reload, and confirm identical persisted national data with no cross-match leakage. Run this against the dedicated ACT OF STATE DEV/preview environment only. Until this succeeds, multiplayer is `PARTIAL`.
 
 ## Boundaries
 
@@ -40,7 +52,7 @@ GitHub Actions quality CI runs on pull requests to `main` or manually. A separat
 - A trusted editor can prepare and approve a complete ten-item weekly slate; it becomes visible automatically on Monday UTC. The Friday milestone is an informational persisted-decision readout, not yet a binding closure/settlement.
 - Real-news collection, independent editorial verification, electoral calculation and daily economic ticks: **not implemented**.
 - Two introductory fictional dossiers are provided; neither represents real-world current events. Weekly fixtures appear only inside rollback tests.
-- One government per authenticated owner during MVP.
+- One government per authenticated owner during MVP; one match per hosted government, up to ten parties.
 - All simulation effects are derived from immutable, versioned option parameters in PostgreSQL, never from submitted client-calculated values.
 - No LLM on the simulation path; no pay-to-win or gameplay purchase.
 
