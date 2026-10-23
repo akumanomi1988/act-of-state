@@ -71,7 +71,7 @@ end $$;
 -- Constructive motion: irrevocable weighted ballots, strict 50%+ majority.
 do $$
 declare f record; m public.match_confidence_motions%rowtype;
-  denied boolean; old government uuid;
+  denied boolean;
 begin
   select * into f from pg_temp.governance_fixture;
   perform set_config('request.jwt.claim.sub','50000000-0000-4000-8000-000000000003',true);
