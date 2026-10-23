@@ -227,7 +227,7 @@ try {
       throw err
     }
     assert.equal(state.otpCount,1)
-    assert.match(state.lastOtp.url+' '+state.lastOtp.body,/127\.0\.0\.1:4173/)
+    assert.equal(new URL(state.lastOtp.url).searchParams.get('redirect_to'),BASE)
     await checkMobileOverflow(page,'anonymous home')
     await checkA11y(page,'anonymous home')
     await page.screenshot({path:OUT+'/login-mobile.png',fullPage:true})
