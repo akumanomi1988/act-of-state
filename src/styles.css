@@ -247,3 +247,43 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 .governance-confidence{margin-top:6px;border-top:1px solid var(--line);padding-top:19px}
 .governance-confidence p{line-height:1.6}
 @media(max-width:750px){.governance-mandates{grid-template-columns:1fr}}
+
+
+/* AOS-027: national fiscal policy with accessible, data-derived visual indicators. */
+.fiscal-panel{margin:22px max(20px,4.3vw);padding:clamp(18px,2.8vw,35px);display:grid;gap:18px}
+.fiscal-panel h3{font:500 clamp(25px,2.7vw,34px) 'IBM Plex Serif',Georgia,serif;margin:0}
+.fiscal-panel h4{font:500 22px 'IBM Plex Serif',Georgia,serif;margin:5px 0 15px}
+.fiscal-panel>p.muted{max-width:850px}
+.fiscal-indicators,.fiscal-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.fiscal-flow{grid-template-columns:repeat(3,minmax(0,1fr))}
+.fiscal-indicators>div,.fiscal-flow>div{padding:16px;min-width:0;background:var(--panel2);border:1px solid var(--line)}
+.fiscal-indicators small,.fiscal-flow small{display:block;font:500 10px 'IBM Plex Mono',monospace;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.fiscal-indicators strong,.fiscal-flow strong{display:block;font:500 clamp(16px,1.7vw,25px) 'IBM Plex Serif',Georgia,serif;overflow-wrap:anywhere}
+.fiscal-allocation{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.fiscal-sector{min-width:0}
+.fiscal-sector>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:9px}
+.fiscal-sector strong{color:var(--gold)}
+.fiscal-bar{height:9px;background:#364144;border:1px solid var(--line);overflow:hidden}
+.fiscal-bar span{height:100%;background:var(--gold);display:block}
+.fiscal-edit,.fiscal-history{padding-top:17px;border-top:1px solid var(--line)}
+.fiscal-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:15px}
+.fiscal-controls label{display:grid;gap:7px;font-size:12px;color:var(--text);min-width:0}
+.fiscal-controls select,.fiscal-controls input{height:45px;width:100%;min-width:0;color:var(--text);background:#101a1a;border:1px solid var(--line);padding:9px}
+.fiscal-panel button{border:1px solid var(--gold);background:var(--panel2);color:var(--gold-strong);padding:12px 14px;min-height:44px}
+.fiscal-confirm{border-left:2px solid var(--gold);padding:16px;background:var(--panel2)}
+.fiscal-confirm p{line-height:1.75;font-size:12px}
+.fiscal-history ul{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;padding:0;margin:0}
+.fiscal-history li{border:1px solid var(--line);padding:13px;display:grid;gap:7px}
+.fiscal-history li span,.fiscal-history li small{color:var(--muted);font-size:11px}
+.fiscal-history li strong{font:500 21px 'IBM Plex Serif',Georgia,serif}
+.fiscal-compact{margin:16px 0 24px}
+@media(max-width:1080px){
+  .fiscal-indicators{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .fiscal-allocation,.fiscal-controls{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .fiscal-panel{margin:12px;padding:15px}
+  .fiscal-indicators,.fiscal-flow{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fiscal-allocation,.fiscal-controls{grid-template-columns:1fr}
+  .fiscal-compact{margin:10px 0}
+}
