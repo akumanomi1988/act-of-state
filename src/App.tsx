@@ -5,6 +5,7 @@ import { number } from './lib/format'
 import type { Dossier, DossierOption, GovernmentWorld } from './lib/types'
 import Outcome from './components/Outcome'
 import FiscalPanel from './FiscalPanel'
+import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
 
 function dossierKey(d: Dossier): string {
   return d.id + ':' + d.version
@@ -436,6 +437,9 @@ export default function App() {
                 </li>)}</ol>}
             </aside>
           </main>
+          <DecisionAnalyticsPanel key={world.government.id}
+            events={world.events} gameDay={world.gameDay}
+            countryName={world.government.country_name} />
         </>
       )}
       {error && <div className="error-toast" role="alert"><strong>No se pudo completar la operación</strong><p>{error}</p>
