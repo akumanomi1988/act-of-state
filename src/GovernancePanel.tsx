@@ -91,7 +91,7 @@ export default function GovernancePanel({
   return <section className="match-panel governance-panel" aria-label="Gobierno, coaliciones y mociones de censura">
     <p className="eyebrow">PODER EJECUTIVO · NEGOCIACIÓN PARLAMENTARIA</p>
     <h3>Coaliciones y responsabilidad política</h3>
-    {!snapshot ? <p role="status">Recuperando acuerdos y mandatos…</p> : <>
+    {!snapshot ? <p role="status">{error ? "No se pudo recuperar el estado del Parlamento." : "Recuperando acuerdos y mandatos…"}</p> : <>
       <div className="governance-mandates">
         <div><span>GOBIERNO ACTUAL</span><strong>{incumbent?.party_name ?? 'Sin gobierno'}</strong></div>
         <div><span>APOYO DE COALICIÓN</span><strong>{snapshot.coalitionSeats} / {snapshot.totalSeats} escaños</strong></div>
