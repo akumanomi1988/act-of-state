@@ -8,14 +8,14 @@ Free-to-play, browser-based, persistent political simulation. This codebase is i
 
 The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional versioned dossiers, weighted population cohorts, decision events and a deterministic, server-authoritative simulation engine.
 
-**Deployment status:** not deployed. The dedicated ACT OF STATE Supabase project has not been provisioned. Code and SQL are committed; database, browser integration and security tests are not yet verified on a live instance. Do not connect this application to any other product's database.
+**Deployment status:** frontend not deployed. The dedicated Akumanomi Supabase project `Act-of-state` (`nwlxkqwbusrrldveijzb`, eu-central-1) now hosts the migrated schema. SQL integration assertions were executed in rolled-back transactions; browser E2E and real email authentication remain unverified. Never connect this application to Anvil Fitness.
 
 ## Set up
 
 Requires Node.js 22, npm, and a **separate** Supabase project reserved for ACT OF STATE.
 
 1. Clone this repository and run \`npm install\`.
-2. In the dedicated ACT OF STATE project, apply \`supabase/migrations/20261022000000_foundation.sql\` using the approved migration workflow. Review the SQL before execution. Do **not** apply it to Anvil Fitness, Moncloa-AI, or production databases of other products.
+2. The dedicated Akumanomi ACT OF STATE project already has all three migrations applied. For a **new empty** isolated project, apply the three versioned files under \`supabase/migrations/\` in order using the approved migration workflow. Do **not** apply them again to this project, Anvil Fitness, Moncloa-AI, or production databases of other products.
 3. Enable Supabase Auth email magic-link sign in and configure the permitted redirect URL for this frontend origin.
 4. Copy \`.env.example\` to \`.env.local\`; set \`VITE_SUPABASE_URL\` and \`VITE_SUPABASE_PUBLISHABLE_KEY\` from the dedicated project. These are browser-safe public values, never a service-role/secret key.
 5. Run \`npm run dev\` and open the shown local URL.
@@ -62,3 +62,19 @@ Run `npm run test:oracle` independently of npm dependencies. These six tests spe
 ### Editorial embargo invariant
 
 Weekly dossiers require an explicit Monday `available_from` date (UTC). The authenticated Data API cannot read dossiers or option rows before publication; the privileged mutation validates the same window. Week-specific dossiers must use distinct stable IDs to allow new decisions in subsequent weeks. This still does not implement the ten-dossier Monday scheduler or Friday resolution.
+
+## Backend connection (Akumanomi)
+
+Dedicated Supabase project: `Act-of-state`, reference `nwlxkqwbusrrldveijzb`. The publishable key is obtainable via Supabase Dashboard > Project Settings > API Keys. **Never commit a secret/service-role key.**
+
+Applied migrations (the filenames below match the actual remote migration history):
+
+- `20261023050112_aos_001_foundation.sql` — schema, RLS, deterministic RPC, introductory content.
+- `20261023050305_aos_002_restrict_event_trigger_execute.sql` — revoke publicly executable pre-provisioned event-trigger function.
+- `20261023050408_aos_003_index_decision_dossier_fk.sql` — FK covering index.
+
+Security advisors show two intentional authenticated `SECURITY DEFINER` RPC warnings: `start_government()` and `submit_decision()`. Both are explicitly granted only to `authenticated`, inspect `auth.uid()`, and restrict to the owning government; `anon` execute is denied. This is a documented least-privilege exception, not a suppressed warning. [Supabase remediation guidance](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable). Performance advisors return no issues.
+
+Last observed: 5 RLS-protected game tables; 1 fictional dossier; 3 decision options; 0 user governments, 0 decision events after test rollback.
+
+**Remaining browser setup:** add the selected localhost/preview origin to Supabase Auth URL Configuration; provide project publishable key in `.env.local` or deployment environment; verify real email link and return session flow.

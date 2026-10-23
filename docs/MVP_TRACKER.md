@@ -8,18 +8,18 @@ Criteria are marked DONE only if implementation **and appropriate runtime verifi
 | --- | --- | --- | --- |
 | MVP-F001 | Government session recovery | PARTIAL | \`start_government\`; isolated Supabase integration pending |
 | MVP-F002 | Structured dossier choices | PARTIAL | Versioned fictional \`energy-resilience\` seed and UI |
-| MVP-F003 | Authorized, idempotent persistent decisions | PARTIAL | Transaction RPC + unique constraint; DB testing pending |
-| MVP-F004 | Synthetic cohort population model | PARTIAL | 65/35 weighted model; DB verification pending |
+| MVP-F003 | Authorized, idempotent persistent decisions | PARTIAL | Transaction RPC + unique constraint SQL checks PASS; browser E2E pending |
+| MVP-F004 | Synthetic cohort population model | PARTIAL | 65/35 weighted model verified via SQL golden fixtures; household-detail expansion future |
 | MVP-F005 | National state variables | PARTIAL | Persisted treasury, approval and trust snapshots |
 | MVP-F006 | Daily/weekly game calendar | PARTIAL | UTC server day implemented; Monday/Friday scheduler TODO |
 | MVP-F007 | Election calculations | TODO | Future increment |
 | MVP-F008 | Async multiplayer isolation | PARTIAL | Owner isolation designed; parallel-user testing pending |
-| MVP-T001 | Transactional persistence | PARTIAL | PostgreSQL function + atomic event; no live test |
+| MVP-T001 | Transactional persistence | DONE | PostgreSQL transaction and durable event tests PASS on isolated DB |
 | MVP-T002 | Authentication and authorization | PARTIAL | Email OTP, RLS, narrow RPC grants; penetration testing pending |
-| MVP-T003 | Versioned deterministic rules | PARTIAL | \`weighted-cohorts-v1\` and persisted params |
+| MVP-T003 | Versioned deterministic rules | DONE | \`weighted-cohorts-v1\` and persisted params |
 | MVP-T004 | Concurrency, retry safety | PARTIAL | Per-government FOR UPDATE + unique event; concurrent calls not load-tested |
-| MVP-T005 | Automated quality | PARTIAL | React component and SQL integration fixtures; tests not run |
-| MVP-T006 | Operations/deployment | TODO | Separate Supabase project, lockfile, CI and release setup |
+| MVP-T005 | Automated quality | PARTIAL | SQL integration tests executed; frontend build/component tests remain unexecuted |
+| MVP-T006 | Operations/deployment | TODO | Isolated Supabase ACTIVE; lockfile, CI build, browser deployment still pending |
 | MVP-V001 | Approved identity | PARTIAL | Provisional institutional tokens; approved art not recovered |
 | MVP-V002 | Dashboard, dossier and outcome | PARTIAL | React components committed; runtime validation pending |
 | MVP-V003 | Responsive/accessibility | PARTIAL | Responsive CSS, semantics, focus, errors; audit pending |
@@ -39,14 +39,14 @@ Free-to-play browser game. 1 real day = 1 in-game day. Ten Monday dossiers and a
 
 ## Open blockers and next action
 
-1. Create/select a dedicated ACT OF STATE Supabase project (never reuse Anvil Fitness).
+1. Dedicated ACT OF STATE Supabase project provisioned in Akumanomi and migrations applied (never reused Anvil Fitness).
 2. Install dependencies and generate/commit \`package-lock.json\`, then run TypeScript, unit and build verification.
 3. Apply SQL migration only to dedicated project; execute SQL regression tests in disposable test context, review RLS and grants.
 4. Configure Auth redirects and execute real browser E2E including duplicate and unauthorized access.
 5. Review responsive/accessibility and design assets; capture acceptance screenshots.
 6. Add weekly calendar, publication and Friday settlement as later increments.
 
-Progress: GLOBAL MVP UNKNOWN; P01 UNKNOWN; AOS-MVP-001 PARTIAL. No speculative percentages.
+Progress: GLOBAL MVP 2/18 verified; P01 percentage UNKNOWN; AOS-MVP-001 PARTIAL. No speculative percentages.
 
 ## AOS-MVP-001 verification hardening
 
@@ -65,3 +65,16 @@ Progress: GLOBAL MVP UNKNOWN; P01 UNKNOWN; AOS-MVP-001 PARTIAL. No speculative p
 - Weekly dossiers must have an explicit Monday publication date; they cannot be silently exposed before scheduling.
 - Added disposable SQL fixtures for future, published and unpublished decision rejection.
 - **Verification status: PARTIAL**. SQL changes committed but not applied to a dedicated ACT OF STATE database. No real integration PASS asserted.
+
+## AOS-MVP-001 — Live backend integration on 2026-10-23
+
+- Authorized organization: `akumaNoDev` (Supabase `mtzspolfhqqsrwvmmqol`); project `Act-of-state`, reference `nwlxkqwbusrrldveijzb`, eu-central-1. This project already existed and required no new project creation.
+- Applied via Supabase migration API: `20261023050112_aos_001_foundation`, `20261023050305_aos_002_restrict_event_trigger_execute`, `20261023050408_aos_003_index_decision_dossier_fk`.
+- Executed `supabase/tests/decision_flow.sql` on the project in a rollback transaction; returned without SQL errors. Assertions cover recovery, ownership/RLS, invalid choices, idempotent retries, version replay, synthetic cohort results, golden values and embargo visibility.
+- Post-test state checked: zero governments/cohorts/events, 1 fictional dossier, 3 options, all five tables RLS enabled.
+- Access control independently inspected: `anon` cannot execute `start_government`, `submit_decision`, or `rls_auto_enable`; `authenticated` can execute intended game functions.
+- Supabase performance linter: no findings after covering index. Security linter: 2 documented intentional `authenticated` SECURITY DEFINER RPC WARN notices; no anonymous privileged RPCs.
+- Static/backend integration supports the server side, but frontend compilation, live email login, visual QA and E2E remain open. **No full iteration acceptance yet.**
+- MVP-T001 (backend transactions): DONE — SQL integration and state/history atomicity verified.
+- MVP-T003 (deterministic/versioned backend): DONE — offline reference fixtures and SQL golden comparisons verified.
+- Global MVP: 2/18 acceptance criteria currently verified. Overall phase percentage UNKNOWN; AOS-MVP-001 PARTIAL.
