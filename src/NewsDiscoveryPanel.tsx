@@ -9,6 +9,8 @@ export interface NewsCandidate {
 }
 
 const feedOptions = [
+  { id: 'elpais-spain', title: 'EL PAÍS · España' },
+  { id: 'elpais-economy', title: 'EL PAÍS · Economía' },
   { id: 'guardian-politics', title: 'The Guardian · Política' },
   { id: 'guardian-world', title: 'The Guardian · Internacional' },
   { id: 'bbc-politics', title: 'BBC · Política' },
@@ -35,7 +37,7 @@ export default function NewsDiscoveryPanel({
   usedUrls: string[]
   onPick: (candidate: NewsCandidate) => void
 }) {
-  const [feed, setFeed] = useState<(typeof feedOptions)[number]['id']>('guardian-politics')
+  const [feed, setFeed] = useState<(typeof feedOptions)[number]['id']>('elpais-spain')
   const [articles, setArticles] = useState<NewsCandidate[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -69,7 +71,7 @@ export default function NewsDiscoveryPanel({
     <div className="news-discovery-controls">
       <label>Medio y sección
         <select value={feed} disabled={disabled || loading}
-          onChange={event => { setFeed(event.target.value as typeof feed); setArticles([]); setError('') }}>
+          onChange={event => { setFeed(event.target.value as typeof feed); setArticles([]); setFetchedAt(''); setError('') }}>
           {feedOptions.map(option => <option value={option.id} key={option.id}>{option.title}</option>)}
         </select>
       </label>
