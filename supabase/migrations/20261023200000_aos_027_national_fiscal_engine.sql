@@ -286,6 +286,10 @@ begin
   for v_policy in select p.government_id,p.created_at
     from public.fiscal_policies p
     where (p.created_at at time zone 'UTC')::date<=v_last+4
+      -- Exclude fully reconciled countries, including when population grows
+      -- beyond the capped batch; otherwise the oldest 300 starve newcomers.
+      and not exists (select 1 from public.fiscal_weekly_acts a
+        where a.government_id=p.government_id and a.week_start=v_last)
     order by p.created_at,p.government_id limit 300
   loop
     v_start:=game_internal.week_start((v_policy.created_at at time zone 'UTC')::date);
