@@ -13,15 +13,15 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | MVP-F003 | Persistent validated decisions | PARTIAL | `submit_decision()`, unique logical key and SQL rollback assertions; committed browser path pending |
 | MVP-F004 | Synthetic households/cohorts | PARTIAL | Two weighted cohorts, deterministic SQL results; broader MVP household model pending |
 | MVP-F005 | National state | PARTIAL | Treasury/approval/trust in DB and UI; other political-social dimensions future |
-| MVP-F006 | Daily/weekly calendar | PARTIAL | Server UTC day, ten-item Monday approval/embargo, editorial publication interface and Friday readout; actual weekly operation and settlement untested |
-| MVP-F007 | Elections | PARTIAL | AOS-021 adds deterministic cohort forecast, 100-seat D'Hondt elections, manifesto freeze, immutable acts, incumbent transition and seat-weighted Parliament; scheduled certification, richer politics and real-user E2E pending |
+| MVP-F006 | Daily/weekly calendar | PARTIAL | AOS-023 adds scheduled settlement of expired ballots, due elections and immutable Friday acts, with member-only shared calendar readout; real-news editorial operation and authenticated live cycle remain untested |
+| MVP-F007 | Elections | PARTIAL | AOS-021 adds deterministic cohort forecast, 100-seat D'Hondt elections, manifesto freeze, immutable acts, incumbent transition and seat-weighted Parliament; server-driven certification added in AOS-023; real-user E2E and richer political systems pending |
 | MVP-F008 | Async multiplayer | PARTIAL | Ten-party shared-nation RPCs/UI; binding parliament AOS-019 and seat-weighted mandates AOS-021; synthetic ten-party electoral tests and concurrency CI cover server contracts; ten real browser accounts untested |
 | MVP-T001 | Transactional persistence | PARTIAL | SQL atomicity/rollback tested; committed read-after-write not E2E verified |
 | MVP-T002 | Auth, isolation | PARTIAL | Owned SECURITY DEFINER RPC, invoker snapshot RPC, RLS; email login untested |
 | MVP-T003 | Deterministic versioned outcomes | DONE | SQL golden fixtures and 6/6 offline Node oracle pass |
 | MVP-T004 | Safe retries, concurrency | PARTIAL | Decision row locks/unique key, editorial CAS, match-capacity row locks, idempotent join/start/stance and immutable approved content; parallel runtime not load-tested |
 | MVP-T005 | Automated quality | PARTIAL | SQL tests pass and new React adapter tests exist; GitHub Actions TypeScript + Vitest + Vite build PASS; browser E2E pending |
-| MVP-T006 | Operations and deployment | PARTIAL | 20 DB migrations applied before AOS-021; reproducible `npm ci`, frontend build and Vercel deployment available; AOS-021 deployment and live session verification tracked separately |
+| MVP-T006 | Operations and deployment | PARTIAL | Reproducible DB/quality CI and Vercel deployment; AOS-023 adds database-native scheduled jobs and failure diagnostics; long-running production and live-session checks pending |
 | MVP-V001 | Approved identity | PARTIAL | Provisional typography/UI palette; final official art assets not verified |
 | MVP-V002 | Core dashboard and dossier | PARTIAL | Government dashboard, dossier, shared ten-seat assembly, party stance and result views committed; browser render against real backend not verified |
 | MVP-V003 | Responsive accessibility | PARTIAL | Layout, native controls, labels; audit unexecuted |
@@ -210,3 +210,12 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - Source: migration `20261023170000_aos_021_national_elections.sql`, `src/ElectionPanel.tsx`, election client adapter, styling, React tests, SQL integration suite, and `docs/ELECTION_RULES.md`.
 - Acceptance: **PARTIAL** until current PR checks, deployment and real authenticated browser sessions pass. Synthetic ten-party SQL does not prove ten real browser clients. No invented 100% completion estimate.
 - Blocking release gaps: scheduled election processor, cabinet coalition/confidence mechanics, multidimensional electorate, real ten-client E2E, operated current-news pipeline, Friday close, and visual/accessibility QA.
+
+## AOS-023 — Autonomous calendar macro-iteration (2026-10-23)
+
+- **Scope:** One server-driven political calendar engine: expired parliamentary votes, due national elections, immutable Friday settlement, catch-up and member-only read model. The production scheduler is a single named Supabase Cron job every 15 minutes; no browser participation or third-party scheduling secrets required.
+- **Architecture:** `game_internal` functions contain the shared settlement logic. Public member-authorized parliamentary/election RPCs delegate to them; scheduler uses the same functions. `match_weekly_closures` is a no-direct-access ledger. The UI reads `get_match_calendar()`.
+- **Quality contract:** Transactional suite `supabase/tests/autonomous_calendar.sql` verifies expiry, election, 100 mandates, Friday backfill, retries, outsider denial and client privilege boundaries. Existing CI suites run unchanged alongside it.
+- **Operational manual:** `docs/CALENDAR_OPERATIONS.md`.
+- **Open product gaps:** automated sourcing/editorial approval of ten real-news dossiers is deliberately **not** synthesized; real multi-account browser testing, richer economy, coalition diplomacy and responsive/visual acceptance remain.
+- **Completion accounting:** still only MVP-T003 is fully accepted (1/18; 5.6%). New backend contracts do not by themselves close the release gates.

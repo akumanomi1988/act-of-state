@@ -4,6 +4,7 @@ import { client, friendlyError, submitDecision } from './lib/game'
 import { number } from './lib/format'
 import ParliamentPanel from './ParliamentPanel'
 import ElectionPanel from './ElectionPanel'
+import MatchCalendarPanel from './MatchCalendarPanel'
 import {
   createMatch, fetchMatchWorld, joinMatch, listMyMatches, matchError,
   recordMatchStance, startMatch, type MatchSummary, type MatchWorld
@@ -329,6 +330,7 @@ export default function MultiplayerApp() {
               </div>
             })}
           </div>
+          {world.match.status === 'active' && <MatchCalendarPanel matchId={world.match.id} />}
           <ElectionPanel matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'}
             onElectionCertified={() => setReload(value => value + 1)} />

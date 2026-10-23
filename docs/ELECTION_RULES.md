@@ -8,7 +8,7 @@ The versioned model is electoral-cohorts-v1, implemented in migration 021. It is
 - First election: 90 calendar days after the match begins.
 - Following elections: 90 calendar days after the preceding certification.
 - Parties may edit their declared policy (0–100) until seven days before an election. The final week is frozen.
-- Any match member may request certification when due. One database transaction locks the match and records a unique result.
+- Supabase Cron automatically certifies due elections after pending Parliament votes close. A match member may also request certification as a fallback. Both paths share one match-locked, unique-act transaction.
 - An open Parliamentary bill blocks certification; it must be closed first.
 - Winner: most national mandates, then highest vote share, then lowest original party seat number.
 - Exactly 100 mandates are distributed using D'Hondt. A party without mandates remains in the match but cannot cast a legislative ballot.
@@ -48,3 +48,7 @@ Parliamentary votes use the elected seat count as immutable ballot weight. A nat
 ## Not yet complete
 
 Automatic scheduled election certification, coalition and confidence votes, multidimensional ideologies, turnout, campaigns/persuasion, geographic electorate, richer households, real-user load tests, operated news ingestion and Friday economic settlement.
+
+## Autonomous calendar integration (AOS-023)
+
+The `aos-calendar-v1` Supabase Cron job runs every 15 minutes. It finalizes expired 24-hour parliamentary bills before attempting due elections. An unfinished, not-yet-expired bill delays certification rather than being bypassed. Certification remains idempotent and the authoritative outcome cannot be selected by a client. See `docs/CALENDAR_OPERATIONS.md` for monitoring and recovery.

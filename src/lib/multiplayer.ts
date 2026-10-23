@@ -57,6 +57,30 @@ export interface MatchWorld {
   stances: MatchStance[]
 }
 
+export interface MatchFridayClosure {
+  match_id: string
+  week_start: string
+  closed_at: string
+  dossiers_published: number
+  decisions_resolved: number
+  treasury_delta_m_eur: number
+  treasury_at_friday_m_eur: number
+  approval_at_friday: number
+  trust_at_friday: number
+  engine_version: 'friday-ledger-v1'
+}
+
+export interface MatchCalendar {
+  gameDay: string
+  monday: string
+  friday: string
+  fridayReached: boolean
+  weeklyPublished: boolean
+  weeklyTotal: number
+  weeklyResolved: number
+  latestFriday: MatchFridayClosure | null
+}
+
 async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<T> {
   const { data, error } = await requireClient().rpc(name, args)
   if (error) throw error
@@ -114,6 +138,23 @@ export async function fetchMatchWorld(matchId: string): Promise<MatchWorld> {
   return world as MatchWorld
 }
 
+export async function fetchMatchCalendar(matchId: string): Promise<MatchCalendar> {
+  const value = await rpc<unknown>('get_match_calendar', { p_match_id: matchId })
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    throw new Error('CALENDAR_INVALID_RESPONSE')
+  const calendar = value as Partial<MatchCalendar>
+  if (typeof calendar.gameDay !== 'string' || typeof calendar.monday !== 'string' ||
+    typeof calendar.friday !== 'string' || typeof calendar.fridayReached !== 'boolean' ||
+    typeof calendar.weeklyPublished !== 'boolean' ||
+    typeof calendar.weeklyTotal !== 'number' ||
+    typeof calendar.weeklyResolved !== 'number' ||
+    (calendar.latestFriday != null &&
+      (typeof calendar.latestFriday.week_start !== 'string' ||
+        typeof calendar.latestFriday.treasury_delta_m_eur !== 'number')))
+    throw new Error('CALENDAR_INVALID_RESPONSE')
+  return calendar as MatchCalendar
+}
+
 const messages: Record<string, string> = {
   MATCH_INVALID_NAME: 'El nombre debe tener entre 3 y 80 caracteres (partido: máximo 60).',
   MATCH_INVITE_NOT_FOUND: 'El código de invitación no corresponde a una partida.',
@@ -125,6 +166,7 @@ const messages: Record<string, string> = {
   MATCH_NOT_ACTIVE: 'La partida aún no está activa.',
   MATCH_STANCE_ALREADY_RECORDED: 'Ya fijaste una posición distinta para este expediente.',
   MATCH_INVALID_RESPONSE: 'La respuesta de la partida no es válida.',
+  CALENDAR_INVALID_RESPONSE: 'El calendario recibido no es válido.',
   PARLIAMENT_APPROVAL_REQUIRED: 'El Parlamento debe aprobar la medida antes de firmarla.',
   PARLIAMENT_BILL_OPEN: 'Ya existe una propuesta abierta para este expediente.',
   PARLIAMENT_ALREADY_APPROVED: 'El Parlamento ya aprobó una medida para este expediente.',
