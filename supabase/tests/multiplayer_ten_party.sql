@@ -193,7 +193,8 @@ begin
   begin perform public.cast_parliament_vote(b,'no');
   exception when sqlstate 'P0001' then denied:=sqlerrm='PARLIAMENT_VOTE_LOCKED'; end;
   if not denied then raise exception 'IMMUTABLE_BALLOT_CHANGED'; end if;
-  if (select count(*) from public.parliament_votes where bill_id=b)<>10 then
+  if jsonb_array_length(public.get_parliament_state(
+    (select match_id from pg_temp.multiplayer_fixture))->'votes')<>10 then
     raise exception 'TEN_BALLOTS_NOT_PERSISTED'; end if;
 end $$;
 select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000001',true);
@@ -254,8 +255,9 @@ begin
     '20000000-0000-4000-8000-000000000001',true);
   b:=public.propose_parliament_bill(m.match_id,'water-security',1,'household-efficiency');
   if b.status<>'open' then raise exception 'REPROPOSAL_NOT_ALLOWED'; end if;
-  if (select count(*) from public.parliament_bills
-      where match_id=m.match_id and dossier_id='water-security')<>2 then
+  if (select count(*) from jsonb_array_elements(
+      public.get_parliament_state(m.match_id)->'bills') item
+      where item->>'dossier_id'='water-security')<>2 then
     raise exception 'PARLIAMENT_HISTORY_NOT_DURABLE'; end if;
 end $$;
 
