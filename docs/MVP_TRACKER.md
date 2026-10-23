@@ -9,21 +9,21 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | ID | Requirement | Status | Evidence |
 | --- | --- | --- | --- |
 | MVP-F001 | Persistent government session | PARTIAL | `start_government()` + rollback SQL recovery; live email session untested |
-| MVP-F002 | Dossiers and options | PARTIAL | Two versioned fictional intro dossiers (6 options), server UTC embargo and UI; authenticated browser flow untested |
+| MVP-F002 | Dossiers and options | PARTIAL | Two fictional intro dossiers plus versioned governed weekly-release contract (10 sourced dossiers), UTC embargo and UI; real weekly editorial cycle untested |
 | MVP-F003 | Persistent validated decisions | PARTIAL | `submit_decision()`, unique logical key and SQL rollback assertions; committed browser path pending |
 | MVP-F004 | Synthetic households/cohorts | PARTIAL | Two weighted cohorts, deterministic SQL results; broader MVP household model pending |
 | MVP-F005 | National state | PARTIAL | Treasury/approval/trust in DB and UI; other political-social dimensions future |
-| MVP-F006 | Daily/weekly calendar | PARTIAL | Server UTC game day & Monday publication constraint; Monday 10/Friday engine absent |
+| MVP-F006 | Daily/weekly calendar | PARTIAL | Server UTC day; ten-item Monday approval/embargo and Friday milestone readout introduced, but real weekly publication and scheduled settlement untested |
 | MVP-F007 | Elections | TODO | No voting engine in repository |
 | MVP-F008 | Async multiplayer | PARTIAL | RLS isolation SQL-tested; true concurrent multiuser play untested |
 | MVP-T001 | Transactional persistence | PARTIAL | SQL atomicity/rollback tested; committed read-after-write not E2E verified |
 | MVP-T002 | Auth, isolation | PARTIAL | Owned SECURITY DEFINER RPC, invoker snapshot RPC, RLS; email login untested |
 | MVP-T003 | Deterministic versioned outcomes | DONE | SQL golden fixtures and 6/6 offline Node oracle pass |
-| MVP-T004 | Safe retries, concurrency | PARTIAL | Row locks & unique index SQL-tested; parallel runtime not load-tested |
+| MVP-T004 | Safe retries, concurrency | PARTIAL | Decision row locks/unique key plus idempotent weekly approval and immutable approved content; parallel runtime not load-tested |
 | MVP-T005 | Automated quality | PARTIAL | SQL tests pass and new React adapter tests exist; GitHub Actions TypeScript + Vitest + Vite build PASS; browser E2E pending |
 | MVP-T006 | Operations and deployment | PARTIAL | 6 applied DB migrations; reproducible `npm ci` and frontend build verified in CI; preview hosting pending |
 | MVP-V001 | Approved identity | PARTIAL | Provisional typography/UI palette; final official art assets not verified |
-| MVP-V002 | Core dashboard and dossier | PARTIAL | React UI committed; browser render against real backend not verified |
+| MVP-V002 | Core dashboard and dossier | PARTIAL | React dashboard, dossier, server weekly calendar and source citation committed; browser render against real backend not verified |
 | MVP-V003 | Responsive accessibility | PARTIAL | Layout, native controls, labels; audit unexecuted |
 | MVP-V004 | Visual consistency QA | TODO | No screenshot acceptance available |
 
@@ -151,3 +151,12 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - `supabase/tests/decision_flow.sql` now verifies the seeded second dossier, cumulative state, cohort response, idempotent retry and two-event history. `world_snapshot.sql` checks both seeded dossiers (six options). `src/App.test.tsx` exercises dossier switching, two signatures, fiscal review and persisted readback.
 - The second scenario is **not** presented as current news. Automated weekly publication of ten news-linked dossiers remains outside this increment.
 - The authenticated real-browser/preview-host gate remains open. Do not classify this as production E2E, and do not advance global verified acceptance beyond 1/18 without closing the relevant full requirement gates.
+
+## AOS-MVP-001 — Governed weekly cabinet cycle (2026-10-23)
+
+- Migration `aos_007_weekly_cycle` adds `weekly_releases`, mandatory HTTPS source metadata for weekly dossiers, a trusted-editorial-only `approve_weekly_release` RPC, and immutable approved dossier/option content.
+- Approval requires **exactly ten distinct dossiers**, with at least two options and non-future source timestamps each. A slate may be approved ahead of time; RLS and the existing decision RPC expose it only from its Monday UTC release date. No synthetic news is published into DEV.
+- `get_weekly_calendar` is owner-scoped, derives the real-day/game-day week and Friday milestone from server UTC, and counts weekly resolutions and fiscal impact from persisted decision events. `get_government_world` returns this calendar in the same read-consistent snapshot.
+- React displays the Monday/Friday dates, weekly completion, actual aggregate fiscal impact, and a link to the dossier's editorial source. The Friday milestone is **informational**, not yet a binding decision cutoff or fully simulated settlement; this rule still requires product acceptance.
+- `supabase/tests/weekly_release.sql` exercises incomplete slate rejection, unauthorized approval, publication visibility, future embargo, immutable content, decision idempotency, owner isolation and cumulative calendar readback in rollback. Existing SQL suites and React adapter tests were extended.
+- No browser-authenticated E2E, real-news ingestion, or production hosting is claimed. Global MVP acceptance remains evidence-driven.
