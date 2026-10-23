@@ -89,6 +89,15 @@ describe('governance panel', () => {
     await waitFor(() => expect(onGovernmentChanged).toHaveBeenCalledTimes(1))
   })
 
+  it('reports a failed initial membership read without revealing negotiation controls', async () => {
+    mocks.fetchGovernanceState.mockRejectedValue(new Error('MATCH_FORBIDDEN'))
+    render(<GovernancePanel matchId={matchId} userId={user3}
+      players={players} active={true} onGovernmentChanged={vi.fn()} />)
+    expect(await screen.findByRole('alert')).toHaveTextContent('MATCH_FORBIDDEN')
+    expect(screen.getByRole('status')).toHaveTextContent('No se pudo recuperar')
+    expect(screen.queryByRole('button',{name:'Registrar moción'})).not.toBeInTheDocument()
+  })
+
   it('does not expose mutation buttons in lobby', async () => {
     render(<GovernancePanel matchId={matchId} userId={user1}
       players={players} active={false} onGovernmentChanged={vi.fn()} />)
