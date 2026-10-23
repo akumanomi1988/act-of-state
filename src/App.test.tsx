@@ -298,4 +298,81 @@ describe('browser decision flow with controlled Supabase adapter', () => {
     expect(screen.queryByRole('button', { name: /Plan de resiliencia energética/ })).not.toBeInTheDocument()
   })
 
+  it('plays two distinct dossiers consecutively and reloads cumulative persisted history', async () => {
+    const waterDossier: GovernmentWorld['dossiers'][number] = {
+      id: 'water-security', version: 1, title: 'Plan de seguridad hídrica',
+      context: 'Escenario ficticio de sequía', category: 'Territorio y recursos',
+      release_kind: 'intro', available_from: null, available_until: null
+    }
+    const waterOption: GovernmentWorld['options'][number] = {
+      dossier_id: 'water-security', dossier_version: 1, id: 'industrial-reuse',
+      title: 'Modernizar el uso industrial del agua', description: 'Recirculación industrial',
+      treasury_delta_m_eur: -950, policy_target: 75, response_intensity: 30, trust_base_delta: 0
+    }
+    const waterEvent: DecisionEvent = {
+      ...event, id: '00000000-0000-4000-8000-000000000004',
+      dossier_id: 'water-security', option_id: 'industrial-reuse',
+      dossier_title_snapshot: waterDossier.title, option_title_snapshot: waterOption.title,
+      parameters_snapshot: { treasury_delta_m_eur: -950, policy_target: 75, response_intensity: 30, trust_base_delta: 0 },
+      state_before: event.state_after, state_after: { treasury_m_eur: 9650, approval: 67, trust: 61 },
+      cohort_effects: [
+        { code: 'households', label: 'Hogares y trabajadores', population_weight: 65,
+          support_before: 68, support_after: 68, trust_before: 61, trust_after: 61 },
+        { code: 'industry', label: 'Industria y emprendedores', population_weight: 35,
+          support_before: 50, support_after: 65, trust_before: 52, trust_after: 60 }
+      ]
+    }
+    const industry = { id: 'c2', government_id: government.id, code: 'industry',
+      label: 'Industria y emprendedores', population_weight: 35, ideal_policy: 75,
+      support: 50, trust: 50 }
+    const before: GovernmentWorld = {
+      ...initial, dossiers: [...initial.dossiers, waterDossier],
+      options: [...initial.options, waterOption], cohorts: [...initial.cohorts, industry]
+    }
+    const afterEnergy: GovernmentWorld = {
+      ...before, government: { ...government, ...event.state_after },
+      events: [event],
+      cohorts: [
+        { ...before.cohorts[0], support: 68, trust: 61 },
+        { ...industry, trust: 52 }
+      ]
+    }
+    const afterWater: GovernmentWorld = {
+      ...afterEnergy, government: { ...government, ...waterEvent.state_after },
+      events: [event, waterEvent],
+      cohorts: [
+        { ...before.cohorts[0], support: 68, trust: 61 },
+        { ...industry, support: 65, trust: 60 }
+      ]
+    }
+    mocks.fetchWorld.mockResolvedValueOnce(before)
+      .mockResolvedValueOnce(afterEnergy).mockResolvedValueOnce(afterWater)
+    mocks.submitDecision.mockResolvedValueOnce(event).mockResolvedValueOnce(waterEvent)
+
+    render(<App />)
+    await screen.findByRole('button', { name: /Plan de seguridad hídrica/ })
+    fireEvent.click(screen.getByLabelText(/Proteger a los hogares/))
+    reviewAndSign()
+    expect(await screen.findByTestId('persisted-outcome')).toHaveTextContent('10.600 M€')
+
+    fireEvent.click(screen.getByRole('button', { name: /Plan de seguridad hídrica/ }))
+    expect(screen.queryByTestId('persisted-outcome')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText(/Modernizar el uso industrial del agua/))
+    fireEvent.click(screen.getByRole('button', { name: 'Revisar decisión' }))
+    expect(screen.getByTestId('decision-review')).toHaveTextContent('10.600 M€')
+    fireEvent.click(screen.getByRole('button', { name: 'Firmar y ejecutar decisión' }))
+
+    const outcome = await screen.findByTestId('persisted-outcome')
+    await waitFor(() => expect(outcome).toHaveTextContent('9.650 M€'))
+    expect(outcome).toHaveTextContent('67%')
+    expect(outcome).toHaveTextContent('61%')
+    expect(mocks.submitDecision).toHaveBeenNthCalledWith(
+      1, government.id, 'energy-resilience', 1, 'household-support')
+    expect(mocks.submitDecision).toHaveBeenNthCalledWith(
+      2, government.id, 'water-security', 1, 'industrial-reuse')
+    expect(mocks.fetchWorld).toHaveBeenCalledTimes(3)
+    expect(screen.getByText(/Plan de resiliencia energética · 2026-10-23/)).toBeInTheDocument()
+    expect(screen.getByText(/Plan de seguridad hídrica · 2026-10-23/)).toBeInTheDocument()
+  })
+
 })
