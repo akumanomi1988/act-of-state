@@ -358,12 +358,16 @@ begin
  v_after:=jsonb_build_object('treasury_m_eur',v_g.treasury_m_eur,
   'approval',v_g.approval,'trust',v_g.trust);
  insert into public.decision_events(government_id,dossier_id,dossier_version,
-  option_id,decided_on,state_before,state_after,cohort_effects,engine_version,parameters_snapshot)
+  option_id,decided_on,state_before,state_after,cohort_effects,engine_version,parameters_snapshot,
+  dossier_title_snapshot,option_title_snapshot)
  values(v_g.id,p_dossier_id,p_dossier_version,p_option_id,v_day,v_before,
   v_after,v_effects,'weighted-cohorts-v1',jsonb_build_object(
    'treasury_delta_m_eur',v_o.treasury_delta_m_eur,
    'policy_target',v_o.policy_target,
    'response_intensity',v_o.response_intensity,
-   'trust_base_delta',v_o.trust_base_delta)) returning * into v_event;
+   'trust_base_delta',v_o.trust_base_delta),v_d.title,v_o.title) returning * into v_event;
  return v_event;
 end $$;
+
+-- Mandate-weighted legislative rule, preserving old bill version labels.
+alter table public.parliament_bills alter column rule_version set default 'parliament-mandates-v2';
