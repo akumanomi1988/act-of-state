@@ -14,14 +14,14 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | MVP-F004 | Synthetic households/cohorts | PARTIAL | Two weighted cohorts, deterministic SQL results; broader MVP household model pending |
 | MVP-F005 | National state | PARTIAL | Treasury/approval/trust in DB and UI; other political-social dimensions future |
 | MVP-F006 | Daily/weekly calendar | PARTIAL | Server UTC day, ten-item Monday approval/embargo, editorial publication interface and Friday readout; actual weekly operation and settlement untested |
-| MVP-F007 | Elections | TODO | No voting engine in repository |
-| MVP-F008 | Async multiplayer | PARTIAL | Ten-party shared-nation RPCs/UI; binding parliament proposal/vote/tally/mandate added in AOS-019; synthetic tests and concurrency CI cover the server contract; ten real browser accounts untested |
+| MVP-F007 | Elections | PARTIAL | AOS-021 adds deterministic cohort forecast, 100-seat D'Hondt elections, manifesto freeze, immutable acts, incumbent transition and seat-weighted Parliament; scheduled certification, richer politics and real-user E2E pending |
+| MVP-F008 | Async multiplayer | PARTIAL | Ten-party shared-nation RPCs/UI; binding parliament AOS-019 and seat-weighted mandates AOS-021; synthetic ten-party electoral tests and concurrency CI cover server contracts; ten real browser accounts untested |
 | MVP-T001 | Transactional persistence | PARTIAL | SQL atomicity/rollback tested; committed read-after-write not E2E verified |
 | MVP-T002 | Auth, isolation | PARTIAL | Owned SECURITY DEFINER RPC, invoker snapshot RPC, RLS; email login untested |
 | MVP-T003 | Deterministic versioned outcomes | DONE | SQL golden fixtures and 6/6 offline Node oracle pass |
 | MVP-T004 | Safe retries, concurrency | PARTIAL | Decision row locks/unique key, editorial CAS, match-capacity row locks, idempotent join/start/stance and immutable approved content; parallel runtime not load-tested |
 | MVP-T005 | Automated quality | PARTIAL | SQL tests pass and new React adapter tests exist; GitHub Actions TypeScript + Vitest + Vite build PASS; browser E2E pending |
-| MVP-T006 | Operations and deployment | PARTIAL | 18 applied DB migrations; reproducible `npm ci` and frontend build verified in CI; preview hosting pending |
+| MVP-T006 | Operations and deployment | PARTIAL | 20 DB migrations applied before AOS-021; reproducible `npm ci`, frontend build and Vercel deployment available; AOS-021 deployment and live session verification tracked separately |
 | MVP-V001 | Approved identity | PARTIAL | Provisional typography/UI palette; final official art assets not verified |
 | MVP-V002 | Core dashboard and dossier | PARTIAL | Government dashboard, dossier, shared ten-seat assembly, party stance and result views committed; browser render against real backend not verified |
 | MVP-V003 | Responsive accessibility | PARTIAL | Layout, native controls, labels; audit unexecuted |
@@ -202,3 +202,11 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - The assembly UI shows the proposed option, live tally, participation, deadline, personal recorded ballot and approved mandate. The host can sign only the approved measure. Fresh RPC reads reconcile mutations and polling refreshes every 15 seconds.
 - The rollback-only ten-identity integration suite now checks the mandate gate, outsider denial, immutable ballots, all ten participants, rejected/reproposed measures, idempotency and durable shared state. The cross-connection stress script first passes a bill, then races ten identical cabinet requests. Foreign keys cascade during synthetic account cleanup.
 - Deployment/acceptance boundary: real browser magic-link login and ten independent authenticated sessions are still not verified, nor are full elections, real-news ingestion, Friday settlement, responsive screenshot QA or completed launch readiness. **MVP-F008 remains PARTIAL; global fully accepted requirements remain 1/18.**
+
+## AOS-021 — National elections macroiteration (2026-10-23)
+
+- Scope: a complete first electoral loop for an existing ten-party match: policy declaration, live cohort forecast, 90-day election scheduling, seven-day campaign freeze, 100 D'Hondt mandates, immutable certification act, peaceful handover of executive power, and mandate-weighted parliamentary voting.
+- Architecture: server-authoritative versioned electoral math and match-scoped SECURITY DEFINER RPCs. Direct public Data API access remains revoked. The outgoing leader's cabinet authority is serialized against election certification using match row locks.
+- Source: migration `20261023170000_aos_021_national_elections.sql`, `src/ElectionPanel.tsx`, election client adapter, styling, React tests, SQL integration suite, and `docs/ELECTION_RULES.md`.
+- Acceptance: **PARTIAL** until current PR checks, deployment and real authenticated browser sessions pass. Synthetic ten-party SQL does not prove ten real browser clients. No invented 100% completion estimate.
+- Blocking release gaps: scheduled election processor, cabinet coalition/confidence mechanics, multidimensional electorate, real ten-client E2E, operated current-news pipeline, Friday close, and visual/accessibility QA.
