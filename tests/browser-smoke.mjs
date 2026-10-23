@@ -217,7 +217,15 @@ try {
     await page.goto(BASE+'/',{waitUntil:'networkidle'})
     await page.getByLabel('Correo electrónico').fill('browser@example.invalid')
     await page.getByRole('button',{name:'Enviar enlace de acceso'}).click()
-    await page.getByText(/se ha solicitado el enlace de acceso/).waitFor()
+    try { await page.getByText(/se ha solicitado el enlace de acceso/).waitFor({timeout:8000}) }
+    catch (err) {
+      console.error('Browser OTP diagnostics:', JSON.stringify({
+        count:state.otpCount,lastOtp:state.lastOtp,
+        body:(await page.locator('body').innerText()).slice(0,1600)
+      }))
+      await page.screenshot({path:OUT+'/login-debug.png',fullPage:true})
+      throw err
+    }
     assert.equal(state.otpCount,1)
     assert.match(state.lastOtp.url+' '+state.lastOtp.body,/127\.0\.0\.1:4173/)
     await checkMobileOverflow(page,'anonymous home')
