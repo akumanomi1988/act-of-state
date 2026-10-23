@@ -219,3 +219,12 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - **Operational manual:** `docs/CALENDAR_OPERATIONS.md`.
 - **Open product gaps:** automated sourcing/editorial approval of ten real-news dossiers is deliberately **not** synthesized; real multi-account browser testing, richer economy, coalition diplomacy and responsive/visual acceptance remain.
 - **Completion accounting:** still only MVP-T003 is fully accepted (1/18; 5.6%). New backend contracts do not by themselves close the release gates.
+
+## AOS-024 — Editorial news sourcing macroiteration (2026-10-23)
+
+- Implementation branch: `feat/aos-024-editorial-news-discovery`.
+- Introduced a staff-authenticated Supabase Edge Function `news-discovery` for an allowlisted four-source RSS catalog. It validates the end-user Auth token plus existing editorial RLS, constrains upstream host and protocol, rejects upstream redirects, caps feed size and time, filters dated headlines, and returns source citation metadata without article text.
+- Integrated an editor-initiated source picker into `/editorial`. Linking a candidate updates **only** source title, HTTPS URL and publication time in the **unsaved** draft slot. The existing 10-slot CAS draft/publisher approval and Monday publication embargo remain unchanged.
+- Regression coverage: parser security/date/duplicate tests and source-picker interaction/error tests; integrated into existing quality CI paths.
+- Deployment and testing results belong to the associated PR and Edge deployment checks. Real authorized editor-browser E2E and independently checked political dossiers remain **PARTIAL**, and SMTP exhaustion remains an Auth/operations release blocker.
+- No evidence supports promoting additional 18-point MVP acceptance criteria to DONE without actual live editorial publication and real-browser E2E. Strict completion remains **1/18 = 5.6%** pending those gates. Refer to `docs/NEWS_DISCOVERY_OPERATIONS.md`.
