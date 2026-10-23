@@ -203,7 +203,7 @@ begin
     has_table_privilege('authenticated','public.match_confidence_motions','INSERT') or
     has_table_privilege('authenticated','public.match_confidence_votes','SELECT') or
     has_function_privilege('anon','public.propose_confidence_motion(uuid,uuid)','EXECUTE') or
-    has_function_privilege('authenticated','game_internal.finalize_confidence_motion(uuid)','EXECUTE') or
+    has_schema_privilege('authenticated','game_internal','USAGE') or
     not has_function_privilege('authenticated','public.get_governance_state(uuid)','EXECUTE') then
     raise exception 'GOVERNANCE_GRANT_OR_RLS_FAILURE'; end if;
 end $$;
