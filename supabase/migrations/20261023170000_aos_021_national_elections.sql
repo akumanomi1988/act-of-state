@@ -127,7 +127,7 @@ begin
   return v_result;
 end $$;
 
-create function public.set_party_manifesto(p_match_id uuid,p_policy smallint)
+create function public.set_party_manifesto(p_match_id uuid,p_policy integer)
 returns public.match_players language plpgsql security definer set search_path to '' as $$
 declare
   v_user uuid:=auth.uid(); v_due date;
@@ -194,10 +194,10 @@ end $$;
 
 revoke all on function public._calculate_election_projection(uuid),
   public._next_election_date(uuid),public.get_election_state(uuid),
-  public.set_party_manifesto(uuid,smallint),public.certify_match_election(uuid)
+  public.set_party_manifesto(uuid,integer),public.certify_match_election(uuid)
   from public,anon,authenticated;
 grant execute on function public.get_election_state(uuid),
-  public.set_party_manifesto(uuid,smallint),
+  public.set_party_manifesto(uuid,integer),
   public.certify_match_election(uuid) to authenticated;
 
 -- Legislative votes are weighted by the current elected mandate. No election
