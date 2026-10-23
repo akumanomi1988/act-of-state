@@ -14,7 +14,7 @@ Criteria are marked DONE only if implementation **and appropriate runtime verifi
 | MVP-F006 | Daily/weekly game calendar | PARTIAL | UTC server day implemented; Monday/Friday scheduler TODO |
 | MVP-F007 | Election calculations | TODO | Future increment |
 | MVP-F008 | Async multiplayer isolation | PARTIAL | Owner isolation designed; parallel-user testing pending |
-| MVP-T001 | Transactional persistence | DONE | PostgreSQL transaction and durable event tests PASS on isolated DB |
+| MVP-T001 | Transactional persistence | PARTIAL | PostgreSQL transaction and durable event tests PASS on isolated DB |
 | MVP-T002 | Authentication and authorization | PARTIAL | Email OTP, RLS, narrow RPC grants; penetration testing pending |
 | MVP-T003 | Versioned deterministic rules | DONE | \`weighted-cohorts-v1\` and persisted params |
 | MVP-T004 | Concurrency, retry safety | PARTIAL | Per-government FOR UPDATE + unique event; concurrent calls not load-tested |
@@ -46,7 +46,7 @@ Free-to-play browser game. 1 real day = 1 in-game day. Ten Monday dossiers and a
 5. Review responsive/accessibility and design assets; capture acceptance screenshots.
 6. Add weekly calendar, publication and Friday settlement as later increments.
 
-Progress: GLOBAL MVP 2/18 verified; P01 percentage UNKNOWN; AOS-MVP-001 PARTIAL. No speculative percentages.
+Progress: GLOBAL MVP 1/18 verified; P01 percentage UNKNOWN; AOS-MVP-001 PARTIAL. No speculative percentages.
 
 ## AOS-MVP-001 verification hardening
 
@@ -75,6 +75,12 @@ Progress: GLOBAL MVP 2/18 verified; P01 percentage UNKNOWN; AOS-MVP-001 PARTIAL.
 - Access control independently inspected: `anon` cannot execute `start_government`, `submit_decision`, or `rls_auto_enable`; `authenticated` can execute intended game functions.
 - Supabase performance linter: no findings after covering index. Security linter: 2 documented intentional `authenticated` SECURITY DEFINER RPC WARN notices; no anonymous privileged RPCs.
 - Static/backend integration supports the server side, but frontend compilation, live email login, visual QA and E2E remain open. **No full iteration acceptance yet.**
-- MVP-T001 (backend transactions): DONE — SQL integration and state/history atomicity verified.
+- MVP-T001 (backend transactions): PARTIAL — SQL transaction and rollback assertions verified; committed read-across-sessions persistence could not be exercised.
 - MVP-T003 (deterministic/versioned backend): DONE — offline reference fixtures and SQL golden comparisons verified.
-- Global MVP: 2/18 acceptance criteria currently verified. Overall phase percentage UNKNOWN; AOS-MVP-001 PARTIAL.
+- Global MVP: 1/18 acceptance criteria currently verified (MVP-T003). Overall phase percentage UNKNOWN; AOS-MVP-001 PARTIAL.
+
+## Post-deployment verification limitation
+
+A targeted attempt on 2026-10-23 to create a **committed** disposable synthetic Auth user and test read-after-write persistence across SQL calls was blocked by connector safety controls; it was **not executed**. Cleanup and count verification returned zero synthetic users, governments and decision events. Do not interpret the earlier rolled-back SQL integration script as a persisted login/browser E2E success.
+
+Current next acceptance gate: use the normal Supabase Auth email-link flow with an explicitly approved non-production test account and correctly configured redirect origins, then verify persisted government/decision state across browser reloads. No security bypass or direct Auth user insertion is authorized to substitute for this gate.
