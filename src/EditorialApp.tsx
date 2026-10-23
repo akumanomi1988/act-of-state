@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, friendlyError } from './lib/game'
+import NewsDiscoveryPanel, { type NewsCandidate } from './NewsDiscoveryPanel'
 import {
   editorialError, editorialReady, fetchEditorialRole, fetchEditorialWeek,
   isMonday, newEditorialDossier, nextMondayUtc, publishEditorialWeek,
@@ -129,6 +130,16 @@ export default function EditorialApp() {
     if (!canEdit) return
     setDraft(current => current.map((item, index) =>
       index === selectedSlot ? { ...item, [key]: value } : item))
+    setDirty(true)
+    setReviewing(false)
+    setNotice('')
+  }
+
+  function applyNewsSource(article: NewsCandidate) {
+    if (!canEdit) return
+    setDraft(current => current.map((item, index) =>
+      index === selectedSlot ? { ...item, source_title: article.title,
+        source_url: article.url, source_published_at: article.publishedAt } : item))
     setDirty(true)
     setReviewing(false)
     setNotice('')
@@ -350,6 +361,9 @@ export default function EditorialApp() {
               placeholder="Describe hechos, actores, restricciones y consecuencias políticas…" />
             <small>Entre 40 y 3.000 caracteres. Redacción neutral y verificable.</small>
           </label>
+          <NewsDiscoveryPanel disabled={!canEdit}
+            usedUrls={draft.filter((_, index) => index !== selectedSlot).map(item => item.source_url)}
+            onPick={applyNewsSource} />
           <div className="editorial-source-fields">
             <p className="eyebrow">PROCEDENCIA DOCUMENTAL</p>
             <div className="editorial-row">
