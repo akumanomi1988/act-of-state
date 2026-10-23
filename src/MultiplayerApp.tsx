@@ -6,6 +6,7 @@ import ParliamentPanel from './ParliamentPanel'
 import ElectionPanel from './ElectionPanel'
 import MatchCalendarPanel from './MatchCalendarPanel'
 import GovernancePanel from './GovernancePanel'
+import FiscalPanel from './FiscalPanel'
 import {
   createMatch, fetchMatchWorld, joinMatch, listMyMatches, matchError,
   recordMatchStance, startMatch, type MatchSummary, type MatchWorld
@@ -312,6 +313,8 @@ export default function MultiplayerApp() {
             <div><span>CONFIANZA</span><strong>{world.government.trust}%</strong></div>
             <div><span>PARTIDOS</span><strong>{world.players.length} / 10</strong></div>
           </div>
+          <FiscalPanel key={world.government.id+':'+world.match.host_user_id}
+            governmentId={world.government.id} compact />
           <div className="match-invite">
             <div><span>INVITACIÓN A LA ASAMBLEA</span>
               <code>{world.match.invite_code}</code>
