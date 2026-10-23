@@ -22,3 +22,5 @@
 
 ## Operating
 The AOS-023 pg_cron job aos-calendar-v1 keeps running game_internal.process_calendar() every 15 minutes. It now returns additional confidenceClosures and confidenceErrors counters. An election pending an open confidence motion will wait until that motion closes.
+
+Four dedicated indexes cover the composite candidate/incumbent/proposer and motion-match foreign keys identified by the hosted database performance advisor (AOS-026). These indexes grant no additional data access.
