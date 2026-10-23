@@ -9,19 +9,19 @@ The user-approved MVP and constraints are recorded in AOS-MVP-001's execution co
 | ID | Requirement | Status | Evidence |
 | --- | --- | --- | --- |
 | MVP-F001 | Persistent government session | PARTIAL | `start_government()` + rollback SQL recovery; live email session untested |
-| MVP-F002 | Dossiers and options | PARTIAL | Two fictional intro dossiers plus versioned governed weekly-release contract (10 sourced dossiers), UTC embargo and UI; real weekly editorial cycle untested |
+| MVP-F002 | Dossiers and options | PARTIAL | Two fictional intro dossiers, weekly release and editorial workbench with secure draft/publish RPCs; actual news and authenticated live workflow untested |
 | MVP-F003 | Persistent validated decisions | PARTIAL | `submit_decision()`, unique logical key and SQL rollback assertions; committed browser path pending |
 | MVP-F004 | Synthetic households/cohorts | PARTIAL | Two weighted cohorts, deterministic SQL results; broader MVP household model pending |
 | MVP-F005 | National state | PARTIAL | Treasury/approval/trust in DB and UI; other political-social dimensions future |
-| MVP-F006 | Daily/weekly calendar | PARTIAL | Server UTC day; ten-item Monday approval/embargo and Friday milestone readout introduced, but real weekly publication and scheduled settlement untested |
+| MVP-F006 | Daily/weekly calendar | PARTIAL | Server UTC day, ten-item Monday approval/embargo, editorial publication interface and Friday readout; actual weekly operation and settlement untested |
 | MVP-F007 | Elections | TODO | No voting engine in repository |
 | MVP-F008 | Async multiplayer | PARTIAL | RLS isolation SQL-tested; true concurrent multiuser play untested |
 | MVP-T001 | Transactional persistence | PARTIAL | SQL atomicity/rollback tested; committed read-after-write not E2E verified |
 | MVP-T002 | Auth, isolation | PARTIAL | Owned SECURITY DEFINER RPC, invoker snapshot RPC, RLS; email login untested |
 | MVP-T003 | Deterministic versioned outcomes | DONE | SQL golden fixtures and 6/6 offline Node oracle pass |
-| MVP-T004 | Safe retries, concurrency | PARTIAL | Decision row locks/unique key plus idempotent weekly approval and immutable approved content; parallel runtime not load-tested |
+| MVP-T004 | Safe retries, concurrency | PARTIAL | Decision row locks/unique key, editorial revision CAS, idempotent publication and immutable approved content; parallel runtime not load-tested |
 | MVP-T005 | Automated quality | PARTIAL | SQL tests pass and new React adapter tests exist; GitHub Actions TypeScript + Vitest + Vite build PASS; browser E2E pending |
-| MVP-T006 | Operations and deployment | PARTIAL | 6 applied DB migrations; reproducible `npm ci` and frontend build verified in CI; preview hosting pending |
+| MVP-T006 | Operations and deployment | PARTIAL | 15 applied DB migrations; reproducible `npm ci` and frontend build verified in CI; preview hosting pending |
 | MVP-V001 | Approved identity | PARTIAL | Provisional typography/UI palette; final official art assets not verified |
 | MVP-V002 | Core dashboard and dossier | PARTIAL | React dashboard, dossier, server weekly calendar and source citation committed; browser render against real backend not verified |
 | MVP-V003 | Responsive accessibility | PARTIAL | Layout, native controls, labels; audit unexecuted |
@@ -160,3 +160,13 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - React displays the Monday/Friday dates, weekly completion, actual aggregate fiscal impact, and a link to the dossier's editorial source. The Friday milestone is **informational**, not yet a binding decision cutoff or fully simulated settlement; this rule still requires product acceptance.
 - `supabase/tests/weekly_release.sql` exercises incomplete slate rejection, unauthorized approval, publication visibility, future embargo, immutable content, decision idempotency, owner isolation and cumulative calendar readback in rollback. Existing SQL suites and React adapter tests were extended.
 - No browser-authenticated E2E, real-news ingestion, or production hosting is claimed. Global MVP acceptance remains evidence-driven.
+
+
+## AOS-MVP-001 — Editorial workbench macroincrement (2026-10-23)
+
+- Canonical branch: \`aos/editorial-workbench\` (PR and merge tracked separately). Before this increment, \`main\` was at \`2a08ad43122de067d697bcdf75e9a3d66b9be936\`; no unrelated repository was modified.
+- Three migrations \`aos_013\`–\`aos_015\` were applied to the dedicated Supabase DEV project and committed as identical numbered SQL files. They add isolated staff roles, revisioned draft storage, and an atomic ten-dossier publishing RPC that reuses the existing weekly approval and immutable release model.
+- \`src/EditorialApp.tsx\`, \`src/lib/editorial.ts\` and the \`/editorial\` route provide an editorial agenda, per-dossier source metadata, option authoring, numeric simulation parameters, save/reload, role-based publication controls, and response/error reconciliation. Existing institutional palette and fonts are reused; approved final brand assets remain unverified.
+- \`supabase/tests/editorial_workflow.sql\` and the expanded \`access_contract.sql\` cover RBAC, RLS/grants, revision conflicts, atomic publish, duplicate submit, bad-input rollback, and persistence. \`src/EditorialApp.test.tsx\` tests role denial, save, incomplete publication blocking, published UI and conflict handling. These are automated fixture-based tests, not a real authenticated browser E2E.
+- No staff membership or real news article was created in DEV. A trusted operator must provision a verified user into \`editorial_members\` before the workbench is operable end-to-end by a human. The real editorial workflow and preview deployment remain **BLOCKED** pending that setup.
+- Requirement statuses remain **PARTIAL** for MVP-F002/F006, MVP-T001/T002/T004/T005 and MVP-V002/V003. The entire acceptance contract is not closed. **Global accepted: 1/18 (MVP-T003)**, P01 **UNKNOWN**, iteration **PARTIAL** until end-to-end gates pass.
