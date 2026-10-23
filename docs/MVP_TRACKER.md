@@ -223,7 +223,7 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 ## AOS-024 — Editorial news sourcing macroiteration (2026-10-23)
 
 - Implementation branch: `feat/aos-024-editorial-news-discovery`.
-- Introduced a staff-authenticated Supabase Edge Function `news-discovery` for an allowlisted four-source RSS catalog. It validates the end-user Auth token plus existing editorial RLS, constrains upstream host and protocol, rejects upstream redirects, caps feed size and time, filters dated headlines, and returns source citation metadata without article text.
+- Introduced a staff-authenticated Supabase Edge Function `news-discovery` for an allowlisted six-source RSS catalog. It validates the end-user Auth token plus existing editorial RLS, constrains upstream host and protocol, rejects upstream redirects, caps feed size and time, filters dated headlines, and returns source citation metadata without article text.
 - Integrated an editor-initiated source picker into `/editorial`. Linking a candidate updates **only** source title, HTTPS URL and publication time in the **unsaved** draft slot. The existing 10-slot CAS draft/publisher approval and Monday publication embargo remain unchanged.
 - Regression coverage: parser security/date/duplicate tests and source-picker interaction/error tests; integrated into existing quality CI paths.
 - Deployment and testing results belong to the associated PR and Edge deployment checks. Real authorized editor-browser E2E and independently checked political dossiers remain **PARTIAL**, and SMTP exhaustion remains an Auth/operations release blocker.
