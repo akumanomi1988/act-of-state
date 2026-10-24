@@ -4,6 +4,7 @@ import {
   type ElectionState
 } from './lib/elections'
 import { matchError } from './lib/multiplayer'
+import OpinionHistoryPanel from './OpinionHistoryPanel'
 
 interface Props {
   matchId: string
@@ -163,6 +164,7 @@ export default function ElectionPanel({
         </details>
       </div>}
     </>}
+    {active && state && <OpinionHistoryPanel matchId={matchId} userId={userId} />}
     {notice && <p role="status" className="editorial-success">{notice}</p>}
     {error && <p role="alert" className="editorial-alert">{error}</p>}
   </section>

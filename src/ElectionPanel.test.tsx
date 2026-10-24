@@ -6,6 +6,7 @@ import type { ElectionState } from './lib/elections'
 const mocks = vi.hoisted(() => ({
   fetchElectionState: vi.fn(), setPartyManifesto: vi.fn(), certifyMatchElection: vi.fn()
 }))
+vi.mock('./OpinionHistoryPanel', () => ({ default: () => <div>Historical polling panel fixture</div> }))
 vi.mock('./lib/elections', () => ({
   fetchElectionState: mocks.fetchElectionState,
   setPartyManifesto: mocks.setPartyManifesto,

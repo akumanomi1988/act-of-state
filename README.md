@@ -25,6 +25,13 @@ Auth verification, editorial QA, demographic calibration, economic simulation
 depth, and design/art direction acceptance. Automated unit and SQL integration
 tests are necessary but not sufficient to certify a finished game.
 
+## Immutable synthetic voter opinion history
+
+Active multiplayer matches record one server-generated, immutable projection
+per UTC day through the existing calendar job. Party trends, recorded gaps,
+and district comparisons appear in the electoral panel; official election
+results stay separate. See [daily opinion observatory](docs/DAILY_OPINION_OBSERVATORY.md).
+
 ## Asynchronous political action inbox
 
 Every player receives a member-scoped, persistent in-game brief covering

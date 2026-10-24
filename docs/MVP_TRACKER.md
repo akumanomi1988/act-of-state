@@ -378,3 +378,18 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
   React interaction tests and Chromium authenticated reload verification.
 - Real SMTP, push delivery, ten-account public play and sustained political
   week still unverified. MVP-F008 remains PARTIAL, without invented progress.
+
+
+## AOS-039 — Immutable daily electoral observatory (2026-10-24)
+
+- Append-only daily polling for active multiplayer sessions, derived from
+  the identical versioned national/territorial electoral certification model.
+  Missing days are not reconstructed from current voters.
+- The calendar scheduler captures each current UTC day under match locking,
+  de-duplicates repeat runs, stores failure diagnostics and preserves
+  existing fiscal/Parliament/election settlements.
+- Member-only bounded history RPC, private poll storage under RLS.
+- Electoral interface adds 7/30/90-day windows, completeness, party
+  voting trends, exact date/seat data and recorded district leaders.
+- SQL rollback, Vitest and Chromium mobile coverage. Real player acceptance
+  remains outstanding; MVP-F007 and F008 stay PARTIAL.

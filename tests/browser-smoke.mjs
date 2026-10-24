@@ -156,6 +156,42 @@ async function routeApi(page,state,{emailLimit=false}={}) {
         government:state.government,cohorts:state.world.cohorts,
         dossiers:[],options:[],events:[],stances:[]
       })
+      if(path==='/rest/v1/rpc/get_election_state'){
+        const second='80000000-0000-4000-8000-000000000099'
+        return json({
+          projection:{modelVersion:'electoral-districts-v1',householdSampleSize:300,
+            cohorts:[],districts:[],
+            parties:[
+              {userId:state.user.id,seatNo:1,partyName:'Gobierno compartido',
+                manifestoPolicy:50,voteSharePct:54,seats:54},
+              {userId:second,seatNo:2,partyName:'Oposición de prueba',
+                manifestoPolicy:25,voteSharePct:46,seats:46}
+            ]},
+          nextDueOn:'2027-01-10',campaignClosesOn:'2027-01-03',
+          canCertify:false,serverDay:'2026-10-24',history:[]
+        })
+      }
+      if(path==='/rest/v1/rpc/get_match_opinion_history'){
+        const days=request.postDataJSON()?.p_days??30
+        const second='80000000-0000-4000-8000-000000000099'
+        const make=(day,vote)=>({
+          day,capturedAt:day+'T00:15:00Z',modelVersion:'electoral-districts-v1',
+          householdSampleSize:300,
+          parties:[
+            {userId:state.user.id,seatNo:1,partyName:'Gobierno compartido',
+              manifestoPolicy:50,voteSharePct:vote,seats:54},
+            {userId:second,seatNo:2,partyName:'Oposición de prueba',
+              manifestoPolicy:25,voteSharePct:100-vote,seats:46}
+          ],districts:[{code:'capital',label:'Distrito Capital',
+            seats:25,households:75,residents:225,
+            parties:[{userId:state.user.id,partyName:'Gobierno compartido',
+              voteSharePct:vote,seats:14}]}]
+        })
+        return json({matchId:mid,serverDay:'2026-10-24',
+          fromDay:days===7?'2026-10-18':'2026-09-25',
+          days,expectedDays:days,recordedDays:2,
+          polls:[make('2026-10-22',52),make('2026-10-23',54)]})
+      }
       if(path==='/rest/v1/rpc/get_match_calendar') return json({
         gameDay:'2026-10-24',monday:'2026-10-19',friday:'2026-10-23',
         fridayReached:true,weeklyPublished:false,weeklyTotal:0,
@@ -505,6 +541,12 @@ try {
     assert.equal(await inbox.getByLabel('Avisos sin leer',{exact:true}).innerText(),'2 sin leer')
     await inbox.getByRole('button',{name:'Marcar leído'}).first().click()
     await page.getByText('1 sin leer',{exact:true}).waitFor()
+    const observatory=page.getByRole('region',{name:'Observatorio electoral histórico'})
+    await observatory.getByRole('heading',{name:'Observatorio de intención de voto'}).waitFor()
+    await observatory.getByText('2 / 30').waitFor()
+    await observatory.getByText('+2.00 puntos desde la primera captura del periodo').waitFor()
+    await observatory.getByRole('radio',{name:'7 días'}).check()
+    await observatory.getByText('2 / 7').waitFor()
     await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
     await page.getByText(/No se ha publicado ninguna agenda editorial/).waitFor()
     await page.getByRole('combobox',{name:'Semana política'}).selectOption('2026-10-12')
@@ -518,6 +560,8 @@ try {
     await page.screenshot({path:OUT+'/weekly-history-mobile.png',fullPage:true})
     await page.reload({waitUntil:'networkidle'})
     await page.getByText('1 sin leer',{exact:true}).waitFor()
+    await page.getByRole('region',{name:'Observatorio electoral histórico'})
+      .getByText('2 / 30').waitFor()
     await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
     await page.getByRole('combobox',{name:'Semana política'}).selectOption('2026-10-12')
     await page.getByText('Plan político archivado').waitFor()
