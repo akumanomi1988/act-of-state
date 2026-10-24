@@ -98,3 +98,18 @@ begin
 end
 $$;
 rollback;
+
+
+-- AOS-029: campaign changes must only be available through authenticated RPCs.
+do $campaign$
+begin
+  if has_table_privilege('authenticated','public.match_campaign_events','SELECT')
+     or has_table_privilege('authenticated','public.match_campaign_events','INSERT')
+     or has_table_privilege('anon','public.match_campaign_influence','SELECT')
+     or has_table_privilege('authenticated','public.match_campaign_influence','UPDATE')
+     or has_function_privilege('anon','public.launch_campaign(uuid,text,text)','EXECUTE')
+     or has_function_privilege('anon','public.get_campaign_state(uuid)','EXECUTE')
+     or not has_function_privilege('authenticated','public.launch_campaign(uuid,text,text)','EXECUTE')
+     or not has_function_privilege('authenticated','public.get_campaign_state(uuid)','EXECUTE')
+  then raise exception 'CAMPAIGN_PERMISSION_CONTRACT_BROKEN'; end if;
+end $campaign$;

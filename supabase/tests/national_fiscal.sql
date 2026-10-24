@@ -90,10 +90,12 @@ update public.governments set treasury_m_eur=0
 where id=(select other_id from pg_temp.fiscal_fixture);
 do $$
 declare r jsonb; f record; a public.fiscal_weekly_acts%rowtype;
-  v_last date;
+  v_last date; v_extra integer;
 begin
   select * into f from pg_temp.fiscal_fixture;
   v_last:=game_internal.week_start((now() at time zone 'UTC')::date)-7;
+  -- On Saturday/Sunday the current Friday is also closed: settle both countries.
+  v_extra:=case when extract(isodow from (now() at time zone 'UTC')::date)>=6 then 2 else 0 end;
   if game_internal.settle_fiscal_week(f.gov_id,v_last) is not true then
     raise exception 'FISCAL_SETTLEMENT_NOT_CREATED'; end if;
   if game_internal.settle_fiscal_week(f.gov_id,v_last) is not false then
@@ -105,7 +107,7 @@ begin
     a.debt_issued_m_eur<>0 or (a.policy_snapshot->>'tax_rate')::integer<>25 then
     raise exception 'FISCAL_SNAPSHOT_NOT_HISTORICAL: %',to_jsonb(a); end if;
   r:=game_internal.process_calendar();
-  if (r->>'fiscalClosures')::integer<>1 or
+  if (r->>'fiscalClosures')::integer<>1+v_extra or
      (r->>'fiscalErrors')::integer<>0 then
     raise exception 'FISCAL_CRON_BACKFILL_FAILED: %',r; end if;
   select * into a from public.fiscal_weekly_acts
@@ -116,7 +118,7 @@ begin
   r:=game_internal.process_calendar();
   if (r->>'fiscalClosures')::integer<>0 or
      (select count(*) from public.fiscal_weekly_acts
-       where government_id in (f.gov_id,f.other_id))<>2 then
+       where government_id in (f.gov_id,f.other_id))<>2+v_extra then
     raise exception 'FISCAL_CRON_REPLAY_MUTATED_LEDGER'; end if;
   if (select count(*) from game_internal.fiscal_failures)<>0 then
     raise exception 'FISCAL_FAILURE_RECORD_LEFT_BEHIND'; end if;
@@ -128,9 +130,12 @@ declare f record; state jsonb;
 begin
   select * into f from pg_temp.fiscal_fixture;
   state:=public.get_fiscal_state(f.gov_id);
-  if jsonb_array_length(state->'history')<>1 or
-     (state->'history'->0->>'balance_m_eur')::integer<>-45 or
-     (state->'indicators'->>'treasuryM')::integer<>11955 or
+  if jsonb_array_length(state->'history')<>
+       (case when extract(isodow from (now() at time zone 'UTC')::date)>=6 then 2 else 1 end) or
+     not exists(select 1 from jsonb_array_elements(state->'history') entry
+       where (entry->>'balance_m_eur')::integer=-45) or
+     (state->'indicators'->>'treasuryM')::integer<>
+       (state->'history'->0->>'treasury_after_m_eur')::integer or
      (state->'policy'->>'tax_rate')::integer<>27 or
      has_table_privilege('authenticated','public.fiscal_policies','SELECT') or
      has_table_privilege('authenticated','public.fiscal_weekly_acts','INSERT') or

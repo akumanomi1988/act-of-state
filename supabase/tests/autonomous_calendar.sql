@@ -55,7 +55,8 @@ begin
     (a->>'certifiedElections')::integer<>1 or
     (a->>'fridayClosures')::integer<1 or
     (a->>'errors')::integer<>0 then
-   raise exception 'AUTONOMOUS_CALENDAR_FIRST_RUN_FAILED %',a; end if;
+   raise exception 'AUTONOMOUS_CALENDAR_FIRST_RUN_FAILED %, failures=%',a,
+     (select coalesce(jsonb_agg(to_jsonb(err)),'[]'::jsonb) from game_internal.calendar_failures err); end if;
  if (select status from public.parliament_bills where id=f.bill_id)<>'rejected' then
    raise exception 'EXPIRED_BALLOT_NOT_REJECTED'; end if;
  if (select count(*) from public.match_elections where match_id=f.match_id)<>1 then
@@ -121,5 +122,44 @@ begin
  begin perform public.get_match_calendar(f.match_id);
  exception when insufficient_privilege then blocked:=true; end;
  if not blocked then raise exception 'OUTSIDER_READ_CALENDAR'; end if;
+end $$;
+
+-- AOS-030: a Saturday kickoff must never create a fictitious preceding Friday act.
+reset role;
+insert into auth.users
+ (id,instance_id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at)
+values ('40000000-0000-4000-8000-000000000004',
+ '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
+ 'calendar-weekend@example.invalid','',now(),now(),now());
+create temporary table weekend_fixture(match_id uuid,invite_code text);
+grant select,insert on pg_temp.weekend_fixture to authenticated;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','40000000-0000-4000-8000-000000000004',true);
+do $$
+declare m public.matches%rowtype;
+begin
+ m:=public.create_match('Weekend Activation','Weekend Government');
+ insert into pg_temp.weekend_fixture values(m.id,m.invite_code);
+end $$;
+select set_config('request.jwt.claim.sub','40000000-0000-4000-8000-000000000002',true);
+select public.join_match((select invite_code from pg_temp.weekend_fixture),'Weekend Opposition');
+select set_config('request.jwt.claim.sub','40000000-0000-4000-8000-000000000004',true);
+select public.start_match((select match_id from pg_temp.weekend_fixture));
+reset role;
+do $$
+declare v_match uuid; v_week date;
+begin
+ select match_id into v_match from pg_temp.weekend_fixture;
+ v_week:=(now() at time zone 'UTC')::date;
+ v_week:=v_week-(extract(isodow from v_week)::integer-1)-7;
+ update public.matches set started_at=(v_week+5)::timestamp at time zone 'UTC'
+   where id=v_match;
+ if game_internal.close_match_friday(v_match,v_week) then
+   raise exception 'PRE_ACTIVATION_FRIDAY_CREATED'; end if;
+ if exists(select 1 from public.match_weekly_closures
+   where match_id=v_match and week_start=v_week) then
+   raise exception 'PRE_ACTIVATION_FRIDAY_PERSISTED'; end if;
+ if game_internal.close_match_friday(v_match,v_week-7) then
+   raise exception 'EARLIER_PRE_ACTIVATION_FRIDAY_CREATED'; end if;
 end $$;
 rollback;
