@@ -10,6 +10,8 @@ import MatchCalendarPanel from './MatchCalendarPanel'
 import GovernancePanel from './GovernancePanel'
 import FiscalPanel from './FiscalPanel'
 import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
+import PublicMatchPanel from './PublicMatchPanel'
+import { joinPublicLobby, setMatchVisibility } from './lib/matchmaking'
 import {
   createMatch, fetchMatchWorld, joinMatch, listMyMatches, matchError,
   recordMatchStance, startMatch, type MatchSummary, type MatchWorld
@@ -288,6 +290,24 @@ export default function MultiplayerApp() {
             <button disabled={pending} type="submit">Ocupar escaño</button>
           </form>
         </div>
+        <PublicMatchPanel identity={user!.id} disabled={pending}
+          onJoin={async (matchId, partyName) => {
+            if (!user || pending) throw new Error('MATCH_BUSY')
+            const owner = user.id
+            setPending(true); setError(''); setNotice('')
+            try {
+              const id = await joinPublicLobby(matchId, partyName)
+              if (ownerRef.current !== owner) return
+              setActiveId(id)
+              setNotice('Te has incorporado a una partida pública.')
+              setReload(value => value + 1)
+            } catch (reason) {
+              if (ownerRef.current === owner) setError(matchError(reason))
+              throw reason
+            } finally {
+              if (ownerRef.current === owner) setPending(false)
+            }
+          }} />
         <h3>Mis partidas</h3>
         <nav className="match-list" aria-label="Mis partidas">
           {matches.length ? matches.map(item => <button key={item.id}
@@ -326,6 +346,19 @@ export default function MultiplayerApp() {
               Copiar código
             </button>
           </div>
+          {host && world.match.status==='lobby' && <div className="match-visibility">
+            <div><strong>Visibilidad de la partida</strong>
+              <p>{world.match.is_public
+                ? 'Pública: cualquiera con cuenta podrá encontrar y solicitar una plaza.'
+                : 'Privada: solo podrán entrar quienes conozcan el código.'}</p></div>
+            <button type="button" className="text-button" disabled={pending}
+              onClick={() => void mutate(
+                () => setMatchVisibility(world.match.id, !world.match.is_public),
+                world.match.is_public ? 'Partida retirada del tablón público.' :
+                  'Partida publicada en el tablón para nuevos partidos.')}>
+              {world.match.is_public ? 'Hacer privada' : 'Publicar partida'}
+            </button>
+          </div>}
           <div className="match-seats" aria-label="Partidos de la asamblea">
             {Array.from({ length: 10 }, (_, i) => {
               const player = world.players.find(item => item.seat_no === i + 1)

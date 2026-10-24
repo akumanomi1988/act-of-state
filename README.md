@@ -25,6 +25,14 @@ Auth verification, editorial QA, demographic calibration, economic simulation
 depth, and design/art direction acceptance. Automated unit and SQL integration
 tests are necessary but not sufficient to certify a finished game.
 
+## Public multiplayer matchmaking
+
+The multiplayer screen allows users to find opt-in public matches and join
+them as distinct political parties without exchanging codes. Private lobbies
+remain private by default. The host can enable discovery before starting the
+game. All joins are authorized and seat allocations remain atomic.
+See [matchmaking operations](docs/PUBLIC_MATCHMAKING.md).
+
 ## Weekly editorial sourcing
 
 Authorized staff can open /editorial and use the ten-source preparation

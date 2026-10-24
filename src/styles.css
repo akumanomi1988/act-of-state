@@ -399,3 +399,19 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 .editorial-batch { display:grid;gap:0.65rem;padding:1rem 0;border-block:1px solid var(--line);}
 .editorial-batch button { width:100%;min-height:46px;white-space:normal;text-align:center;}
 .editorial-batch p { color:var(--muted);font-size:0.82rem;line-height:1.5;margin:0;}
+
+
+/* AOS-033 · Discoverable multiplayer lobbies */
+.match-public-directory{border-block:1px solid var(--line);padding:1rem 0;margin:1rem 0;}
+.match-directory-heading{display:flex;flex-wrap:wrap;justify-content:space-between;gap:0.4rem;align-items:center;}
+.match-directory-heading h3{margin:0;}
+.match-directory-list{display:grid;gap:0.5rem;margin:0.9rem 0;}
+.match-directory-list button{display:flex;flex-direction:column;text-align:left;gap:0.35rem;
+ background:transparent;color:inherit;border:1px solid var(--line);border-radius:5px;
+ min-height:52px;padding:0.7rem 0.8rem;overflow-wrap:anywhere;}
+.match-directory-list button.selected{border-color:var(--gold);background:rgba(197,168,123,.08);}
+.match-directory-list button span{color:var(--muted);font-size:0.82rem;}
+.match-visibility{display:flex;gap:1rem;justify-content:space-between;align-items:center;
+ padding:1rem;margin:1rem 0;border:1px solid var(--line);flex-wrap:wrap;}
+.match-visibility p{color:var(--muted);margin:0.3rem 0;line-height:1.5;}
+.match-visibility button{min-height:44px;}
