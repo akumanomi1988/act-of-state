@@ -419,6 +419,26 @@ try {
     await page.screenshot({path:OUT+'/multiplayer-mobile.png',fullPage:true})
     await context.close()
   })
+  await run('Direct invitation preserves the room through OTP login and reload',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    const state=createServerState()
+    const code='ab12ab12ab12ab12ab12ab12ab12ab12'
+    await routeApi(page,state)
+    await page.goto(BASE+'/multiplayer?invite='+code,{waitUntil:'networkidle'})
+    await page.getByLabel('Correo electrónico').fill('newplayer@example.invalid')
+    await page.getByRole('button',{name:'Recibir enlace de acceso'}).click()
+    assert.equal(state.otpCount,1)
+    assert.equal(new URL(state.lastOtp.url).searchParams.get('redirect_to'),
+      BASE+'/multiplayer?invite='+code)
+    await injectUser(page,state)
+    await page.reload({waitUntil:'networkidle'})
+    assert.equal(await page.getByRole('textbox',{name:'Código de invitación'}).inputValue(),code)
+    await checkMobileOverflow(page,'multiplayer invitation deep link')
+    await checkA11y(page,'multiplayer invitation deep link')
+    await page.screenshot({path:OUT+'/invitation-mobile.png',fullPage:true})
+    await context.close()
+  })
   await run('Authenticated public lobby joins without exposure of invite tokens',async()=>{
     const context=await browser.newContext({viewport:{width:390,height:844}})
     const page=await context.newPage()
@@ -474,7 +494,7 @@ try {
     assert.equal(await progress.getAttribute('aria-valuenow'),'0')
     await context.close()
   })
-  console.log('Browser scenarios passed: '+passed.length+'/9')
+  console.log('Browser scenarios passed: '+passed.length+'/10')
   if (failed.length) throw new Error('Failed scenarios: '+failed.join(', '))
 } catch (error) {
   console.error('BROWSER SMOKE FAILED',error)

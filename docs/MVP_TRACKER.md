@@ -327,3 +327,19 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
   plus typed helpers and integration tests. Weekly real news verification,
   actual staff and real-account end-to-end checks are still outstanding.
   MVP-F002 and MVP-F006 remain PARTIAL.
+
+
+## AOS-036 — Lobby preparation and direct invitations (2026-10-24)
+
+- Added authoritative readiness per party plus a host-controlled strict
+  ready-check option. Existing matches preserve their preexisting admission
+  and activation behavior until a host explicitly opts in.
+- Withdrawal of invited parties and safely reusable lobby seats now have
+  frontend support. Match-row locking serializes ready, policy, join,
+  withdrawal and start, and forbids modifications after activation.
+- Sanitized shared invitation links prefill the invited lobby through
+  first-time email OTP authentication and reloading the web application.
+- SQL ten-party regression, typed RPC contracts, Vitest interactions and
+  Chromium mobile/WCAG checks validate the integrated lobby lifecycle.
+- Ten actual human accounts, external email delivery and a sustained
+  production week remain unvalidated. MVP-F001/F008 are still PARTIAL.

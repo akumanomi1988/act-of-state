@@ -8,7 +8,8 @@ const mocks = vi.hoisted(() => ({
   signOut: vi.fn(), listMyMatches: vi.fn(), createMatch: vi.fn(),
   joinMatch: vi.fn(), startMatch: vi.fn(), fetchMatchWorld: vi.fn(),
   recordMatchStance: vi.fn(), submitDecision: vi.fn(),
-  setMatchVisibility: vi.fn(),
+  setMatchVisibility: vi.fn(),setMatchReady:vi.fn(),
+  setMatchReadinessRequirement:vi.fn(),leaveLobby:vi.fn(),
   mandateApproved: { value: true }
 }))
 
@@ -17,6 +18,12 @@ vi.mock('./PublicMatchPanel', () => ({ default: () => <div>Public lobby test fix
 vi.mock('./lib/matchmaking', () => ({ setMatchVisibility: mocks.setMatchVisibility,
   joinPublicLobby: vi.fn() }))
 
+vi.mock('./lib/lobby',async importOriginal=>({
+  ...await importOriginal<typeof import('./lib/lobby')>(),
+  setMatchReady:mocks.setMatchReady,
+  setMatchReadinessRequirement:mocks.setMatchReadinessRequirement,
+  leaveLobby:mocks.leaveLobby
+}))
 vi.mock('./FiscalPanel', () => ({ default: () => <div>National fiscal panel fixture</div> }))
 
 vi.mock('./lib/game', () => ({
@@ -62,7 +69,7 @@ function world(status: 'lobby' | 'active', count: number, owner = hostId, decide
       '00000000-0000-4000-8000-' + String(i + 1).padStart(12, '0'),
     seat_no: i + 1, party_name: 'Party ' + (i + 1),
     manifesto_policy: 50, mandate_seats: 10,
-    joined_at: '2026-10-23T00:00:00Z'
+    joined_at: '2026-10-23T00:00:00Z', is_ready:false
   }))
   return {
     match: { id: matchId, title: 'Legislature of Arcadia', status,
@@ -70,7 +77,7 @@ function world(status: 'lobby' | 'active', count: number, owner = hostId, decide
       invite_code: 'abcdef0123456789abcdef0123456789',
       created_at: '2026-10-23T00:00:00Z',
       started_at: status === 'active' ? '2026-10-23T00:00:00Z' : null,
-      is_public:false,max_players: 10 },
+      is_public:false,readiness_required:false,max_players: 10 },
     me: players.find(p => p.user_id === owner) ?? players[0],
     gameDay: '2026-10-23',
     players,
@@ -132,10 +139,43 @@ beforeEach(() => {
   mocks.recordMatchStance.mockResolvedValue({ policy_affinity: 65 })
   mocks.submitDecision.mockResolvedValue({})
   mocks.setMatchVisibility.mockResolvedValue(undefined)
+  mocks.setMatchReady.mockResolvedValue(undefined)
+  mocks.setMatchReadinessRequirement.mockResolvedValue(undefined)
+  mocks.leaveLobby.mockResolvedValue(undefined)
 })
 afterEach(cleanup)
 
 describe('ten-party multiplayer assembly', () => {
+  it('coordinates ten-party readiness and blocks the host while anyone is pending',async()=>{
+    const fixture=world('lobby',3)
+    fixture.match.readiness_required=true
+    fixture.players[0].is_ready=true
+    fixture.players[1].is_ready=true
+    mocks.listMyMatches.mockResolvedValue(currentSummary('lobby',3))
+    mocks.fetchMatchWorld.mockResolvedValue(fixture)
+    render(<MultiplayerApp/>)
+    await screen.findByText('Convocatoria abierta')
+    expect(screen.getByText(/2 de 3 partidos preparados/)).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Comenzar legislatura'})).toBeDisabled()
+    fireEvent.click(screen.getByRole('button',{name:'Retirar preparación'}))
+    await waitFor(()=>expect(mocks.setMatchReady).toHaveBeenCalledWith(matchId,false))
+    expect(mocks.startMatch).not.toHaveBeenCalled()
+    expect(screen.getByRole('button',{name:'Desactivar confirmación'})).toBeInTheDocument()
+  })
+
+  it('allows non-host to leave the lobby, without displaying any government activation',async()=>{
+    signedInAs=guestId
+    mocks.getUser.mockResolvedValue({data:{user:{id:guestId}},error:null})
+    mocks.listMyMatches.mockResolvedValue(currentSummary('lobby',2))
+    mocks.fetchMatchWorld.mockResolvedValue(world('lobby',2,guestId))
+    render(<MultiplayerApp/>)
+    await screen.findByText('Convocatoria abierta')
+    expect(screen.queryByRole('button',{name:'Comenzar legislatura'})).toBeNull()
+    fireEvent.click(screen.getByRole('button',{name:'Abandonar convocatoria'}))
+    await waitFor(()=>expect(mocks.leaveLobby).toHaveBeenCalledWith(matchId))
+  })
+
+
   it('creates a match through the backend and does not invent a local world', async () => {
     render(<MultiplayerApp />)
     await screen.findByText('No perteneces a ninguna partida todavía.')

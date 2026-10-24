@@ -21,6 +21,7 @@ export interface MatchPlayer {
   manifesto_policy: number
   mandate_seats: number
   joined_at: string
+  is_ready: boolean
 }
 
 export interface MatchStance {
@@ -45,6 +46,7 @@ export interface MatchWorld {
     created_at: string
     started_at: string | null
     is_public: boolean
+    readiness_required: boolean
     max_players: number
   }
   me: MatchPlayer
@@ -164,6 +166,10 @@ const messages: Record<string, string> = {
   MATCH_PARTY_NAME_TAKEN: 'Ya existe un partido con ese nombre.',
   MATCH_FORBIDDEN: 'No perteneces a esta partida o no tienes permiso para esa acción.',
   MATCH_REQUIRES_TWO_PLAYERS: 'Se necesitan al menos dos partidos para comenzar.',
+  MATCH_PARTIES_NOT_READY: 'Hay partidos que todavía no han confirmado su preparación.',
+  MATCH_INVALID_READY: 'Debes indicar un estado de preparación válido.',
+  MATCH_HOST_CANNOT_LEAVE: 'El anfitrión no puede abandonar su propia convocatoria.',
+  MATCH_LOBBY_MUTATION_NOT_CONFIRMED: 'El servidor no confirmó el cambio de estado.',
   MATCH_NOT_ACTIVE: 'La partida aún no está activa.',
   MATCH_STANCE_ALREADY_RECORDED: 'Ya fijaste una posición distinta para este expediente.',
   MATCH_INVALID_RESPONSE: 'La respuesta de la partida no es válida.',
