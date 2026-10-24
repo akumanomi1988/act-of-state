@@ -16,8 +16,8 @@ do $$
 declare m public.matches%rowtype; denied boolean:=false;
 begin
  m:=public.create_match('Lobby Readiness Assembly','Founding Party');
- if m.readiness_required or (select is_ready from public.match_players
-    where match_id=m.id and user_id=auth.uid()) then
+ if m.readiness_required or
+    (public.get_match_world(m.id)->'me'->>'is_ready')::boolean then
    raise exception 'LOBBY_DEFAULT_CHANGED_UNEXPECTEDLY'; end if;
  insert into pg_temp.lobby_fixture values(m.id,m.government_id,m.invite_code);
  if not public.set_match_readiness_requirement(m.id,true) then
@@ -100,8 +100,10 @@ do $$
 declare f record; m public.matches%rowtype; again public.matches%rowtype;
 begin
  select * into f from pg_temp.lobby_fixture;
- if (select count(*) from public.match_players where match_id=f.match_id
-   and not is_ready)<>0 then raise exception 'LOBBY_NOT_FULLY_READY'; end if;
+ if (select count(*) from jsonb_array_elements(
+      public.get_match_world(f.match_id)->'players') p
+    where p->>'is_ready'='false')<>0 then
+   raise exception 'LOBBY_NOT_FULLY_READY'; end if;
  m:=public.start_match(f.match_id);
  again:=public.start_match(f.match_id);
  if m.status<>'active' or m.started_at is null or again.started_at<>m.started_at then
