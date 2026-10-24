@@ -347,7 +347,7 @@ export default function EditorialApp() {
         <div><div className="wordmark">ACT OF STATE</div>
           <div className="brand-caption">EDITORIAL CONTROL ROOM</div></div>
       </div>
-      <div className="header-end">
+      <div className="header-end"><a className="text-button" href="/guide">Manual del jugador</a>
         <a className="text-button" href="/">Volver al gobierno</a>
         {user && <button className="text-button" onClick={() => void onSignOut()}
           disabled={pending}>Cerrar sesión</button>}

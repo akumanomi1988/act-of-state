@@ -1,3 +1,4 @@
+import PlayerOnboarding from './PlayerOnboarding'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, fetchWorld, friendlyError, startGovernment, submitDecision } from './lib/game'
@@ -238,7 +239,7 @@ export default function App() {
           <span className="brand-symbol" aria-hidden="true">A<span>／</span>S</span>
           <div><div className="wordmark">ACT OF STATE</div><div className="brand-caption">EVERY DECISION SHAPES A NATION.</div></div>
         </div>
-        <div className="header-end"><span className="online-dot" aria-hidden="true" /> SIMULACIÓN POLÍTICA PERSISTENTE
+        <div className="header-end"><a className="text-button" href="/guide">Manual del jugador</a><span className="online-dot" aria-hidden="true" /> SIMULACIÓN POLÍTICA PERSISTENTE
           <a href="/multiplayer" className="text-button">Multijugador</a>
           {user && <button type="button" className="text-button" onClick={() => void signOut()} disabled={pending}>Cerrar sesión</button>}
         </div>
@@ -282,6 +283,7 @@ export default function App() {
         </main>
       ) : (
         <>
+          <PlayerOnboarding world={world} />
           <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
           <FiscalPanel key={world.government.id} governmentId={world.government.id} />
           <main className="government-layout">

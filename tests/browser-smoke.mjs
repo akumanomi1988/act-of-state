@@ -713,6 +713,17 @@ try {
       await context.close()
     }
   })
+  await run('Public player manual is readable without authentication',async()=>{
+    const context=await browser.newContext({viewport:{width:375,height:844}})
+    const page=await context.newPage()
+    await page.goto(BASE+'/guide',{waitUntil:'networkidle'})
+    await page.getByRole('heading',{level:1}).waitFor()
+    await page.getByRole('navigation',{name:'Contenido del manual'}).getByRole('link',{name:'Una semana política'}).click()
+    await page.getByRole('heading',{name:'Una semana política'}).waitFor()
+    await checkMobileOverflow(page,'public player manual')
+    await checkA11y(page,'public player manual')
+    await context.close()
+  })
   console.log('Browser scenarios passed: '+passed.length)
   if (failed.length) throw new Error('Failed scenarios: '+failed.join(', '))
 } catch (error) {

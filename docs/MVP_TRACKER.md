@@ -434,3 +434,17 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
   voting trends, exact date/seat data and recorded district leaders.
 - SQL rollback, Vitest and Chromium mobile coverage. Real player acceptance
   remains outstanding; MVP-F007 and F008 stay PARTIAL.
+
+## AOS-041 — Player onboarding and reconciled product inventory
+
+- Public `/guide` manual covers all implemented political systems and access recovery.
+- Solo and multiplayer onboarding derive their next steps from authorized world snapshots;
+  another party's action does not complete the current player's task. Guide reads never
+  execute decisions, votes or other mutations.
+- Added guide links across government, assembly and editorial entry points and mobile/
+  accessibility browser coverage. No new dependency, Auth grant or schema change.
+- `docs/PRODUCT_STATUS.md` is the current system-by-system implementation and remaining
+  acceptance inventory. Earlier historical tracker entries may be superseded by it.
+- Real email delivery, ten human accounts, reviewed current-news operation, a real-time
+  week, balancing, recovery/load exercises and final human visual acceptance remain open.
+  Strict accepted requirements remain 2/18, without invented completion percentages.
