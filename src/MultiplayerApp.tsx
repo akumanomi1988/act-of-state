@@ -13,6 +13,10 @@ import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
 import PublicMatchPanel from './PublicMatchPanel'
 import { joinPublicLobby, setMatchVisibility } from './lib/matchmaking'
 import {
+  setMatchReady,setMatchReadinessRequirement,leaveLobby,
+  invitationUrl,inviteCodeFromQuery,isInviteCode
+} from './lib/lobby'
+import {
   createMatch, fetchMatchWorld, joinMatch, listMyMatches, matchError,
   recordMatchStance, startMatch, type MatchSummary, type MatchWorld
 } from './lib/multiplayer'
@@ -24,7 +28,7 @@ export default function MultiplayerApp() {
   const [mailSent, setMailSent] = useState(false)
   const [title, setTitle] = useState('')
   const [hostParty, setHostParty] = useState('')
-  const [inviteCode, setInviteCode] = useState('')
+  const [inviteCode, setInviteCode] = useState(() => inviteCodeFromQuery(window.location.search) ?? '')
   const [joiningParty, setJoiningParty] = useState('')
   const [matches, setMatches] = useState<MatchSummary[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -38,6 +42,7 @@ export default function MultiplayerApp() {
   const [reload, setReload] = useState(0)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [shareFailure,setShareFailure] = useState('')
   const ownerRef = useRef<string | null>(null)
   const requestRef = useRef(0)
 
@@ -145,7 +150,9 @@ export default function MultiplayerApp() {
     try {
       const { error: authError } = await client.auth.signInWithOtp({
         email: email.trim(),
-        options: { emailRedirectTo: window.location.origin + '/multiplayer' }
+        options: { emailRedirectTo: isInviteCode(inviteCode) ?
+          invitationUrl(window.location.origin,inviteCode) :
+          window.location.origin + '/multiplayer' }
       })
       if (authError) setError(friendlyError(authError))
       else setMailSent(true)
@@ -186,6 +193,26 @@ export default function MultiplayerApp() {
       const seat = await joinMatch(inviteCode.trim(), joiningParty.trim())
       setActiveId(seat.match_id)
     }, 'Te has unido a la partida. Tu partido tiene plaza persistente.')
+  }
+
+  async function onLeaveLobby() {
+    if (!world || world.match.status!=='lobby' || host || pending) return
+    const matchId=world.match.id
+    await mutate(()=>leaveLobby(matchId),
+      'Has abandonado la convocatoria. El escaño vuelve a estar disponible.')
+  }
+
+  async function shareInvite() {
+    if (!world) return
+    setShareFailure('')
+    try {
+      const url=invitationUrl(window.location.origin,world.match.invite_code)
+      if (!navigator.clipboard?.writeText) throw new Error('CLIPBOARD_UNAVAILABLE')
+      await navigator.clipboard.writeText(url)
+      setNotice('Enlace de invitación copiado.')
+    } catch {
+      setShareFailure('No se pudo copiar el enlace. Comparte el código que aparece arriba.')
+    }
   }
 
   async function onStance() {
@@ -342,9 +369,15 @@ export default function MultiplayerApp() {
             <div><span>INVITACIÓN A LA ASAMBLEA</span>
               <code>{world.match.invite_code}</code>
               <p>Comparte el código con cuentas autenticadas antes de comenzar.</p></div>
-            <button className="text-button" onClick={() => void navigator.clipboard?.writeText(world.match.invite_code)}>
-              Copiar código
-            </button>
+            <div className="lobby-invite-actions">
+              <button className="text-button" onClick={() => void shareInvite()}>
+                Copiar enlace de invitación
+              </button>
+              <button className="text-button" onClick={() => void navigator.clipboard?.writeText(world.match.invite_code)}>
+                Copiar código
+              </button>
+            </div>
+            {shareFailure && <p role="alert">{shareFailure}</p>}
           </div>
           {host && world.match.status==='lobby' && <div className="match-visibility">
             <div><strong>Visibilidad de la partida</strong>
@@ -365,8 +398,10 @@ export default function MultiplayerApp() {
               return <div className={'match-seat ' + (player ? 'occupied' : '')} key={i}>
                 <span>{String(i + 1).padStart(2, '0')}</span>
                 <strong>{player?.party_name ?? 'Escaño disponible'}</strong>
-                <small>{player ? (player.user_id === world.match.host_user_id ? 'GOBIERNO' : 'OPOSICIÓN') +
-                  ' · ' + player.mandate_seats + ' escaños' : 'LIBRE'}</small>
+                <small>{player ? (world.match.status==='lobby' ?
+                  (player.is_ready ? 'PREPARADO' : 'PENDIENTE') :
+                  (player.user_id === world.match.host_user_id ? 'GOBIERNO' : 'OPOSICIÓN') +
+                  ' · ' + player.mandate_seats + ' escaños') : 'LIBRE'}</small>
               </div>
             })}
           </div>
@@ -385,8 +420,35 @@ export default function MultiplayerApp() {
             onElectionCertified={() => setReload(value => value + 1)} />
           {world.match.status === 'lobby' ? <div className="match-waiting">
             <h2>Convocatoria abierta</h2>
-            <p>La partida comienza con al menos dos partidos. Las plazas se bloquean cuando el anfitrión la activa.</p>
-            {host && <button disabled={pending || world.players.length < 2}
+            <p>La partida comienza con al menos dos partidos. Las plazas se bloquean
+              cuando el anfitrión la activa.</p>
+            <p role="status">{world.players.filter(p=>p.is_ready).length} de {world.players.length}
+              {' '}partidos preparados.</p>
+            <div className="lobby-ready-actions">
+              <button type="button" disabled={pending} aria-pressed={world.me.is_ready}
+                onClick={()=>void mutate(()=>setMatchReady(world.match.id,!world.me.is_ready),
+                  world.me.is_ready?'Has retirado tu confirmación.':'Tu partido está preparado.')}>
+                {world.me.is_ready?'Retirar preparación':'Confirmar que estoy preparado'}
+              </button>
+              {!host && <button type="button" className="text-button" disabled={pending}
+                onClick={()=>void onLeaveLobby()}>
+                Abandonar convocatoria
+              </button>}
+            </div>
+            {host && <div className="lobby-readiness-config">
+              <strong>Confirmación obligatoria antes de comenzar</strong>
+              <p>{world.match.readiness_required?
+                'Todos los partidos presentes deben confirmar su preparación.' :
+                'Modo clásico: se permite comenzar con al menos dos partidos sin confirmación.'}</p>
+              <button type="button" className="text-button" disabled={pending}
+                onClick={()=>void mutate(()=>setMatchReadinessRequirement(
+                  world.match.id,!world.match.readiness_required),
+                  'Regla de preparación de la asamblea actualizada.')}>
+                {world.match.readiness_required?'Desactivar confirmación':'Exigir confirmación'}
+              </button>
+            </div>}
+            {host && <button disabled={pending || world.players.length < 2 ||
+              (world.match.readiness_required && world.players.some(p=>!p.is_ready))}
               onClick={() => void mutate(() => startMatch(world.match.id),
                 'La asamblea ha comenzado.')}>Comenzar legislatura</button>}
             {!host && <p role="status">Esperando la convocatoria del partido de gobierno.</p>}

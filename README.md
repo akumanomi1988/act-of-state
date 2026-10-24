@@ -25,6 +25,13 @@ Auth verification, editorial QA, demographic calibration, economic simulation
 depth, and design/art direction acceptance. Automated unit and SQL integration
 tests are necessary but not sufficient to certify a finished game.
 
+## Multiplayer invitation and ready-check lifecycle
+
+Hosts may require every current party to confirm readiness before beginning
+an assembly. Guests can leave open lobbies and vacated seats are reusable.
+Shareable invitation links survive email magic-link authentication. See
+[lobby participation and invitations](docs/MULTIPLAYER_LOBBY.md).
+
 ## Editorial weekly production cycle
 
 Authorized editors can source ten news references, prepare fictional policy

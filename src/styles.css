@@ -437,3 +437,12 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 .editorial-staff-list li{display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;justify-content:space-between;padding:0.4rem 0;overflow-wrap:anywhere;}
 .editorial-review-card h3{margin:0.2rem 0;}
 .editorial-review-card button{min-height:44px;}
+
+
+/* AOS-036: multiplayer lobby coordination */
+.lobby-ready-actions,.lobby-invite-actions{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center}
+.lobby-readiness-config{margin:1rem 0;padding:1rem;border:1px solid var(--line)}
+.lobby-readiness-config p{margin:0.5rem 0}
+.lobby-ready-actions button,.lobby-readiness-config button,.lobby-invite-actions button{min-height:44px}
+.match-invite .lobby-invite-actions{justify-content:flex-end}
+@media(max-width:760px){.match-invite .lobby-invite-actions{justify-content:flex-start}}

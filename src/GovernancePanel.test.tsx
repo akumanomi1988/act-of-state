@@ -19,7 +19,7 @@ const matchId = '90000000-0000-4000-8000-000000000009'
 const players = [user1,user2,user3].map((id,i) => ({
   match_id: matchId,user_id:id,seat_no:i+1,party_name:'Party '+(i+1),
   manifesto_policy:50,mandate_seats:i===0?55:i===1?35:10,
-  joined_at:'2026-10-23T00:00:00Z'
+  joined_at:'2026-10-23T00:00:00Z',is_ready:false
 })) as MatchPlayer[]
 const motion = {
   id:'80000000-0000-4000-8000-000000000008',match_id:matchId,

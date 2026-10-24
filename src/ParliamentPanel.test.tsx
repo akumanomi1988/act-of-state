@@ -27,7 +27,7 @@ const options = [{
 const players = [host, guest].map((user_id, i) => ({
   match_id: matchId, user_id, seat_no: i + 1, party_name: 'Party ' + (i + 1),
   manifesto_policy: 50, mandate_seats: 10,
-  joined_at: '2026-10-23T00:00:00Z'
+  joined_at: '2026-10-23T00:00:00Z',is_ready:false
 }))
 const bill = {
   id: billId, match_id: matchId, dossier_id: 'energy-resilience',
