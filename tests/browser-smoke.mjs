@@ -135,6 +135,56 @@ async function routeApi(page,state,{emailLimit=false}={}) {
           publishedAt:new Date(Date.now()-3600000).toISOString()
         }))})
     }
+    if (state.weeklyMatch) {
+      const mid='80000000-0000-4000-8000-000000000037'
+      const player={match_id:mid,user_id:state.user.id,seat_no:1,
+        party_name:'Gobierno compartido',manifesto_policy:50,mandate_seats:100,
+        joined_at:'2026-10-12T09:00:00Z',is_ready:true}
+      if(path==='/rest/v1/rpc/list_my_matches') return json([{
+        id:mid,title:'Prueba de legislatura',status:'active',
+        host_user_id:state.user.id,government_id:state.government.id,
+        seat_no:1,party_name:player.party_name,player_count:2,
+        created_at:'2026-10-12T09:00:00Z'
+      }])
+      if(path==='/rest/v1/rpc/get_match_world') return json({
+        match:{id:mid,title:'Prueba de legislatura',status:'active',
+          host_user_id:state.user.id,government_id:state.government.id,
+          invite_code:'abcdefabcdefabcdefabcdefabcdefab',
+          created_at:'2026-10-12T09:00:00Z',started_at:'2026-10-12T10:00:00Z',
+          is_public:false,readiness_required:false,max_players:10},
+        me:player,gameDay:'2026-10-24',players:[player],
+        government:state.government,cohorts:state.world.cohorts,
+        dossiers:[],options:[],events:[],stances:[]
+      })
+      if(path==='/rest/v1/rpc/get_match_calendar') return json({
+        gameDay:'2026-10-24',monday:'2026-10-19',friday:'2026-10-23',
+        fridayReached:true,weeklyPublished:false,weeklyTotal:0,
+        weeklyResolved:0,latestFriday:null
+      })
+      if(path==='/rest/v1/rpc/get_match_weekly_accountability')
+        return json({serverDay:'2026-10-24',weeks:[
+          {weekStart:'2026-10-19',friday:'2026-10-23',
+            status:'awaiting-settlement',published:false,
+            dossiers:[],parties:[{seatNo:1,partyName:player.party_name,
+              positions:0,votes:0}],fridayAct:null,elections:[]},
+          {weekStart:'2026-10-12',friday:'2026-10-16',
+            status:'closed',published:true,
+            dossiers:[{id:'qa-week-dossier',title:'Plan político archivado',
+              category:'Economía',sourceTitle:'Fuente verificada de prueba',
+              sourceUrl:'https://example.org/test-source',positions:1,
+              decision:{optionId:'qa-option',decidedOn:'2026-10-14',
+                treasuryDelta:-100,approval:'55',trust:'54'},
+              bill:{status:'passed',closesAt:'2026-10-16T12:00:00Z',
+                yesVotes:1,noVotes:0,abstentions:0}}],
+            parties:[{seatNo:1,partyName:player.party_name,positions:1,votes:1}],
+            fridayAct:{week_start:'2026-10-12',dossiers_published:1,
+              decisions_resolved:1,treasury_delta_m_eur:-100,
+              treasury_at_friday_m_eur:11900,approval_at_friday:55,
+              trust_at_friday:54},
+            elections:[{certifiedOn:'2026-10-16',electionNo:1,
+              winnerParty:player.party_name}]}
+        ]})
+    }
     if (path==='/rest/v1/rpc/list_my_matches') return json([])
     if (path==='/rest/v1/rpc/list_public_lobbies') return json(state.publicLobbies ?? [])
     if (path==='/rest/v1/rpc/join_public_lobby') {
@@ -419,6 +469,31 @@ try {
     await page.screenshot({path:OUT+'/multiplayer-mobile.png',fullPage:true})
     await context.close()
   })
+  await run('Authenticated weekly history is accessible and reloadable on mobile',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    const state=createServerState()
+    state.weeklyMatch=true
+    await routeApi(page,state)
+    await injectUser(page,state)
+    await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
+    await page.getByText(/No se ha publicado ninguna agenda editorial/).waitFor()
+    await page.getByRole('combobox',{name:'Semana política'}).selectOption('2026-10-12')
+    await page.getByText('Plan político archivado').waitFor()
+    assert.equal(await page.getByRole('link',{
+      name:'Fuente: Fuente verificada de prueba'
+    }).getAttribute('href'),'https://example.org/test-source')
+    await page.getByText(/Acta oficial del viernes/).waitFor()
+    await checkMobileOverflow(page,'weekly legislature history')
+    await checkA11y(page,'weekly legislature history')
+    await page.screenshot({path:OUT+'/weekly-history-mobile.png',fullPage:true})
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
+    await page.getByRole('combobox',{name:'Semana política'}).selectOption('2026-10-12')
+    await page.getByText('Plan político archivado').waitFor()
+    await context.close()
+  })
   await run('Direct invitation preserves the room through OTP login and reload',async()=>{
     const context=await browser.newContext({viewport:{width:390,height:844}})
     const page=await context.newPage()
@@ -494,7 +569,7 @@ try {
     assert.equal(await progress.getAttribute('aria-valuenow'),'0')
     await context.close()
   })
-  console.log('Browser scenarios passed: '+passed.length+'/10')
+  console.log('Browser scenarios passed: '+passed.length+'/11')
   if (failed.length) throw new Error('Failed scenarios: '+failed.join(', '))
 } catch (error) {
   console.error('BROWSER SMOKE FAILED',error)

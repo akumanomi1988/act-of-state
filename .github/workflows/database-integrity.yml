@@ -51,7 +51,7 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f supabase/tests/access_contract.sql
       - name: Run transactional game integration suites
         run: |
-          for suite in decision_flow world_snapshot historical_decision weekly_release editorial_workflow multiplayer_ten_party elections autonomous_calendar coalitions_confidence national_fiscal campaigns households public_matchmaking districts editorial_staff lobby_lifecycle; do
+          for suite in decision_flow world_snapshot historical_decision weekly_release editorial_workflow multiplayer_ten_party elections autonomous_calendar coalitions_confidence national_fiscal campaigns households public_matchmaking districts editorial_staff lobby_lifecycle weekly_accountability; do
             psql -v ON_ERROR_STOP=1 -f "supabase/tests/$suite.sql"
           done
       - name: Verify committed cross-connection durability and cleanup

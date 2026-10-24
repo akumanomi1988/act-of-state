@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   mandateApproved: { value: true }
 }))
 
+vi.mock('./WeeklyAccountabilityPanel', () => ({ default: () => <div>Legislature history fixture</div> }))
 vi.mock('./PopulationPanel', () => ({ default: () => null }))
 vi.mock('./PublicMatchPanel', () => ({ default: () => <div>Public lobby test fixture</div> }))
 vi.mock('./lib/matchmaking', () => ({ setMatchVisibility: mocks.setMatchVisibility,

@@ -446,3 +446,14 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 .lobby-ready-actions button,.lobby-readiness-config button,.lobby-invite-actions button{min-height:44px}
 .match-invite .lobby-invite-actions{justify-content:flex-end}
 @media(max-width:760px){.match-invite .lobby-invite-actions{justify-content:flex-start}}
+
+/* AOS-037: server-owned legislature history and Friday accountability */
+.weekly-accountability{border-top:1px solid var(--line);margin:1.25rem 0;padding:1.5rem 0;}
+.weekly-accountability-picker{display:grid;gap:0.4rem;max-width:410px;margin:1rem 0}
+.weekly-accountability-picker select{width:100%;min-height:44px;background:var(--panel);color:var(--text);border:1px solid var(--line);padding:0.6rem}
+.accountability-dossiers ul,.accountability-parties ul{padding:0;list-style:none}
+.accountability-dossiers li{padding:1rem 0;border-bottom:1px solid var(--line);display:grid;gap:0.3rem;overflow-wrap:anywhere}
+.accountability-dossiers li>span,.accountability-dossiers li>p{color:var(--muted);font-size:0.85rem;margin:0}
+.accountability-dossiers a{max-width:100%;overflow-wrap:anywhere}
+.accountability-parties li{display:flex;justify-content:space-between;gap:0.7rem;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:0.5rem 0}
+.accountability-act{padding:0.65rem 0}

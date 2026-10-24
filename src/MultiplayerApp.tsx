@@ -7,6 +7,7 @@ import ElectionPanel from './ElectionPanel'
 import CampaignPanel from './CampaignPanel'
 import PopulationPanel from './PopulationPanel'
 import MatchCalendarPanel from './MatchCalendarPanel'
+import WeeklyAccountabilityPanel from './WeeklyAccountabilityPanel'
 import GovernancePanel from './GovernancePanel'
 import FiscalPanel from './FiscalPanel'
 import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
@@ -405,7 +406,10 @@ export default function MultiplayerApp() {
               </div>
             })}
           </div>
-          {world.match.status === 'active' && <MatchCalendarPanel matchId={world.match.id} />}
+          {world.match.status === 'active' && <>
+            <MatchCalendarPanel matchId={world.match.id} />
+            <WeeklyAccountabilityPanel matchId={world.match.id} />
+          </>}
           <GovernancePanel matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'} players={world.players}
             onGovernmentChanged={() => setReload(value => value + 1)} />
