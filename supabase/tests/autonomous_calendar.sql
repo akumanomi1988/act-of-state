@@ -55,7 +55,8 @@ begin
     (a->>'certifiedElections')::integer<>1 or
     (a->>'fridayClosures')::integer<1 or
     (a->>'errors')::integer<>0 then
-   raise exception 'AUTONOMOUS_CALENDAR_FIRST_RUN_FAILED %',a; end if;
+   raise exception 'AUTONOMOUS_CALENDAR_FIRST_RUN_FAILED %, failures=%',a,
+     (select coalesce(jsonb_agg(to_jsonb(err)),'[]'::jsonb) from game_internal.calendar_failures err); end if;
  if (select status from public.parliament_bills where id=f.bill_id)<>'rejected' then
    raise exception 'EXPIRED_BALLOT_NOT_REJECTED'; end if;
  if (select count(*) from public.match_elections where match_id=f.match_id)<>1 then
