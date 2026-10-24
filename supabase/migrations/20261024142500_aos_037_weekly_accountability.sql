@@ -33,7 +33,7 @@ check (release_kind<>'weekly' or available_until=available_from+4);
 -- approval and never exposing unpublished or future slates.
 create or replace function public.get_weekly_calendar(p_government_id uuid)
 returns jsonb language sql stable security definer set search_path=''
-as $
+as $$
   with day_clock as (
     select (now() at time zone 'UTC')::date as game_day
   ), week_clock as (
@@ -82,7 +82,7 @@ as $
     select 1 from public.governments g
     where g.id=p_government_id and g.owner_id=(select auth.uid())
   )
-$;
+$$;
 
 -- Indexes used by the bounded (maximum twelve weeks) accountability report.
 create index match_stances_by_dossier
