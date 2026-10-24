@@ -12,6 +12,12 @@ The React/TypeScript frontend uses Supabase Auth and displays only state returne
 
 ## Current simulation scope
 
+AOS-040 adds daily household living conditions: economic security, access to
+public services and wellbeing, with bounded political feedback and immutable
+daily acts. Solo and multiplayer governments can inspect income/territory
+differences and 7/30/90-day history. It preserves the existing weekly fiscal
+ledger. See [daily living conditions](docs/DAILY_LIVING_CONDITIONS.md).
+
 AOS-031 adds 300 deterministic synthetic family archetypes per government,
 with heterogeneous social preferences, cohort-propagated political/fiscal
 responses, a member-only demographic explorer and household-weighted national

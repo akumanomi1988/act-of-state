@@ -7,6 +7,7 @@ import Outcome from './components/Outcome'
 import FiscalPanel from './FiscalPanel'
 import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
 import PopulationPanel from './PopulationPanel'
+import LivingConditionsPanel from './LivingConditionsPanel'
 
 function dossierKey(d: Dossier): string {
   return d.id + ':' + d.version
@@ -438,6 +439,7 @@ export default function App() {
                 </li>)}</ol>}
             </aside>
           </main>
+          <LivingConditionsPanel governmentId={world.government.id} identity={user?.id ?? ''} />
           <PopulationPanel key={world.government.id + ':' + (user?.id ?? '')}
             governmentId={world.government.id} identity={user?.id ?? ''} />
           <DecisionAnalyticsPanel key={world.government.id}
