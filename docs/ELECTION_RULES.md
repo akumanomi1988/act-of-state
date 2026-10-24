@@ -76,3 +76,7 @@ and reacts to prior policy. Individual affinity incorporates incumbent support/t
 and party campaign influence, with national totals weighted by simulated residents.
 The existing 100-seat D'Hondt allocation and deterministic tie breaker remain.
 This is not an official voter poll or statistically calibrated prediction.
+\n## Daily polling archives (AOS-039)
+
+See [DAILY_OPINION_OBSERVATORY.md](DAILY_OPINION_OBSERVATORY.md).
+Historical simulated opinion projections are not certified election results.
