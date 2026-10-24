@@ -65,3 +65,14 @@ A constructive confidence vote may transfer executive authority between ordinary
 - The electoral algorithm and future election records now use electoral-cohorts-v2, preserving previous v1 election records as historical truth. Election snapshots include campaignInfluenceTotal for each party.
 - Campaign table access is denied to browser roles. Only authenticated match members can call state/read and action RPCs; even the API cannot accept client-calculated boosts.
 - This is not a complete political-party finance system, media market, or real-world demographic forecast. The campaign feature does not certify a full political-simulator release.
+
+
+## Household electorate (AOS-031)
+
+Previous electoral-cohorts-v1/v2 descriptions and certificates remain valid as
+immutable historic models. New projections and certificates use electoral-households-v1.
+Each of 300 persistent family archetypes expresses a separate ideological preference
+and reacts to prior policy. Individual affinity incorporates incumbent support/trust
+and party campaign influence, with national totals weighted by simulated residents.
+The existing 100-seat D'Hondt allocation and deterministic tie breaker remain.
+This is not an official voter poll or statistically calibrated prediction.

@@ -5,6 +5,7 @@ import { number } from './lib/format'
 import ParliamentPanel from './ParliamentPanel'
 import ElectionPanel from './ElectionPanel'
 import CampaignPanel from './CampaignPanel'
+import PopulationPanel from './PopulationPanel'
 import MatchCalendarPanel from './MatchCalendarPanel'
 import GovernancePanel from './GovernancePanel'
 import FiscalPanel from './FiscalPanel'
@@ -340,6 +341,8 @@ export default function MultiplayerApp() {
           <GovernancePanel matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'} players={world.players}
             onGovernmentChanged={() => setReload(value => value + 1)} />
+          <PopulationPanel key={world.government.id + ':' + user!.id}
+            governmentId={world.government.id} identity={user!.id} />
           <CampaignPanel key={world.match.id + ':' + user!.id}
             matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'}

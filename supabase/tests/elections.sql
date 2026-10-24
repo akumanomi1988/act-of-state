@@ -129,7 +129,7 @@ begin
  state:=public.get_election_state(f.match_id);
  if jsonb_array_length(state->'history')<>1 then
    raise exception 'ELECTION_ACT_NOT_VISIBLE'; end if;
- if (state->'history'->0->>'model_version')<>'electoral-cohorts-v2' then
+ if (state->'history'->0->>'model_version')<>'electoral-households-v1' then
    raise exception 'ELECTION_MODEL_VERSION_MISSING'; end if;
  select (p->>'mandate_seats')::integer into my_seats
    from jsonb_array_elements(public.get_match_world(f.match_id)->'players') p

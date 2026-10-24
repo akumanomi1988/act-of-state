@@ -14,7 +14,7 @@ const now = Date.now()
 const fakeToken = [
   Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url'),
   Buffer.from(JSON.stringify({iss:API+'/auth/v1',sub:ua,role:'authenticated',
-    aud:'authenticated',exp:Math.floor(now/1000)+7200,
+    aud:'authenticated',exp:Math.floor(now/1000)+9000,
     iat:Math.floor(now/1000)})).toString('base64url'),
   'fake-signature-for-intercepted-browser-tests-only'
 ].join('.')
@@ -144,6 +144,17 @@ async function routeApi(page,state,{emailLimit=false}={}) {
       }
       return json(state.events[0])
     }
+    if (path==='/rest/v1/rpc/get_population_profile') return json({
+      modelVersion:'households-v1',households:300,sampleResidents:900,
+      segments:[
+        {dimension:'income',code:'low',households:90,residents:270,support:48,trust:52},
+        {dimension:'income',code:'middle',households:150,residents:450,support:57,trust:56},
+        {dimension:'income',code:'high',households:60,residents:180,support:54,trust:58},
+        {dimension:'age',code:'young',households:90,residents:270,support:48,trust:52},
+        {dimension:'age',code:'working',households:150,residents:450,support:57,trust:56},
+        {dimension:'age',code:'senior',households:60,residents:180,support:54,trust:58}
+      ]
+    })
     if (path==='/rest/v1/rpc/get_fiscal_state') return json(state.fiscal)
     if (path==='/rest/v1/rpc/set_fiscal_policy') {
       const post=request.postDataJSON()
@@ -169,7 +180,7 @@ async function injectUser(page,state) {
     key:'sb-aos-browser-tests-auth-token',
     session:{
       access_token:fakeToken,token_type:'bearer',refresh_token:'synthetic-browser-refresh',
-      expires_in:7200,expires_at:Math.floor(now/1000)+7200,user:state.user
+      expires_in:9000,expires_at:Math.floor(now/1000)+9000,user:state.user
     }
   })
 }
@@ -241,7 +252,7 @@ try {
   })
 
   await run('Failed Supabase email rate limit is visible and not a success',async()=>{
-    const context=await browser.newContext({viewport:{width:1440,height:900}})
+    const context=await browser.newContext({viewport:{width:1800,height:900}})
     const page=await context.newPage()
     const state=createServerState()
     await routeApi(page,state,{emailLimit:true})
@@ -255,7 +266,7 @@ try {
   })
 
   await run('Authenticated national decisions survive browser reload',async()=>{
-    const context=await browser.newContext({viewport:{width:1440,height:1000}})
+    const context=await browser.newContext({viewport:{width:1800,height:1000}})
     const page=await context.newPage()
     const state=createServerState()
     await routeApi(page,state)
@@ -263,6 +274,7 @@ try {
     await page.goto(BASE+'/',{waitUntil:'networkidle'})
     await page.getByRole('heading',{name:'La agenda de gobierno'}).waitFor()
     await page.getByRole('heading',{name:'Presupuesto del Estado'}).waitFor()
+    await page.getByRole('button',{name:'Explorar población'}).waitFor()
     await page.getByRole('radio',{name:/Proteger a los hogares/}).check()
     await page.getByRole('button',{name:'Revisar decisión'}).click()
     await page.getByRole('button',{name:'Firmar y ejecutar decisión'}).click()
@@ -270,6 +282,9 @@ try {
     assert.equal(state.events.length,1)
     await page.reload({waitUntil:'networkidle'})
     await page.getByRole('heading',{name:'Presupuesto del Estado'}).waitFor()
+    await page.getByRole('button',{name:'Explorar población'}).click()
+    await page.getByRole('heading',{name:'Ingresos bajos'}).waitFor()
+    await page.getByRole('progressbar',{name:'Apoyo de Ingresos bajos'}).waitFor()
     assert.equal(state.events.length,1)
     assert.equal(state.government.treasury_m_eur,10600)
     await checkMobileOverflow(page,'desktop authenticated nation')
