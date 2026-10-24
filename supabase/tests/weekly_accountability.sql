@@ -39,37 +39,44 @@ reset role;
 update public.matches set started_at=now()-interval '21 days'
  where id=(select match_id from pg_temp.qa_week_fixture);
 
-insert into public.weekly_releases(week_start,state,approved_at)
-select previous_monday,'approved',now()-interval '8 days' from pg_temp.qa_week_fixture
-union all
-select current_monday,'approved',now() from pg_temp.qa_week_fixture;
+-- Realistic complete slates: each approved week has exactly ten dossiers,
+-- independently cited, with at least two well-formed options each.
+insert into public.weekly_releases(week_start)
+select previous_monday from pg_temp.qa_week_fixture
+union all select current_monday from pg_temp.qa_week_fixture;
 
 insert into public.dossiers(
  id,version,title,context,category,release_kind,available_from,
  source_url,source_title,source_published_at)
-select old_dossier,1,'Previous weekly housing report',
-  'A rollback-only previous weekly event in a fictional game.',
-  'Economía','weekly',previous_monday,
-  'https://example.invalid/old-report','Synthetic historical fixture',
+select case when n=1 then f.old_dossier else f.old_dossier||'-'||n end,
+  1,'Previous weekly housing report '||n,
+  'A rollback-only previous weekly political event in a fictional game.',
+  'Economía','weekly',f.previous_monday,
+  'https://example.invalid/old-report-'||n,'Synthetic historical fixture '||n,
   now()-interval '8 days'
-from pg_temp.qa_week_fixture
+from pg_temp.qa_week_fixture f cross join generate_series(1,10) n
 union all
-select new_dossier,1,'Current weekly housing report',
-  'A rollback-only current weekly event in a fictional game.',
-  'Economía','weekly',current_monday,
-  'https://example.invalid/current-report','Synthetic current fixture',
+select case when n=1 then f.new_dossier else f.new_dossier||'-'||n end,
+  1,'Current weekly housing report '||n,
+  'A rollback-only current weekly political event in a fictional game.',
+  'Economía','weekly',f.current_monday,
+  'https://example.invalid/current-report-'||n,'Synthetic current fixture '||n,
   now()-interval '2 days'
-from pg_temp.qa_week_fixture;
+from pg_temp.qa_week_fixture f cross join generate_series(1,10) n;
 
 insert into public.dossier_options(
  dossier_id,dossier_version,id,title,description,
  treasury_delta_m_eur,policy_target,response_intensity,trust_base_delta)
-select old_dossier,1,'qa-accept','Accept public housing response',
-  'Allocate public funding in the rollback fixture.',-100,30,20,2
-from pg_temp.qa_week_fixture
-union all
-select new_dossier,1,'qa-current','Approve current housing response',
-  'Evaluate an ongoing simulated policy proposal.',-200,40,25,2
+select d.id,d.version,o.id,o.title,
+ 'Two-sided rollback-only public policy alternative.',o.treasury,40,25,2
+from public.dossiers d
+cross join (values('qa-accept','Accept housing response',-100),
+ ('qa-current','Maintain housing response',0)) o(id,title,treasury)
+where d.id like 'qa-history-prior-%' or d.id like 'qa-history-now-%';
+
+select public.approve_weekly_release(previous_monday)
+from pg_temp.qa_week_fixture;
+select public.approve_weekly_release(current_monday)
 from pg_temp.qa_week_fixture;
 
 do $$
@@ -130,13 +137,16 @@ begin
  if old_week->>'status'<>'closed' or
     old_week->'fridayAct'->>'decisions_resolved'<>'1' or
     old_week->'fridayAct'->>'treasury_delta_m_eur'<>'-100' or
-    jsonb_array_length(old_week->'dossiers')<>1 or
-    old_week->'dossiers'->0->'decision'->>'optionId'<>'qa-accept' then
+    jsonb_array_length(old_week->'dossiers')<>10 or
+    (select count(*) from jsonb_array_elements(old_week->'dossiers') d
+       where d->>'id'=f.old_dossier and
+         d->'decision'->>'optionId'='qa-accept')<>1 then
    raise exception 'OFFICIAL_WEEKLY_HISTORY_INCONSISTENT'; end if;
  if new_week->>'published'<>'true' or
-    jsonb_array_length(new_week->'dossiers')<>1 or
-    new_week->'dossiers'->0->>'positions'<>'1' or
-    new_week->'dossiers'->0->'bill'->>'yesVotes'<>'1' or
+    jsonb_array_length(new_week->'dossiers')<>10 or
+    (select count(*) from jsonb_array_elements(new_week->'dossiers') d
+       where d->>'id'=f.new_dossier and d->>'positions'='1' and
+       d->'bill'->>'yesVotes'='1')<>1 or
     (select count(*) from jsonb_array_elements(new_week->'parties') p
        where p->>'partyName'='Accountable Opposition'
          and p->>'positions'='1' and p->>'votes'='1')<>1 then
