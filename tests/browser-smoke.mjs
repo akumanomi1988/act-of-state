@@ -161,6 +161,29 @@ async function routeApi(page,state,{emailLimit=false}={}) {
         fridayReached:true,weeklyPublished:false,weeklyTotal:0,
         weeklyResolved:0,latestFriday:null
       })
+      if(path==='/rest/v1/rpc/get_match_action_inbox') {
+        const items=[
+          {key:'campaign:2026-10-19',kind:'action',section:'campaign',
+            title:'Planifica la actividad de campaña semanal',
+            detail:'Tu partido aún no ha registrado una acción territorial esta semana.',
+            dossierId:null},
+          {key:'friday:2026-10-12',kind:'news',section:'history',
+            title:'Acta semanal certificada',
+            detail:'Cierre del 2026-10-16: 1 decisiones.',dossierId:null}
+        ].map(item=>({...item,read:state.inboxRead?.has(item.key)??false}))
+        return json({matchId:mid,serverDay:'2026-10-24',
+          unreadCount:items.filter(i=>!i.read).length,items})
+      }
+      if(path==='/rest/v1/rpc/mark_match_inbox_read') {
+        const body=request.postDataJSON()
+        state.inboxRead ??=new Set()
+        if(!['campaign:2026-10-19','friday:2026-10-12'].includes(body.p_task_key))
+          return route.fulfill({status:403,contentType:'application/json',
+            headers:{'access-control-allow-origin':'*'},
+            body:JSON.stringify({message:'INBOX_TASK_NOT_FOUND'})})
+        state.inboxRead.add(body.p_task_key)
+        return json(true)
+      }
       if(path==='/rest/v1/rpc/get_match_weekly_accountability')
         return json({serverDay:'2026-10-24',weeks:[
           {weekStart:'2026-10-19',friday:'2026-10-23',
@@ -477,6 +500,11 @@ try {
     await routeApi(page,state)
     await injectUser(page,state)
     await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
+    const inbox=page.getByRole('region',{name:'Bandeja de actividad política'})
+    await inbox.getByText('Planifica la actividad de campaña semanal').waitFor()
+    assert.equal(await inbox.getByLabel('Avisos sin leer',{exact:true}).innerText(),'2 sin leer')
+    await inbox.getByRole('button',{name:'Marcar leído'}).first().click()
+    await page.getByText('1 sin leer',{exact:true}).waitFor()
     await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
     await page.getByText(/No se ha publicado ninguna agenda editorial/).waitFor()
     await page.getByRole('combobox',{name:'Semana política'}).selectOption('2026-10-12')
@@ -489,6 +517,7 @@ try {
     await checkA11y(page,'weekly legislature history')
     await page.screenshot({path:OUT+'/weekly-history-mobile.png',fullPage:true})
     await page.reload({waitUntil:'networkidle'})
+    await page.getByText('1 sin leer',{exact:true}).waitFor()
     await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
     await page.getByRole('combobox',{name:'Semana política'}).selectOption('2026-10-12')
     await page.getByText('Plan político archivado').waitFor()

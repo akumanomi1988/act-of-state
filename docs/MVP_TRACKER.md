@@ -361,3 +361,20 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
   typed Vitest and Cloud rollback checks added. Live human 10-account
   multi-day play, verified news and real email remain externally blocked.
   MVP-F002/F003/F006/F008 remain PARTIAL, not prematurely DONE.
+
+
+## AOS-038 — Political activity inbox for asynchronous multiplayer (2026-10-24)
+
+- Server-derived, party-specific agenda covers lobby readiness, eligible host
+  launch, current parliamentary and confidence votes, coalition invitations,
+  live dossier stances, campaign activity, cabinet mandate execution,
+  certified Friday summaries and elections.
+- Member-only inbox RPC and persistent per-party read receipts; out-of-match
+  access and fabricated task keys fail closed. Reading an item never executes
+  a vote or a decision. No browser account can query receipt rows directly.
+- Responsive, keyboard-operable activity panel with unread counts, filters,
+  contextual links and server-confirmed acknowledgment at 15-second refresh.
+- Added PostgreSQL three-identity rollback regression, typed API tests,
+  React interaction tests and Chromium authenticated reload verification.
+- Real SMTP, push delivery, ten-account public play and sustained political
+  week still unverified. MVP-F008 remains PARTIAL, without invented progress.

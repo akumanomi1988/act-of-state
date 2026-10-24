@@ -457,3 +457,19 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 .accountability-dossiers a{max-width:100%;overflow-wrap:anywhere}
 .accountability-parties li{display:flex;justify-content:space-between;gap:0.7rem;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:0.5rem 0}
 .accountability-act{padding:0.65rem 0}
+
+/* AOS-038 political activity and asynchronous participation inbox */
+.match-inbox{border:1px solid var(--line);background:var(--panel);margin:1.25rem 0;padding:clamp(.75rem,2vw,1.5rem);}
+.match-inbox-heading{display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap}
+.match-inbox-heading h2{margin:.3rem 0}
+.match-inbox-heading>strong{white-space:nowrap;border:1px solid var(--gold);border-radius:2rem;padding:.4rem .75rem}
+.match-inbox-filter{display:flex;gap:.55rem;align-items:center;margin:.8rem 0}
+.match-inbox-list{padding:0;list-style:none;max-height:530px;overflow:auto}
+.match-inbox-list li{border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:.85rem;flex-wrap:wrap;padding:.9rem 0}
+.match-inbox-list li.inbox-new{border-left:3px solid var(--gold);padding-left:.7rem}
+.match-inbox-message{min-width:0;flex:2 1 245px}
+.match-inbox-message p{font-size:.9rem;margin:.3rem 0;overflow-wrap:anywhere}
+.match-inbox-message small{color:var(--muted)}
+.match-inbox-buttons{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap}
+.match-inbox-buttons button{min-height:44px}
+#match-lobby,#match-dossiers,#match-campaign,#match-election,#match-governance,#match-history{scroll-margin-top:1rem}
