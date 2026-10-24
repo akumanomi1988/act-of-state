@@ -57,7 +57,7 @@ begin
 end $$;
 
 reset role;
-do $
+do $$
 begin
  if (select count(*) from public.editorial_staff_audit)<>5 then
   raise exception 'STAFF_AUDIT_MISSING_EVENTS'; end if;
