@@ -104,7 +104,7 @@ begin
  if not invalid then raise exception 'CAMPAIGN_BAD_COHORT_ACCEPTED'; end if;
  invalid:=false;
  begin perform public.launch_campaign(f.match_id,
-   (select code from public.population_cohorts where government_id=f.government_id limit 1),
+   (public.get_campaign_state(f.match_id)->'cohorts'->0->>'code'),
    'forged-client-value');
  exception when sqlstate 'P0001' then invalid:=true; end;
  if not invalid then raise exception 'CAMPAIGN_BAD_STRATEGY_ACCEPTED'; end if;
@@ -126,7 +126,7 @@ begin
  if s->>'available'<>'false' then raise exception 'CAMPAIGN_FREEZE_VISIBLE_AS_OPEN'; end if;
  begin
    perform public.launch_campaign(f.match_id,
-     (select code from public.population_cohorts where government_id=f.government_id limit 1),
+     (public.get_campaign_state(f.match_id)->'cohorts'->0->>'code'),
      'dialogue');
  exception when sqlstate 'P0001' then denied:=true; end;
  if not denied then raise exception 'CAMPAIGN_FREEZE_BYPASSED'; end if;
