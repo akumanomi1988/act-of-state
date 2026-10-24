@@ -60,8 +60,7 @@ begin
    raise exception 'CAMPAIGN_IMPACT_OUT_OF_RANGE'; end if;
  if original.model_version<>'campaign-outreach-v1' then
    raise exception 'CAMPAIGN_UNVERSIONED'; end if;
- select count(*) into others from public.match_campaign_events
-   where match_id=f.match_id and user_id=auth.uid();
+ select jsonb_array_length(public.get_campaign_state(f.match_id)->'recentActs') into others;
  if others<>1 then raise exception 'CAMPAIGN_DUPLICATE_EVENT'; end if;
  begin
    perform public.launch_campaign(f.match_id,target,'dialogue');
@@ -109,7 +108,7 @@ begin
    'forged-client-value');
  exception when sqlstate 'P0001' then invalid:=true; end;
  if not invalid then raise exception 'CAMPAIGN_BAD_STRATEGY_ACCEPTED'; end if;
- if (select count(*) from public.match_campaign_events where match_id=f.match_id)<>1 then
+ if jsonb_array_length(public.get_campaign_state(f.match_id)->'recentActs')<>1 then
    raise exception 'CAMPAIGN_INVALID_OPERATION_MUTATED'; end if;
 end $$;
 
