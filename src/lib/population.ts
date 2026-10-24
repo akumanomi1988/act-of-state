@@ -1,6 +1,6 @@
 import { requireClient } from './game'
 
-export type PopulationDimension = 'age' | 'income' | 'settlement' | 'cohort'
+export type PopulationDimension = 'age' | 'income' | 'settlement' | 'cohort' | 'district'
 
 export interface PopulationSegment {
   dimension: PopulationDimension
@@ -11,10 +11,17 @@ export interface PopulationSegment {
   trust: number
 }
 
+export interface PopulationDistrict {
+  code: string
+  label: string
+  seats: number
+}
+
 export interface PopulationProfile {
   modelVersion: 'households-v1'
   households: number
   sampleResidents: number
+  districts?: PopulationDistrict[]
   segments: PopulationSegment[]
 }
 
@@ -25,9 +32,15 @@ export function validatePopulationProfile(value: unknown): value is PopulationPr
     && profile.households === 300
     && Number.isInteger(profile.sampleResidents)
     && profile.sampleResidents! > 0
+    && (profile.districts === undefined || (Array.isArray(profile.districts) &&
+      profile.districts.length === 6 &&
+      profile.districts.reduce((total,d)=>total+d.seats,0) === 100 &&
+      profile.districts.every(d => typeof d.code === 'string' &&
+        typeof d.label === 'string' &&
+        Number.isInteger(d.seats) && d.seats > 0)))
     && Array.isArray(profile.segments)
     && profile.segments.every(s =>
-      ['age','income','settlement','cohort'].includes(s.dimension)
+      ['age','income','settlement','cohort','district'].includes(s.dimension)
       && typeof s.code === 'string'
       && Number.isInteger(s.households) && s.households >= 1
       && Number.isInteger(s.residents) && s.residents >= s.households

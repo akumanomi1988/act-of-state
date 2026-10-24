@@ -73,7 +73,7 @@ begin
  if (select count(*) from jsonb_array_elements(s->'recentActs'))<>1 then
    raise exception 'CAMPAIGN_HISTORY_MISSING'; end if;
  a:=public.get_election_state(f.match_id);
- if a->'projection'->>'modelVersion'<>'electoral-households-v1' then
+ if a->'projection'->>'modelVersion'<>'electoral-districts-v1' then
    raise exception 'ELECTION_VERSION_STALE'; end if;
  resulting_share:=(select (x->>'voteSharePct')::numeric
    from jsonb_array_elements(a->'projection'->'parties') x

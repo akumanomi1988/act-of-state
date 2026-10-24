@@ -129,8 +129,12 @@ begin
  state:=public.get_election_state(f.match_id);
  if jsonb_array_length(state->'history')<>1 then
    raise exception 'ELECTION_ACT_NOT_VISIBLE'; end if;
- if (state->'history'->0->>'model_version')<>'electoral-households-v1' then
+ if (state->'history'->0->>'model_version')<>'electoral-districts-v1' then
    raise exception 'ELECTION_MODEL_VERSION_MISSING'; end if;
+ if jsonb_array_length(state->'history'->0->'districts_snapshot')<>6
+    or (select sum((d->>'seats')::integer) from
+       jsonb_array_elements(state->'history'->0->'districts_snapshot') d)<>100 then
+   raise exception 'CERTIFIED_ELECTION_DISTRICT_SNAPSHOT_MISSING'; end if;
  select (p->>'mandate_seats')::integer into my_seats
    from jsonb_array_elements(public.get_match_world(f.match_id)->'players') p
    where (p->>'user_id')::uuid=auth.uid();

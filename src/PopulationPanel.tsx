@@ -8,13 +8,16 @@ interface Props {
 }
 
 const dimensions: Record<PopulationDimension, string> = {
-  age: 'Generaciones', income: 'Ingresos', settlement: 'Territorio', cohort: 'Intereses'
+  age: 'Generaciones', income: 'Ingresos', settlement: 'Entorno', cohort: 'Intereses', district: 'Circunscripciones'
 }
 const labels: Record<string, string> = {
   young: 'Jóvenes', working: 'Edad laboral', senior: 'Mayores',
   low: 'Ingresos bajos', middle: 'Ingresos medios', high: 'Ingresos altos',
   urban: 'Ciudades', rural: 'Medio rural',
-  households: 'Hogares y trabajadores', industry: 'Industria y emprendedores'
+  households: 'Hogares y trabajadores', industry: 'Industria y emprendedores',
+  capital: 'Distrito Capital', industrial: 'Corredor Industrial',
+  coastal: 'Región Costera', agrarian: 'Llanuras Agrarias',
+  highland: 'Territorios de Montaña', frontier: 'Frontera Interior'
 }
 
 export default function PopulationPanel({ governmentId, identity }: Props) {
@@ -73,7 +76,10 @@ export default function PopulationPanel({ governmentId, identity }: Props) {
         {rows.map(segment => <article className="population-segment" key={dimension+segment.code}>
           <div className="population-segment-label">
             <h3>{labels[segment.code] ?? segment.code}</h3>
-            <span>{segment.households} hogares · {segment.residents} integrantes</span>
+            <span>{segment.households} hogares · {segment.residents} integrantes
+              {dimension === 'district' && profile.districts &&
+                ' · ' + (profile.districts.find(d => d.code === segment.code)?.seats ?? 0) +
+                ' escaños territoriales'}</span>
           </div>
           <div className="population-meter-label">
             <span>Apoyo político</span><strong>{segment.support}%</strong>
@@ -95,7 +101,9 @@ export default function PopulationPanel({ governmentId, identity }: Props) {
       </div>
       <p className="muted">Las intervenciones públicas y liquidaciones económicas cambian las
         preferencias de los hogares en el servidor. Las elecciones agregan el voto de esta muestra
-        mediante ponderación por integrantes y reparto D’Hondt.</p>
+        mediante ponderación por integrantes y reparto D’Hondt
+        por circunscripción. Las regiones son territorios sintéticos, no
+        estadísticas demográficas de lugares reales.</p>
     </div>}
   </section>
 }
