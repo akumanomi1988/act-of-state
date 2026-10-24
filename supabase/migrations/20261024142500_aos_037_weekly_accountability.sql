@@ -151,6 +151,8 @@ begin
            order by b.created_at desc,b.id desc limit 1)
        ) order by d.id,d.version)
        from public.dossiers d
+       left join public.decision_events e on e.government_id=v_match.government_id
+         and e.dossier_id=d.id and e.dossier_version=d.version
        where d.release_kind='weekly' and d.available_from=w.week_start
          and exists(select 1 from public.weekly_releases r
            where r.week_start=w.week_start and r.state='approved'
