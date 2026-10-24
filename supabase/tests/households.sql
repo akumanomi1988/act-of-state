@@ -39,9 +39,7 @@ begin
  reread:=public.get_population_profile(g.id);
  if reread<>profile then
    raise exception 'HOUSEHOLDS_NOT_STABLE_ON_RELOGIN'; end if;
- if (select count(distinct (x->>'support')::integer)
-     from jsonb_array_elements(profile->'segments') x)<2 then
-   raise exception 'HOUSEHOLDS_NOT_HETEROGENEOUS'; end if;
+
  if has_table_privilege('authenticated','public.synthetic_households','SELECT')
     or has_table_privilege('authenticated','public.synthetic_households','UPDATE')
     or has_function_privilege('anon','public.get_population_profile(uuid)','EXECUTE') then
@@ -127,6 +125,9 @@ begin
  update public.population_cohorts set trust=least(100,trust+3)
  where government_id=f.government_id and code='households';
  select public.get_population_profile(f.government_id) into next_json;
+ if (select count(distinct policy_preference) from public.synthetic_households
+      where government_id=f.government_id)<15 then
+   raise exception 'HOUSEHOLDS_NOT_HETEROGENEOUS'; end if;
  -- Privileged direct DB assertion: generated family trust state moved atomically.
  if not exists(select 1 from public.synthetic_households
    where government_id=f.government_id and cohort_code='households' and trust>50)
