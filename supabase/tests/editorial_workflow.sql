@@ -95,17 +95,28 @@ declare f record; saved public.editorial_weeks%rowtype;
  retry public.editorial_weeks%rowtype; blocked boolean:=false;
 begin
  select * into f from pg_temp.editorial_fixture;
- saved:=public.save_editorial_week(f.monday,1,f.full_draft);
- if saved.revision<>2 or jsonb_array_length(saved.draft)<>10 then
+ -- Reject a ten-dossier slate with one repeated source without creating
+ -- any releases or dossiers, then recover with the independently sourced set.
+ saved:=public.save_editorial_week(f.monday,1,
+   jsonb_set(f.full_draft,'{9,source_url}',f.full_draft->0->'source_url'));
+ begin
+   perform public.publish_editorial_week(f.monday,saved.revision);
+ exception when sqlstate 'P0001' then
+   blocked:=sqlerrm='EDITORIAL_DUPLICATE_NEWS_SOURCE'; end;
+ if not blocked then raise exception 'EDITORIAL_DUPLICATE_SOURCE_ACCEPTED'; end if;
+ if exists(select 1 from public.weekly_releases where week_start=f.monday) then
+   raise exception 'EDITORIAL_DUPLICATE_SOURCE_PARTIALLY_PUBLISHED'; end if;
+ saved:=public.save_editorial_week(f.monday,2,f.full_draft);
+ if saved.revision<>3 or jsonb_array_length(saved.draft)<>10 then
   raise exception 'EDITORIAL_COMPLETED_DRAFT_NOT_SAVED'; end if;
- first_publication:=public.publish_editorial_week(f.monday,2);
- retry:=public.publish_editorial_week(f.monday,2);
- if first_publication.status<>'published' or first_publication.revision<>3 or
-    first_publication.published_at is null or retry.revision<>3 or
+ first_publication:=public.publish_editorial_week(f.monday,3);
+ retry:=public.publish_editorial_week(f.monday,3);
+ if first_publication.status<>'published' or first_publication.revision<>4 or
+    first_publication.published_at is null or retry.revision<>4 or
     first_publication.published_at<>retry.published_at then
   raise exception 'EDITORIAL_PUBLICATION_NOT_IDEMPOTENT'; end if;
  begin
-  perform public.save_editorial_week(f.monday,3,f.full_draft);
+  perform public.save_editorial_week(f.monday,4,f.full_draft);
  exception when sqlstate 'P0001' then
   blocked:=sqlerrm='EDITORIAL_ALREADY_PUBLISHED'; end;
  if not blocked then raise exception 'PUBLISHED_WEEK_REOPENED'; end if;

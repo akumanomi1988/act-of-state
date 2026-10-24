@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, friendlyError } from './lib/game'
 import NewsDiscoveryPanel, { type NewsCandidate } from './NewsDiscoveryPanel'
+import { discoverWeeklySources, prepareWeeklySources } from './lib/weeklySourcing'
 import {
   editorialError, editorialReady, fetchEditorialRole, fetchEditorialWeek,
   isMonday, newEditorialDossier, nextMondayUtc, publishEditorialWeek,
@@ -45,6 +46,7 @@ export default function EditorialApp() {
   const [dirty, setDirty] = useState(false)
   const [reviewing, setReviewing] = useState(false)
   const [pending, setPending] = useState(false)
+  const [sourcingBusy, setSourcingBusy] = useState(false)
   const [loading, setLoading] = useState(false)
   const [reload, setReload] = useState(0)
   const [error, setError] = useState('')
@@ -57,6 +59,7 @@ export default function EditorialApp() {
     if (ownerRef.current !== nextId) {
       requestRef.current += 1
       setPending(false)
+      setSourcingBusy(false)
     }
     ownerRef.current = nextId
     setUser(next)
@@ -88,6 +91,7 @@ export default function EditorialApp() {
     setDraft(slotDraft(week))
     setDirty(false)
     setReviewing(false)
+    setSourcingBusy(false)
     setError('')
     setNotice('')
     if (!user || !isMonday(week)) {
@@ -122,9 +126,46 @@ export default function EditorialApp() {
 
   const dossier = draft[selectedSlot]
   const readyCount = useMemo(() => draft.filter(editorialReady).length, [draft])
-  const complete = readyCount === SLOTS
+  const uniqueSourceCount = new Set(draft.filter(d => !!d.source_url)
+    .map(d => d.source_url.trim())).size
+  const complete = readyCount === SLOTS && uniqueSourceCount === SLOTS
   const isPublished = snapshot?.status === 'published'
-  const canEdit = !!role && !isPublished && !loading && !pending
+  const canEdit = !!role && !isPublished && !loading && !pending && !sourcingBusy
+
+  async function onPrepareWeeklySources() {
+    if (!canEdit || !user || !isMonday(week)) return
+    const owner = user.id
+    const request = requestRef.current
+    const targetWeek = week
+    setSourcingBusy(true)
+    setError('')
+    setNotice('')
+    try {
+      const sources = await discoverWeeklySources()
+      if (ownerRef.current !== owner || requestRef.current !== request ||
+        targetWeek !== week) return
+      if (sources.successfulFeeds === 0)
+        throw new Error('No hay fuentes RSS disponibles en este momento.')
+      const result = prepareWeeklySources(draft, sources.articles)
+      if (result.imported === 0) {
+        setNotice('No se han encontrado fuentes nuevas para los espacios vacíos. Conservamos todas las fichas existentes.')
+      } else {
+        setDraft(result.draft)
+        setDirty(true)
+        setReviewing(false)
+        setNotice('Se han preparado ' + result.imported + ' referencias de ' +
+          result.distinctFeeds + ' secciones. ' +
+          (sources.unavailableFeeds ? sources.unavailableFeeds + ' fuentes no respondieron. ' : '') +
+          'Debes contrastar cada noticia y redactar el contexto y las decisiones antes de publicar.')
+      }
+    } catch (reason) {
+      if (ownerRef.current === owner && requestRef.current === request)
+        setError(reason instanceof Error ? reason.message : 'Error preparando las referencias.')
+    } finally {
+      if (ownerRef.current === owner && requestRef.current === request)
+        setSourcingBusy(false)
+    }
+  }
 
   function updateDossier<K extends keyof EditorialDossier>(key: K, value: EditorialDossier[K]) {
     if (!canEdit) return
@@ -315,6 +356,15 @@ export default function EditorialApp() {
           aria-valuemin={0} aria-valuemax={10} aria-valuenow={readyCount}>
           <span style={{ width: (readyCount * 10) + '%' }} />
         </div>
+        <div className="editorial-batch">
+          <button type="button" onClick={() => void onPrepareWeeklySources()}
+            disabled={!canEdit || !isMonday(week) || draft.every(d => !!d.source_url)}>
+            {sourcingBusy ? 'Consultando seis fuentes…' : 'Preparar 10 fuentes automáticamente'}
+          </button>
+          <p>Se importan titulares verificables y enlaces, no conclusiones ni
+            decisiones inventadas. Solo completa fichas totalmente vacías.
+            La publicación sigue requiriendo revisión editorial.</p>
+        </div>
         <nav className="editorial-slots" aria-label="Expedientes de la semana">
           {draft.map((item, index) => <button key={item.id} type="button"
             className={'editorial-slot ' + (index === selectedSlot ? 'active ' : '') +
@@ -327,6 +377,9 @@ export default function EditorialApp() {
               {editorialReady(item) ? '✓' : '·'}</span>
           </button>)}
         </nav>
+        {uniqueSourceCount < draft.filter(d => !!d.source_url).length &&
+          <p className="editorial-alert" role="alert">Hay enlaces de noticias duplicados.
+            Se requieren diez fuentes distintas para poder publicar.</p>}
         <p className="editorial-small">Las diez noticias deben contrastarse externamente. El sistema valida datos y autoría, pero no certifica su veracidad.</p>
       </aside>
 

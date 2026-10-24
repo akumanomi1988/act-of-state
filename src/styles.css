@@ -394,3 +394,8 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
   overflow:hidden; margin-top:0.25rem; }
 .population-meter span { display:block; background:#7bba9a; height:100%; }
 .population-meter.trust span { background:#8baed7; }
+
+/* AOS-032 · source-diverse, non-publishing news drafting */
+.editorial-batch { display:grid;gap:0.65rem;padding:1rem 0;border-block:1px solid var(--line);}
+.editorial-batch button { width:100%;min-height:46px;white-space:normal;text-align:center;}
+.editorial-batch p { color:var(--muted);font-size:0.82rem;line-height:1.5;margin:0;}

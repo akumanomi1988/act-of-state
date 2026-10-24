@@ -276,3 +276,20 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - Election model electoral-households-v1 aggregates family voter affinity and party campaign influence, weights shares by simulated residents, and retains 100-seat D'Hondt. Previously certified election acts remain immutable under their original version.
 - Solo and multiplayer views provide accessible demographic exploration with generational, income, territory and cohort breakdowns. Only aggregated statistics are returned to authorized members.
 - Includes rollback-only SQL integration and React/browser regressions. MVP-F004/MVP-F005/MVP-F007 remain PARTIAL until calibration and real authenticated acceptance tests.
+
+
+## AOS-032 — High-throughput weekly sourcing (2026-10-24)
+
+- The authorized editorial workbench can source up to ten distinct recent
+  references in one click through six JWT-protected news feeds.
+  Independent feed failures are tolerated, tracking URLs deduplicated,
+  coverage diversified and manually authored slots preserved.
+- Metadata and provisional headlines are imported without automatically
+  completing political decisions, saving drafts or publishing sources.
+  Separate editorial fact-checking and publisher authorization remain.
+- The publication RPC now rejects duplicate news source URLs transactionally.
+  SQL rollback tests include a duplicate-source rejection and subsequent
+  successful ten-source publication.
+- Unit, integration and mobile Chromium acceptance apply. Operational
+  unattended publication and real publisher/news-source acceptance remain
+  outstanding, so MVP-F002 and MVP-F006 are PARTIAL.
