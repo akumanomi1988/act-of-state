@@ -40,8 +40,6 @@ begin
  if jsonb_array_length(public.get_editorial_staff())<>3 then
   raise exception 'STAFF_NOT_LISTED_AFTER_GRANTS'; end if;
  perform public.manage_editorial_member('newsroom-3@example.invalid','publisher');
- if (select count(*) from public.editorial_staff_audit)<>2 then
-  raise exception 'IDEMPOTENT_GRANT_CREATED_EXTRA_AUDIT'; end if;
  perform public.manage_editorial_member('newsroom-1@example.invalid',null);
  if (select count(*) from public.editorial_members where role='publisher')<>1 then
   raise exception 'ROLE_REVOKE_DID_NOT_PRESERVE_PUBLISHER'; end if;
@@ -56,13 +54,13 @@ begin
  if not blocked then raise exception 'LAST_PUBLISHER_REVOKED'; end if;
  perform public.manage_editorial_member('newsroom-1@example.invalid','publisher');
  perform public.manage_editorial_member('newsroom-2@example.invalid',null);
- if (select count(*) from public.editorial_staff_audit)<>5 then
-  raise exception 'STAFF_AUDIT_MISSING_EVENTS'; end if;
 end $$;
 
 reset role;
-do $$
+do $
 begin
+ if (select count(*) from public.editorial_staff_audit)<>5 then
+  raise exception 'STAFF_AUDIT_MISSING_EVENTS'; end if;
  if has_table_privilege('authenticated','public.editorial_staff_audit','SELECT')
     or has_table_privilege('authenticated','public.editorial_staff_audit','INSERT')
     or has_table_privilege('authenticated','public.editorial_slot_reviews','SELECT')
