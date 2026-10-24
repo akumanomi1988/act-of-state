@@ -41,8 +41,8 @@ begin
   raise exception 'STAFF_NOT_LISTED_AFTER_GRANTS'; end if;
  perform public.manage_editorial_member('newsroom-3@example.invalid','publisher');
  perform public.manage_editorial_member('newsroom-1@example.invalid',null);
- if (select count(*) from public.editorial_members where role='publisher')<>1 then
-  raise exception 'ROLE_REVOKE_DID_NOT_PRESERVE_PUBLISHER'; end if;
+ -- Direct staff-table reads are intentionally self-only under authenticated
+ -- RLS, including after the acting publisher revokes their own membership.
 end $$;
 
 select set_config('request.jwt.claim.sub','39000000-0000-4000-8000-000000000003',true);
@@ -61,6 +61,8 @@ do $
 begin
  if (select count(*) from public.editorial_staff_audit)<>5 then
   raise exception 'STAFF_AUDIT_MISSING_EVENTS'; end if;
+ if (select count(*) from public.editorial_members where role='publisher')<>2 then
+  raise exception 'PUBLISHER_ROLES_NOT_PRESERVED'; end if;
  if has_table_privilege('authenticated','public.editorial_staff_audit','SELECT')
     or has_table_privilege('authenticated','public.editorial_staff_audit','INSERT')
     or has_table_privilege('authenticated','public.editorial_slot_reviews','SELECT')
