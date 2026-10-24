@@ -67,11 +67,12 @@ export default function ElectionPanel({
   }
 
   return <section className="match-panel election-panel" aria-label="Elecciones nacionales">
-    <p className="eyebrow">SOBERANÍA POPULAR · MOTOR ELECTORAL V1</p>
+    <p className="eyebrow">SOBERANÍA POPULAR · REPRESENTACIÓN TERRITORIAL</p>
     <h2>Elecciones nacionales</h2>
     <p className="muted">Los votantes sintéticos ponderan la cercanía ideológica y la
       gestión del Gobierno. Cada 90 días de juego se reparten 100 escaños por
-      D’Hondt. Una jornada real equivale a una jornada de juego.</p>
+      D’Hondt dentro de seis circunscripciones sintéticas. Una jornada real
+      equivale a una jornada de juego.</p>
     {!state ? <p role="status">Calculando el censo y la proyección…</p> : <>
       <div className="election-summary">
         <div><span>PRÓXIMAS URNAS</span>
@@ -96,6 +97,23 @@ export default function ElectionPanel({
           <small>Programa ideológico: {party.manifestoPolicy}/100</small>
         </div>)}
       </div>
+      {state.projection.districts && <details className="election-districts">
+        <summary>Explorar el escrutinio de seis circunscripciones</summary>
+        <p className="muted">Los mandatos de cada territorio se suman para formar
+          los 100 escaños del Parlamento. La muestra es sintética.</p>
+        <div className="election-district-grid">
+          {state.projection.districts.map(district => <article
+            className="election-district" key={district.code}>
+            <h4>{district.label}</h4>
+            <p>{district.households} hogares · {district.residents} integrantes
+              · {district.seats} escaños</p>
+            <ol>{district.parties.map(party => <li key={party.userId}>
+              <span>{party.partyName}</span>
+              <strong>{party.seats} / {district.seats}</strong>
+            </li>)}</ol>
+          </article>)}
+        </div>
+      </details>}
       {me && <div className="election-manifesto">
         <h3>Programa de {me.partyName}</h3>
         <p className="muted">0 prioriza la redistribución y 100 la libertad económica.
@@ -121,6 +139,15 @@ export default function ElectionPanel({
           'Elecciones certificadas. El Parlamento y el Gobierno han sido renovados.',
           true)}>Celebrar elecciones</button>
       </div>}
+      {latest?.districts_snapshot && latest.districts_snapshot.length > 0 &&
+        <details className="election-certified-districts">
+          <summary>Acta territorial certificada · {latest.districts_snapshot.length} circunscripciones</summary>
+          <p className="muted">El acta conserva el escrutinio original y no se recalcula
+            cuando cambian los apoyos o las campañas posteriores.</p>
+          <ul>{latest.districts_snapshot.map(district=><li key={district.code}>
+            <strong>{district.label}</strong> · {district.seats} escaños
+          </li>)}</ul>
+        </details>}
       {latest && <div className="election-result" role="status">
         <p className="eyebrow">ACTA ELECTORAL N.º {latest.election_no}</p>
         <h3>Victoria de {winner?.partyName ?? 'partido elegido'}</h3>

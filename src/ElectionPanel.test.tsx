@@ -30,6 +30,32 @@ function state(canCertify = false): ElectionState {
     canCertify, serverDay: canCertify ? '2027-01-21' : '2026-10-23', history: []
   }
 }
+const districts = [
+  {code:'capital',label:'Distrito Capital',seats:25,households:75,residents:225,
+    parties:[
+      {userId,partyName:'Civic Alliance',voteSharePct:55,seats:14},
+      {userId:otherId,partyName:'Social Reform',voteSharePct:45,seats:11}]},
+  {code:'industrial',label:'Corredor Industrial',seats:20,households:60,residents:180,
+    parties:[
+      {userId,partyName:'Civic Alliance',voteSharePct:55,seats:11},
+      {userId:otherId,partyName:'Social Reform',voteSharePct:45,seats:9}]},
+  {code:'coastal',label:'Región Costera',seats:18,households:54,residents:162,
+    parties:[
+      {userId,partyName:'Civic Alliance',voteSharePct:55,seats:10},
+      {userId:otherId,partyName:'Social Reform',voteSharePct:45,seats:8}]},
+  {code:'agrarian',label:'Llanuras Agrarias',seats:15,households:45,residents:135,
+    parties:[
+      {userId,partyName:'Civic Alliance',voteSharePct:55,seats:8},
+      {userId:otherId,partyName:'Social Reform',voteSharePct:45,seats:7}]},
+  {code:'highland',label:'Territorios de Montaña',seats:12,households:36,residents:108,
+    parties:[
+      {userId,partyName:'Civic Alliance',voteSharePct:55,seats:7},
+      {userId:otherId,partyName:'Social Reform',voteSharePct:45,seats:5}]},
+  {code:'frontier',label:'Frontera Interior',seats:10,households:30,residents:90,
+    parties:[
+      {userId,partyName:'Civic Alliance',voteSharePct:55,seats:5},
+      {userId:otherId,partyName:'Social Reform',voteSharePct:45,seats:5}]}
+]
 const onElectionCertified = vi.fn()
 
 beforeEach(() => {
@@ -43,6 +69,21 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('national election experience', () => {
+  it('shows six territorial constituencies and the 100-seat allocation',async()=>{
+    mocks.fetchElectionState.mockResolvedValue({
+      ...state(),projection:{...projection,modelVersion:'electoral-districts-v1',
+        districts,householdSampleSize:300}
+    })
+    render(<ElectionPanel matchId={matchId} userId={userId}
+      active={true} onElectionCertified={onElectionCertified}/>)
+    await screen.findByText(/Proyección si se votase hoy/)
+    fireEvent.click(screen.getByText(/Explorar el escrutinio de seis circunscripciones/))
+    expect(screen.getByRole('heading',{name:'Distrito Capital'})).toBeInTheDocument()
+    expect(screen.getByRole('heading',{name:'Frontera Interior'})).toBeInTheDocument()
+    expect(screen.getByText(/75 hogares · 225 integrantes/)).toBeInTheDocument()
+  })
+
+
   it('shows deterministic vote projection and 100-seat distribution', async () => {
     render(<ElectionPanel matchId={matchId} userId={userId}
       active={true} onElectionCertified={onElectionCertified} />)

@@ -172,7 +172,21 @@ async function routeApi(page,state,{emailLimit=false}={}) {
     }
     if (path==='/rest/v1/rpc/get_population_profile') return json({
       modelVersion:'households-v1',households:300,sampleResidents:900,
+      districts:[
+        {code:'capital',label:'Distrito Capital',seats:25},
+        {code:'industrial',label:'Corredor Industrial',seats:20},
+        {code:'coastal',label:'Región Costera',seats:18},
+        {code:'agrarian',label:'Llanuras Agrarias',seats:15},
+        {code:'highland',label:'Territorios de Montaña',seats:12},
+        {code:'frontier',label:'Frontera Interior',seats:10}
+      ],
       segments:[
+        {dimension:'district',code:'capital',households:75,residents:225,support:48,trust:52},
+        {dimension:'district',code:'industrial',households:60,residents:180,support:57,trust:56},
+        {dimension:'district',code:'coastal',households:54,residents:162,support:53,trust:57},
+        {dimension:'district',code:'agrarian',households:45,residents:135,support:55,trust:54},
+        {dimension:'district',code:'highland',households:36,residents:108,support:49,trust:53},
+        {dimension:'district',code:'frontier',households:30,residents:90,support:50,trust:51},
         {dimension:'income',code:'low',households:90,residents:270,support:48,trust:52},
         {dimension:'income',code:'middle',households:150,residents:450,support:57,trust:56},
         {dimension:'income',code:'high',households:60,residents:180,support:54,trust:58},
@@ -319,6 +333,23 @@ try {
     await context.close()
   })
 
+  await run('Authenticated regional electorate is accessible and mobile WCAG-safe',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    const state=createServerState()
+    await routeApi(page,state)
+    await injectUser(page,state)
+    await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    await page.getByRole('button',{name:'Explorar población'}).click()
+    await page.getByRole('button',{name:'Circunscripciones'}).click()
+    await page.getByRole('heading',{name:'Distrito Capital'}).waitFor()
+    await page.getByRole('heading',{name:'Frontera Interior'}).waitFor()
+    await page.getByText(/25 escaños territoriales/).waitFor()
+    await checkMobileOverflow(page,'territorial population')
+    await checkA11y(page,'territorial population')
+    await page.screenshot({path:OUT+'/territorial-population-mobile.png',fullPage:true})
+    await context.close()
+  })
   await run('National decision analytics attributes persisted impact after reload',async()=>{
     const context=await browser.newContext({viewport:{width:390,height:844}})
     const page=await context.newPage()
@@ -437,7 +468,7 @@ try {
     assert.equal(await progress.getAttribute('aria-valuenow'),'0')
     await context.close()
   })
-  console.log('Browser scenarios passed: '+passed.length+'/8')
+  console.log('Browser scenarios passed: '+passed.length+'/9')
   if (failed.length) throw new Error('Failed scenarios: '+failed.join(', '))
 } catch (error) {
   console.error('BROWSER SMOKE FAILED',error)

@@ -25,6 +25,15 @@ Auth verification, editorial QA, demographic calibration, economic simulation
 depth, and design/art direction acceptance. Automated unit and SQL integration
 tests are necessary but not sufficient to certify a finished game.
 
+## Territorial representation
+
+Six persistent fictional constituencies now allocate 100 parliamentary seats
+through separate D'Hondt tallies derived from the synthetic household
+electorate. The population dashboard includes regional political response;
+the election dashboard shows detailed forecasts and certified immutable
+territorial results. See
+[territorial election mechanics](docs/TERRITORIAL_ELECTIONS.md).
+
 ## Public multiplayer matchmaking
 
 The multiplayer screen allows users to find opt-in public matches and join

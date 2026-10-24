@@ -8,13 +8,23 @@ vi.mock('./lib/population', () => ({ fetchPopulationProfile: mocked.fetch }))
 
 const sample: PopulationProfile = {
   modelVersion:'households-v1',households:300,sampleResidents:900,
+  districts:[
+    {code:'capital',label:'Distrito Capital',seats:25},
+    {code:'industrial',label:'Corredor Industrial',seats:20},
+    {code:'coastal',label:'Región Costera',seats:18},
+    {code:'agrarian',label:'Llanuras Agrarias',seats:15},
+    {code:'highland',label:'Territorios de Montaña',seats:12},
+    {code:'frontier',label:'Frontera Interior',seats:10}
+  ],
   segments:[
     {dimension:'income',code:'low',households:90,residents:270,support:46,trust:53},
     {dimension:'income',code:'middle',households:150,residents:450,support:61,trust:59},
     {dimension:'income',code:'high',households:60,residents:180,support:55,trust:60},
     {dimension:'age',code:'young',households:90,residents:270,support:47,trust:60},
     {dimension:'age',code:'working',households:150,residents:450,support:59,trust:55},
-    {dimension:'age',code:'senior',households:60,residents:180,support:52,trust:53}
+    {dimension:'age',code:'senior',households:60,residents:180,support:52,trust:53},
+    {dimension:'district',code:'capital',households:75,residents:225,support:52,trust:55},
+    {dimension:'district',code:'industrial',households:60,residents:180,support:58,trust:52}
   ]
 }
 beforeEach(() => { vi.clearAllMocks(); mocked.fetch.mockResolvedValue(sample) })
@@ -32,6 +42,9 @@ describe('synthetic population readout', () => {
     fireEvent.click(screen.getByRole('button',{name:'Generaciones'}))
     expect(screen.getByRole('heading',{name:'Jóvenes'})).toBeTruthy()
     expect(screen.queryByRole('heading',{name:'Ingresos bajos'})).toBeNull()
+    fireEvent.click(screen.getByRole('button',{name:'Circunscripciones'}))
+    expect(screen.getByRole('heading',{name:'Distrito Capital'})).toBeInTheDocument()
+    expect(screen.getByText(/25 escaños territoriales/)).toBeInTheDocument()
   })
 
   it('clears data on an identity or government switch before loading the new profile', async () => {

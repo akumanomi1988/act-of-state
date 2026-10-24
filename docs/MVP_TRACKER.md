@@ -293,3 +293,20 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - Unit, integration and mobile Chromium acceptance apply. Operational
   unattended publication and real publisher/news-source acceptance remain
   outstanding, so MVP-F002 and MVP-F006 are PARTIAL.
+
+
+## AOS-034 — Territorial electorate and district seats (2026-10-24)
+
+- Stable territorial assignments for 300 synthetic households per government
+  across six fictional districts, 100 fixed seat mandates and a migration
+  that preserves preexisting household states.
+- Five-dimensional population readout now includes authorized geographic
+  support, trust, citizen counts and district seat capacities.
+- Replaced national at-large allocation with resident-weighted D'Hondt by
+  district, adding together exactly 100 seats per election. Original campaign
+  and incumbency weights remain incorporated in each household's preferences.
+- Versioned new election model electoral-districts-v1, persisted immutable
+  territorial snapshots and retained backwards-compatible historic acts.
+- React regional views, SQL mass-conservation/authz/determinism suite and
+  national election/campaign/parliament regressions. Real ten-user acceptance
+  and external electoral calibration remain open. MVP-F004/F007 PARTIAL.

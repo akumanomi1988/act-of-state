@@ -104,8 +104,14 @@ begin
  select * into f from pg_temp.household_fixture;
  perform public.start_match(f.match_id);
  projection:=public.get_election_state(f.match_id)->'projection';
- if projection->>'modelVersion'<>'electoral-households-v1'
+ if projection->>'modelVersion'<>'electoral-districts-v1'
     or (projection->>'householdSampleSize')::integer<>300
+    or jsonb_array_length(projection->'districts')<>6
+    or (select sum((d->>'seats')::integer)
+       from jsonb_array_elements(projection->'districts') d)<>100
+    or (select sum((x->>'seats')::integer)
+       from jsonb_array_elements(projection->'districts') d
+       cross join lateral jsonb_array_elements(d->'parties') x)<>100
     or (select sum((x->>'seats')::integer)
        from jsonb_array_elements(projection->'parties') x)<>100
     or (select sum((x->>'voteSharePct')::numeric)
