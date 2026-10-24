@@ -310,3 +310,20 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - React regional views, SQL mass-conservation/authz/determinism suite and
   national election/campaign/parliament regressions. Real ten-user acceptance
   and external electoral calibration remain open. MVP-F004/F007 PARTIAL.
+
+
+## AOS-035 — Operator-controlled weekly newsroom (2026-10-24)
+
+- Publisher-managed editorial grants/revocations by confirmed email, with
+  transactional last-publisher protection and role-change audit. The first
+  publisher still needs explicit trusted operator authorization.
+- Category-specific deterministic fictional policy drafting for ten sourced
+  dossiers; three distinct options per dossier without overwriting authored
+  texts or generating fictitious current events.
+- Publisher verification is logged per source with saved draft revision.
+  Resaving invalidates all prior reviews. The backend requires all ten
+  current reviews before atomic publication.
+- React newsroom has authoring, source inspection, approval and staff controls
+  plus typed helpers and integration tests. Weekly real news verification,
+  actual staff and real-account end-to-end checks are still outstanding.
+  MVP-F002 and MVP-F006 remain PARTIAL.

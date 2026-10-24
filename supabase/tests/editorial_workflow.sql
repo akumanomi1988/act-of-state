@@ -99,6 +99,9 @@ begin
  -- any releases or dossiers, then recover with the independently sourced set.
  saved:=public.save_editorial_week(f.monday,1,
    jsonb_set(f.full_draft,'{9,source_url}',f.full_draft->0->'source_url'));
+ -- The publisher must affirm each source on the saved revision.
+ perform public.review_editorial_slot(f.monday,saved.revision,
+   d.value->>'id',true) from jsonb_array_elements(saved.draft) d;
  begin
    perform public.publish_editorial_week(f.monday,saved.revision);
  exception when sqlstate 'P0001' then
@@ -109,6 +112,14 @@ begin
  saved:=public.save_editorial_week(f.monday,2,f.full_draft);
  if saved.revision<>3 or jsonb_array_length(saved.draft)<>10 then
   raise exception 'EDITORIAL_COMPLETED_DRAFT_NOT_SAVED'; end if;
+ -- Approvals on revision 2 must not authorize revision 3.
+ blocked:=false;
+ begin perform public.publish_editorial_week(f.monday,3);
+ exception when sqlstate 'P0001' then
+   blocked:=sqlerrm='EDITORIAL_REQUIRES_TEN_REVIEWS'; end;
+ if not blocked then raise exception 'STALE_REVIEWS_AUTHORIZED_PUBLICATION'; end if;
+ perform public.review_editorial_slot(f.monday,3,
+   d.value->>'id',true) from jsonb_array_elements(saved.draft) d;
  first_publication:=public.publish_editorial_week(f.monday,3);
  retry:=public.publish_editorial_week(f.monday,3);
  if first_publication.status<>'published' or first_publication.revision<>4 or
@@ -139,6 +150,8 @@ begin
  broken:=replace(f.full_draft::text,f.monday::text,second_monday::text)::jsonb;
  broken:=jsonb_set(broken,'{9,options,1,treasury_delta_m_eur}','999999'::jsonb);
  saved:=public.save_editorial_week(second_monday,0,broken);
+ perform public.review_editorial_slot(second_monday,saved.revision,
+   d.value->>'id',true) from jsonb_array_elements(saved.draft) d;
  begin
   perform public.publish_editorial_week(second_monday,saved.revision);
  exception when sqlstate 'P0001' then

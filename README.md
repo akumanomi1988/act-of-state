@@ -25,6 +25,14 @@ Auth verification, editorial QA, demographic calibration, economic simulation
 depth, and design/art direction acceptance. Automated unit and SQL integration
 tests are necessary but not sufficient to certify a finished game.
 
+## Editorial weekly production cycle
+
+Authorized editors can source ten news references, prepare fictional policy
+alternatives, save revisioned drafts and hand all ten to the publisher for
+source-by-source review. Publishing needs ten current attestations, while
+staff administration is protected and audited. See
+[newsroom operations and secure bootstrap](docs/EDITORIAL_OPERATIONS.md).
+
 ## Territorial representation
 
 Six persistent fictional constituencies now allocate 100 parliamentary seats

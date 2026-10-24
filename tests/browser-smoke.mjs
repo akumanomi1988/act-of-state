@@ -118,6 +118,8 @@ async function routeApi(page,state,{emailLimit=false}={}) {
     }
     if (path==='/rest/v1/editorial_members') return json([{role:'publisher'}])
     if (path==='/rest/v1/editorial_weeks') return json([])
+    if (path==='/rest/v1/rpc/get_editorial_review_state') return json([])
+    if (path==='/rest/v1/rpc/get_editorial_staff') return json([])
     if (path==='/functions/v1/news-discovery') {
       const feeds=['elpais-spain','elpais-economy','guardian-politics',
         'guardian-world','bbc-politics','bbc-business']
@@ -456,6 +458,10 @@ try {
     await page.getByText(/Se han preparado 10 referencias/).waitFor()
     const progress=page.getByRole('progressbar',{name:'Expedientes preparados'})
     assert.equal(await progress.getAttribute('aria-valuenow'),'0')
+    assert.equal(await page.getByRole('button',{name:'Revisar publicación'}).isDisabled(),true)
+    await page.getByRole('button',{name:'Preparar diez escenarios políticos'}).click()
+    await page.getByRole('textbox',{name:'Decisión option-c'}).waitFor()
+    assert.equal(await progress.getAttribute('aria-valuenow'),'10')
     assert.equal(await page.getByRole('button',{name:'Revisar publicación'}).isDisabled(),true)
     assert.equal(await page.getByRole('textbox',{name:'Título de la fuente'}).inputValue(),
       'Published source headline for section 0 story 0')
