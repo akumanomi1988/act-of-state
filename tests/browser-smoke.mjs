@@ -160,7 +160,24 @@ async function routeApi(page,state,{emailLimit=false}={}) {
         const second='80000000-0000-4000-8000-000000000099'
         return json({
           projection:{modelVersion:'electoral-districts-v1',householdSampleSize:300,
-            cohorts:[],districts:[],
+            cohorts:[],
+            districts:[
+              ['capital','Distrito Capital',25],
+              ['industrial','Corredor Industrial',20],
+              ['coastal','Región Costera',18],
+              ['agrarian','Llanuras Agrarias',15],
+              ['highland','Territorios de Montaña',12],
+              ['frontier','Frontera Interior',10]
+            ].map(([code,label,seats])=>{
+              const first=Math.ceil(seats*0.54)
+              return {code,label,seats,households:30,residents:90,
+                parties:[
+                  {userId:state.user.id,partyName:'Gobierno compartido',
+                    voteSharePct:54,seats:first},
+                  {userId:second,partyName:'Oposición de prueba',
+                    voteSharePct:46,seats:seats-first}
+                ]}
+            }),
             parties:[
               {userId:state.user.id,seatNo:1,partyName:'Gobierno compartido',
                 manifestoPolicy:50,voteSharePct:54,seats:54},
