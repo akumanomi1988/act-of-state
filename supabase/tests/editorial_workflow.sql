@@ -188,7 +188,9 @@ begin
  w:=public.get_government_world(g.id);
  if (w->'calendar'->>'weeklyTotal')::integer<>10 or
     (select count(*) from public.dossiers
-     where release_kind='weekly' and available_from=f.monday)<>10 then
-  raise exception 'EDITORIAL_PLAYABLE_DOSSIERS_NOT_VISIBLE'; end if;
+     where release_kind='weekly' and available_from=f.monday)<>
+       case when extract(isodow from (now() at time zone 'UTC')::date)<=5
+            then 10 else 0 end then
+  raise exception 'EDITORIAL_LIVE_DOSSIER_WINDOW_INCORRECT'; end if;
 end $$;
 rollback;
