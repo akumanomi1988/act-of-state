@@ -9,7 +9,7 @@ select ('35000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,
 from generate_series(1,3) n;
 
 create temporary table household_fixture(
- government_id uuid,match_id uuid,invite_code text,first_policy integer
+ government_id uuid,match_id uuid,invite_code text,initial_profile jsonb
 );
 grant select,insert,update on pg_temp.household_fixture to authenticated;
 set local role authenticated;
@@ -18,7 +18,7 @@ select set_config('request.jwt.claim.sub','35000000-0000-4000-8000-000000000001'
 do $$
 declare
   g public.governments%rowtype;
-  profile jsonb; a jsonb; firstpref integer; checked integer;
+  profile jsonb; reread jsonb;
 begin
  g:=public.start_government();
  profile:=public.get_population_profile(g.id);
@@ -33,18 +33,14 @@ begin
    jsonb_array_elements(profile->'segments') s where s->>'dimension'='income')
    <>(profile->>'sampleResidents')::integer then
    raise exception 'HOUSEHOLD_MASS_NOT_CONSERVED'; end if;
- select policy_preference into firstpref from public.synthetic_households
-   where government_id=g.id and household_no=1;
- insert into pg_temp.household_fixture(government_id,first_policy)
- values(g.id,firstpref);
+ insert into pg_temp.household_fixture(government_id,initial_profile)
+ values(g.id,profile);
  perform public.start_government();
- select policy_preference into checked from public.synthetic_households
-   where government_id=g.id and household_no=1;
- if checked<>firstpref or
-    (select count(*) from public.synthetic_households where government_id=g.id)<>300 then
+ reread:=public.get_population_profile(g.id);
+ if reread<>profile then
    raise exception 'HOUSEHOLDS_NOT_STABLE_ON_RELOGIN'; end if;
- if (select count(distinct policy_preference) from public.synthetic_households
-      where government_id=g.id)<15 then
+ if (select count(distinct (x->>'support')::integer)
+     from jsonb_array_elements(profile->'segments') x)<2 then
    raise exception 'HOUSEHOLDS_NOT_HETEROGENEOUS'; end if;
  if has_table_privilege('authenticated','public.synthetic_households','SELECT')
     or has_table_privilege('authenticated','public.synthetic_households','UPDATE')
@@ -68,8 +64,7 @@ begin
  if repeated.id<>d.id then raise exception 'HOUSEHOLD_DECISION_RETRY_INVALID'; end if;
  if public.get_population_profile(f.government_id)<>changed then
    raise exception 'HOUSEHOLD_DECISION_RETRY_DOUBLE_APPLIED'; end if;
- if (select count(*) from public.synthetic_households
-   where government_id=f.government_id)<>300 then
+ if (public.get_population_profile(f.government_id)->>'households')::integer<>300 then
    raise exception 'HOUSEHOLD_POPULATION_SIZE_CHANGED'; end if;
 end $$;
 
