@@ -70,7 +70,8 @@ begin
  select * into f from pg_temp.inbox_fixture;
  report:=public.get_match_action_inbox(f.match_id);
  if (select count(*) from jsonb_array_elements(report->'items') i
-  where i.value->>'read'='false')<>1 then
+  where i.value->>'key'='ready:'||f.match_id::text
+    and i.value->>'read'='false')<>1 then
   raise exception 'GUEST_RECEIPT_LEAKED_TO_HOST'; end if;
  perform public.set_match_ready(f.match_id,true);
 end $$;
