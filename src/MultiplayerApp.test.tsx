@@ -8,10 +8,14 @@ const mocks = vi.hoisted(() => ({
   signOut: vi.fn(), listMyMatches: vi.fn(), createMatch: vi.fn(),
   joinMatch: vi.fn(), startMatch: vi.fn(), fetchMatchWorld: vi.fn(),
   recordMatchStance: vi.fn(), submitDecision: vi.fn(),
+  setMatchVisibility: vi.fn(),
   mandateApproved: { value: true }
 }))
 
 vi.mock('./PopulationPanel', () => ({ default: () => null }))
+vi.mock('./PublicMatchPanel', () => ({ default: () => <div>Public lobby test fixture</div> }))
+vi.mock('./lib/matchmaking', () => ({ setMatchVisibility: mocks.setMatchVisibility,
+  joinPublicLobby: vi.fn() }))
 
 vi.mock('./FiscalPanel', () => ({ default: () => <div>National fiscal panel fixture</div> }))
 
@@ -66,7 +70,7 @@ function world(status: 'lobby' | 'active', count: number, owner = hostId, decide
       invite_code: 'abcdef0123456789abcdef0123456789',
       created_at: '2026-10-23T00:00:00Z',
       started_at: status === 'active' ? '2026-10-23T00:00:00Z' : null,
-      max_players: 10 },
+      is_public:false,max_players: 10 },
     me: players.find(p => p.user_id === owner) ?? players[0],
     gameDay: '2026-10-23',
     players,
@@ -127,6 +131,7 @@ beforeEach(() => {
   mocks.startMatch.mockResolvedValue(undefined)
   mocks.recordMatchStance.mockResolvedValue({ policy_affinity: 65 })
   mocks.submitDecision.mockResolvedValue({})
+  mocks.setMatchVisibility.mockResolvedValue(undefined)
 })
 afterEach(cleanup)
 
@@ -154,6 +159,15 @@ describe('ten-party multiplayer assembly', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Ocupar escaño' }))
     await waitFor(() => expect(mocks.joinMatch).toHaveBeenCalledWith(
       'abcdef0123456789abcdef0123456789', 'Reform Party'))
+  })
+
+  it('allows only the host to advertise a lobby as discoverable',async()=>{
+    mocks.listMyMatches.mockResolvedValue(currentSummary('lobby',2))
+    mocks.fetchMatchWorld.mockResolvedValue(world('lobby',2))
+    render(<MultiplayerApp/>)
+    expect(await screen.findByRole('button',{name:'Publicar partida'})).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'Publicar partida'}))
+    await waitFor(()=>expect(mocks.setMatchVisibility).toHaveBeenCalledWith(matchId,true))
   })
 
   it('renders ten persistent seats and server-calculated national indicators', async () => {

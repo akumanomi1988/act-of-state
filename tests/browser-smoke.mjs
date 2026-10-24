@@ -133,6 +133,15 @@ async function routeApi(page,state,{emailLimit=false}={}) {
           publishedAt:new Date(Date.now()-3600000).toISOString()
         }))})
     }
+    if (path==='/rest/v1/rpc/list_my_matches') return json([])
+    if (path==='/rest/v1/rpc/list_public_lobbies') return json(state.publicLobbies ?? [])
+    if (path==='/rest/v1/rpc/join_public_lobby') {
+      const args=JSON.parse(request.postData() ?? '{}')
+      state.lastPublicJoin=args
+      state.publicLobbies=[]
+      return json({match_id:args.p_match_id,user_id:state.user.id,
+        seat_no:2,party_name:args.p_party_name})
+    }
     if (path==='/rest/v1/rpc/start_government') return json(state.government)
     if (path==='/rest/v1/rpc/get_government_world') return json(state.world)
     if (path==='/rest/v1/rpc/submit_decision') {
@@ -377,6 +386,33 @@ try {
     await page.screenshot({path:OUT+'/multiplayer-mobile.png',fullPage:true})
     await context.close()
   })
+  await run('Authenticated public lobby joins without exposure of invite tokens',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    const state=createServerState()
+    const publicMatchId='c0000000-0000-4000-8000-000000000033'
+    state.publicLobbies=[{
+      id:publicMatchId,title:'Parlamento ciudadano abierto',
+      player_count:4,open_seats:6,created_at:'2026-10-24T10:00:00Z'
+    }]
+    await routeApi(page,state)
+    await injectUser(page,state)
+    await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
+    await page.getByText('Parlamento ciudadano abierto').waitFor()
+    await page.getByRole('button',{name:/Parlamento ciudadano abierto/}).click()
+    await page.getByRole('textbox',{
+      name:'Nombre del partido para partida pública'}).fill('Alianza Reforma')
+    await checkMobileOverflow(page,'public multiplayer directory')
+    await checkA11y(page,'public multiplayer directory')
+    await page.getByRole('button',{name:'Unirme a la asamblea'}).click()
+    await page.waitForFunction(()=>window.document.querySelector(
+      'input[aria-label="Nombre del partido para partida pública"]')===null)
+    assert.deepEqual(state.lastPublicJoin,{
+      p_match_id:publicMatchId,p_party_name:'Alianza Reforma'
+    })
+    await page.screenshot({path:OUT+'/matchmaking-mobile.png',fullPage:true})
+    await context.close()
+  })
   await run('Ten-source editorial import remains unpublished after browser reload',async()=>{
     const context=await browser.newContext({viewport:{width:390,height:844}})
     const page=await context.newPage()
@@ -401,7 +437,7 @@ try {
     assert.equal(await progress.getAttribute('aria-valuenow'),'0')
     await context.close()
   })
-  console.log('Browser scenarios passed: '+passed.length+'/7')
+  console.log('Browser scenarios passed: '+passed.length+'/8')
   if (failed.length) throw new Error('Failed scenarios: '+failed.join(', '))
 } catch (error) {
   console.error('BROWSER SMOKE FAILED',error)

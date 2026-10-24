@@ -44,6 +44,7 @@ export interface MatchWorld {
     invite_code: string
     created_at: string
     started_at: string | null
+    is_public: boolean
     max_players: number
   }
   me: MatchPlayer
