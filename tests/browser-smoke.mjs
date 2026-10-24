@@ -502,7 +502,7 @@ try {
     await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
     const inbox=page.getByRole('region',{name:'Bandeja de actividad política'})
     await inbox.getByText('Planifica la actividad de campaña semanal').waitFor()
-    assert.equal(await inbox.getByLabel('Avisos sin leer').innerText(),'2 sin leer')
+    assert.equal(await inbox.getByLabel('Avisos sin leer',{exact:true}).innerText(),'2 sin leer')
     await inbox.getByRole('button',{name:'Marcar leído'}).first().click()
     await page.getByText('1 sin leer',{exact:true}).waitFor()
     await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
