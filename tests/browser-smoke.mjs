@@ -116,6 +116,23 @@ async function routeApi(page,state,{emailLimit=false}={}) {
       })
       return json({})
     }
+    if (path==='/rest/v1/editorial_members') return json([{role:'publisher'}])
+    if (path==='/rest/v1/editorial_weeks') return json([])
+    if (path==='/functions/v1/news-discovery') {
+      const feeds=['elpais-spain','elpais-economy','guardian-politics',
+        'guardian-world','bbc-politics','bbc-business']
+      const hosts=['elpais.com','elpais.com','www.theguardian.com',
+        'www.theguardian.com','www.bbc.com','www.bbc.com']
+      const i=feeds.indexOf(url.searchParams.get('feed'))
+      if (i<0) return json({error:'INVALID_FEED'})
+      return json({feed:feeds[i],fetchedAt:new Date().toISOString(),
+        articles:[0,1,2].map(n=>({
+          title:'Published source headline for section '+i+' story '+n,
+          url:'https://'+hosts[i]+'/news/'+i+'/'+n,
+          source:'Approved editorial section '+i,
+          publishedAt:new Date(Date.now()-3600000).toISOString()
+        }))})
+    }
     if (path==='/rest/v1/rpc/start_government') return json(state.government)
     if (path==='/rest/v1/rpc/get_government_world') return json(state.world)
     if (path==='/rest/v1/rpc/submit_decision') {
@@ -360,7 +377,31 @@ try {
     await page.screenshot({path:OUT+'/multiplayer-mobile.png',fullPage:true})
     await context.close()
   })
-  console.log('Browser scenarios passed: '+passed.length+'/5')
+  await run('Ten-source editorial import remains unpublished after browser reload',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    const state=createServerState()
+    await routeApi(page,state)
+    await injectUser(page,state)
+    await page.goto(BASE+'/editorial',{waitUntil:'networkidle'})
+    await page.getByRole('button',{name:'Preparar 10 fuentes automáticamente'}).waitFor()
+    await page.getByRole('button',{name:'Preparar 10 fuentes automáticamente'}).click()
+    await page.getByText(/Se han preparado 10 referencias/).waitFor()
+    const progress=page.getByRole('progressbar',{name:'Expedientes preparados'})
+    assert.equal(await progress.getAttribute('aria-valuenow'),'0')
+    assert.equal(await page.getByRole('button',{name:'Revisar publicación'}).isDisabled(),true)
+    assert.equal(await page.getByRole('textbox',{name:'Título de la fuente'}).inputValue(),
+      'Published source headline for section 0 story 0')
+    await checkMobileOverflow(page,'editorial source import')
+    await checkA11y(page,'editorial source import')
+    await page.screenshot({path:OUT+'/editorial-sources-mobile.png',fullPage:true})
+    // Import is a local draft, not an unreviewed publication or implicit save.
+    await page.reload({waitUntil:'networkidle'})
+    assert.equal(await page.getByRole('textbox',{name:'Título de la fuente'}).inputValue(),'')
+    assert.equal(await progress.getAttribute('aria-valuenow'),'0')
+    await context.close()
+  })
+  console.log('Browser scenarios passed: '+passed.length+'/7')
   if (failed.length) throw new Error('Failed scenarios: '+failed.join(', '))
 } catch (error) {
   console.error('BROWSER SMOKE FAILED',error)

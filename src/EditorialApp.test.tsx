@@ -25,6 +25,12 @@ vi.mock('./lib/editorial', async importOriginal => ({
   publishEditorialWeek: mocks.publishEditorialWeek
 }))
 
+const sourcing = vi.hoisted(() => ({ discover: vi.fn() }))
+vi.mock('./lib/weeklySourcing', async importOriginal => ({
+  ...await importOriginal<typeof import('./lib/weeklySourcing')>(),
+  discoverWeeklySources: sourcing.discover
+}))
+
 vi.mock('./NewsDiscoveryPanel', () => ({
   default: ({ onPick, disabled }: {
     onPick: (article: { title: string; url: string; source: string; publishedAt: string }) => void
@@ -70,10 +76,51 @@ beforeEach(() => {
   mocks.onAuthStateChange.mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } })
   mocks.signOut.mockResolvedValue({ error: null })
   mocks.fetchEditorialWeek.mockResolvedValue(null)
+  const t = new Date().toISOString()
+  const feeds = ['elpais-spain','elpais-economy','guardian-politics',
+    'guardian-world','bbc-politics','bbc-business'] as const
+  const hosts = ['elpais.com','elpais.com','www.theguardian.com',
+    'www.theguardian.com','www.bbc.com','www.bbc.com']
+  sourcing.discover.mockResolvedValue({
+    successfulFeeds:6,unavailableFeeds:0,
+    articles:feeds.flatMap((feedId,f)=>[0,1,2].map(n=>({
+      feedId,title:'Actual public news headline '+f+' '+n,
+      source:'Public news '+f,url:'https://'+hosts[f]+'/sector/'+f+'/'+n,
+      publishedAt:t
+    })))
+  })
 })
 afterEach(cleanup)
 
 describe('editorial workbench', () => {
+  it('prepares a ten-reference Monday agenda, but never auto-saves or auto-publishes',async()=>{
+    mocks.fetchEditorialRole.mockResolvedValue('publisher')
+    render(<EditorialApp />)
+    await screen.findByText('Ficha de decisión')
+    fireEvent.click(screen.getByRole('button',{name:'Preparar 10 fuentes automáticamente'}))
+    await waitFor(()=>expect(sourcing.discover).toHaveBeenCalledOnce())
+    await screen.findByText(/Se han preparado 10 referencias/)
+    expect(screen.getByRole('progressbar',{name:'Expedientes preparados'}))
+      .toHaveAttribute('aria-valuenow','0')
+    expect(mocks.saveEditorialWeek).not.toHaveBeenCalled()
+    expect(mocks.publishEditorialWeek).not.toHaveBeenCalled()
+    expect(screen.getByRole('button',{name:'Revisar publicación'})).toBeDisabled()
+    expect((screen.getByRole('textbox',{name:'Título político'}) as HTMLInputElement)
+      .value).toContain('Debate institucional:')
+  })
+
+  it('reports failed sources without mutating the active editorial slate',async()=>{
+    mocks.fetchEditorialRole.mockResolvedValue('editor')
+    sourcing.discover.mockResolvedValue({articles:[],successfulFeeds:0,unavailableFeeds:6})
+    render(<EditorialApp />)
+    await screen.findByText('Ficha de decisión')
+    fireEvent.click(screen.getByRole('button',{name:'Preparar 10 fuentes automáticamente'}))
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'No hay fuentes RSS disponibles')
+    expect(screen.getByRole('textbox',{name:'Título político'})).toHaveValue('')
+    expect(mocks.saveEditorialWeek).not.toHaveBeenCalled()
+  })
+
   it('denies a signed-in account without trusted staff membership', async () => {
     mocks.fetchEditorialRole.mockResolvedValue(null)
     render(<EditorialApp />)

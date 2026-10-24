@@ -25,6 +25,15 @@ Auth verification, editorial QA, demographic calibration, economic simulation
 depth, and design/art direction acceptance. Automated unit and SQL integration
 tests are necessary but not sufficient to certify a finished game.
 
+## Weekly editorial sourcing
+
+Authorized staff can open /editorial and use the ten-source preparation
+action to populate untouched Monday dossiers from six trusted news feeds.
+Human fact-checking, balanced decision authoring, explicit saving and the
+independent publication transaction remain mandatory. No unverified story
+is automatically published. See
+[editorial batch sourcing](docs/EDITORIAL_BATCH_SOURCING.md).
+
 ## Set up
 
 Requires Node.js 22, npm, and a **separate** Supabase project reserved for ACT OF STATE.
