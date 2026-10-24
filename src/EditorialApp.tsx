@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, friendlyError } from './lib/game'
 import NewsDiscoveryPanel, { type NewsCandidate } from './NewsDiscoveryPanel'
+import EditorialStaffPanel from './EditorialStaffPanel'
+import { preparePolicyScenarios } from './lib/editorialScenario'
+import { fetchEditorialReviews,reviewEditorialSlot,type EditorialReview } from './lib/editorialOperations'
 import { discoverWeeklySources, prepareWeeklySources } from './lib/weeklySourcing'
 import {
   editorialError, editorialReady, fetchEditorialRole, fetchEditorialWeek,
@@ -38,6 +41,7 @@ export default function EditorialApp() {
   const [email, setEmail] = useState('')
   const [mailSent, setMailSent] = useState(false)
   const [role, setRole] = useState<EditorialRole | null>(null)
+  const [reviews,setReviews]=useState<EditorialReview[]>([])
   const [permissionReady, setPermissionReady] = useState(false)
   const [week, setWeek] = useState(nextMondayUtc)
   const [snapshot, setSnapshot] = useState<EditorialWeek | null>(null)
@@ -94,6 +98,7 @@ export default function EditorialApp() {
     setSourcingBusy(false)
     setError('')
     setNotice('')
+    setReviews([])
     if (!user || !isMonday(week)) {
       setLoading(false)
       setPermissionReady(true)
@@ -114,6 +119,9 @@ export default function EditorialApp() {
         if (!active()) return
         setSnapshot(saved)
         setDraft(slotDraft(week, saved?.draft))
+        const persistedReviews=await fetchEditorialReviews(week)
+        if (!active()) return
+        setReviews(persistedReviews)
       } catch (reason) {
         if (active()) setError(editorialError(reason))
       } finally {
@@ -129,6 +137,8 @@ export default function EditorialApp() {
   const uniqueSourceCount = new Set(draft.filter(d => !!d.source_url)
     .map(d => d.source_url.trim())).size
   const complete = readyCount === SLOTS && uniqueSourceCount === SLOTS
+  const reviewedCount = reviews.filter(r=>draft.some(d=>d.id===r.dossier_id)).length
+  const selectedReviewed=reviews.some(r=>r.dossier_id===dossier.id)
   const isPublished = snapshot?.status === 'published'
   const canEdit = !!role && !isPublished && !loading && !pending && !sourcingBusy
 
@@ -230,6 +240,38 @@ export default function EditorialApp() {
     } finally { setPending(false) }
   }
 
+  function onPreparePolicyScenarios() {
+    if (!canEdit) return
+    const result=preparePolicyScenarios(draft)
+    if (!result.updated) {setNotice('No hay fichas incompletas con fuente para preparar.');return}
+    setDraft(result.draft)
+    setDirty(true)
+    setReviewing(false)
+    setNotice('Preparados ' + result.updated +
+      ' escenarios hipotéticos. Contrasta las fuentes y revisa los parámetros antes de guardar.')
+  }
+
+  async function onReviewSlot() {
+    if (!snapshot || role!=='publisher' || dirty || pending || !editorialReady(dossier)) return
+    const currentUser=user?.id
+    const slot=dossier.id
+    const targetWeek=week
+    const request=requestRef.current
+    setPending(true);setError('');setNotice('')
+    try {
+      await reviewEditorialSlot(targetWeek,snapshot.revision,slot,!selectedReviewed)
+      const loaded=await fetchEditorialReviews(targetWeek)
+      if (ownerRef.current!==currentUser || requestRef.current!==request) return
+      setReviews(loaded)
+      setNotice('Revisión editorial registrada en el servidor.')
+    } catch(reason) {
+      if(ownerRef.current===currentUser&&requestRef.current===request)
+        setError(editorialError(reason))
+    } finally {
+      if(ownerRef.current===currentUser&&requestRef.current===request)setPending(false)
+    }
+  }
+
   async function onSave() {
     if (!canEdit || !dirty || !user) return
     const owner = user.id
@@ -243,6 +285,7 @@ export default function EditorialApp() {
       if (ownerRef.current !== owner || requestRef.current !== request) return
       setSnapshot(saved)
       setDraft(slotDraft(targetWeek, saved.draft))
+      setReviews([])
       setDirty(false)
       setNotice('Borrador guardado en el servidor · revisión ' + saved.revision)
     } catch (reason) {
@@ -254,7 +297,7 @@ export default function EditorialApp() {
   }
 
   async function onPublish() {
-    if (role !== 'publisher' || !reviewing || dirty || !complete || !snapshot ||
+    if (role !== 'publisher' || !reviewing || dirty || !complete || reviewedCount!==SLOTS || !snapshot ||
       isPublished || pending || !user) return
     const owner = user.id
     const targetWeek = week
@@ -356,6 +399,9 @@ export default function EditorialApp() {
           aria-valuemin={0} aria-valuemax={10} aria-valuenow={readyCount}>
           <span style={{ width: (readyCount * 10) + '%' }} />
         </div>
+        <p className="editorial-small">Revisiones registradas:
+          <strong> {reviewedCount} / {SLOTS}</strong>.
+          Cada guardado invalida las revisiones anteriores.</p>
         <div className="editorial-batch">
           <button type="button" onClick={() => void onPrepareWeeklySources()}
             disabled={!canEdit || !isMonday(week) || draft.every(d => !!d.source_url)}>
@@ -365,6 +411,17 @@ export default function EditorialApp() {
             decisiones inventadas. Solo completa fichas totalmente vacías.
             La publicación sigue requiriendo revisión editorial.</p>
         </div>
+        <div className="editorial-batch">
+          <button type="button" disabled={!canEdit ||
+            !draft.some(d=>d.source_url&&d.source_title&&d.title)}
+            onClick={onPreparePolicyScenarios}>
+            Preparar diez escenarios políticos
+          </button>
+          <p>Genera contextos y tres alternativas hipotéticas por expediente
+            citado, sin sobrescribir textos ya redactados. No verifica ni
+            reproduce hechos: requiere contraste humano y aprobación posterior.</p>
+        </div>
+        {role==='publisher'&&user&&<EditorialStaffPanel identity={user.id}/>}
         <nav className="editorial-slots" aria-label="Expedientes de la semana">
           {draft.map((item, index) => <button key={item.id} type="button"
             className={'editorial-slot ' + (index === selectedSlot ? 'active ' : '') +
@@ -373,8 +430,10 @@ export default function EditorialApp() {
             aria-current={index === selectedSlot ? 'step' : undefined}>
             <span>{String(index + 1).padStart(2, '0')}</span>
             <span>{item.title || 'Expediente pendiente'}</span>
-            <span aria-label={editorialReady(item) ? 'Completo' : 'Incompleto'}>
-              {editorialReady(item) ? '✓' : '·'}</span>
+            <span aria-label={reviews.some(r=>r.dossier_id===item.id) ? 'Revisado' :
+              editorialReady(item) ? 'Completo' : 'Incompleto'}>
+              {reviews.some(r=>r.dossier_id===item.id) ? '✓✓' :
+                editorialReady(item) ? '✓' : '·'}</span>
           </button>)}
         </nav>
         {uniqueSourceCount < draft.filter(d => !!d.source_url).length &&
@@ -392,6 +451,21 @@ export default function EditorialApp() {
               snapshot ? 'BORRADOR GUARDADO' : 'BORRADOR NUEVO'}
           </span>
         </div>
+        {role==='publisher' && !isPublished && <div className="editorial-review-card">
+          <h3>Verificación del publicador</h3>
+          <p>Abre y contrasta la noticia original, comprueba que el contexto
+            describa un escenario hipotético correcto y verifica costes,
+            orientación y efectos de todas las alternativas.</p>
+          {/^https:\/\/[^\s]+$/.test(dossier.source_url) &&
+            <p><a href={dossier.source_url} target="_blank"
+              rel="noopener noreferrer">Abrir fuente original para contrastar</a></p>}
+          <button type="button" onClick={()=>void onReviewSlot()}
+            disabled={pending || dirty || !snapshot || !editorialReady(dossier)}>
+            {selectedReviewed ? 'Retirar validación del expediente' :
+              'Aprobar expediente tras contrastar la fuente'}
+          </button>
+          {dirty&&<p role="status">Guarda los cambios antes de validar.</p>}
+        </div>}
         <p className="muted">Cada expediente publicado pasa al motor de simulación existente. Los impactos son parámetros editoriales validados; los resultados se calculan en el servidor cuando el jugador decide.</p>
         <div className="editorial-form">
           <div className="editorial-row">
@@ -496,12 +570,16 @@ export default function EditorialApp() {
             {pending ? 'Procesando…' : 'Guardar borrador'}
           </button>
           {role === 'publisher' && !isPublished && <button className="editorial-publish"
-            disabled={pending || dirty || !complete || !snapshot}
+            disabled={pending || dirty || !complete || reviewedCount!==SLOTS || !snapshot}
             onClick={() => setReviewing(true)}>Revisar publicación</button>}
+          {role==='publisher' && !isPublished && reviewedCount!==SLOTS &&
+            <p className="editorial-small">Publicación bloqueada:
+              faltan {SLOTS-reviewedCount} revisiones explícitas.</p>}
           {reviewing && !isPublished && <div className="editorial-confirm">
             <strong>Publicación irreversible</strong>
             <p>Se aprobarán exactamente diez expedientes para la semana del {week}. No se pueden editar tras publicar.</p>
-            <button onClick={() => void onPublish()} disabled={pending || dirty || !complete}>
+            <button onClick={() => void onPublish()} disabled={pending || dirty ||
+              !complete || reviewedCount!==SLOTS}>
               Confirmar y publicar
             </button>
             <button className="text-button" onClick={() => setReviewing(false)}

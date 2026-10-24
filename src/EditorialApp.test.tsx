@@ -6,7 +6,9 @@ import { newEditorialDossier, nextMondayUtc, type EditorialDossier } from './lib
 const mocks = vi.hoisted(() => ({
   getUser: vi.fn(), onAuthStateChange: vi.fn(), signInWithOtp: vi.fn(),
   signOut: vi.fn(), fetchEditorialRole: vi.fn(), fetchEditorialWeek: vi.fn(),
-  saveEditorialWeek: vi.fn(), publishEditorialWeek: vi.fn()
+  saveEditorialWeek: vi.fn(), publishEditorialWeek: vi.fn(),
+  fetchEditorialReviews: vi.fn(), reviewEditorialSlot: vi.fn(),
+  fetchEditorialStaff: vi.fn(), manageEditorialStaff: vi.fn()
 }))
 
 vi.mock('./lib/game', () => ({
@@ -25,6 +27,12 @@ vi.mock('./lib/editorial', async importOriginal => ({
   publishEditorialWeek: mocks.publishEditorialWeek
 }))
 
+vi.mock('./lib/editorialOperations',()=>({
+  fetchEditorialReviews:mocks.fetchEditorialReviews,
+  reviewEditorialSlot:mocks.reviewEditorialSlot,
+  fetchEditorialStaff:mocks.fetchEditorialStaff,
+  manageEditorialStaff:mocks.manageEditorialStaff
+}))
 const sourcing = vi.hoisted(() => ({ discover: vi.fn() }))
 vi.mock('./lib/weeklySourcing', async importOriginal => ({
   ...await importOriginal<typeof import('./lib/weeklySourcing')>(),
@@ -76,6 +84,8 @@ beforeEach(() => {
   mocks.onAuthStateChange.mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } })
   mocks.signOut.mockResolvedValue({ error: null })
   mocks.fetchEditorialWeek.mockResolvedValue(null)
+  mocks.fetchEditorialReviews.mockResolvedValue([])
+  mocks.fetchEditorialStaff.mockResolvedValue([])
   const t = new Date().toISOString()
   const feeds = ['elpais-spain','elpais-economy','guardian-politics',
     'guardian-world','bbc-politics','bbc-business'] as const
@@ -107,6 +117,21 @@ describe('editorial workbench', () => {
     expect(screen.getByRole('button',{name:'Revisar publicación'})).toBeDisabled()
     expect((screen.getByRole('textbox',{name:'Título político'}) as HTMLInputElement)
       .value).toContain('Debate institucional:')
+  })
+
+  it('prepares ten fictional options without auto-publishing or overwriting citation metadata',async()=>{
+    mocks.fetchEditorialRole.mockResolvedValue('editor')
+    render(<EditorialApp/>)
+    await screen.findByText('Ficha de decisión')
+    fireEvent.click(screen.getByRole('button',{name:'Preparar 10 fuentes automáticamente'}))
+    await screen.findByText(/Se han preparado 10 referencias/)
+    fireEvent.click(screen.getByRole('button',{name:'Preparar diez escenarios políticos'}))
+    expect((screen.getByRole('textbox',{name:'Contexto y dilema'}) as HTMLTextAreaElement)
+      .value).toContain('hipotético')
+    expect(screen.getByRole('textbox',{name:'Decisión option-a'}))
+      .toHaveValue('Impulsar una intervención pública')
+    expect(screen.queryByRole('button',{name:'Revisar publicación'})).not.toBeInTheDocument()
+    expect(mocks.saveEditorialWeek).not.toHaveBeenCalled()
   })
 
   it('reports failed sources without mutating the active editorial slate',async()=>{
@@ -179,12 +204,31 @@ describe('editorial workbench', () => {
     expect(mocks.publishEditorialWeek).not.toHaveBeenCalled()
   })
 
+  it('requires ten publisher reviews before allowing final publication',async()=>{
+    const draft=completeDraft()
+    mocks.fetchEditorialRole.mockResolvedValue('publisher')
+    mocks.fetchEditorialWeek.mockResolvedValue(snapshot(draft,4))
+    mocks.reviewEditorialSlot.mockResolvedValue(undefined)
+    render(<EditorialApp/>)
+    await screen.findByText('Ficha de decisión')
+    expect(screen.getByRole('button',{name:'Revisar publicación'})).toBeDisabled()
+    fireEvent.click(screen.getByRole('button',{
+      name:'Aprobar expediente tras contrastar la fuente'
+    }))
+    await waitFor(()=>expect(mocks.reviewEditorialSlot).toHaveBeenCalledWith(
+      week,4,draft[0].id,true))
+    expect(mocks.publishEditorialWeek).not.toHaveBeenCalled()
+  })
+
   it('publishes a persisted complete revision, then locks the forms', async () => {
     const draft = completeDraft()
     mocks.fetchEditorialRole.mockResolvedValue('publisher')
     mocks.fetchEditorialWeek.mockResolvedValueOnce(snapshot(draft, 4))
       .mockResolvedValueOnce(snapshot(draft, 5, 'published'))
     mocks.publishEditorialWeek.mockResolvedValue(snapshot(draft, 5, 'published'))
+    mocks.fetchEditorialReviews.mockResolvedValue(draft.map(d=>({
+      dossier_id:d.id,reviewed_by:user.id,reviewed_at:new Date().toISOString()
+    })))
     render(<EditorialApp />)
     await screen.findByText('Ficha de decisión')
     await waitFor(() => expect(screen.getByRole('progressbar', { name: 'Expedientes preparados' }))

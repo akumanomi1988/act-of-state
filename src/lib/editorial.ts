@@ -128,6 +128,11 @@ export async function publishEditorialWeek(
 
 const messages: Record<string, string> = {
   EDITORIAL_FORBIDDEN: 'Esta cuenta no tiene permisos editoriales.',
+  EDITORIAL_REQUIRES_TEN_REVIEWS: 'Se requieren diez revisiones editoriales vigentes.',
+  EDITORIAL_REVIEW_INCOMPLETE: 'La ficha debe estar completa y guardada para su revisión.',
+  EDITORIAL_STAFF_FORBIDDEN: 'Solo un publicador puede administrar el equipo editorial.',
+  EDITORIAL_LAST_PUBLISHER: 'No puedes retirar el último publicador.',
+  EDITORIAL_STAFF_ACCOUNT_UNAVAILABLE: 'La cuenta indicada no existe o no ha confirmado el correo.',
   EDITORIAL_PUBLISH_FORBIDDEN: 'Solo el rol publicador puede aprobar la agenda.',
   EDITORIAL_INVALID_WEEK: 'Selecciona un lunes de la semana actual o futura.',
   EDITORIAL_REVISION_CONFLICT: 'Otro editor ha guardado cambios. Recarga antes de continuar.',

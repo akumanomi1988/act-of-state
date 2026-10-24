@@ -425,3 +425,15 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 .election-district p{color:var(--muted);font-size:0.85rem;}
 .election-district ol{margin:0;padding-left:1.3rem;font-size:0.88rem;}
 .election-district li{padding:0.18rem 0;display:flex;justify-content:space-between;gap:0.4rem;overflow-wrap:anywhere;}
+
+
+/* AOS-035: newsroom operating controls */
+.editorial-staff-panel,.editorial-review-card{margin:0.8rem 0;padding:0.9rem;border:1px solid var(--line);}
+.editorial-staff-panel summary{cursor:pointer;font-weight:600;min-height:44px;display:list-item;}
+.editorial-staff-form{display:grid;gap:0.7rem;margin-top:1rem;}
+.editorial-staff-form label{display:grid;gap:0.35rem;}
+.editorial-staff-form input,.editorial-staff-form select{width:100%;max-width:100%;min-height:44px;}
+.editorial-staff-list{list-style:none;padding:0;}
+.editorial-staff-list li{display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;justify-content:space-between;padding:0.4rem 0;overflow-wrap:anywhere;}
+.editorial-review-card h3{margin:0.2rem 0;}
+.editorial-review-card button{min-height:44px;}
