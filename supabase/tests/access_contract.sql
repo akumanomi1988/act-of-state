@@ -113,3 +113,18 @@ begin
      or not has_function_privilege('authenticated','public.get_campaign_state(uuid)','EXECUTE')
   then raise exception 'CAMPAIGN_PERMISSION_CONTRACT_BROKEN'; end if;
 end $campaign$;
+
+
+-- AOS-031: server-only household microstates and authenticated read model.
+do $household_grants$
+begin
+  if has_table_privilege('anon','public.synthetic_households','SELECT')
+     or has_table_privilege('authenticated','public.synthetic_households','SELECT')
+     or has_table_privilege('authenticated','public.synthetic_households','INSERT')
+     or has_table_privilege('authenticated','public.synthetic_households','UPDATE')
+     or has_function_privilege('anon','public.get_population_profile(uuid)','EXECUTE')
+     or not has_function_privilege('authenticated','public.get_population_profile(uuid)','EXECUTE')
+     or has_function_privilege('authenticated',
+       'game_internal.seed_synthetic_households(uuid)','EXECUTE') then
+    raise exception 'HOUSEHOLD_ACCESS_CONTRACT_FAILED'; end if;
+end $household_grants$;

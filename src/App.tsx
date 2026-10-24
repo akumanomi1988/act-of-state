@@ -6,6 +6,7 @@ import type { Dossier, DossierOption, GovernmentWorld } from './lib/types'
 import Outcome from './components/Outcome'
 import FiscalPanel from './FiscalPanel'
 import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
+import PopulationPanel from './PopulationPanel'
 
 function dossierKey(d: Dossier): string {
   return d.id + ':' + d.version
@@ -437,6 +438,8 @@ export default function App() {
                 </li>)}</ol>}
             </aside>
           </main>
+          <PopulationPanel key={world.government.id + ':' + (user?.id ?? '')}
+            governmentId={world.government.id} identity={user?.id ?? ''} />
           <DecisionAnalyticsPanel key={world.government.id}
             events={world.events} gameDay={world.gameDay}
             countryName={world.government.country_name} />

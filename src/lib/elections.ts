@@ -19,7 +19,8 @@ export interface ElectionCohort {
 }
 
 export interface ElectionProjection {
-  modelVersion: 'electoral-cohorts-v1' | 'electoral-cohorts-v2'
+  modelVersion: 'electoral-cohorts-v1' | 'electoral-cohorts-v2' | 'electoral-households-v1'
+  householdSampleSize?: number
   parties: ElectionParty[]
   cohorts: ElectionCohort[]
 }
@@ -32,7 +33,7 @@ export interface ElectionRecord {
   certified_on: string
   incumbent_user_id: string
   winner_user_id: string
-  model_version: 'electoral-cohorts-v1' | 'electoral-cohorts-v2'
+  model_version: 'electoral-cohorts-v1' | 'electoral-cohorts-v2' | 'electoral-households-v1'
   population_snapshot: ElectionCohort[]
   parties_snapshot: ElectionParty[]
   created_at: string
@@ -50,7 +51,7 @@ export interface ElectionState {
 function isElectionState(value: unknown): value is ElectionState {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const state = value as Partial<ElectionState>
-  return !!state.projection && ['electoral-cohorts-v1','electoral-cohorts-v2'].includes(state.projection.modelVersion) &&
+  return !!state.projection && ['electoral-cohorts-v1','electoral-cohorts-v2','electoral-households-v1'].includes(state.projection.modelVersion) &&
     Array.isArray(state.projection.parties) &&
     Array.isArray(state.projection.cohorts) &&
     Array.isArray(state.history) &&

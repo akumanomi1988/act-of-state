@@ -10,6 +10,21 @@ The React/TypeScript frontend uses Supabase Auth and displays only state returne
 
 **Deployment status:** frontend deployed at https://act-of-state.vercel.app/; authenticated ten-browser end-to-end play remains unverified. The dedicated Akumanomi Supabase project `Act-of-state` (`nwlxkqwbusrrldveijzb`, eu-central-1) now hosts the migrated schema. SQL integration assertions, including a synthetic ten-identity match, were executed in rolled-back transactions; browser E2E and real email authentication remain unverified. Never connect this application to Anvil Fitness.
 
+## Current simulation scope
+
+AOS-031 adds 300 deterministic synthetic family archetypes per government,
+with heterogeneous social preferences, cohort-propagated political/fiscal
+responses, a member-only demographic explorer and household-weighted national
+elections. This is a constructed gameplay electorate, **not** real population
+microdata or a scientific election projection. See
+[household simulation](docs/HOUSEHOLD_SIMULATION.md).
+
+The complete product is not yet accepted. Current gaps include operational
+publication of ten real-news dossiers each week, real multi-browser end-to-end
+Auth verification, editorial QA, demographic calibration, economic simulation
+depth, and design/art direction acceptance. Automated unit and SQL integration
+tests are necessary but not sufficient to certify a finished game.
+
 ## Set up
 
 Requires Node.js 22, npm, and a **separate** Supabase project reserved for ACT OF STATE.

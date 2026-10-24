@@ -369,3 +369,28 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
   .campaign-actions { flex-direction: column; align-items: stretch; }
   .campaign-actions label, .campaign-actions button { width: 100%; }
 }
+
+
+/* AOS-031 · Synthetic household demography */
+.population-panel { border:1px solid var(--line, #44545a); background:var(--surface, #172023);
+  border-radius:8px; padding:clamp(1rem,2vw,1.5rem); margin:1rem 0; }
+.population-panel-heading { display:flex; justify-content:space-between; gap:1rem;
+  flex-wrap:wrap; align-items:flex-start; }
+.population-panel-heading h2 { margin:0 0 0.5rem; }
+.population-sample { font-size:0.95rem; margin:0.7rem 0; }
+.population-dimensions { display:flex; gap:0.5rem; flex-wrap:wrap; padding:0.7rem 0 1rem; }
+.population-dimensions button { padding:0.55rem 0.9rem; min-height:44px; border:1px solid currentColor;
+  background:transparent; color:inherit; border-radius:4px; }
+.population-dimensions button.selected { background:var(--accent, #3d5d4b); }
+.population-segments { display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:0.8rem; }
+.population-segment { border:1px solid var(--line, #44545a); padding:1rem; border-radius:6px; }
+.population-segment-label { display:flex; flex-direction:column; gap:0.3rem; margin-bottom:1rem; }
+.population-segment-label h3 { margin:0; font-size:1rem; }
+.population-segment-label span { font-size:0.82rem; }
+.population-meter-label { display:flex; justify-content:space-between; font-size:0.83rem;
+  margin-top:0.55rem; }
+.population-meter { background:rgba(120,140,142,0.22); height:0.58rem; border-radius:1rem;
+  overflow:hidden; margin-top:0.25rem; }
+.population-meter span { display:block; background:#7bba9a; height:100%; }
+.population-meter.trust span { background:#8baed7; }

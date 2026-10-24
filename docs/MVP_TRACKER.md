@@ -267,3 +267,12 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - Safe replay and conflicting-call rejection are serialized through the match row lock. Distinct parties campaign independently. Outsiders cannot read/write; the last seven pre-election days disallow new interventions. No direct browser table grants, real-money costs or LLM-dependent simulations.
 - New CampaignPanel in multiplayer, typed campaign.ts adapter, migration 029, SQL rollback suite campaigns.sql, read-grant checks, React component coverage and CI PostgreSQL gate. The campaign register and readback use real database events, not client estimates.
 - Targeted evidence: automated unit/test oracle/typecheck/build and PostgreSQL CI after PR. Release does not claim real-party browser authentication, political donations, news editorial operation or complete market calibration. Requirement MVP-F007/MVP-F008 remain PARTIAL; completed MVP acceptance remains 2/18 pending full product gates.
+
+
+## AOS-031 — Persistent household micro-simulation and per-family elections (2026-10-24)
+
+- Each government has 300 deterministic household archetypes, generated without external data or RNG, each with weighted residents, age, household income, settlement, parent cohort, policy preference, support and trust. They are synthetic and cannot be mistaken for personal data or an empirical national demographic survey.
+- Government policies and fiscal settlement already modify population_cohorts; an atomic database trigger propagates changes to household microstates with stable heterogeneous multipliers. Unique composite keys prevent duplicate agents on re-login.
+- Election model electoral-households-v1 aggregates family voter affinity and party campaign influence, weights shares by simulated residents, and retains 100-seat D'Hondt. Previously certified election acts remain immutable under their original version.
+- Solo and multiplayer views provide accessible demographic exploration with generational, income, territory and cohort breakdowns. Only aggregated statistics are returned to authorized members.
+- Includes rollback-only SQL integration and React/browser regressions. MVP-F004/MVP-F005/MVP-F007 remain PARTIAL until calibration and real authenticated acceptance tests.
