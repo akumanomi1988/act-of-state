@@ -1,3 +1,4 @@
+import PlayerOnboarding from './PlayerOnboarding'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, friendlyError, submitDecision } from './lib/game'
@@ -266,7 +267,7 @@ export default function MultiplayerApp() {
         <div><div className="wordmark">ACT OF STATE</div>
           <div className="brand-caption">MULTIPLAYER NATIONAL ASSEMBLY</div></div>
       </div>
-      <div className="header-end"><a className="text-button" href="/">Gobierno</a>
+      <div className="header-end"><a className="text-button" href="/guide">Manual del jugador</a><a className="text-button" href="/">Gobierno</a>
         <a className="text-button" href="/editorial">Editorial</a>
         {user && <button className="text-button" disabled={pending}
           onClick={() => void onSignOut()}>Cerrar sesión</button>}</div>
@@ -355,6 +356,7 @@ export default function MultiplayerApp() {
           <h2>Convoca tu primera asamblea.</h2>
           <p className="muted">Crea una partida o usa un código de invitación. Cada cuenta representará un partido distinto.</p>
         </div> : <>
+          <PlayerOnboarding world={world} />
           <div className="match-heading">
             <div><p className="eyebrow">PARTIDA {world.match.status === 'lobby' ? 'EN PREPARACIÓN' : 'ACTIVA'}</p>
               <h1>{world.match.title}</h1><p className="muted">Día de juego {world.gameDay} · {world.government.country_name}</p></div>
