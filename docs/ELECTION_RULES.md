@@ -2,7 +2,7 @@
 
 ## MVP rules
 
-The versioned model is electoral-cohorts-v1, implemented in migration 021. It is a deterministic game model, not a statistically calibrated real electorate.
+The original versioned model was electoral-cohorts-v1 (migration 021); campaign-weighted electoral-cohorts-v2 is introduced in migration 029. It is a deterministic game model, not a statistically calibrated real electorate.
 
 - One real UTC date equals one game date.
 - First election: 90 calendar days after the match begins.
@@ -17,7 +17,7 @@ The versioned model is electoral-cohorts-v1, implemented in migration 021. It is
 
 For each cohort c and party p:
 
-- Affinity score = max(1, 100 - 2 * abs(cohort ideal policy - party declared policy) + incumbency adjustment).
+- Affinity score v2 = max(1, 100 - 2 * abs(cohort ideal policy - party declared policy) + incumbency adjustment + campaign influence for that party/cohort).
 - Incumbency adjustment = round(0.30 * (cohort support - 50) + 0.20 * (cohort trust - 50)) for the current governing party; zero otherwise.
 - Cohort party share = party score / total score for all parties in that cohort.
 - National vote share = sum(cohort population weight * cohort party share) / total cohort population weight.
@@ -55,3 +55,13 @@ The `aos-calendar-v1` Supabase Cron job runs every 15 minutes. It finalizes expi
 
 ## Government accountability (AOS-025)
 A constructive confidence vote may transfer executive authority between ordinary elections, requiring an absolute majority of mandate-weighted seats. An open confidence motion blocks election certification and is settled by the existing Cron job before the electoral calculation. Each leadership change invalidates former cabinet coalition support. See docs/GOVERNANCE_RULES.md.
+
+
+## Weekly party campaigns (AOS-029)
+
+- An active match participant may conduct exactly one campaign intervention per server-UTC Monday–Sunday week. Identical retries return the original immutable action; conflicting retries fail. The electoral reflection period (the last 7 days before a due election) blocks new actions.
+- Targets are the match's existing synthetic cohorts. Strategies are dialogue, field visit and policy forum; base impact is respectively 3, 4 and 5, reduced by integer abs(manifesto_policy - cohort.ideal_policy) / 25, with a minimum of 1. Server-side per-party/cohort influence is capped at 20.
+- Campaign actions cost no real money and confer no paid competitive advantage. They do not directly alter treasury, overall government approval, or cohort trust. They add a small, bounded electoral affinity modifier at the next election and appear in an immutable interparty register.
+- The electoral algorithm and future election records now use electoral-cohorts-v2, preserving previous v1 election records as historical truth. Election snapshots include campaignInfluenceTotal for each party.
+- Campaign table access is denied to browser roles. Only authenticated match members can call state/read and action RPCs; even the API cannot accept client-calculated boosts.
+- This is not a complete political-party finance system, media market, or real-world demographic forecast. The campaign feature does not certify a full political-simulator release.

@@ -259,3 +259,11 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - Verification contract: dedicated deterministic TypeScript unit tests, React component tests, existing solo/multiplayer regression, production typecheck/build and the headless Chromium quality workflow. Hosted real-Auth/browser acceptance remains separate.
 - Requirement influence: MVP-F005, MVP-V002, MVP-V003 and MVP-V004. None becomes DONE solely from this frontend increment. Strict global requirement acceptance remains **2/18 = 11.1%** pending full release gates.
 - Design and evidence boundaries: `docs/DECISION_ANALYTICS.md`.
+
+
+## AOS-029 — Weekly political campaigning and electoral persuasion (2026-10-24)
+
+- Introduces immutable, once-per-UTC-week actions for every active party. Campaign strategy, cohort, and ideological fit determine a bounded, versioned, server-side influence increment; election projections consume that influence before D'Hondt apportionment.
+- Safe replay and conflicting-call rejection are serialized through the match row lock. Distinct parties campaign independently. Outsiders cannot read/write; the last seven pre-election days disallow new interventions. No direct browser table grants, real-money costs or LLM-dependent simulations.
+- New CampaignPanel in multiplayer, typed campaign.ts adapter, migration 029, SQL rollback suite campaigns.sql, read-grant checks, React component coverage and CI PostgreSQL gate. The campaign register and readback use real database events, not client estimates.
+- Targeted evidence: automated unit/test oracle/typecheck/build and PostgreSQL CI after PR. Release does not claim real-party browser authentication, political donations, news editorial operation or complete market calibration. Requirement MVP-F007/MVP-F008 remain PARTIAL; completed MVP acceptance remains 2/18 pending full product gates.

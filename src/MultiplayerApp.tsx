@@ -4,6 +4,7 @@ import { client, friendlyError, submitDecision } from './lib/game'
 import { number } from './lib/format'
 import ParliamentPanel from './ParliamentPanel'
 import ElectionPanel from './ElectionPanel'
+import CampaignPanel from './CampaignPanel'
 import MatchCalendarPanel from './MatchCalendarPanel'
 import GovernancePanel from './GovernancePanel'
 import FiscalPanel from './FiscalPanel'
@@ -339,6 +340,10 @@ export default function MultiplayerApp() {
           <GovernancePanel matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'} players={world.players}
             onGovernmentChanged={() => setReload(value => value + 1)} />
+          <CampaignPanel key={world.match.id + ':' + user!.id}
+            matchId={world.match.id} userId={user!.id}
+            active={world.match.status === 'active'}
+            onCampaignRecorded={() => setReload(value => value + 1)} />
           <ElectionPanel matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'}
             onElectionCertified={() => setReload(value => value + 1)} />

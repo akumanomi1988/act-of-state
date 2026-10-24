@@ -340,3 +340,32 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 .national-history-social-grid span{display:flex;justify-content:space-between;gap:8px}
 @media(max-width:960px){.national-history{margin:18px 12px 30px}.national-history-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.national-history-grid{grid-template-columns:1fr}}
 @media(max-width:640px){.national-history-heading{display:block}.national-history-heading button{margin-top:10px}.national-history-entry{grid-template-columns:minmax(0,1fr) auto}.national-history-track{grid-column:1/-1;grid-row:2}.national-history-summary{gap:8px}.national-history-summary>div{padding:12px}.national-history-chart,.national-history-inspector,.national-history-social{padding:14px}.national-history-deltas>div{display:block}.national-history-deltas dd{text-align:left;margin-top:4px}}
+
+
+/* AOS-029 · Accessible, compact weekly campaigning */
+.campaign-panel { border: 1px solid var(--line, #44545a); border-radius: 8px;
+  padding: clamp(1rem, 2vw, 1.5rem); margin: 1rem 0; background: var(--surface, #172023); }
+.campaign-panel-heading { display: flex; flex-wrap: wrap; gap: 0.8rem;
+  justify-content: space-between; align-items: flex-start; }
+.campaign-panel-heading h2 { margin: 0 0 0.5rem; }
+.campaign-week { font-family: monospace; white-space: nowrap; }
+.campaign-cohorts { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr));
+  gap: 0.75rem; margin: 1rem 0; }
+.campaign-cohort { display: flex; flex-direction: column; gap: 0.25rem;
+  border: 1px solid var(--line, #44545a); border-radius: 5px; padding: 0.85rem; }
+.campaign-cohort > span { font-size: 0.88rem; }
+.campaign-actions { display: flex; flex-wrap: wrap; align-items: end; gap: 0.8rem; }
+.campaign-actions label { display: flex; flex-direction: column; gap: 0.4rem;
+  min-width: min(100%, 190px); flex: 1 1 190px; }
+.campaign-actions select { width: 100%; padding: 0.75rem; min-height: 44px;
+  background: var(--surface, #172023); color: inherit; border: 1px solid currentColor; }
+.campaign-actions button { min-height: 44px; }
+.campaign-history { margin-top: 1.1rem; }
+.campaign-history summary { cursor: pointer; min-height: 38px; }
+.campaign-history li { padding-block: 0.25rem; overflow-wrap: anywhere; }
+.campaign-notice { color: #85d5ae; }
+.campaign-error { color: #f5a99d; }
+@media (max-width: 550px) {
+  .campaign-actions { flex-direction: column; align-items: stretch; }
+  .campaign-actions label, .campaign-actions button { width: 100%; }
+}
