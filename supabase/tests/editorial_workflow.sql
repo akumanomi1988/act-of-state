@@ -131,14 +131,26 @@ begin
  exception when sqlstate 'P0001' then
   blocked:=sqlerrm='EDITORIAL_ALREADY_PUBLISHED'; end;
  if not blocked then raise exception 'PUBLISHED_WEEK_REOPENED'; end if;
+ if (select state from public.weekly_releases where week_start=f.monday)<>'approved' then
+  raise exception 'EDITORIAL_PUBLICATION_NOT_APPROVED'; end if;
+end $$;
+
+-- Verify archived editorial rows with the privileged test runner, not the
+-- authenticated player whose live inbox hides dossiers after Friday.
+reset role;
+do $$
+declare f record;
+begin
+ select * into f from pg_temp.editorial_fixture;
  if (select count(*) from public.dossiers
      where release_kind='weekly' and available_from=f.monday)<>10 or
     (select count(*) from public.dossier_options o join public.dossiers d
       on d.id=o.dossier_id and d.version=o.dossier_version
-      where d.release_kind='weekly' and d.available_from=f.monday)<>20 or
-    (select state from public.weekly_releases where week_start=f.monday)<>'approved' then
+      where d.release_kind='weekly' and d.available_from=f.monday)<>20 then
   raise exception 'EDITORIAL_PUBLICATION_MATERIALIZATION_FAILED'; end if;
 end $$;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000082',true);
 
 -- A malformed option must roll back the entire second publication statement.
 do $$
