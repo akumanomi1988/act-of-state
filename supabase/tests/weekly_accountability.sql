@@ -84,11 +84,13 @@ begin
 
  insert into public.decision_events(
  government_id,dossier_id,dossier_version,option_id,
- parameters_snapshot,decided_on,state_before,state_after,cohort_effects)
+ parameters_snapshot,decided_on,state_before,state_after,cohort_effects,
+ dossier_title_snapshot,option_title_snapshot)
  values(f.government_id,f.old_dossier,1,'qa-accept',
  '{"treasury_delta_m_eur":-100}',f.previous_monday+3,
  '{"treasury_m_eur":12000,"approval":50,"trust":50}',
- '{"treasury_m_eur":11900,"approval":52,"trust":51}','[]');
+ '{"treasury_m_eur":11900,"approval":52,"trust":51}','[]',
+ 'Previous weekly housing report','Accept public housing response');
  if not game_internal.close_match_friday(f.match_id,f.previous_monday) then
    raise exception 'WEEKLY_HISTORY_FRIDAY_ACT_NOT_INSERTED'; end if;
 
