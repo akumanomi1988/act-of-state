@@ -209,11 +209,13 @@ begin
    select monday into mon from pg_temp.test_calendar_dates;
    insert into public.decision_events(
      government_id,dossier_id,dossier_version,option_id,
-     parameters_snapshot,decided_on,state_before,state_after,cohort_effects)
+     parameters_snapshot,decided_on,state_before,state_after,cohort_effects,
+     dossier_title_snapshot,option_title_snapshot)
    values(g,'weekly-test-1',1,'act',
      '{"treasury_delta_m_eur":-100}'::jsonb,mon+4,
      '{"treasury_m_eur":12000,"approval":50,"trust":50}'::jsonb,
-     '{"treasury_m_eur":11900,"approval":52,"trust":51}'::jsonb,'[]'::jsonb);
+     '{"treasury_m_eur":11900,"approval":52,"trust":51}'::jsonb,'[]'::jsonb,
+     'Fictional weekly fixture 1','Act');
  end if;
 end $$;
 update public.decision_events
