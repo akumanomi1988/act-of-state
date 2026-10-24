@@ -251,3 +251,11 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
 - No authenticated users were created through the browser test; Cloud checks used controlled synthetic Postgres Auth identities without email sending, removed after verified checks.
 - Economics deliberately represents invented game rules, **not factual GDP, CPI or official unemployment**. Live economic balancing and institutional approval of tax policy remain pending.
 - Operating handbook: `docs/NATIONAL_FISCAL_OPERATIONS.md`.
+
+## AOS-028 — National decision analytics (2026-10-23)
+
+- Source increment: shared solo/multiplayer strategic archive, persisted before/after inspection, 7/30-day server-UTC filters, signed treasury/approval/trust attribution, social-cohort changes, responsive visual timeline and keyboard-operable controls.
+- No new Supabase migrations, direct table grants, external services, simulated forecasts or invented game effects. Uses the existing authorized immutable decision events and keeps autonomous fiscal settlements out of cabinet-impact totals.
+- Verification contract: dedicated deterministic TypeScript unit tests, React component tests, existing solo/multiplayer regression, production typecheck/build and the headless Chromium quality workflow. Hosted real-Auth/browser acceptance remains separate.
+- Requirement influence: MVP-F005, MVP-V002, MVP-V003 and MVP-V004. None becomes DONE solely from this frontend increment. Strict global requirement acceptance remains **2/18 = 11.1%** pending full release gates.
+- Design and evidence boundaries: `docs/DECISION_ANALYTICS.md`.

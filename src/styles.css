@@ -287,3 +287,56 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
   .fiscal-allocation,.fiscal-controls{grid-template-columns:1fr}
   .fiscal-compact{margin:10px 0}
 }
+
+/* AOS-028: authoritative national decision history */
+.national-history{max-width:1460px;margin:28px auto 46px;padding:clamp(20px,3vw,38px);border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#1c282a,#152022);color:var(--text)}
+.national-history-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+.national-history-heading h2{font-family:'IBM Plex Serif',Georgia,serif;font-size:clamp(1.5rem,2.6vw,2.2rem);font-weight:500;margin:8px 0}
+.national-history-heading p{max-width:760px}
+.national-history-heading button{flex:none}
+.national-history-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:24px}
+.national-history-summary>div{background:rgba(255,255,255,.035);border:1px solid var(--line);padding:16px;border-radius:10px;min-width:0}
+.national-history-summary span{display:block;color:var(--muted);font-size:.72rem;letter-spacing:.08em;margin-bottom:9px}
+.national-history-summary strong{font-size:clamp(1.1rem,2vw,1.55rem);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.national-history .positive{color:#90d4b1}
+.national-history .negative{color:#eba39e}
+.national-history .neutral{color:var(--text)}
+.national-history-details{margin-top:24px;border-top:1px solid var(--line);padding-top:22px}
+.national-history-controls{display:flex;flex-wrap:wrap;gap:15px 32px;margin-bottom:24px}
+.national-history-controls fieldset{border:0;padding:0;margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.national-history-controls legend{font-size:.8rem;color:var(--muted);margin-bottom:8px}
+.national-history-controls label{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.national-history-controls label:has(input:checked){border-color:var(--gold);background:rgba(197,168,123,.12)}
+.national-history-controls input{accent-color:var(--gold)}
+.national-history-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px}
+.national-history-chart,.national-history-inspector,.national-history-social{background:rgba(0,0,0,.13);border:1px solid var(--line);border-radius:12px;padding:20px;min-width:0}
+.national-history-chart h3,.national-history-inspector h3,.national-history-social h3{margin:0 0 16px;font-family:'IBM Plex Serif',Georgia,serif;font-weight:500;font-size:1.3rem}
+.national-history-chart ol{list-style:none;margin:0;padding:0;display:grid;gap:8px;max-height:480px;overflow-y:auto}
+.national-history-entry{width:100%;text-align:left;border:1px solid transparent;border-radius:8px;background:rgba(255,255,255,.03);color:var(--text);padding:10px;display:grid;grid-template-columns:minmax(130px,1.4fr) minmax(80px,1fr) auto;align-items:center;gap:12px;cursor:pointer}
+.national-history-entry:hover,.national-history-entry.selected{border-color:var(--gold);background:rgba(197,168,123,.08)}
+.national-history-entry-title{display:grid;gap:3px;min-width:0}
+.national-history-entry-title strong{overflow-wrap:anywhere;font-size:.9rem}
+.national-history-entry-title small{color:var(--muted)}
+.national-history-track{height:9px;background:#334042;border-radius:9px;overflow:hidden;display:block}
+.national-history-track>span{display:block;height:100%;border-radius:9px}
+.national-history-track>.positive{background:#90d4b1}
+.national-history-track>.negative{background:#eba39e}
+.national-history-track>.neutral{background:#aeb9b8}
+.national-history-value{white-space:nowrap;font-variant-numeric:tabular-nums;font-size:.85rem}
+.national-history-inspector>p:not(.eyebrow){margin:0 0 16px;color:var(--muted)}
+.national-history-deltas{margin:18px 0;display:grid;gap:8px}
+.national-history-deltas>div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.national-history-deltas dt{color:var(--muted)}
+.national-history-deltas dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.national-history-deltas dd strong{display:block;font-size:.85rem}
+.national-history-inspector h4{margin:20px 0 10px}
+.national-history-cohorts{padding:0;margin:0 0 12px;list-style:none;display:grid;gap:8px}
+.national-history-cohorts li{display:grid;gap:3px;padding:10px;background:rgba(255,255,255,.03);border-radius:8px}
+.national-history-cohorts span{font-size:.85rem;color:var(--muted)}
+.national-history-social{margin-top:18px}
+.national-history-social-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-top:18px}
+.national-history-social-grid>div{border:1px solid var(--line);padding:12px;border-radius:8px;display:grid;gap:5px}
+.national-history-social-grid small{color:var(--muted)}
+.national-history-social-grid span{display:flex;justify-content:space-between;gap:8px}
+@media(max-width:960px){.national-history{margin:18px 12px 30px}.national-history-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.national-history-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.national-history-heading{display:block}.national-history-heading button{margin-top:10px}.national-history-entry{grid-template-columns:minmax(0,1fr) auto}.national-history-track{grid-column:1/-1;grid-row:2}.national-history-summary{gap:8px}.national-history-summary>div{padding:12px}.national-history-chart,.national-history-inspector,.national-history-social{padding:14px}.national-history-deltas>div{display:block}.national-history-deltas dd{text-align:left;margin-top:4px}}

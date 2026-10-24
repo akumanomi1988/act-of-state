@@ -7,6 +7,7 @@ import ElectionPanel from './ElectionPanel'
 import MatchCalendarPanel from './MatchCalendarPanel'
 import GovernancePanel from './GovernancePanel'
 import FiscalPanel from './FiscalPanel'
+import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
 import {
   createMatch, fetchMatchWorld, joinMatch, listMyMatches, matchError,
   recordMatchStance, startMatch, type MatchSummary, type MatchWorld
@@ -418,6 +419,9 @@ export default function MultiplayerApp() {
               </div>)}
             </div>
           </div>}
+          <DecisionAnalyticsPanel key={world.government.id + ':' + world.match.id}
+            events={world.events} gameDay={world.gameDay}
+            countryName={world.government.country_name} />
         </>}
         {notice && <p className="editorial-success" role="status">{notice}</p>}
         {error && <p className="editorial-alert" role="alert">{error}</p>}

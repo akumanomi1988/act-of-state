@@ -170,3 +170,7 @@ The government and multiplayer views now include a read-only macroeconomic dashb
 - Operator manual: `docs/NATIONAL_FISCAL_OPERATIONS.md`. Strict requirements tally: `docs/MVP_TRACKER.md`.
 
 The custom SMTP/Auth free-tier quota remains a real onboarding blocker. No secret, fake token or privileged credential used in testing is embedded in the deployed frontend.
+
+## National decision analytics (AOS-028)
+
+Solo and multiplayer governments now share an expandable strategic archive of server-persisted cabinet acts. It shows signed fiscal, approval and institutional-trust deltas, before/after state, group-specific support changes and 7/30-day UTC filters. This is **decision attribution**, not an economic forecast or a full ledger: autonomous fiscal settlement is intentionally excluded. The UI uses only the existing authorized world snapshot. See [decision analytics rules](docs/DECISION_ANALYTICS.md).
