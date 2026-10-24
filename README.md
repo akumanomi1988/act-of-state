@@ -25,6 +25,14 @@ Auth verification, editorial QA, demographic calibration, economic simulation
 depth, and design/art direction acceptance. Automated unit and SQL integration
 tests are necessary but not sufficient to certify a finished game.
 
+## Asynchronous political action inbox
+
+Every player receives a member-scoped, persistent in-game brief covering
+pending ballots, political positions, government decisions, weekly campaign
+activity, coalition invitations, election results and Friday acts. Read
+receipts are independent of completing actual political actions. See
+[political activity inbox](docs/POLITICAL_ACTIVITY_INBOX.md).
+
 ## Weekly accountability and historic political acts
 
 Multiplayer assemblies have a member-protected historical ledger of

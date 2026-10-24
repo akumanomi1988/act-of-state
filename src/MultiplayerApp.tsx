@@ -8,6 +8,8 @@ import CampaignPanel from './CampaignPanel'
 import PopulationPanel from './PopulationPanel'
 import MatchCalendarPanel from './MatchCalendarPanel'
 import WeeklyAccountabilityPanel from './WeeklyAccountabilityPanel'
+import ActionInboxPanel from './ActionInboxPanel'
+import type {InboxSection} from './lib/actionInbox'
 import GovernancePanel from './GovernancePanel'
 import FiscalPanel from './FiscalPanel'
 import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
@@ -393,6 +395,19 @@ export default function MultiplayerApp() {
               {world.match.is_public ? 'Hacer privada' : 'Publicar partida'}
             </button>
           </div>}
+          <ActionInboxPanel key={world.match.id} matchId={world.match.id}
+            onNavigate={(section:InboxSection,dossierId:string|null)=>{
+              if(dossierId){
+                setSelectedDossierId(dossierId)
+                setSelectedOptionId('')
+                setReviewCabinet(false)
+                setMandateOptionId(null)
+              }
+              if(section==='dossiers'||section==='parliament'){
+                // The selected dossier is recomputed from the shared world.
+                window.location.hash='match-dossiers'
+              }
+            }}/>
           <div className="match-seats" aria-label="Partidos de la asamblea">
             {Array.from({ length: 10 }, (_, i) => {
               const player = world.players.find(item => item.seat_no === i + 1)
@@ -408,21 +423,21 @@ export default function MultiplayerApp() {
           </div>
           {world.match.status === 'active' && <>
             <MatchCalendarPanel matchId={world.match.id} />
-            <WeeklyAccountabilityPanel matchId={world.match.id} />
+            <div id="match-history"><WeeklyAccountabilityPanel matchId={world.match.id} /></div>
           </>}
-          <GovernancePanel matchId={world.match.id} userId={user!.id}
+          <div id="match-governance"><GovernancePanel matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'} players={world.players}
-            onGovernmentChanged={() => setReload(value => value + 1)} />
+            onGovernmentChanged={() => setReload(value => value + 1)} /></div>
           <PopulationPanel key={world.government.id + ':' + user!.id}
             governmentId={world.government.id} identity={user!.id} />
-          <CampaignPanel key={world.match.id + ':' + user!.id}
+          <div id="match-campaign"><CampaignPanel key={world.match.id + ':' + user!.id}
             matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'}
-            onCampaignRecorded={() => setReload(value => value + 1)} />
-          <ElectionPanel matchId={world.match.id} userId={user!.id}
+            onCampaignRecorded={() => setReload(value => value + 1)} /></div>
+          <div id="match-election"><ElectionPanel matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'}
-            onElectionCertified={() => setReload(value => value + 1)} />
-          {world.match.status === 'lobby' ? <div className="match-waiting">
+            onElectionCertified={() => setReload(value => value + 1)} /></div>
+          {world.match.status === 'lobby' ? <div className="match-waiting" id="match-lobby">
             <h2>Convocatoria abierta</h2>
             <p>La partida comienza con al menos dos partidos. Las plazas se bloquean
               cuando el anfitrión la activa.</p>
@@ -456,7 +471,7 @@ export default function MultiplayerApp() {
               onClick={() => void mutate(() => startMatch(world.match.id),
                 'La asamblea ha comenzado.')}>Comenzar legislatura</button>}
             {!host && <p role="status">Esperando la convocatoria del partido de gobierno.</p>}
-          </div> : <div className="match-politics">
+          </div> : <div className="match-politics" id="match-dossiers">
             <p className="eyebrow">AGENDA COMPARTIDA · DECISIONES VINCULANTES</p>
             <h2>Dossiers del gobierno</h2>
             <div className="match-dossiers">
