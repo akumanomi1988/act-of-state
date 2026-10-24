@@ -186,6 +186,13 @@ begin
     raise exception 'EDITORIAL_RELEASE_ALREADY_EXISTS' using errcode='P0001';
   end if;
 
+  -- A weekly release must not recycle a single article across distinct
+  -- dossiers. This is enforced server-side, not only by the browser.
+  if (select count(distinct btrim(d.value->>'source_url'))
+      from jsonb_array_elements(v_week.draft) d)<>10 then
+    raise exception 'EDITORIAL_DUPLICATE_NEWS_SOURCE' using errcode='P0001';
+  end if;
+
   insert into public.weekly_releases(week_start) values(p_week_start);
   for v_d in select value from jsonb_array_elements(v_week.draft) loop
     v_id := v_d->>'id';
