@@ -163,26 +163,61 @@ begin
  select monday into v_monday from pg_temp.test_calendar_dates;
  select * into strict g from public.governments where owner_id=auth.uid();
  w:=public.get_government_world(g.id);
- if jsonb_array_length(w->'dossiers')<>12 or
-    jsonb_array_length(w->'options')<>26 then
-  raise exception 'APPROVED_WEEKLY_CONTENT_NOT_VISIBLE'; end if;
+ if extract(isodow from (now() at time zone 'UTC')::date)>5 then
+   if jsonb_array_length(w->'dossiers')<>2 or
+      jsonb_array_length(w->'options')<>6 then
+     raise exception 'CLOSED_WEEKLY_DOSSIERS_STILL_ACTIONABLE'; end if;
+   begin
+     perform public.submit_decision(g.id,'weekly-test-1',1,'act');
+     raise exception 'EXPIRED_WEEKLY_DECISION_EXECUTED';
+   exception when sqlstate 'P0001' then
+     if sqlerrm<>'DOSSIER_NOT_AVAILABLE' then raise; end if;
+   end;
+ else
+   if jsonb_array_length(w->'dossiers')<>12 or
+      jsonb_array_length(w->'options')<>26 then
+     raise exception 'APPROVED_WEEKLY_CONTENT_NOT_VISIBLE'; end if;
+ end if;
  if w->'calendar'->>'weekStart'<>v_monday::text or
     w->'calendar'->>'friday'<>(v_monday+4)::text or
     (w->'calendar'->>'weeklyTotal')::integer<>10 or
     (w->'calendar'->>'weeklyResolved')::integer<>0 then
   raise exception 'WEEKLY_CALENDAR_INITIAL_DRIFT'; end if;
- ev:=public.submit_decision(g.id,'weekly-test-1',1,'act');
- retry:=public.submit_decision(g.id,'weekly-test-1',1,'act');
- if ev.id<>retry.id then raise exception 'WEEKLY_DUPLICATE_EXECUTED'; end if;
- w:=public.get_government_world(g.id);
- if (w->'calendar'->>'weeklyResolved')::integer<>1 or
-    (w->'calendar'->>'weeklyTreasuryDeltaM')::integer<>-100 or
-    (w->'government'->>'treasury_m_eur')::integer<>11900 then
-  raise exception 'WEEKLY_RESULT_NOT_PERSISTED'; end if;
+ if extract(isodow from (now() at time zone 'UTC')::date)<=5 then
+   ev:=public.submit_decision(g.id,'weekly-test-1',1,'act');
+   retry:=public.submit_decision(g.id,'weekly-test-1',1,'act');
+   if ev.id<>retry.id then raise exception 'WEEKLY_DUPLICATE_EXECUTED'; end if;
+   w:=public.get_government_world(g.id);
+   if (w->'calendar'->>'weeklyResolved')::integer<>1 or
+      (w->'calendar'->>'weeklyTreasuryDeltaM')::integer<>-100 or
+      (w->'government'->>'treasury_m_eur')::integer<>11900 then
+     raise exception 'WEEKLY_RESULT_NOT_PERSISTED'; end if;
+ end if;
 end $$;
 -- The Friday readout must be derived from persisted before/after state, not
 -- mutable simulation parameters. This artificial mutation is rollback-only.
 reset role;
+-- After Friday, published weekly dossiers are read-only. Supply the same
+-- historical ledger values through trusted rollback-only fixture setup,
+-- never through a prohibited late browser action.
+do $$
+declare g uuid; mon date;
+begin
+ if extract(isodow from (now() at time zone 'UTC')::date)>5 then
+   select id into g from public.governments
+    where owner_id='10000000-0000-4000-8000-000000000071';
+   select monday into mon from pg_temp.test_calendar_dates;
+   insert into public.decision_events(
+     government_id,dossier_id,dossier_version,option_id,
+     parameters_snapshot,decided_on,state_before,state_after,cohort_effects,
+     dossier_title_snapshot,option_title_snapshot)
+   values(g,'weekly-test-1',1,'act',
+     '{"treasury_delta_m_eur":-100}'::jsonb,mon+4,
+     '{"treasury_m_eur":12000,"approval":50,"trust":50}'::jsonb,
+     '{"treasury_m_eur":11900,"approval":52,"trust":51}'::jsonb,'[]'::jsonb,
+     'Fictional weekly fixture 1','Act');
+ end if;
+end $$;
 update public.decision_events
 set parameters_snapshot=jsonb_set(parameters_snapshot,'{treasury_delta_m_eur}','999'::jsonb,true)
 where dossier_id='weekly-test-1';

@@ -343,3 +343,21 @@ This validates a reproducible browser bundle, **not** a real authenticated game 
   Chromium mobile/WCAG checks validate the integrated lobby lifecycle.
 - Ten actual human accounts, external email delivery and a sustained
   production week remain unvalidated. MVP-F001/F008 are still PARTIAL.
+
+
+## AOS-037 — Weekly accountability and political history (2026-10-24)
+
+- Server-enforced Monday-through-Friday action windows for all weekly
+  dossiers, including existing records, insertion/update guard and check.
+  Prior cabinet decisions, party positions, votes and source citations
+  remain historically retrievable but cannot be changed after Friday.
+- New member-only bounded multi-week RPC combines approved-source dossiers,
+  nation decisions, party participation, parliamentary votes, election
+  winners and immutable certified Friday balances in one server snapshot.
+- Player-facing multiplayer weekly history includes selectable weeks,
+  independently verified sources, closed vs waiting settlement states,
+  fiscal/electoral act display and mobile-friendly accountable parties.
+- PostgreSQL 17 synthetic multiplayer test, Chromium historical UI smoke,
+  typed Vitest and Cloud rollback checks added. Live human 10-account
+  multi-day play, verified news and real email remain externally blocked.
+  MVP-F002/F003/F006/F008 remain PARTIAL, not prematurely DONE.

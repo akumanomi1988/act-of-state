@@ -131,14 +131,26 @@ begin
  exception when sqlstate 'P0001' then
   blocked:=sqlerrm='EDITORIAL_ALREADY_PUBLISHED'; end;
  if not blocked then raise exception 'PUBLISHED_WEEK_REOPENED'; end if;
+ if (select state from public.weekly_releases where week_start=f.monday)<>'approved' then
+  raise exception 'EDITORIAL_PUBLICATION_NOT_APPROVED'; end if;
+end $$;
+
+-- Verify archived editorial rows with the privileged test runner, not the
+-- authenticated player whose live inbox hides dossiers after Friday.
+reset role;
+do $$
+declare f record;
+begin
+ select * into f from pg_temp.editorial_fixture;
  if (select count(*) from public.dossiers
      where release_kind='weekly' and available_from=f.monday)<>10 or
     (select count(*) from public.dossier_options o join public.dossiers d
       on d.id=o.dossier_id and d.version=o.dossier_version
-      where d.release_kind='weekly' and d.available_from=f.monday)<>20 or
-    (select state from public.weekly_releases where week_start=f.monday)<>'approved' then
+      where d.release_kind='weekly' and d.available_from=f.monday)<>20 then
   raise exception 'EDITORIAL_PUBLICATION_MATERIALIZATION_FAILED'; end if;
 end $$;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000082',true);
 
 -- A malformed option must roll back the entire second publication statement.
 do $$
@@ -167,8 +179,11 @@ end $$;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000083',true);
 do $$
 declare g public.governments%rowtype; w jsonb; f record;
+ expected_count integer;
 begin
  select * into f from pg_temp.editorial_fixture;
+ expected_count:=case when extract(isodow from (now() at time zone 'UTC')::date)<=5
+   then 10 else 0 end;
  if exists(select 1 from public.editorial_weeks) or
     exists(select 1 from public.editorial_members) then
   raise exception 'EDITORIAL_STAFF_DATA_LEAK'; end if;
@@ -176,7 +191,7 @@ begin
  w:=public.get_government_world(g.id);
  if (w->'calendar'->>'weeklyTotal')::integer<>10 or
     (select count(*) from public.dossiers
-     where release_kind='weekly' and available_from=f.monday)<>10 then
-  raise exception 'EDITORIAL_PLAYABLE_DOSSIERS_NOT_VISIBLE'; end if;
+     where release_kind='weekly' and available_from=f.monday)<>expected_count then
+  raise exception 'EDITORIAL_LIVE_DOSSIER_WINDOW_INCORRECT'; end if;
 end $$;
 rollback;

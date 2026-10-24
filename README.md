@@ -25,6 +25,14 @@ Auth verification, editorial QA, demographic calibration, economic simulation
 depth, and design/art direction acceptance. Automated unit and SQL integration
 tests are necessary but not sufficient to certify a finished game.
 
+## Weekly accountability and historic political acts
+
+Multiplayer assemblies have a member-protected historical ledger of
+approved news, executive decisions, party positions, parliamentary votes,
+elections and certified Friday balances. Weekly dossiers expire on Friday
+but remain available for read-only historical analysis. See the
+[weekly accountability operations](docs/WEEKLY_ACCOUNTABILITY.md) guide.
+
 ## Multiplayer invitation and ready-check lifecycle
 
 Hosts may require every current party to confirm readiness before beginning
