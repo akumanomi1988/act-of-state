@@ -323,6 +323,24 @@ async function routeApi(page,state,{emailLimit=false}={}) {
         {dimension:'age',code:'senior',households:60,residents:180,support:54,trust:58}
       ]
     })
+    if (path==='/rest/v1/rpc/get_living_conditions') {
+      if (state.livingError) return route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'Unavailable'})})
+      const days=request.postDataJSON()?.p_days??30
+      const summary={households:300,residents:900,economicSecurity:62.5,
+        serviceAccess:50,wellbeing:57.5,approvalBefore:50,approvalAfter:51,
+        trustBefore:50,trustAfter:50}
+      const history=['2026-10-22','2026-10-24'].map(day=>({day,capturedAt:day+'T00:15:00Z',
+        modelVersion:'living-conditions-v1',summary}))
+      const segment=(dimension,code,households,residents)=>({dimension,code,households,residents,
+        economicSecurity:62.5,serviceAccess:50,wellbeing:57.5,support:51})
+      return json({governmentId:state.government.id,serverDay:'2026-10-24',fromDay:'2026-10-22',days,
+        recordedDays:state.livingEmpty?0:2,expectedDays:state.livingEmpty?0:3,
+        history:state.livingEmpty?[]:history,
+        latest:state.livingEmpty?null:{...history[1],segments:[
+          ...['low','middle','high'].map(code=>segment('income',code,100,300)),
+          ...['capital','industrial','coastal','agrarian','highland','frontier'].map(code=>segment('district',code,50,150))
+        ],inputs:{gdpIndex:100,unemploymentBp:700,inflationBp:250,policy:state.policy}}})
+    }
     if (path==='/rest/v1/rpc/get_fiscal_state') return json(state.fiscal)
     if (path==='/rest/v1/rpc/set_fiscal_policy') {
       const post=request.postDataJSON()
@@ -392,7 +410,7 @@ async function run(name,fn) {
   }
 }
 try {
-  browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']})
+  browser=await chromium.launch({...(process.env.AOS_CHROMIUM_CHANNEL==='bundled'?{}:{channel:'chrome'}),headless:true,args:['--no-sandbox']})
 
   await run('Anonymous login, redirect origin and responsive root',async()=>{
     const context=await browser.newContext({viewport:{width:375,height:812}})
@@ -659,7 +677,43 @@ try {
     assert.equal(await progress.getAttribute('aria-valuenow'),'0')
     await context.close()
   })
-  console.log('Browser scenarios passed: '+passed.length+'/11')
+  await run('Daily living conditions: income, regions, history, reload and recoverable failures',async()=>{
+    for(const width of [375,390,1440]){
+      const context=await browser.newContext({viewport:{width,height:900}})
+      const page=await context.newPage()
+      const state=createServerState()
+      await routeApi(page,state)
+      await injectUser(page,state)
+      await page.goto(BASE+'/',{waitUntil:'networkidle'})
+      const panel=page.getByRole('region',{name:'Condiciones de vida de la población'})
+      await panel.getByRole('meter',{name:'Bienestar'}).waitFor()
+      await panel.getByRole('button',{name:'Explorar balance social'}).click()
+      await panel.getByRole('heading',{name:'Ingresos bajos'}).waitFor()
+      await panel.getByText('2 / 3 días registrados.',{exact:false}).waitFor()
+      assert.equal(await panel.getByRole('table').getByText('2026-10-23').count(),0)
+      await panel.getByRole('button',{name:'Por territorio'}).click()
+      await panel.getByRole('heading',{name:'Distrito Capital'}).waitFor()
+      await panel.getByRole('combobox').selectOption('7')
+      await panel.getByRole('table').waitFor()
+      await checkMobileOverflow(page,'daily social '+width)
+      await checkA11y(page,'daily social '+width)
+      await page.screenshot({path:OUT+'/daily-social-'+width+'.png',fullPage:true})
+      await page.reload({waitUntil:'networkidle'})
+      await panel.getByRole('meter',{name:'Bienestar'}).waitFor()
+      state.livingEmpty=true
+      await page.reload({waitUntil:'networkidle'})
+      await panel.getByText(/La primera medición diaria está pendiente/).waitFor()
+      state.livingEmpty=false;state.livingError=true
+      await page.reload({waitUntil:'networkidle'})
+      await panel.getByRole('alert').waitFor()
+      state.livingError=false
+      await panel.getByRole('button',{name:'Reintentar balance social'}).click()
+      await panel.getByRole('meter',{name:'Bienestar'}).waitFor()
+      assert.equal(await panel.getByRole('alert').count(),0)
+      await context.close()
+    }
+  })
+  console.log('Browser scenarios passed: '+passed.length)
   if (failed.length) throw new Error('Failed scenarios: '+failed.join(', '))
 } catch (error) {
   console.error('BROWSER SMOKE FAILED',error)

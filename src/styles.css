@@ -496,3 +496,24 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 .opinion-regions ul{list-style:none;padding:0}
 .opinion-regions li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem;border-bottom:1px solid var(--line);padding:.65rem 0}
 .opinion-regions small{color:var(--muted)}
+/* AOS-040: daily synthetic household welfare and auditable social feedback. */
+.living-panel { margin: 24px 0; padding: clamp(16px, 3vw, 28px); border: 1px solid var(--line); background: var(--panel); color: var(--text); }
+.living-scores { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 20px 0; }
+.living-scores > div { display: grid; gap: 8px; }
+.living-scores strong { font-size: clamp(1.1rem, 2vw, 1.6rem); }
+.living-scores meter { width: 100%; height: 16px; accent-color: #285c48; }
+.living-feedback { padding: 12px; border-left: 3px solid var(--gold); background: var(--panel2); }
+.living-details { display: grid; gap: 16px; }
+.living-details > label { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.living-segments { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 12px; }
+.living-segments article { padding: 16px; border: 1px solid #d3d0c5; }
+.living-segments h3 { margin: 0 0 8px; }
+.living-segments p { font-size: .8rem; }
+.living-segments dl { margin-bottom: 0; }
+.living-segments dl > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 5px 0; }
+.living-segments dd { margin: 0; font-weight: 700; }
+.living-table { overflow-x: auto; }
+.living-table table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.living-table th, .living-table td { text-align: left; padding: 10px 6px; border-bottom: 1px solid #d3d0c5; }
+.living-table caption { text-align: left; padding-bottom: 10px; }
+@media (max-width: 600px) { .living-scores { grid-template-columns: 1fr; } .living-table th, .living-table td { font-size: .75rem; padding: 8px 4px; } }

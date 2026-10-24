@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('./PopulationPanel', () => ({ default: () => null }))
+vi.mock('./LivingConditionsPanel', () => ({ default: () => null }))
 
 vi.mock('./FiscalPanel', () => ({ default: () => <div>National fiscal panel fixture</div> }))
 

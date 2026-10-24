@@ -1,7 +1,48 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Iteration:** AOS-MVP-001. **Phase:** P01 foundation.
+**Latest implementation increment:** AOS-040 daily living conditions.
+**Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
+this is an acceptance-gate tally, not a measure of implemented code or effort.
+Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-040 — Daily living conditions and social consequences (2026-10-24)
+
+- Added resident-weighted daily economic security, service access and wellbeing
+  for 300 persistent households. Income, age and settlement drive heterogeneous
+  responses to existing macroeconomic indicators and fiscal policy.
+- Versioned social inertia changes each cohort's support/trust by at most one
+  point per actual UTC day, using the existing household propagation exactly
+  once. Treasury, debt, GDP, inflation and unemployment are not settled twice.
+- Immutable daily acts retain source inputs, cohort before/after state,
+  national summaries and nine income/district segments. Missing days remain
+  explicit; no past household conditions are fabricated.
+- Solo/member-only 7/30/90-day history RPC and shared responsive UI add social
+  feedback, income/territory comparisons, source factors, loading/error/retry
+  states and account-switch protection.
+- Existing calendar integration plus a private one-minute, 200-country batch
+  worker; inactive lobbies do not evolve. Errors isolate a country, roll back
+  its partial effects, retry after backoff and retain private diagnostics.
+- Migration `20261024201821_aos_040_daily_living_conditions.sql` applied to the
+  dedicated Supabase project. Cloud rollback suite PASS; synthetic users left:
+  **0**. Observed first automatic act: **1**; failed countries: **0**. Cron job
+  `aos-daily-social-v1` confirmed active. These observations are not a sustained
+  production or load test.
+- Verification: TypeScript and production build PASS; Node oracle **14/14**;
+  Vitest **130/130** across 30 files; all **38** production migrations and
+  **21** SQL suites passed in disposable embedded PostgreSQL. Hosted PostgreSQL
+  concurrency and final browser/release evidence belong to the delivery PR.
+- Security advisors retain the established private-table/no-policy pattern and
+  intentional member-checked SECURITY DEFINER read RPC warning; no anonymous
+  read/write/worker grant added. Existing leaked-password-protection warning
+  is unchanged. See the remediation links and model limits in the operator guide.
+- MVP-F004/F005/F006/F007/F008 remain PARTIAL pending balancing and actual-player
+  acceptance. **Strict global acceptance before/after remains 2/18 = 11.1%,
+  +0 percentage points**. This tally does not imply only 11.1% of code exists;
+  a reliable weighted implementation percentage has not been defined.
+- Next epic: close real onboarding and a complete authenticated multiplayer
+  week with reviewed real-news dossiers and real-user feedback. It addresses
+  the acceptance gates that additional isolated gameplay panels cannot close.
 **Supabase:** Akumanomi / `akumaNoDev` / `Act-of-state` (`nwlxkqwbusrrldveijzb`, eu-central-1).
 
 The user-approved MVP and constraints are recorded in AOS-MVP-001's execution contract. Classification is evidence-based: DONE = implemented and verified; PARTIAL = implemented or verified only at some boundary; TODO = absent; BLOCKED = explicit external dependency; UNKNOWN = no adequate evidence.

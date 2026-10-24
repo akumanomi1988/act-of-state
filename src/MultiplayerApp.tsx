@@ -12,6 +12,7 @@ import ActionInboxPanel from './ActionInboxPanel'
 import type {InboxSection} from './lib/actionInbox'
 import GovernancePanel from './GovernancePanel'
 import FiscalPanel from './FiscalPanel'
+import LivingConditionsPanel from './LivingConditionsPanel'
 import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
 import PublicMatchPanel from './PublicMatchPanel'
 import { joinPublicLobby, setMatchVisibility } from './lib/matchmaking'
@@ -368,6 +369,8 @@ export default function MultiplayerApp() {
           </div>
           <FiscalPanel key={world.government.id+':'+world.match.host_user_id}
             governmentId={world.government.id} compact />
+          {world.match.status === 'active' && <LivingConditionsPanel
+            governmentId={world.government.id} identity={user.id} />}
           <div className="match-invite">
             <div><span>INVITACIÓN A LA ASAMBLEA</span>
               <code>{world.match.invite_code}</code>
