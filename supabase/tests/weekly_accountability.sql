@@ -89,6 +89,17 @@ begin
     <>f.current_monday+4 then
    raise exception 'WEEKLY_END_DATE_NOT_FIXED_TO_FRIDAY'; end if;
 
+ -- Historical executive decisions require an actual passed parliamentary
+ -- mandate. The synthetic motion belongs to the same past dossier.
+ insert into public.parliament_bills(
+   match_id,dossier_id,dossier_version,option_id,proposed_by,status,
+   created_at,closes_at,closed_at)
+ values(f.match_id,f.old_dossier,1,'qa-accept',
+   '43000000-0000-4000-8000-000000000001','passed',
+   (f.previous_monday+1)::timestamptz,
+   (f.previous_monday+2)::timestamptz,
+   (f.previous_monday+2)::timestamptz);
+
  insert into public.decision_events(
  government_id,dossier_id,dossier_version,option_id,
  parameters_snapshot,decided_on,state_before,state_after,cohort_effects,
