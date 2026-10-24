@@ -26,6 +26,64 @@ alter table public.dossiers
 add constraint weekly_dossier_friday_deadline
 check (release_kind<>'weekly' or available_until=available_from+4);
 
+-- The calendar must retain approved weekly counts after Friday. With the
+-- new expiry RLS, the former SECURITY INVOKER implementation would see zero
+-- dossiers on Saturday and erase the week's readout. A tightly owner-scoped
+-- SECURITY DEFINER read retains history while explicitly checking release
+-- approval and never exposing unpublished or future slates.
+create or replace function public.get_weekly_calendar(p_government_id uuid)
+returns jsonb language sql stable security definer set search_path=''
+as $
+  with day_clock as (
+    select (now() at time zone 'UTC')::date as game_day
+  ), week_clock as (
+    select game_day,
+      game_day - (extract(isodow from game_day)::integer-1) as week_start,
+      extract(isodow from game_day)::integer as day_of_week
+    from day_clock
+  )
+  select jsonb_build_object(
+    'weekStart',w.week_start::text,
+    'friday', (w.week_start+4)::text,
+    'dayOfWeek',w.day_of_week,
+    'fridayReached',w.day_of_week>=5,
+    'weeklyTotal',(
+      select count(*) from public.dossiers d
+      where d.release_kind='weekly' and d.available_from=w.week_start
+        and exists(select 1 from public.weekly_releases r
+          where r.week_start=w.week_start and r.state='approved'
+            and r.week_start<=(now() at time zone 'UTC')::date)
+    ),
+    'weeklyResolved',(
+      select count(*) from public.decision_events e
+      join public.dossiers d
+        on d.id=e.dossier_id and d.version=e.dossier_version
+      where e.government_id=p_government_id and d.release_kind='weekly'
+        and d.available_from=w.week_start
+        and exists(select 1 from public.weekly_releases r
+          where r.week_start=w.week_start and r.state='approved'
+            and r.week_start<=(now() at time zone 'UTC')::date)
+    ),
+    'weeklyTreasuryDeltaM',(
+      select coalesce(sum((e.state_after->>'treasury_m_eur')::integer -
+                   (e.state_before->>'treasury_m_eur')::integer),0)
+      from public.decision_events e
+      join public.dossiers d
+        on d.id=e.dossier_id and d.version=e.dossier_version
+      where e.government_id=p_government_id and d.release_kind='weekly'
+        and d.available_from=w.week_start
+        and exists(select 1 from public.weekly_releases r
+          where r.week_start=w.week_start and r.state='approved'
+            and r.week_start<=(now() at time zone 'UTC')::date)
+    )
+  )
+  from week_clock w
+  where exists (
+    select 1 from public.governments g
+    where g.id=p_government_id and g.owner_id=(select auth.uid())
+  )
+$;
+
 -- Indexes used by the bounded (maximum twelve weeks) accountability report.
 create index match_stances_by_dossier
  on public.match_stances(match_id,dossier_id,dossier_version);
