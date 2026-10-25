@@ -156,12 +156,12 @@ async function routeApi(page,state,{emailLimit=false}={}) {
           invite_code:'abcdefabcdefabcdefabcdefabcdefab',
           created_at:'2026-10-12T09:00:00Z',started_at:'2026-10-12T10:00:00Z',
           is_public:false,readiness_required:false,max_players:10},
-        me:player,gameDay:'2026-10-24',players:state.syntheticRoster??[player],
+        me:player,gameDay:state.syntheticGameDay??'2026-10-24',players:state.syntheticRoster??[player],
         government:state.government,cohorts:state.world.cohorts,
         dossiers:state.syntheticDossiers??[],options:state.syntheticOptions??[],
         events:state.events,stances:state.syntheticStances??[]
       })
-      if(path==='/rest/v1/rpc/get_parliament_state') return json({
+      if(path==='/rest/v1/rpc/get_parliament_state') return json(state.syntheticParliament??{
         bills:[],votes:[],serverNow:'2026-10-24T12:00:00Z'
       })
       if(path==='/rest/v1/rpc/get_governance_state') return json({
@@ -221,7 +221,7 @@ async function routeApi(page,state,{emailLimit=false}={}) {
           days,expectedDays:days,recordedDays:2,
           polls:[make('2026-10-22',52),make('2026-10-23',54)]})
       }
-      if(path==='/rest/v1/rpc/get_match_calendar') return json({
+      if(path==='/rest/v1/rpc/get_match_calendar') return json(state.syntheticCalendar??{
         gameDay:'2026-10-24',monday:'2026-10-19',friday:'2026-10-23',
         fridayReached:true,weeklyPublished:false,weeklyTotal:0,
         weeklyResolved:0,latestFriday:null
@@ -795,6 +795,17 @@ try {
       const state=createServerState(partyIds[role.index])
       state.weeklyMatch=true
       state.syntheticRoster=roster
+      state.syntheticGameDay='2026-10-21'
+      state.syntheticCalendar={gameDay:'2026-10-21',monday:'2026-10-19',
+        friday:'2026-10-23',fridayReached:false,weeklyPublished:true,
+        weeklyTotal:1,weeklyResolved:0,latestFriday:null}
+      state.syntheticParliament={
+        bills:[{id:'aos-047-bill',match_id:roster[0].match_id,
+          dossier_id:openDossier.id,dossier_version:1,option_id:state.option.id,
+          proposed_by:roster[0].user_id,status:'open',
+          rule_version:'parliament-mandates-v2',created_at:'2026-10-20T10:00:00Z',
+          closes_at:'2026-10-23T18:00:00Z',closed_at:null}],
+        votes:[],serverNow:'2026-10-21T11:00:00Z'}
       state.syntheticDossiers=[introDossier,openDossier]
       state.syntheticOptions=[
         {...state.option,dossier_id:introDossier.id},
@@ -805,6 +816,12 @@ try {
       await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
       const board=page.getByRole('region',{name:'Centro de decisiones de la asamblea'})
       await board.getByRole('heading',{name:'Consejo político'}).waitFor()
+      const mission=page.getByRole('region',{name:'Sala de operaciones legislativas'})
+      await mission.getByRole('heading',{name:'Operaciones legislativas'}).waitFor()
+      await mission.getByText('TU VOTO PENDIENTE').waitFor()
+      assert.match(await mission.getByLabel('Progreso legislativo semanal').innerText(),/1 \/ 1/)
+      await mission.getByRole('button',{name:/Abrir siguiente asunto/}).click()
+      await page.getByText('Ley semanal verificada de prueba',{exact:true}).first().waitFor()
       await page.locator('.match-seat.occupied').filter({hasText:'Partido 10'}).waitFor()
       assert.equal(await page.locator('.match-seat.occupied').count(),10)
       assert.equal(await board.getByText('0 / 1 firmados').count(),2)
