@@ -102,6 +102,34 @@ pass(start.status==='active','Host failed to start real match')
 const restart=await rpc(host,'start_match',{p_match_id:match.id})
 pass(restart.started_at===start.started_at,'Starting again changed persisted timestamp')
 
+// AOS-048: real distinct JWT observes the SAME versioned persuasion model
+// that supplies official district forecasts and archived daily opinion.
+const campaignBefore=await rpc(players[9],'get_campaign_state',{p_match_id:match.id})
+pass(campaignBefore.influenceModel==='campaign-decay-v2' &&
+  campaignBefore.cohorts.every(c=>c.myInfluence===0&&c.nextDecayOn===null),
+  'Real Auth campaign baseline is not empty or versioned')
+const targetCohort=campaignBefore.cohorts[0]?.code
+pass(typeof targetCohort==='string','No authoritative population cohort')
+const campaignAct=await rpc(players[9],'launch_campaign',{
+  p_match_id:match.id,p_cohort:targetCohort,p_strategy:'policy_forum'
+})
+pass(campaignAct.model_version==='campaign-decay-v2'&&
+  campaignAct.influence_delta>=1&&campaignAct.influence_delta<=5,
+  'Campaign v2 did not return a server-authored act')
+const campaignAfter=await rpc(players[9],'get_campaign_state',{p_match_id:match.id})
+const affected=campaignAfter.cohorts.find(c=>c.code===targetCohort)
+pass(affected?.myInfluence===campaignAct.influence_after &&
+  typeof affected.nextDecayOn==='string',
+  'Effective score and future expiration not visible across real HTTP')
+const forecast=await rpc(players[0],'get_election_state',{p_match_id:match.id})
+pass(forecast.projection.modelVersion==='electoral-districts-v2' &&
+  forecast.projection.parties.reduce((sum,p)=>sum+p.seats,0)===100 &&
+  forecast.projection.districts.length===6,
+  'Real cabinet could not read the 100-seat versioned district election')
+const affectedParty=forecast.projection.parties.find(p=>p.userId===players[9].id)
+pass(affectedParty?.campaignInfluenceTotal===campaignAct.influence_after,
+  'National election projection discarded time-adjusted campaign influence')
+
 const dossierId='energy-resilience'
 const optionId='household-support'
 const votes=await Promise.allSettled(players.map(actor=>
@@ -216,6 +244,6 @@ try {
 } finally { await browser.close() }
 console.log('AOS_LIVE_AUTH_PASS',JSON.stringify({
   signedUp:actors.length,distinctPlayers:10,realHttp:true,
-  fixedSignedActs:1,browserContexts:10,assertions,
+  fixedSignedActs:1,browserContexts:10,decayV2:true,assertions,
   note:'Ten authentic HTTP/JWT browser contexts, local GoTrue; no production SMTP or real people'
 }))

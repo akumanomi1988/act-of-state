@@ -70,7 +70,8 @@ export default function CampaignPanel({ matchId, userId, active, onCampaignRecor
         <p className="eyebrow">PARTIDOS · OPINIÓN PÚBLICA</p>
         <h2>Campaña y persuasión electoral</h2>
         <p className="muted">Cada partido puede realizar una intervención semanal.
-          El servidor calcula un impacto limitado según el programa y el grupo social.</p>
+          El servidor calcula un impacto limitado según el programa y el grupo social.
+          El apoyo se desgasta dos puntos cada siete días sin una nueva intervención en ese grupo.</p>
       </div>
       <p className="campaign-week">Semana {state?.weekStart ?? '—'}</p>
     </div>
@@ -80,7 +81,8 @@ export default function CampaignPanel({ matchId, userId, active, onCampaignRecor
         {state.cohorts.map(group => <div className="campaign-cohort" key={group.code}>
           <strong>{group.label}</strong>
           <span>{group.weight}% de población · preferencia {group.idealPolicy}/100</span>
-          <span>Tu influencia: <strong>{group.myInfluence}/20</strong></span>
+          <span>Influencia efectiva actual: <strong>{group.myInfluence}/20</strong></span>
+          {group.nextDecayOn && <small>Próximo desgaste: {group.nextDecayOn} (UTC)</small>}
         </div>)}
       </div>
       {active && state.available ? <div className="campaign-actions">
@@ -109,10 +111,11 @@ export default function CampaignPanel({ matchId, userId, active, onCampaignRecor
         <ol>{state.recentActs.map(act => <li key={act.id}>
           <strong>{act.party_name}</strong> · {act.week_start} · {act.cohort_code} ·
           {' '}{strategyNames[act.strategy] ?? act.strategy} ·
-          {' '}+{act.influence_delta} influencia (total {act.influence_after}/20)
+          {' '}+{act.influence_delta} puntos ganados (registro al actuar: {act.influence_after}/20)
         </li>)}</ol>
       </details>}
     </>}
+    {state && <p className="muted" role="note">Las campañas pasadas conservan su resultado original. La influencia que cuenta para encuestas y urnas es el valor efectivo actual, no la suma histórica.</p>}
     {notice && <p role="status" className="campaign-notice">{notice}</p>}
     {error && <p role="alert" className="campaign-error">{error}</p>}
   </section>

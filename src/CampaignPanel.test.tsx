@@ -17,8 +17,9 @@ const notify=vi.fn()
 const full: CampaignState = {
   serverDay:'2026-10-24',weekStart:'2026-10-19',
   campaignClosesOn:'2027-01-15',available:true,usedThisWeek:false,
+  influenceModel:'campaign-decay-v2',
   cohorts:[{code:'workers',label:'Trabajadores',weight:60,
-    idealPolicy:25,myInfluence:2}],
+    idealPolicy:25,myInfluence:2,nextDecayOn:'2026-10-31'}],
   recentActs:[]
 }
 beforeEach(() => {
@@ -34,8 +35,10 @@ describe('real campaign action boundary',() => {
   it('shows only authoritative cohort influence and permits weekly targeting',async()=>{
     render(<CampaignPanel matchId={matchId} userId={userId} active onCampaignRecorded={notify}/>)
     expect(await screen.findByRole("option",{name:"Trabajadores"})).toBeTruthy()
-    expect(screen.getByText(/Tu influencia:/).textContent).toContain('2/20')
+    expect(screen.getByText(/Influencia efectiva actual:/).textContent).toContain('2/20')
     expect(screen.getByLabelText('Acción política')).toBeTruthy()
+    expect(screen.getByText('Próximo desgaste: 2026-10-31 (UTC)')).toBeInTheDocument()
+    expect(screen.getByText(/La influencia que cuenta para encuestas y urnas/)).toBeInTheDocument()
   })
 
   it('submits exactly the selected strategy, confirms readback and locks the week',async()=>{
@@ -44,7 +47,7 @@ describe('real campaign action boundary',() => {
       cohorts:[{...full.cohorts[0],myInfluence:5}],
       recentActs:[{id:'event-1',user_id:userId,party_name:'Alliance',
         week_start:full.weekStart,cohort_code:'workers',strategy:'dialogue',
-        influence_delta:3,influence_after:5,model_version:'campaign-outreach-v1',
+        influence_delta:3,influence_after:5,model_version:'campaign-decay-v2',
         created_at:'2026-10-24T12:00:00Z'}]
     })
     render(<CampaignPanel matchId={matchId} userId={userId} active onCampaignRecorded={notify}/>)

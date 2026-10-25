@@ -1,6 +1,6 @@
 # ACT OF STATE — Current product inventory
 
-Updated 2026-10-24. Implementation is distinguished from final acceptance.
+Updated 2026-10-25. Implementation is distinguished from final acceptance.
 The game is browser-based, free to play, with no paid competitive advantages.
 
 | System | Implemented | Remaining acceptance / development |
@@ -17,7 +17,7 @@ The game is browser-based, free to play, with no paid competitive advantages.
 | Party positions | Immutable member positions and political affinity | Balance feedback from actual players |
 | Parliament | Weighted votes, proposal windows, binding approval before cabinet execution | Full human government/opposition flow |
 | Elections | Household electorate, six constituencies, 100 D'Hondt seats, immutable certification, cabinet succession | Electoral and campaign balance; human acceptance |
-| Campaigns | Weekly party interventions, targeting, caps and pre-election closure | Accumulated influence decay remains a future design decision |
+| Campaigns | Weekly party interventions, targeting, caps, pre-election closure, server-owned 2pt/7-day decay and renewed support | Multi-week campaign-voter balance review, empirical coefficients, player feedback |
 | Governance | Consensual coalitions and constructive confidence votes | Human coalition/transition acceptance |
 | History | Decision analytics, weekly accountability, daily polls and welfare history with explicit gaps | Long-running storage and traffic observation |
 | Activity | Private agenda, contextual tasks, persistent read receipts | External notifications are not implemented or required for in-game delivery |
