@@ -43,11 +43,11 @@ function validState(raw: unknown): raw is CampaignState {
     && typeof obj.available === 'boolean'
     && typeof obj.usedThisWeek === 'boolean'
     && obj.influenceModel === 'campaign-decay-v2'
+    && Array.isArray(obj.cohorts)
     && obj.cohorts.every(c => Number.isInteger(c.myInfluence) &&
       c.myInfluence >= 0 && c.myInfluence <= 20 &&
       (c.nextDecayOn === null ||
        (typeof c.nextDecayOn === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(c.nextDecayOn))))
-    && Array.isArray(obj.cohorts)
     && Array.isArray(obj.recentActs)
     && (obj.campaignClosesOn === null || typeof obj.campaignClosesOn === 'string')
 }
