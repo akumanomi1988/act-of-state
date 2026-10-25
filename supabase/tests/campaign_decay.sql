@@ -48,17 +48,15 @@ declare
  before_pct numeric; after_pct numeric;
 begin
  -- Public status must be based on the current effective score, not historical acts.
- select code into target from public.population_cohorts
-  where government_id=(select government_id from public.matches where id=mid)
-  order by code limit 1;
  current_state:=public.get_campaign_state(mid);
+ target:=current_state->'cohorts'->0->>'code';
  if current_state->>'influenceModel'<>'campaign-decay-v2'
  or current_state->'cohorts'->0->>'myInfluence'<>'0'
  or current_state->'cohorts'->0->'nextDecayOn'<>'null'::jsonb then
    raise exception 'CAMPAIGN_V2_INITIAL_STATE_INVALID';
  end if;
  before_pct:=(select (p->>'voteSharePct')::numeric
-   from jsonb_array_elements(public._calculate_election_projection(mid)->'parties') p
+   from jsonb_array_elements(public.get_election_state(mid)->'projection'->'parties') p
    where p->>'userId'=auth.uid()::text);
  event:=public.launch_campaign(mid,target,'policy_forum');
  if event.model_version<>'campaign-decay-v2' or
@@ -73,12 +71,12 @@ begin
    raise exception 'NEXT_DECAY_NOT_DERIVED_FROM_AUTHORITATIVE_UTC';
  end if;
  after_pct:=(select (p->>'voteSharePct')::numeric
-   from jsonb_array_elements(public._calculate_election_projection(mid)->'parties') p
+   from jsonb_array_elements(public.get_election_state(mid)->'projection'->'parties') p
    where p->>'userId'=auth.uid()::text);
  if after_pct<=before_pct then raise exception 'DECAY_V2_PERSUASION_NOT_IN_ELECTION'; end if;
- if public._calculate_election_projection(mid)->>'modelVersion'<>'electoral-districts-v2'
+ if public.get_election_state(mid)->'projection'->>'modelVersion'<>'electoral-districts-v2'
  or (select sum((p->>'seats')::integer)
-     from jsonb_array_elements(public._calculate_election_projection(mid)->'parties') p)<>100 then
+     from jsonb_array_elements(public.get_election_state(mid)->'projection'->'parties') p)<>100 then
    raise exception 'ELECTORAL_V2_DISTRICT_CERTIFICATION_DRIFT';
  end if;
 end $$;
@@ -93,24 +91,24 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub','58000000-0000-4000-8000-000000000001',true);
 do $$
 declare mid uuid:=(select match_id from pg_temp.campaign_decay_fixture);
- act public.match_campaign_events%rowtype; current_state jsonb;
- effective integer; parties jsonb;
+ current_state jsonb;
+ historical_after integer; effective integer; parties jsonb;
 begin
  select * into act from public.match_campaign_events
  where match_id=mid and user_id=auth.uid();
  current_state:=public.get_campaign_state(mid);
  effective:=(current_state->'cohorts'->0->>'myInfluence')::integer;
- if effective<>act.influence_after-2 or
+ if effective<>historical_after-2 or
     (current_state->'cohorts'->0->>'nextDecayOn')::date<>
       ((now() at time zone 'UTC')::date-1+7) then
    raise exception 'CAMPAIGN_INFLUENCE_DID_NOT_DECAY_AFTER_WEEK';
  end if;
- parties:=public._calculate_election_projection(mid)->'parties';
+ parties:=public.get_election_state(mid)->'projection'->'parties';
  if (select (x->>'campaignInfluenceTotal')::integer
      from jsonb_array_elements(parties) x where x->>'userId'=auth.uid()::text)<>effective then
    raise exception 'ELECTION_AND_CAMPAIGN_SOURCES_DISAGREE';
  end if;
- if act.influence_after<effective then raise exception 'IMMUTABLE_CAMPAIGN_ACT_DRIFT'; end if;
+ if historical_after<effective then raise exception 'IMMUTABLE_CAMPAIGN_ACT_DRIFT'; end if;
 end $$;
 reset role;
 update public.match_campaign_influence
@@ -121,15 +119,14 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub','58000000-0000-4000-8000-000000000001',true);
 do $$
 declare mid uuid:=(select match_id from pg_temp.campaign_decay_fixture);
- a public.match_campaign_events%rowtype; w jsonb; blocked boolean:=false;
+ w jsonb; blocked boolean:=false;
 begin
- select * into a from public.match_campaign_events where match_id=mid and user_id=auth.uid();
  w:=public.get_campaign_state(mid);
  if (w->'cohorts'->0->>'myInfluence')::integer<>0 or
    w->'cohorts'->0->'nextDecayOn'<>'null'::jsonb then
    raise exception 'PERSUASION_LONG_TERM_ZERO_NOT_ENFORCED';
  end if;
- begin perform public.launch_campaign(mid,a.cohort_code,'dialogue');
+ begin perform public.launch_campaign(mid,w->'recentActs'->0->>'cohort_code','dialogue');
  exception when sqlstate 'P0001' then blocked:=sqlerrm='CAMPAIGN_WEEK_ALREADY_USED'; end;
  if not blocked then raise exception 'WEEKLY_CAP_BYPASSED_AFTER_DECAY'; end if;
 end $$;
@@ -148,17 +145,16 @@ declare mid uuid:=(select match_id from pg_temp.campaign_decay_fixture);
  code text; revived public.match_campaign_events%rowtype;
  old_count integer;
 begin
- select cohort_code into code from public.match_campaign_events where match_id=mid limit 1;
+ code:=public.get_campaign_state(mid)->'recentActs'->0->>'cohort_code';
  revived:=public.launch_campaign(mid,code,'field_visit');
  if revived.influence_after<>revived.influence_delta or
    revived.influence_delta not between 1 and 4 then
    raise exception 'NEW_WEEK_RECAPTURE_DID_NOT_START_FROM_DECAYED_ZERO';
  end if;
- select count(*) into old_count from public.match_campaign_events
-  where match_id=mid and user_id=auth.uid();
+ old_count:=jsonb_array_length(public.get_campaign_state(mid)->'recentActs');
  if old_count<>2 or
-   (select count(*) from public.match_campaign_events where match_id=mid
-       and user_id=auth.uid() and model_version='campaign-decay-v2')<>2 then
+   (select count(*) from jsonb_array_elements(public.get_campaign_state(mid)->'recentActs') x
+    where x->>'model_version'='campaign-decay-v2')<>2 then
    raise exception 'PAST_CAMPAIGN_EVENTS_OVERWRITTEN';
  end if;
 end $$;
