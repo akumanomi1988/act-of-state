@@ -22,9 +22,9 @@ The game is browser-based, free to play, with no paid competitive advantages.
 | History | Decision analytics, weekly accountability, daily polls and welfare history with explicit gaps | Long-running storage and traffic observation |
 | Activity | Private agenda, contextual tasks, persistent read receipts | External notifications are not implemented or required for in-game delivery |
 | Security | RLS, private server-owned tables, owner/member authorization, transactional locking | Independent audit, abuse/load exercises; existing Auth password-protection warning |
-| Quality | TypeScript, unit/component/oracle/SQL tests, concurrency and durability CI, responsive Chromium/axe | Real SMTP-backed E2E, manual keyboard/screen-reader acceptance and load testing |
+| Quality | TypeScript, unit/component/oracle/SQL tests, concurrency and durability CI, responsive Chromium/axe, measured 10-JWT local read-load baseline and exact-build hosted smoke | Real SMTP-backed hosted E2E, manual keyboard/screen-reader acceptance and production traffic load/balance testing |
 | Visual identity | Consistent responsive dark UI | Final art direction and human visual sign-off |
-| Operations | GitHub quality gates, Vercel hosting, Supabase Cron with private failure diagnostics | Monitoring/backup recovery drill and sustained operational acceptance |
+| Operations | GitHub quality gates, Vercel hosting, Supabase Cron with private failure diagnostics; AOS-049 release-commit manifest/parity checks, disposable Postgres recovery drill and authenticated local load envelope | Hosted long-running monitoring, provider-managed live backup recovery drill and full production Auth/SMTP acceptance |
 
 ## What prevents a finished-product claim
 
