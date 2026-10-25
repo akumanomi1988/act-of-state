@@ -20,6 +20,10 @@ The ten-party shared-nation interface prioritizes time-limited verified weekly d
 
 The opt-in [real-auth acceptance workflow](.github/workflows/live-auth-acceptance.yml) now runs a fully isolated local GoTrue + PostgREST stack, signs up eleven test-only users with real JWTs, seats ten political parties, records actual positions and ten parliamentary votes, confirms a binding government policy, exercises safe retries and RLS, then checks two separate authenticated Chromium contexts with responsive/axe assertions. See [evidence boundaries and operator guide](docs/REAL_AUTH_ACCEPTANCE.md). This **does not contact the production Supabase project**, test external SMTP deliverability or replace a ten-human-player acceptance review.
 
+## Complete local email-link and ten-browser acceptance (AOS-046)
+
+The **real protocol CI** now validates the actual user-facing magic-link login form, GoTrue-delivered email captured by local Mailpit, automatic session persistence, private invite-code preservation, UI-created and UI-joined matches, cabinet/opposition privileges, one-use token consumption, logout isolation, and all ten distinct real-JWT Chromium party sessions. This is a disposable local-only stack; no production SMTP traffic or hosted user data is involved. See [email-link and ten-browser acceptance](docs/EMAIL_LINK_TEN_BROWSER_ACCEPTANCE.md).
+
 ## Current implementation (AOS-MVP-001)
 
 The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events, ten-party shared-nation matches and a deterministic, server-authoritative simulation engine.
