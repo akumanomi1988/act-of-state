@@ -88,4 +88,27 @@ describe('role-centric multiplayer political agenda',()=>{
     fireEvent.click(screen.getByRole('button',{name:'Esta semana'}))
     expect(screen.getByText(/No existen asuntos para este filtro/)).toBeInTheDocument()
   })
+  it('shows permanent four-chapter reform mandates alongside unchanged founding and weekly acts',()=>{
+    const world=makeWorld()
+    world.dossiers.push(
+      {...base('care'),programme_chapter:'society',programme_order:1},
+      {...base('jobs'),programme_chapter:'economy',programme_order:1},
+      {...base('courts'),programme_chapter:'institutions',programme_order:1},
+      {...base('drought'),programme_chapter:'resilience',programme_order:1}
+    )
+    const navigate=vi.fn()
+    render(<MatchAgendaBoard world={world} userId={guest}
+      selectedDossierId={null} onSelect={navigate}/>)
+    expect(screen.getByText('0 / 4 firmados')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'Reformas'}))
+    expect(screen.getAllByRole('button',{name:/REFORMA FICTICIA/})).toHaveLength(4)
+    fireEvent.click(screen.getByRole('button',{name:'Sociedad'}))
+    expect(screen.getByRole('button',{name:/Medida care/})).toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:/Medida jobs/})).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:/Medida care/}))
+    expect(navigate).toHaveBeenCalledWith('care')
+    fireEvent.click(screen.getByRole('button',{name:'Esta semana'}))
+    expect(screen.getByRole('button',{name:/Medida news/})).toBeInTheDocument()
+  })
+
 })
