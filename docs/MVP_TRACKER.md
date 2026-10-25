@@ -1,10 +1,26 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-040 daily living conditions.
+**Latest implementation increment:** AOS-042 guest training sandbox (PR acceptance pending).
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-042 — Guest training sandbox (2026-10-25)
+
+- Adds a standalone publicly reachable `/demo` with four fictitious dossiers,
+  twelve authored choices, explicit review/sign, bounded deterministic teaching
+  outcomes, a historical ledger, local progress recovery and two-step reset.
+- The guest mode is **not** the PostgreSQL simulation and makes no Supabase calls.
+  No session, email, user identity or real government data is read or modified.
+  Invalid local state is discarded rather than trusted.
+- Adds Vitest engine/UI coverage and mobile/desktop Chromium browser QA to the
+  opt-in quality workflow, including WCAG checks and assertions forbidding backend
+  requests from guest play. See `docs/GUEST_DEMO.md`.
+- The original acceptance tally remains **2/18 (11.1%)**, with **+0 percentage
+  points** until real authenticated gameplay and other outstanding gate evidence
+  are obtained. This guest acquisition feature lies outside the original
+  18 requirement acceptance checklist. CI results must be verified on the PR.
 
 ## AOS-040 — Daily living conditions and social consequences (2026-10-24)
 
