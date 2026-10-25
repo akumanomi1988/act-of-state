@@ -127,7 +127,14 @@ export default function MultiplayerApp() {
         const fresh = await fetchMatchWorld(id)
         if (!alive || ownerRef.current !== owner || requestRef.current !== request) return
         if (fresh.me.user_id !== owner) throw new Error('MATCH_FORBIDDEN')
-        setWorld(fresh)
+        // Server events are append-only. An earlier polling response must never
+        // visually erase an already confirmed act from a newer RPC snapshot.
+        setWorld(previous => {
+          if (!previous || previous.match.id !== id || previous.me.user_id !== owner)
+            return fresh
+          const returnedIds = new Set(fresh.events.map(event => event.id))
+          return previous.events.some(event => !returnedIds.has(event.id)) ? previous : fresh
+        })
       } catch (reason) {
         if (alive && ownerRef.current === owner && requestRef.current === request)
           setError(matchError(reason))
@@ -268,7 +275,7 @@ export default function MultiplayerApp() {
         setMandateOptionId(null)
         setUncertainDossierId(null)
         if (signed.option_id === choiceId && signed.dossier_version === dossierVersion) {
-          setNotice('Firma confirmada en el servidor. Los partidos comparten el nuevo estado nacional.')
+          setNotice('Firma confirmada en el servidor. Los diez partidos comparten el nuevo estado nacional.')
         } else {
           setError('El servidor registra una opción diferente. No se ha repetido la firma.')
         }
