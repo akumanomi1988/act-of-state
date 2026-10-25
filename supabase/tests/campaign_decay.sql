@@ -94,9 +94,8 @@ declare mid uuid:=(select match_id from pg_temp.campaign_decay_fixture);
  current_state jsonb;
  historical_after integer; effective integer; parties jsonb;
 begin
- select * into act from public.match_campaign_events
- where match_id=mid and user_id=auth.uid();
  current_state:=public.get_campaign_state(mid);
+ historical_after:=(current_state->'recentActs'->0->>'influence_after')::integer;
  effective:=(current_state->'cohorts'->0->>'myInfluence')::integer;
  if effective<>historical_after-2 or
     (current_state->'cohorts'->0->>'nextDecayOn')::date<>
