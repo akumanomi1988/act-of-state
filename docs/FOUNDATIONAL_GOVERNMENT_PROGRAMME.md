@@ -24,6 +24,10 @@ The eight new dossiers have stable IDs and option versions. Once a government ha
 - A separate `/demo` guest experience remains a four-dossier, non-authoritative teaching simulation; decisions cannot be transferred to this official government.
 - Scores are synthetic and constructed for gameplay, not representative human population research.
 
+## Cloud rollout
+
+The additive seed is tracked as `supabase/migrations/20261025145152_aos_043_foundational_campaign.sql` matching the dedicated ACT OF STATE Cloud migration history. It was deployed after passing disposable PostgreSQL suites, with the database confirming ten intro dossiers and thirty choices. This operation did not rewrite existing decisions or modify any external Supabase projects.
+
 ## Verification
 
 The incremental SQL regression `supabase/tests/foundational_campaign.sql` verifies exactly ten intro dossiers and 30 options, distinct policy categories, full worst-case ten-decision execution, state snapshots, deterministic identical retries, conflicting retry rejection and second-identity RLS isolation. All disposable fixtures roll back.
