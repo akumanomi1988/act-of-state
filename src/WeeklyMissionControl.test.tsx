@@ -99,5 +99,6 @@ describe('read-only weekly mission command UI',()=>{
     render(<WeeklyMissionControl world={w} userId={host} onSelect={vi.fn()}/>)
     await screen.findByText(/Semana cerrada el 2026-10-30/)
     expect(screen.getByText('PLAZO CERRADO')).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:/Ley de prueba editorial/})).toBeDisabled()
   })
 })
