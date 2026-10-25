@@ -1,7 +1,7 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-044 multiplayer parliamentary command, role-aware navigation and fail-closed signature reconciliation (CI acceptance pending).
+**Latest implementation increment:** AOS-044 multiplayer command: PR #37 merged, quality CI passed; external real-user acceptance still pending.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
@@ -12,7 +12,7 @@ Historical iteration evidence below is retained and may describe superseded bloc
 - Government signatures require exact-option reconciliation against persisted decisions, including after a lost HTTP acknowledgement. Ambiguity locks further signing until an explicit fresh snapshot, with the originating dossier preserved across navigation. A conflicting event never becomes a successful local notice.
 - Immutable decisions cannot disappear from screen due to an older 15-second polling response. Parliament bill proposals, vote receipts and final tallies are independently revalidated against official RPC reads even if mutation transport fails.
 - The technical E2E suite simulates ten seat identities and separate government/opposition Chromium browser sessions on mocked HTTP; original SQL integration remains the security/concurrency authority. Neither replaces a real human-authenticated ten-account playtest.
-- **Evidence pending on PR**: Node oracle, TypeScript, Vitest, Vite, browser accessibility, PostgreSQL regression and exact deployed commit. No migrations or extra database privileges required.
+- **Verified:** [PR #37](https://github.com/akumanomi1988/act-of-state/pull/37) squash-merged at `ef3b6cb745790f80871268dcf3c6202ec575b30f`. [Quality CI #40206808283](https://github.com/akumanomi1988/act-of-state/actions/runs/40206808283) PASS: Node oracle **14/14**, **168/168 Vitest** over 36 suites, TypeScript, production build, **15 Chromium scenarios**, 2 guest-mode viewports, axe WCAG and screenshots. The new browser scenario uses two independent synthetic sessions and a ten-party roster; it does not prove live email Auth or real human multiplayer. Existing 10-party PostgreSQL security integration was not changed or rerun by this no-SQL PR. No migrations or privilege changes.
 - **Strict acceptance remains 2/18 (11.1%)** unless new verifiable evidence completes a previously partial gate. This score is not the implementation completion percentage.
 
 ## AOS-043 — Full official founding government programme (2026-10-25)
