@@ -339,7 +339,7 @@ export default function MultiplayerApp() {
         <div><div className="wordmark">ACT OF STATE</div>
           <div className="brand-caption">MULTIPLAYER NATIONAL ASSEMBLY</div></div>
       </div>
-      <div className="header-end"><a className="text-button" href="/guide">Manual del jugador</a><a className="text-button" href="/">Gobierno</a>
+      <div className="header-end"><a className="text-button" href="/guide">Manual del jugador</a><a className="text-button" href="/status">Estado del servicio</a><a className="text-button" href="/">Gobierno</a>
         <a className="text-button" href="/editorial">Editorial</a>
         {user && <button className="text-button" disabled={pending}
           onClick={() => void onSignOut()}>Cerrar sesión</button>}</div>
