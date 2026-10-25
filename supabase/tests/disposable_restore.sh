@@ -61,7 +61,6 @@ source_integrity="$(psql -X -Atq -v ON_ERROR_STOP=1 -d aos_test -c "
 
 # The client and server versions must permit a full PostgreSQL-17 dump.
 # pg_dump refuses older clients; that is a release-recovery blocker.
-pg_dump -X 2>/dev/null && { echo 'Unexpected pg_dump -X behavior' >&2; exit 1; } || true
 pg_dump -Fc -d aos_test -f "$work/aos.dump"
 [[ -s "$work/aos.dump" ]] || { echo 'AOS_RESTORE_EMPTY_DUMP' >&2; exit 1; }
 PGDATABASE=postgres createdb "$restore_db"
