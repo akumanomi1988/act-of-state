@@ -1,4 +1,5 @@
 import PlayerOnboarding from './PlayerOnboarding'
+import FoundationalAgendaPanel from './FoundationalAgendaPanel'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, fetchWorld, friendlyError, startGovernment, submitDecision } from './lib/game'
@@ -323,19 +324,9 @@ export default function App() {
                     {number(world.calendar.weeklyTreasuryDeltaM)} M€</strong>
                 </div>}
               </section>
-              <div className="section-heading"><h2>Expedientes</h2><span>{world.dossiers.length} disponibles en catálogo</span></div>
-              <div className="dossier-list">
-                {world.dossiers.map(d => {
-                  const done = world.events.some(e => e.dossier_id === d.id)
-                  return <button type="button" className={'dossier-item ' + (dossier?.id === d.id && dossier.version === d.version ? 'selected' : '')}
-                    key={dossierKey(d)} onClick={() => selectDossier(d)}
-                    aria-pressed={dossierKey(d) === dossierKey(dossier ?? d)}>
-                    <span className="eyebrow">{d.category.toUpperCase()} · V{d.version}</span>
-                    <strong>{d.title}</strong>
-                    <small>{done ? 'RESUELTO' : available(d, world.gameDay) ? 'PENDIENTE' : 'NO DISPONIBLE'}</small>
-                  </button>
-                })}
-              </div>
+              <FoundationalAgendaPanel world={world}
+                selectedKey={dossier ? dossierKey(dossier) : null}
+                onSelect={selectDossier} />
             </aside>
             <section className="main-panel" aria-label="Expediente político">
               {needsReconciliation && <div className="fictitious-notice" role="status">

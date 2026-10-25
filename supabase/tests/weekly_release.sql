@@ -164,8 +164,8 @@ begin
  select * into strict g from public.governments where owner_id=auth.uid();
  w:=public.get_government_world(g.id);
  if extract(isodow from (now() at time zone 'UTC')::date)>5 then
-   if jsonb_array_length(w->'dossiers')<>2 or
-      jsonb_array_length(w->'options')<>6 then
+   if jsonb_array_length(w->'dossiers')<>10 or
+      jsonb_array_length(w->'options')<>30 then
      raise exception 'CLOSED_WEEKLY_DOSSIERS_STILL_ACTIONABLE'; end if;
    begin
      perform public.submit_decision(g.id,'weekly-test-1',1,'act');
@@ -174,8 +174,8 @@ begin
      if sqlerrm<>'DOSSIER_NOT_AVAILABLE' then raise; end if;
    end;
  else
-   if jsonb_array_length(w->'dossiers')<>12 or
-      jsonb_array_length(w->'options')<>26 then
+   if jsonb_array_length(w->'dossiers')<>20 or
+      jsonb_array_length(w->'options')<>50 then
      raise exception 'APPROVED_WEEKLY_CONTENT_NOT_VISIBLE'; end if;
  end if;
  if w->'calendar'->>'weekStart'<>v_monday::text or

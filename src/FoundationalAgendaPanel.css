@@ -1,0 +1,22 @@
+/* AOS-043: bounded additions to the existing institutional UI. */
+.foundation-agenda{min-width:0}
+.foundation-overview{border:1px solid #525449;background:linear-gradient(150deg,#242d29,#172122);padding:18px;margin:0 0 29px}
+.foundation-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:12px 0}
+.foundation-heading h2{font-size:clamp(21px,1.8vw,27px);margin:0}
+.foundation-heading strong{white-space:nowrap;color:var(--gold-strong);font:500 15px 'IBM Plex Mono',monospace}
+.foundation-progress{width:100%;height:7px;background:#364344;overflow:hidden;margin:17px 0}
+.foundation-progress>span{display:block;height:100%;background:var(--gold)}
+.foundation-description{font-size:12px;color:var(--muted);line-height:1.8;margin:12px 0}
+.foundation-balance{border-top:1px solid var(--line);display:grid;gap:10px;margin:17px 0 0;padding:16px 0 0}
+.foundation-balance>div{display:flex;align-items:baseline;justify-content:space-between;gap:7px}
+.foundation-balance span{font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.02em;color:var(--muted)}
+.foundation-balance strong{color:var(--gold-strong);text-align:right;white-space:nowrap;font:500 14px 'IBM Plex Mono',monospace}
+.foundation-disclaimer{font-size:10px;color:var(--muted);line-height:1.7;margin:15px 0}
+.foundation-next{width:100%;white-space:normal;text-align:left;font-size:12px;line-height:1.6;margin-top:14px}
+.foundation-finished{font-size:12px;line-height:1.7;color:#b0ddbd;border-left:2px solid #86ac93;padding-left:10px;margin:16px 0 0}
+.foundation-filters{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 16px}
+.foundation-filters button{font:600 12px 'IBM Plex Sans',Arial,sans-serif;line-height:1.4;cursor:pointer;padding:8px 10px;border:1px solid #67736e;background-color:#10191a;color:#fffdf5;border-radius:0;opacity:1}
+.foundation-filters button.active{color:#fffdf5;background-color:#243029;border:2px solid #e4c59a;box-shadow:inset 0 -3px 0 #e4c59a;opacity:1}
+.foundation-filters button:hover:not(.active){border-color:var(--gold)}
+.foundation-filters button:focus-visible,.foundation-next:focus-visible{outline:3px solid var(--gold-strong);outline-offset:3px}
+@media(max-width:760px){.foundation-overview{padding:16px}.foundation-filters button{flex:1 1 auto}.foundation-balance span{font-size:9px}.foundation-balance strong{font-size:13px}}

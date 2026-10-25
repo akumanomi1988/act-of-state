@@ -72,7 +72,8 @@ function createServerState(userId=ua,governmentId=govId) {
         government:this.government,gameDay:'2026-10-23',
         calendar:{weekStart:'2026-10-19',friday:'2026-10-23',dayOfWeek:5,
           fridayReached:true,weeklyTotal:0,weeklyResolved:0,weeklyTreasuryDeltaM:0},
-        dossiers:[this.dossier],options:[this.option],
+        dossiers:this.foundationalDossiers??[this.dossier],
+        options:this.foundationalOptions??[this.option],
         cohorts:[{
           id:'a',government_id:governmentId,code:'households',
           label:'Hogares y trabajadores',population_weight:65,
@@ -713,6 +714,47 @@ try {
       await context.close()
     }
   })
+  await run('Ten-dossier authoritative founding programme, persist, filter and mobile accessibility',async()=>{
+    for (const viewport of [{width:390,height:844},{width:1440,height:900}]) {
+      const context=await browser.newContext({viewport})
+      const page=await context.newPage()
+      const state=createServerState()
+      state.foundationalDossiers=[state.dossier,...Array.from({length:9},(_,i)=>({
+        ...state.dossier,id:'founding-'+i,title:'Capítulo político '+(i+1),
+        category:'Instituciones',release_kind:'intro'
+      }))]
+      state.foundationalOptions=[state.option,...state.foundationalDossiers.slice(1).map(dossier=>({
+        ...state.option,dossier_id:dossier.id
+      }))]
+      await routeApi(page,state)
+      await injectUser(page,state)
+      await page.goto(BASE+'/',{waitUntil:'networkidle'})
+      const agenda=page.getByRole('region',{name:'Programa político y expedientes'})
+      await agenda.getByText('0 / 10').waitFor()
+      await agenda.getByRole('progressbar',{name:'Decisiones del programa firmadas'}).waitFor()
+      await agenda.getByRole('button',{name:'Esta semana'}).click()
+      await agenda.getByRole('status').filter({hasText:'No hay expedientes'}).waitFor()
+      await agenda.getByRole('button',{name:'Programa de gobierno'}).click()
+      assert.equal(await agenda.getByRole('button',{name:/FICTICIO/}).count(),10)
+      await page.getByRole('radio',{name:/Proteger a los hogares/}).check()
+      await page.getByRole('button',{name:'Revisar decisión'}).click()
+      await page.getByRole('button',{name:'Firmar y ejecutar decisión'}).click()
+      await agenda.getByText('1 / 10').waitFor()
+      await agenda.getByLabel('Impactos acumulados de las decisiones fundacionales')
+        .getByText('-1.400 M€').waitFor()
+      await page.reload({waitUntil:'networkidle'})
+      await page.getByRole('region',{name:'Programa político y expedientes'}).getByText('1 / 10').waitFor()
+      const restored=page.getByRole('region',{name:'Programa político y expedientes'})
+      await restored.getByRole('button',{name:'Pendientes'}).click()
+      assert.equal(await restored.getByRole('button',{name:/FICTICIO/}).count(),9)
+      assert.equal(state.events.length,1)
+      await checkMobileOverflow(page,'founding political programme')
+      await checkA11y(page,'founding political programme')
+      await page.screenshot({path:OUT+'/founding-programme-'+viewport.width+'.png',fullPage:true})
+      await context.close()
+    }
+  })
+
   await run('Public player manual is readable without authentication',async()=>{
     const context=await browser.newContext({viewport:{width:375,height:844}})
     const page=await context.newPage()
