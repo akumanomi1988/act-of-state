@@ -1,10 +1,19 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-046 real magic-link UI and ten-browser legislature — PR #39 merged, CI verified; production SMTP and human playtest outstanding.
+**Latest implementation increment:** AOS-047 legislative week command and real editorial workflow acceptance — verification pending.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-047 — Complete weekly legislative operations (2026-10-25)
+
+- Composed a real-time, read-only **weekly operations room** from server-bound match, calendar and parliamentary snapshots. Each of ten parties gets a distinct action queue: record stance, vote, await tally, propose law or sign an actually passed law; a passed bill is never misreported as a national policy act. Only actually published dossiers for the current Monday count; permanent fictional introductions are excluded.
+- Deadline behavior follows server UTC Friday, with stale read fail-closed safeguards, next-day detection, explicit refresh, meaningful no-news warnings, progress per player and navigation to the existing mandated Parliament/decision UI. No extra privileged RPC grants, write endpoints or SQL migrations.
+- Extended responsive/axe Chromium scenarios for weekly urgency, role-specific actions and simulated ballots. New Vitest pure model and React tests cover task transitions, vote/signature separation, no fictitious news publication and availability failures.
+- Extended **real local GoTrue/PostgREST CI** to exercise full ten-case synthetic editorial draft, role assignment, ten signed publisher attestations, CAS revision invalidation, immutable publication, outsider restrictions and next-week embargo. Test source URLs use only `example.invalid`; **this is not a real ten-article news publication**.
+- **Release evidence pending**: CI workflows and exact merged Vercel commit to be verified; original strict acceptance still **2/18 (11.1%)**, because real production editorial operation, human ten-player validation and commercial design sign-off remain outstanding.
+- See [LEGISLATIVE_WEEK_COMMAND.md](LEGISLATIVE_WEEK_COMMAND.md).
 
 ## AOS-046 — Full local magic-link onboarding and ten-browser legislature (2026-10-25)
 

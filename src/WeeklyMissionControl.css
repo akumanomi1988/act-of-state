@@ -1,0 +1,23 @@
+/* AOS-047: week-oriented cabinet operations, matching existing institutional UI. */
+.weekly-mission{min-width:0;border:1px solid #63776b;background:linear-gradient(155deg,#172523,#1a2a29);padding:20px;margin-bottom:24px}
+.weekly-mission-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:14px}
+.weekly-mission-top h2{margin:8px 0 10px;font-size:clamp(23px,2.4vw,32px);line-height:1.25}
+.weekly-mission-top .muted{max-width:640px;line-height:1.7;font-size:12px}
+.weekly-mission-refresh{background:#15201b;border:1px solid #c4dcbd;color:#f9fff4;padding:10px 14px;cursor:pointer;white-space:nowrap;font-weight:600}
+.weekly-mission-refresh:disabled{opacity:.55;cursor:wait}
+.weekly-mission-numbers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}
+.weekly-mission-numbers>div{background:#101e1b;border:1px solid #5f7569;padding:13px;min-width:0}
+.weekly-mission-numbers span{display:block;color:#ecf3e9;font-size:10px;font-weight:700;line-height:1.5;letter-spacing:.035em}
+.weekly-mission-numbers strong{display:block;margin-top:6px;color:#fff5d3;font-size:20px;font-variant-numeric:tabular-nums}
+.weekly-mission-deadline,.weekly-mission-warning{line-height:1.7;font-size:12px;padding:10px 12px;background:#26322a;color:#fff2d5;border-left:3px solid #ead19c}
+.weekly-mission-next{display:block;width:100%;text-align:left;white-space:normal;cursor:pointer;background:#304332;color:#fff9eb;border:2px solid #f0d79f;padding:13px;font-size:13px;font-weight:700;line-height:1.65;margin:13px 0}
+.weekly-mission-rows{list-style:none;margin:15px 0 0;padding:0;display:grid;gap:6px}
+.weekly-mission-rows button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-width:0;text-align:left;background:#12201d;border:1px solid #52675e;color:#f4f4ee;padding:12px;cursor:pointer}
+.weekly-mission-rows button:disabled{cursor:default;opacity:.78}
+.weekly-mission-rows button:not(:disabled):hover{border-color:#f0d79f}
+.weekly-mission-rows button strong{display:block;font-size:13px;line-height:1.5}
+.weekly-mission-rows button small{display:block;font-size:11px;color:#e0eadd;line-height:1.7;margin-top:4px}
+.weekly-mission-status{white-space:normal;max-width:200px;font-weight:700;line-height:1.5;color:#ffe3ad;font-size:10px;text-align:right;letter-spacing:.03em}
+.weekly-mission-refresh:focus-visible,.weekly-mission-next:focus-visible,.weekly-mission-rows button:focus-visible{outline:3px solid #ffdf9e;outline-offset:3px}
+@media(max-width:900px){.weekly-mission-numbers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.weekly-mission{padding:15px}.weekly-mission-top{display:block}.weekly-mission-refresh{margin-top:7px}.weekly-mission-rows button{align-items:flex-start;flex-direction:column}.weekly-mission-status{text-align:left;max-width:none}}

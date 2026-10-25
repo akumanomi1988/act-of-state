@@ -6,6 +6,7 @@ on:
       - 'src/**'
       - 'tests/real-auth-acceptance.mjs'
       - 'tests/magic-link-acceptance.mjs'
+      - 'tests/weekly-editorial-acceptance.mjs'
       - 'supabase/**'
       - 'package.json'
       - 'package-lock.json'
@@ -18,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   real-jwt-parliament:
-    name: Ten real JWTs / ten browsers / local email-link UI
+    name: Live GoTrue / ten parties / editorial weekly release
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -80,6 +81,8 @@ jobs:
           curl --fail --silent http://127.0.0.1:54324/api/v1/messages >/dev/null
           node tests/real-auth-acceptance.mjs
           node tests/magic-link-acceptance.mjs
+          command -v psql >/dev/null || { echo "PostgreSQL CLI missing in runner"; exit 1; }
+          node tests/weekly-editorial-acceptance.mjs
       - name: Retain real-auth UI screenshots
         if: always()
         uses: actions/upload-artifact@v4
