@@ -71,9 +71,12 @@ afterEach(cleanup)
 
 describe('national election experience', () => {
   it('recognizes dynamic v2 district persuasion as a forecast, not a certified vote',async()=>{
-    mocks.fetchElectionState.mockResolvedValueOnce({...state(),projection:{...projection,modelVersion:'electoral-districts-v2',parties:projection.parties.map(p=>({...p,campaignInfluenceTotal:5}))}})
-    render(<ElectionPanel matchId={matchId} userId={userId} active onElectionCertified={notify}/>)
-    await screen.findByText(/Desgaste semanal incluido/)
+    mocks.fetchElectionState.mockResolvedValueOnce({...state(),projection:{...projection,
+      modelVersion:'electoral-districts-v2',districts,householdSampleSize:300,
+      parties:projection.parties.map(p=>({...p,campaignInfluenceTotal:5}))}})
+    render(<ElectionPanel matchId={matchId} userId={userId}
+      active onElectionCertified={onElectionCertified}/>)
+    expect(await screen.findAllByText(/Desgaste semanal incluido/)).toHaveLength(2)
     expect(screen.getByText(/Estimación dinámica, no resultado certificado/)).toBeInTheDocument()
   })
   it('shows six territorial constituencies and the 100-seat allocation',async()=>{
