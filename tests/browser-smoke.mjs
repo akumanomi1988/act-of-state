@@ -168,6 +168,16 @@ async function routeApi(page,state,{emailLimit=false}={}) {
         hostUserId:leaderId,totalSeats:100,coalitionSeats:10,
         coalition:[],motions:[],votes:[],serverNow:'2026-10-24T12:00:00Z'
       })
+      if(path==='/rest/v1/rpc/get_campaign_state') return json({
+        serverDay:'2026-10-24',weekStart:'2026-10-19',
+        campaignClosesOn:'2027-01-03',available:true,usedThisWeek:false,
+        influenceModel:'campaign-decay-v2',
+        cohorts:[{code:'workers',label:'Trabajadores',weight:55,
+          idealPolicy:45,myInfluence:7,nextDecayOn:'2026-10-31'},
+          {code:'youth',label:'Jóvenes',weight:45,idealPolicy:60,
+          myInfluence:0,nextDecayOn:null}],
+        recentActs:[]
+      })
       if(path==='/rest/v1/rpc/get_election_state'){
         const second='80000000-0000-4000-8000-000000000099'
         return json({
@@ -816,6 +826,10 @@ try {
       await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
       const board=page.getByRole('region',{name:'Centro de decisiones de la asamblea'})
       await board.getByRole('heading',{name:'Consejo político'}).waitFor()
+      const campaign=page.getByRole('region',{name:'Campaña electoral'})
+      await campaign.getByText('Influencia efectiva actual:',{exact:false}).first().waitFor()
+      await campaign.getByText('Próximo desgaste: 2026-10-31 (UTC)').waitFor()
+      await campaign.getByText(/se desgasta dos puntos cada siete días/).waitFor()
       const mission=page.getByRole('region',{name:'Sala de operaciones legislativas'})
       await mission.getByRole('heading',{name:'Operaciones legislativas'}).waitFor()
       await mission.getByText('TU VOTO PENDIENTE').waitFor()
