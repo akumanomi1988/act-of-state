@@ -94,10 +94,13 @@ export default function FoundationalAgendaPanel({ world, selectedKey, onSelect }
       {progress.completed > 0 && <p className="foundation-disclaimer">
         Suma de cambios registrados en cada firma; no incluye la evolución diaria,
         los cierres fiscales ni equivale al estado actual del país.</p>}
-      {progress.next ? <button className="text-button foundation-next" type="button"
-        onClick={() => { onSelect(progress.next!); setFilter('all') }}>
-        Continuar programa · {progress.next.title}
-      </button> : progress.total > 0 &&
+      {progress.next ? <div className="foundation-continuation">
+        <p className="foundation-next-title">Siguiente expediente: {progress.next.title}</p>
+        <button className="text-button foundation-next" type="button"
+          onClick={() => { onSelect(progress.next!); setFilter('all') }}>
+          Continuar programa
+        </button>
+      </div> : progress.total > 0 &&
         <p className="foundation-finished" role="status">Programa inicial completado.
           Tu mandato continúa con el calendario y los expedientes semanales.</p>}
     </div>
