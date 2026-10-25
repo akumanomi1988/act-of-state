@@ -86,6 +86,6 @@ describe('role-centric multiplayer political agenda',()=>{
       selectedDossierId={null} onSelect={vi.fn()}/>)
     expect(screen.getByText(/No hay una agenda semanal aprobada/)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button',{name:'Esta semana'}))
-    expect(screen.getByRole('status',{name:''})).toHaveTextContent(/No existen asuntos/)
+    expect(screen.getByText(/No existen asuntos para este filtro/)).toBeInTheDocument()
   })
 })
