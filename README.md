@@ -36,6 +36,24 @@ Campaign persuasion now has **server-authoritative time decay**: two points of e
 
 The public **/status** screen shows the verified build revision, expected electoral model and a limited public authentication availability probe without needing a player session. Production builds stamp an immutable `/release.json`; a GitHub Action checks that all six public routes and the actual JavaScript bundle correspond to **the same** production Git commit, detecting the stale Vercel deployments previously caused by Hobby build-rate limits. Disposable PostgreSQL backup/restore and ten-authenticated-party load tests are integrated into CI. See [operational release and recovery handbook](docs/PRODUCTION_RELEASE_RUNBOOK.md). This does **not** replace production Auth, newsroom, real-user or live backup acceptance.
 
+## National reform campaign (AOS-050 — development branch only)
+
+A second **18-dossier, four-chapter fictional national policy campaign**
+extends the unchanged ten-case introductory government programme to **28
+permanent decisions and 84 alternatives**. Society, economy, democratic
+institutions and resilience have separate progress tracking and accessible
+filters in both single-player and ten-party Parliament. Every policy reuses
+signed server-side fiscal and population consequences, binding parliamentary
+approval and historically immutable acts; verified weekly real-news dossiers
+remain separately embargoed. See [authored campaign and integration](docs/NATIONAL_REFORM_PROGRAMME.md).
+
+**Release hold:** this increment is on
+`aos/050-national-reforms-campaign`, not merged or published. The owner
+explicitly prohibits routine Vercel deployments after repeated build-rate-limit
+failures. Do **not** create a Vercel production/preview deployment, merge
+into `main`, or apply the new production database migration without a separate
+explicit release authorization. See [no automatic deployment instructions](docs/NO_VERCEL_AUTODEPLOY.md).
+
 ## Current implementation (AOS-MVP-001)
 
 The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events, ten-party shared-nation matches and a deterministic, server-authoritative simulation engine.
