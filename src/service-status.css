@@ -1,0 +1,15 @@
+.service-status-main{max-width:960px;width:100%;margin:0 auto;padding:clamp(28px,5vw,70px) 20px 80px}
+.service-status-main h1{max-width:700px}
+.service-status-main>.muted{max-width:680px}
+.service-status-main>.primary-button{margin:14px 0 24px}
+.service-status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:12px 0 24px}
+.service-status-cell{display:flex;flex-direction:column;gap:11px;border:1px solid #6c7b73;
+  padding:20px;background:#1a2626;min-height:190px}
+.service-status-cell strong{color:#f2e1bc;font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.035em}
+.service-status-cell span{font:500 clamp(17px,2vw,21px) 'IBM Plex Serif',Georgia,serif;overflow-wrap:anywhere}
+.service-status-cell small{color:#d7e4e2;font-size:12px;line-height:1.65;overflow-wrap:anywhere}
+.service-status-warning{background:#343027;border-left:4px solid #f0c67e;
+  color:#fff6e8;line-height:1.6;padding:15px 20px;margin:16px 0}
+.service-status-help{max-width:680px;line-height:1.8;border-top:1px solid #67756c;padding-top:24px}
+.service-status a:focus-visible,.service-status button:focus-visible{outline:3px solid #ffdf9e;outline-offset:3px}
+@media(max-width:720px){.service-status-grid{grid-template-columns:1fr}.service-status-cell{min-height:0}}
