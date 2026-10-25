@@ -47,8 +47,8 @@ jobs:
           # CLI v2.120.0 prints dotenv-quoted values. Strip only the
           # surrounding quote syntax; never print or commit credentials.
           cli_vars="$(supabase status -o env)"
-          local_api="$(printf '%s\\n' "$cli_vars" | sed -n 's/^API_URL=//p' | head -1 | tr -d '"\\r')"
-          local_anon="$(printf '%s\\n' "$cli_vars" | sed -n 's/^ANON_KEY=//p' | head -1 | tr -d '"\\r')"
+          local_api="$(printf '%s\n' "$cli_vars" | sed -n 's/^API_URL=//p' | head -1 | tr -d '"\r')"
+          local_anon="$(printf '%s\n' "$cli_vars" | sed -n 's/^ANON_KEY=//p' | head -1 | tr -d '"\r')"
           test "$local_api" = "http://127.0.0.1:54321" || {
             echo "Supabase CLI is not targeting the isolated local API"; exit 1;
           }
@@ -56,7 +56,7 @@ jobs:
             echo "Local publishable/anon key was not returned"; exit 1;
           }
           echo "::add-mask::$local_anon"
-          printf 'API_URL=%s\\nANON_KEY=%s\\n' "$local_api" "$local_anon" >> "$GITHUB_ENV"
+          printf 'API_URL=%s\nANON_KEY=%s\n' "$local_api" "$local_anon" >> "$GITHUB_ENV"
       - name: Install pinned real browser QA tools
         run: npm install --no-save --package-lock=false playwright@1.56.1 axe-core@4.10.3
       - name: Exercise real GoTrue, PostgREST, Parliament and Chromium
