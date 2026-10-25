@@ -1,7 +1,7 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-049 verifiable production release, player diagnostics, restore/read-load CI — verification pending.
+**Latest implementation increment:** AOS-049 verifiable production release, public diagnostics, disaster recovery and ten-party HTTP load — branch CI verified; exact hosted main release pending.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
@@ -14,7 +14,7 @@ Historical iteration evidence below is retained and may describe superseded bloc
 - Added a no-credential hosted production parity GitHub workflow: checks **exact** `main` commit, all six public SPA routes, active JS bundle MIME and asset presence, rejects wrong hosts/redirects, and reports a red release status if Vercel build-rate-limit leaves stale production code.
 - Added disposable Postgres `pg_dump`/`pg_restore` test of one **committed** signed government act, snapshot history, repeat-idempotency, RLS and privileged grants through separate database connections, including automatic cleanup. No live hosted backup was read or modified.
 - Extended genuine isolated ten-party GoTrue/PostgREST E2E with **80** independently timed simultaneous player read RPCs, ten outsider-denial attempts and a p95 budget, while verifying 100 district mandates, ten seats, one immutable decision and matching national state.
-- **Release and CI verification pending** for AOS-049 source. The strict total remains **2/18=11.1%** until the original external/human criteria are accepted. See [PRODUCTION_RELEASE_RUNBOOK.md](PRODUCTION_RELEASE_RUNBOOK.md).
+- **Verified disposable CI before publication:** [Quality #40230726583](https://github.com/akumanomi1988/act-of-state/actions/runs/40230726583) **PASS**: 192/192 Vitest (41 suites), 15 Chromium interactive scenarios, 2 guest sandbox viewports and 2 responsive/WCAG AA `/status` viewports; the release manifest source oracle also passed. [PostgreSQL #40230726599](https://github.com/akumanomi1988/act-of-state/actions/runs/40230726599) **PASS**: all migrations, transactional suites, ten concurrent match/signature races, cross-connection durability, and **AOS_DISPOSABLE_RESTORE_PASS** for a restored real signed act and RLS. [Local GoTrue #40230726582](https://github.com/akumanomi1988/act-of-state/actions/runs/40230726582) **PASS**: 11 Auth signups / 10 separate JWT party browsers (138 assertions), 26 Mailpit OTP assertions, 60 synthetic editorial assertions and **AOS_MATCH_LOAD_PASS** 80 successful timed reads, 10 outsider denials, local p95 105 ms (not a hosted SLA). **Vercel SHA-parity publication and production HTTP checks still pending** for the final merge. Strict product acceptance stays **2/18=11.1%** until original external/human criteria are accepted. See [PRODUCTION_RELEASE_RUNBOOK.md](PRODUCTION_RELEASE_RUNBOOK.md).
 
 ## AOS-048 — Time-bounded campaign persuasion and election relevance (2026-10-25)
 
