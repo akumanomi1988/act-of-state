@@ -34,6 +34,13 @@ blind spot in the **user onboarding path** and expands actual browser coverage.
    errors. Host and a representative opposition viewport get full axe WCAG
    2.1 A/AA and screenshot checks.
 
+## Accepted technical evidence — 2026-10-25
+
+- [PR #39](https://github.com/akumanomi1988/act-of-state/pull/39) merged at `3cc6886fb8c0780be07d7a3a186f58b56caed97c`.
+- [Real GoTrue/PostgREST browser CI #40218968445](https://github.com/akumanomi1988/act-of-state/actions/runs/40218968445) **PASS**. Two independent receipts were emitted: `AOS_LIVE_AUTH_PASS` with **ten JWT Chromium contexts and 126 assertions**, and `AOS_REAL_EMAIL_PASS` with **two actual GoTrue emails delivered to local Mailpit, 26 assertions**, including browser-created private match, invited browser, session recovery, link replay denied, logout isolation, and host activation.
+- [Standard quality CI #40218968443](https://github.com/akumanomi1988/act-of-state/actions/runs/40218968443) **PASS**.
+- The initial attempted browser selector used the visible containing label instead of the input's explicit accessible name; it was corrected and the complete suite reran green. The exact successful run, not the preceding failed run, is the release acceptance artifact.
+
 ## Boundaries, non-goals and release gates
 
 The test stack is **isolated on localhost** (`http://127.0.0.1:54321`),
