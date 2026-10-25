@@ -12,6 +12,20 @@ from generate_series(1,3) n;
 
 create temporary table campaign_decay_fixture(match_id uuid,invite_code text);
 grant select,insert on pg_temp.campaign_decay_fixture to authenticated;
+-- The trusted deterministic helper is deliberately not callable by player roles.
+do $
+begin
+ if game_internal.campaign_effective_influence(
+  20::smallint,now()-interval '6 days',(now() at time zone 'UTC')::date)<>20
+ or game_internal.campaign_effective_influence(
+  20::smallint,now()-interval '8 days',(now() at time zone 'UTC')::date)<>18
+ or game_internal.campaign_effective_influence(
+  20::smallint,now()-interval '15 days',(now() at time zone 'UTC')::date)<>16
+ or game_internal.campaign_effective_influence(
+  3::smallint,now()-interval '15 days',(now() at time zone 'UTC')::date)<>0 then
+   raise exception 'DECAY_INTEGER_BOUNDARIES_UNSAFE';
+ end if;
+end $;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','58000000-0000-4000-8000-000000000001',true);
 do $$
@@ -40,19 +54,8 @@ begin
  current_state:=public.get_campaign_state(mid);
  if current_state->>'influenceModel'<>'campaign-decay-v2'
  or current_state->'cohorts'->0->>'myInfluence'<>'0'
- or current_state->'cohorts'->0->>'nextDecayOn'<>''
- and current_state->'cohorts'->0->'nextDecayOn'<>'null'::jsonb then
+ or current_state->'cohorts'->0->'nextDecayOn'<>'null'::jsonb then
    raise exception 'CAMPAIGN_V2_INITIAL_STATE_INVALID';
- end if;
- if game_internal.campaign_effective_influence(
-  20::smallint,now()-interval '6 days',(now() at time zone 'UTC')::date)<>20
- or game_internal.campaign_effective_influence(
-  20::smallint,now()-interval '8 days',(now() at time zone 'UTC')::date)<>18
- or game_internal.campaign_effective_influence(
-  20::smallint,now()-interval '15 days',(now() at time zone 'UTC')::date)<>16
- or game_internal.campaign_effective_influence(
-  3::smallint,now()-interval '15 days',(now() at time zone 'UTC')::date)<>0 then
-   raise exception 'DECAY_INTEGER_BOUNDARIES_UNSAFE';
  end if;
  before_pct:=(select (p->>'voteSharePct')::numeric
    from jsonb_array_elements(public._calculate_election_projection(mid)->'parties') p
