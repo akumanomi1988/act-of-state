@@ -63,7 +63,7 @@ export default function WeeklyMissionControl({ world, userId, onSelect }: Props)
     [world,calendar,parliament,userId])
   // A snapshot from a previous day is no longer a trustworthy action queue.
   const current=mission?.date===world.gameDay
-  const actionable=!!mission&&!stale&&current
+  const actionable=!!mission&&!stale&&current&&!mission.overdue
   return <section className="weekly-mission" aria-label="Sala de operaciones legislativas">
     <div className="weekly-mission-top">
       <div>
