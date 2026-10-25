@@ -13,7 +13,7 @@ from generate_series(1,3) n;
 create temporary table campaign_decay_fixture(match_id uuid,invite_code text);
 grant select,insert on pg_temp.campaign_decay_fixture to authenticated;
 -- The trusted deterministic helper is deliberately not callable by player roles.
-do $
+do $$
 begin
  if game_internal.campaign_effective_influence(
   20::smallint,now()-interval '6 days',(now() at time zone 'UTC')::date)<>20
@@ -25,7 +25,7 @@ begin
   3::smallint,now()-interval '15 days',(now() at time zone 'UTC')::date)<>0 then
    raise exception 'DECAY_INTEGER_BOUNDARIES_UNSAFE';
  end if;
-end $;
+end $$;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','58000000-0000-4000-8000-000000000001',true);
 do $$
