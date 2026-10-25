@@ -164,7 +164,9 @@ const browser=await chromium.launch({
 })
 try {
   const axe=readFileSync('node_modules/axe-core/axe.min.js','utf8')
-  for (const {index,width} of [{index:0,width:1440},{index:5,width:390}]) {
+  for (const {index,width} of Array.from({length:10},(_,index)=>({
+    index,width:index===5?390:1440
+  }))) {
     const actor=players[index]
     const context=await browser.newContext({viewport:{width,height:900}})
     await context.addInitScript(({key,session})=>{
@@ -190,23 +192,30 @@ try {
     }
     await page.reload({waitUntil:'networkidle'})
     await page.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor()
-    await page.addScriptTag({content:axe})
     const geometry=await page.evaluate(()=>({
       width:innerWidth,scroll:document.documentElement.scrollWidth
     }))
-    pass(geometry.scroll<=geometry.width+2,'Browser overflow on '+width+'px')
-    const errors=await page.evaluate(async()=>(await window.axe.run(document.body,{
-      runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa']}
-    })).violations.filter(x=>x.impact==='critical'||x.impact==='serious').map(x=>x.id))
-    pass(errors.length===0,'WCAG violation in real signed-in '+width+'px UI: '+errors)
+    pass(geometry.scroll<=geometry.width+2,'Browser overflow for party '+(index+1))
+    const persisted=await page.evaluate(key=>{
+      const record=localStorage.getItem(key)
+      try { return !!JSON.parse(record??'null')?.access_token } catch { return false }
+    },authStoreKey)
+    pass(persisted,'Party '+(index+1)+' did not retain real signed-in session')
+    if(index===0 || index===5) {
+      await page.addScriptTag({content:axe})
+      const errors=await page.evaluate(async()=>(await window.axe.run(document.body,{
+        runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa']}
+      })).violations.filter(x=>x.impact==='critical'||x.impact==='serious').map(x=>x.id))
+      pass(errors.length===0,'WCAG violation in real signed-in '+width+'px UI: '+errors)
+      await page.screenshot({path:'test-results/browser/auth-real-'+width+'.png',
+        fullPage:true})
+    }
     pass(failures.length===0,'React browser runtime errors: '+failures.join('; '))
-    await page.screenshot({path:'test-results/browser/auth-real-'+width+'.png',
-      fullPage:true})
     await context.close()
   }
 } finally { await browser.close() }
 console.log('AOS_LIVE_AUTH_PASS',JSON.stringify({
   signedUp:actors.length,distinctPlayers:10,realHttp:true,
-  fixedSignedActs:1,browserContexts:2,assertions,
-  note:'Disposable GoTrue/PostgREST; no real SMTP or real-world editorial review'
+  fixedSignedActs:1,browserContexts:10,assertions,
+  note:'Ten authentic HTTP/JWT browser contexts, local GoTrue; no production SMTP or real people'
 }))
