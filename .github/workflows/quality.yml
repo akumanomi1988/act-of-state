@@ -41,6 +41,7 @@ jobs:
           curl --fail --silent http://127.0.0.1:4173/ >/dev/null
           node tests/browser-smoke.mjs
           node tests/demo-browser.mjs
+          node tests/status-browser.mjs
       - name: Save browser screenshots for visual acceptance
         if: always()
         uses: actions/upload-artifact@v4
