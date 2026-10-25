@@ -35,7 +35,7 @@ begin
   raise exception 'SAME_DAY_DUPLICATE_CAPTURE'; end if;
  select * into p from public.match_opinion_polls
   where match_id=mid and poll_day=(now() at time zone 'UTC')::date;
- if p.model_version<>'electoral-districts-v1'
+ if p.model_version<>'electoral-districts-v2'
  or jsonb_array_length(p.projection->'parties')<>2
  or jsonb_array_length(p.projection->'districts')<>6 then
   raise exception 'POLL_NOT_USING_CERTIFICATION_MODEL'; end if;
@@ -59,7 +59,7 @@ declare mid uuid:=(select match_id from pg_temp.poll_fixture);
 begin
  h:=public.get_match_opinion_history(mid,30);
  if h->>'matchId'<>mid::text or h->>'recordedDays'<>'1'
-  or h->'polls'->0->>'modelVersion'<>'electoral-districts-v1'
+  or h->'polls'->0->>'modelVersion'<>'electoral-districts-v2'
   or jsonb_array_length(h->'polls'->0->'districts')<>6 then
   raise exception 'MEMBER_HISTORY_INCORRECT'; end if;
 end $$;
