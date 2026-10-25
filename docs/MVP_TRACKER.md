@@ -1,10 +1,17 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-045 real GoTrue/PostgREST ten-party acceptance — PR #38 merged, full CI verified; real SMTP/ten-human sign-off outstanding.
+**Latest implementation increment:** AOS-046 live email-link UI and ten-browser acceptance (implementation on PR; CI validation pending).
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-046 — Full local magic-link onboarding and ten-browser legislature (2026-10-25)
+
+- Reuses the real local GoTrue/PostgREST/Auth-backed acceptance stack. Browser 1 requests an actual email link from the published login form, fetches only its own delivery in Mailpit, verifies with GoTrue, and founds a persistent legislature through the app UI. Browser 2 follows a private invitation, requests/uses a separately delivered magic link, retains its invite code through the GoTrue redirect, joins as opposition, and survives reload.
+- Adds one-time link replay rejection, sign-out data isolation, role/owner checking, and app accessibility in those real-email sessions. The ten-party HTTP legislature test now verifies **all ten real-JWT browser sessions**, not just two.
+- Requires explicit `AOS_REAL_EMAIL_PASS` and `AOS_LIVE_AUTH_PASS` markers under the same isolated [live Auth workflow](../.github/workflows/live-auth-acceptance.yml), plus standard quality CI. Source [EMAIL_LINK_TEN_BROWSER_ACCEPTANCE.md](EMAIL_LINK_TEN_BROWSER_ACCEPTANCE.md).
+- **Do not claim real external SMTP delivery, a hosted Auth provider configuration or ten human players.** No migrations or hosted data touched. Strict acceptance remains 2/18 until all external criteria are satisfied.
 
 ## AOS-045 — Real signed Auth and legislature acceptance (2026-10-25)
 
