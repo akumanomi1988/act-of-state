@@ -35,7 +35,7 @@ export interface ElectionDistrict {
 }
 
 export interface ElectionProjection {
-  modelVersion: 'electoral-cohorts-v1' | 'electoral-cohorts-v2' | 'electoral-households-v1' | 'electoral-districts-v1'
+  modelVersion: 'electoral-cohorts-v1' | 'electoral-cohorts-v2' | 'electoral-households-v1' | 'electoral-districts-v1' | 'electoral-districts-v2'
   householdSampleSize?: number
   districts?: ElectionDistrict[]
   parties: ElectionParty[]
@@ -50,7 +50,7 @@ export interface ElectionRecord {
   certified_on: string
   incumbent_user_id: string
   winner_user_id: string
-  model_version: 'electoral-cohorts-v1' | 'electoral-cohorts-v2' | 'electoral-households-v1' | 'electoral-districts-v1'
+  model_version: 'electoral-cohorts-v1' | 'electoral-cohorts-v2' | 'electoral-households-v1' | 'electoral-districts-v1' | 'electoral-districts-v2'
   districts_snapshot?: ElectionDistrict[]
   population_snapshot: ElectionCohort[]
   parties_snapshot: ElectionParty[]
@@ -69,10 +69,10 @@ export interface ElectionState {
 function isElectionState(value: unknown): value is ElectionState {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const state = value as Partial<ElectionState>
-  return !!state.projection && ['electoral-cohorts-v1','electoral-cohorts-v2','electoral-households-v1','electoral-districts-v1'].includes(state.projection.modelVersion) &&
+  return !!state.projection && ['electoral-cohorts-v1','electoral-cohorts-v2','electoral-households-v1','electoral-districts-v1','electoral-districts-v2'].includes(state.projection.modelVersion) &&
     Array.isArray(state.projection.parties) &&
     Array.isArray(state.projection.cohorts) &&
-    (state.projection.modelVersion !== 'electoral-districts-v1' ||
+    (!['electoral-districts-v1','electoral-districts-v2'].includes(state.projection.modelVersion) ||
       (Array.isArray(state.projection.districts) &&
        state.projection.districts.length === 6 &&
        state.projection.districts.reduce((total,d) => total + d.seats,0) === 100 &&
