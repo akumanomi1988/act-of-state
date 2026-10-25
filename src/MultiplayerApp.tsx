@@ -1,4 +1,6 @@
 import PlayerOnboarding from './PlayerOnboarding'
+import MatchAgendaBoard from './MatchAgendaBoard'
+import { buildMatchAgenda } from './lib/multiplayerAgenda'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, friendlyError, submitDecision } from './lib/game'
@@ -42,6 +44,7 @@ export default function MultiplayerApp() {
   const [selectedOptionId, setSelectedOptionId] = useState('')
   const [reviewCabinet, setReviewCabinet] = useState(false)
   const [mandateOptionId, setMandateOptionId] = useState<string | null>(null)
+  const [signatureUncertain, setSignatureUncertain] = useState(false)
   const [loading, setLoading] = useState(false)
   const [pending, setPending] = useState(false)
   const [reload, setReload] = useState(0)
@@ -60,6 +63,7 @@ export default function MultiplayerApp() {
       setActiveId(null)
       setWorld(null)
       setMandateOptionId(null)
+      setSignatureUncertain(false)
       setMatches([])
       setError('')
     }
@@ -116,6 +120,7 @@ export default function MultiplayerApp() {
     setSelectedOptionId('')
     setReviewCabinet(false)
     setMandateOptionId(null)
+    setSignatureUncertain(false)
     const refresh = async () => {
       try {
         const fresh = await fetchMatchWorld(id)
@@ -135,8 +140,11 @@ export default function MultiplayerApp() {
     return () => { alive = false; requestRef.current += 1; window.clearInterval(interval) }
   }, [user?.id, activeId, reload])
 
+  const agenda = useMemo(() => world && user ? buildMatchAgenda(world, user.id) : null,
+    [world, user?.id])
   const dossier = useMemo(() => world?.dossiers.find(item => item.id === selectedDossierId)
-    ?? world?.dossiers[0] ?? null, [world, selectedDossierId])
+    ?? agenda?.next?.dossier ?? agenda?.items[0]?.dossier ?? null,
+    [world, selectedDossierId, agenda])
   const options = useMemo(() => world?.options.filter(option =>
     option.dossier_id === dossier?.id && option.dossier_version === dossier?.version) ?? [],
   [world, dossier])
@@ -226,29 +234,84 @@ export default function MultiplayerApp() {
       selectedOption.id), 'Posición política registrada. El índice de afinidad procede del cálculo del servidor.')
   }
 
+  /**
+   * A committed decision can outlive a dropped HTTP response. Never call it a
+   * success unless a fresh server world contains exactly the signed option.
+   * An ambiguous response locks the signature until explicit reconciliation.
+   */
   async function onCabinetDecision() {
     if (!world || !dossier || !selectedOption || !host || !active ||
-      cabinetEvent || !reviewCabinet || !mandateReady) return
-    const owner = user?.id
+      cabinetEvent || !reviewCabinet || !mandateReady || signatureUncertain || pending || !user) return
+    const owner = user.id
+    const matchId = world.match.id
+    const governmentId = world.government.id
+    const choiceId = selectedOption.id
+    const dossierId = dossier.id
+    const dossierVersion = dossier.version
+    const revision = requestRef.current
     setPending(true); setError(''); setNotice('')
     let failed: unknown = null
     try {
-      await submitDecision(world.government.id,dossier.id,dossier.version,selectedOption.id)
+      await submitDecision(governmentId, dossierId, dossierVersion, choiceId)
     } catch (reason) { failed = reason }
     try {
-      const persisted = await fetchMatchWorld(world.match.id)
-      if (ownerRef.current !== owner) return
+      const persisted = await fetchMatchWorld(matchId)
+      if (ownerRef.current !== owner || requestRef.current !== revision) return
+      if (persisted.match.id !== matchId || persisted.me.user_id !== owner ||
+          persisted.government.id !== governmentId) throw new Error('MATCH_FORBIDDEN')
       setWorld(persisted)
-      if (persisted.events.some(event => event.dossier_id === dossier.id)) {
-        setNotice('Decisión ejecutada. Los diez partidos comparten el nuevo estado nacional.')
+      const signed = persisted.events.find(event => event.dossier_id === dossierId)
+      if (signed) {
         setReviewCabinet(false)
-      } else setError(failed ? friendlyError(failed) :
-        'No se pudo verificar la decisión. Recarga antes de reintentar.')
+        setSelectedOptionId('')
+        setMandateOptionId(null)
+        setSignatureUncertain(false)
+        if (signed.option_id === choiceId && signed.dossier_version === dossierVersion) {
+          setNotice('Firma confirmada en el servidor. Los partidos comparten el nuevo estado nacional.')
+        } else {
+          setError('El servidor registra una opción diferente. No se ha repetido la firma.')
+        }
+      } else {
+        setSignatureUncertain(true)
+        setError((failed ? matchError(failed) + ' ' : '') +
+          'No podemos confirmar la firma. Sincroniza el gobierno antes de intentarlo otra vez.')
+      }
     } catch (reason) {
-      if (ownerRef.current === owner)
-        setError('No se pudo reconciliar la decisión: ' + matchError(reason))
+      if (ownerRef.current === owner && requestRef.current === revision) {
+        setSignatureUncertain(true)
+        setError('El resultado de la firma es incierto: ' + matchError(reason) +
+          '. Sincroniza el gobierno antes de continuar.')
+      }
     } finally {
-      if (ownerRef.current === owner) setPending(false)
+      if (ownerRef.current === owner && requestRef.current === revision) setPending(false)
+    }
+  }
+
+  async function reconcileCabinet() {
+    if (!world || !user || !signatureUncertain || pending) return
+    const owner = user.id
+    const revision = requestRef.current
+    const matchId = world.match.id
+    const dossierId = dossier?.id
+    setPending(true); setError(''); setNotice('')
+    try {
+      const persisted = await fetchMatchWorld(matchId)
+      if (ownerRef.current !== owner || requestRef.current !== revision) return
+      if (persisted.match.id !== matchId || persisted.me.user_id !== owner ||
+          persisted.government.id !== world.government.id) throw new Error('MATCH_FORBIDDEN')
+      setWorld(persisted)
+      setSignatureUncertain(false)
+      setReviewCabinet(false)
+      setSelectedOptionId('')
+      setMandateOptionId(null)
+      const event = persisted.events.find(item => item.dossier_id === dossierId)
+      setNotice(event ? 'Firma encontrada en el historial oficial. Se ha actualizado el gabinete.'
+        : 'Sin firma registrada en el estado oficial. Puedes revisar una opción de nuevo.')
+    } catch (reason) {
+      if (ownerRef.current === owner && requestRef.current === revision)
+        setError('No se pudo sincronizar la firma: ' + matchError(reason))
+    } finally {
+      if (ownerRef.current === owner && requestRef.current === revision) setPending(false)
     }
   }
 
@@ -344,6 +407,7 @@ export default function MultiplayerApp() {
         <nav className="match-list" aria-label="Mis partidas">
           {matches.length ? matches.map(item => <button key={item.id}
             className={'match-list-item ' + (item.id === activeId ? 'selected' : '')}
+            disabled={pending}
             onClick={() => setActiveId(item.id)}>
             <strong>{item.title}</strong><span>{item.party_name} · {item.player_count}/10 · {item.status}</span>
           </button>) : <p className="muted">No perteneces a ninguna partida todavía.</p>}
@@ -477,13 +541,14 @@ export default function MultiplayerApp() {
                 'La asamblea ha comenzado.')}>Comenzar legislatura</button>}
             {!host && <p role="status">Esperando la convocatoria del partido de gobierno.</p>}
           </div> : <div className="match-politics" id="match-dossiers">
-            <p className="eyebrow">AGENDA COMPARTIDA · DECISIONES VINCULANTES</p>
-            <h2>Dossiers del gobierno</h2>
-            <div className="match-dossiers">
-              {world.dossiers.map(item => <button className={dossier?.id === item.id ? 'selected' : ''}
-                key={item.id} onClick={() => { setSelectedDossierId(item.id);setSelectedOptionId('');setReviewCabinet(false);setMandateOptionId(null) }}>
-                {item.title}</button>)}
-            </div>
+            <MatchAgendaBoard key={world.match.id} world={world} userId={user!.id}
+              selectedDossierId={dossier?.id ?? null}
+              onSelect={id => {
+                setSelectedDossierId(id)
+                setSelectedOptionId('')
+                setReviewCabinet(false)
+                setMandateOptionId(null)
+              }} />
             {dossier ? <div className="match-dossier">
               <p className="eyebrow">{dossier.category} · VERSIÓN {dossier.version}</p>
               <h3>{dossier.title}</h3><p>{dossier.context}</p>
@@ -517,12 +582,18 @@ export default function MultiplayerApp() {
                   confianza: {cabinetEvent.state_after.trust}%.</p>
                 : <>
                   <p>Solo el gobierno firma la decisión nacional, y únicamente después de que la asamblea apruebe esa opción. El mandato se verifica también en la base de datos.</p>
-                  {!mandateReady && <p role="status">Selecciona la opción aprobada por el Parlamento para poder firmarla.</p>}
-                  {!reviewCabinet ? <button disabled={pending || !mandateReady}
+                  {signatureUncertain && <div className="fictitious-notice" role="status">
+                    No se ha podido confirmar la firma de este expediente.
+                    <button type="button" className="text-button" disabled={pending}
+                      onClick={() => void reconcileCabinet()}>Sincronizar firma pendiente</button>
+                  </div>}
+                  {!mandateReady && !signatureUncertain &&
+                    <p role="status">Selecciona la opción aprobada por el Parlamento para poder firmarla.</p>}
+                  {!reviewCabinet ? <button disabled={pending || !mandateReady || signatureUncertain}
                     onClick={() => setReviewCabinet(true)}>Revisar decisión de gobierno</button>
                   : <div className="match-confirm">
                     <p>¿Ejecutar «{selectedOption?.title}» para toda la nación? Esta operación es irreversible.</p>
-                    <button disabled={pending || !mandateReady}
+                    <button disabled={pending || !mandateReady || signatureUncertain}
                       onClick={() => void onCabinetDecision()}>Firmar y ejecutar</button>
                     <button className="text-button" disabled={pending}
                       onClick={() => setReviewCabinet(false)}>Cancelar</button>
