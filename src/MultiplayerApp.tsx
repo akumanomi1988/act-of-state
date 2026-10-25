@@ -44,7 +44,8 @@ export default function MultiplayerApp() {
   const [selectedOptionId, setSelectedOptionId] = useState('')
   const [reviewCabinet, setReviewCabinet] = useState(false)
   const [mandateOptionId, setMandateOptionId] = useState<string | null>(null)
-  const [signatureUncertain, setSignatureUncertain] = useState(false)
+  const [uncertainDossierId, setUncertainDossierId] = useState<string | null>(null)
+  const signatureUncertain = uncertainDossierId !== null
   const [loading, setLoading] = useState(false)
   const [pending, setPending] = useState(false)
   const [reload, setReload] = useState(0)
@@ -63,7 +64,7 @@ export default function MultiplayerApp() {
       setActiveId(null)
       setWorld(null)
       setMandateOptionId(null)
-      setSignatureUncertain(false)
+      setUncertainDossierId(null)
       setMatches([])
       setError('')
     }
@@ -120,7 +121,7 @@ export default function MultiplayerApp() {
     setSelectedOptionId('')
     setReviewCabinet(false)
     setMandateOptionId(null)
-    setSignatureUncertain(false)
+    setUncertainDossierId(null)
     const refresh = async () => {
       try {
         const fresh = await fetchMatchWorld(id)
@@ -265,20 +266,20 @@ export default function MultiplayerApp() {
         setReviewCabinet(false)
         setSelectedOptionId('')
         setMandateOptionId(null)
-        setSignatureUncertain(false)
+        setUncertainDossierId(null)
         if (signed.option_id === choiceId && signed.dossier_version === dossierVersion) {
           setNotice('Firma confirmada en el servidor. Los partidos comparten el nuevo estado nacional.')
         } else {
           setError('El servidor registra una opción diferente. No se ha repetido la firma.')
         }
       } else {
-        setSignatureUncertain(true)
+        setUncertainDossierId(dossierId)
         setError((failed ? matchError(failed) + ' ' : '') +
           'No podemos confirmar la firma. Sincroniza el gobierno antes de intentarlo otra vez.')
       }
     } catch (reason) {
       if (ownerRef.current === owner && requestRef.current === revision) {
-        setSignatureUncertain(true)
+        setUncertainDossierId(dossierId)
         setError('El resultado de la firma es incierto: ' + matchError(reason) +
           '. Sincroniza el gobierno antes de continuar.')
       }
@@ -292,7 +293,7 @@ export default function MultiplayerApp() {
     const owner = user.id
     const revision = requestRef.current
     const matchId = world.match.id
-    const dossierId = dossier?.id
+    const dossierId = uncertainDossierId
     setPending(true); setError(''); setNotice('')
     try {
       const persisted = await fetchMatchWorld(matchId)
@@ -300,7 +301,7 @@ export default function MultiplayerApp() {
       if (persisted.match.id !== matchId || persisted.me.user_id !== owner ||
           persisted.government.id !== world.government.id) throw new Error('MATCH_FORBIDDEN')
       setWorld(persisted)
-      setSignatureUncertain(false)
+      setUncertainDossierId(null)
       setReviewCabinet(false)
       setSelectedOptionId('')
       setMandateOptionId(null)
@@ -577,6 +578,12 @@ export default function MultiplayerApp() {
                 onClick={() => void onStance()}>Fijar posición del partido</button>}
               {host && <div className="match-cabinet">
                 <p className="eyebrow">COMPETENCIA DEL GOBIERNO</p>
+                {signatureUncertain && uncertainDossierId !== dossier?.id &&
+                  <div role="status" className="fictitious-notice">
+                    Tienes una firma por confirmar en otro expediente.
+                    <button type="button" className="text-button" disabled={pending}
+                      onClick={() => void reconcileCabinet()}>Sincronizar firma anterior</button>
+                  </div>}
                 {cabinetEvent ? <p role="status">Decisión ejecutada: {cabinetEvent.option_title_snapshot}.
                   Tesoro: {number(cabinetEvent.state_after.treasury_m_eur)} M€;
                   confianza: {cabinetEvent.state_after.trust}%.</p>
