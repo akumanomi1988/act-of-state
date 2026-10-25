@@ -55,13 +55,13 @@ jobs:
         run: npm install --no-save --package-lock=false playwright@1.56.1 axe-core@4.10.3
       - name: Exercise real GoTrue, PostgREST, Parliament and Chromium
         env:
-          VITE_SUPABASE_URL: ${{ env.API_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ env.ANON_KEY }}
           AOS_BROWSER_BASE_URL: http://127.0.0.1:4173
         run: |
           set -euo pipefail
           test -n "$API_URL"
           test -n "$ANON_KEY"
+          export VITE_SUPABASE_URL="$API_URL"
+          export VITE_SUPABASE_PUBLISHABLE_KEY="$ANON_KEY"
           npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/aos-auth-vite.log 2>&1 &
           vite_pid=$!
           trap 'kill "$vite_pid" 2>/dev/null || true' EXIT
