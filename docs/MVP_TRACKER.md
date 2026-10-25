@@ -1,10 +1,19 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-043 official founding programme — merged, CI verified and Vercel status successful; real browser Auth still unverified.
+**Latest implementation increment:** AOS-044 multiplayer parliamentary command, role-aware navigation and fail-closed signature reconciliation (CI acceptance pending).
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-044 — Multiplayer legislative command and reconciliation (2026-10-25)
+
+- A single server-ledger command board highlights the weekly deadline ahead of the permanent ten-case founding agenda. Cabinet/opposition roles are shown independently of recorded stances, with filters for party-relevant pending work and nationally signed decisions.
+- Government signatures require exact-option reconciliation against persisted decisions, including after a lost HTTP acknowledgement. Ambiguity locks further signing until an explicit fresh snapshot, with the originating dossier preserved across navigation. A conflicting event never becomes a successful local notice.
+- Immutable decisions cannot disappear from screen due to an older 15-second polling response. Parliament bill proposals, vote receipts and final tallies are independently revalidated against official RPC reads even if mutation transport fails.
+- The technical E2E suite simulates ten seat identities and separate government/opposition Chromium browser sessions on mocked HTTP; original SQL integration remains the security/concurrency authority. Neither replaces a real human-authenticated ten-account playtest.
+- **Evidence pending on PR**: Node oracle, TypeScript, Vitest, Vite, browser accessibility, PostgreSQL regression and exact deployed commit. No migrations or extra database privileges required.
+- **Strict acceptance remains 2/18 (11.1%)** unless new verifiable evidence completes a previously partial gate. This score is not the implementation completion percentage.
 
 ## AOS-043 — Full official founding government programme (2026-10-25)
 
