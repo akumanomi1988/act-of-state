@@ -1,7 +1,7 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-043 founding government programme (implementation validation pending).
+**Latest implementation increment:** AOS-043 official founding programme — PostgreSQL, UI and Cloud data verified; deployment acceptance pending.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
@@ -12,7 +12,9 @@ Historical iteration evidence below is retained and may describe superseded bloc
 - Reused the protected versioned server decision engine: all options produce immutable, player-owned government consequences. Preserved treasury safety, idempotency, cohort responses and historical titles.
 - Introduced the official programme progress bar, immutable before/after event-derived treasury/approval/trust contributions, weekly-deadline prioritization, five agenda filters and a continuation action. Updated onboarding and manual.
 - Added rollback integration suite covering the complete ten-decision worst-cost combination (8,860 M€), duplicate replay, rival-account RLS denial and 10/30 catalogue in the authoritative world snapshot. Extended React and Chromium browser regressions.
-- **Release evidence pending** at the time of authoring: confirm PostgreSQL and React CI, dedicated-cloud migration and Vercel status. Never count a successful code commit as hosted Auth or human-ten-party E2E evidence.
+- **Verified regression:** [PostgreSQL CI #40204049283](https://github.com/akumanomi1988/act-of-state/actions/runs/40204049283) PASS (38 existing + founding migration, rollback integration including ten real-engine decisions, permissions, cross-connection persistence and concurrency); [quality CI #40204049325](https://github.com/akumanomi1988/act-of-state/actions/runs/40204049325) PASS (**153/153 Vitest**, oracle, TypeScript, Vite build, 14 browser flows plus guest tests, responsive 390/1440px, WCAG 2.1 A/AA).
+- **Verified Cloud data:** dedicated Supabase ACT OF STATE project `nwlxkqwbusrrldveijzb` migration `20261025145152_aos_043_foundational_campaign` applied successfully. Post-migration readback: **10 intro dossiers**, **30 intro options**, **8 new dossier IDs**. Migration file version is identical to remote history. No other project modified.
+- **Still unverified:** production UI smoke against live Auth, real multi-browser participant sessions, an editor-reviewed live weekly publication, balancing and human design acceptance. Vercel release state must be checked after merge. Never count a successful commit as real human E2E evidence.
 - The strict 18-gate tally remains **2/18 (11.1%)** until external acceptance is independently verified. This is *not* an implementation-weighted completion percentage.
 
 ## AOS-042 — Guest training sandbox (2026-10-25)
