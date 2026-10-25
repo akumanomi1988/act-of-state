@@ -1,0 +1,29 @@
+# AOS-045: local-only authentication and PostgREST acceptance environment.
+# NEVER link to a hosted Supabase project or push this configuration.
+project_id = "act-of-state-acceptance"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:4173"
+additional_redirect_urls = ["http://127.0.0.1:4173"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+
+[auth.rate_limit]
+sign_in_sign_ups = 120
