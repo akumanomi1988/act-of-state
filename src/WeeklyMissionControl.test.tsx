@@ -1,4 +1,4 @@
-import { cleanup,fireEvent,render,screen,waitFor,within } from '@testing-library/react'
+import { cleanup,fireEvent,render,screen,within } from '@testing-library/react'
 import { afterEach,beforeEach,describe,expect,it,vi } from 'vitest'
 import WeeklyMissionControl from './WeeklyMissionControl'
 import type { MatchWorld,MatchCalendar } from './lib/multiplayer'
@@ -75,8 +75,8 @@ describe('read-only weekly mission command UI',()=>{
     })
     render(<WeeklyMissionControl world={fixture()} userId={guest} onSelect={vi.fn()}/>)
     await screen.findByText('TU VOTO PENDIENTE')
-    expect(screen.getByText('0 / 1')).toBeInTheDocument()
-    expect(screen.getByText(/No se ha/)).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Progreso legislativo semanal'))
+      .toHaveTextContent('LEYES EJECUTADAS0 / 1')
   })
   it('fails closed on stale calendars and temporarily unavailable parliament',async()=>{
     const select=vi.fn()
