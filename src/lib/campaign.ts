@@ -8,6 +8,7 @@ export interface CampaignCohort {
   weight: number
   idealPolicy: number
   myInfluence: number
+  nextDecayOn: string | null
 }
 
 export interface CampaignAct {
@@ -19,7 +20,7 @@ export interface CampaignAct {
   strategy: CampaignStrategy
   influence_delta: number
   influence_after: number
-  model_version: 'campaign-outreach-v1'
+  model_version: 'campaign-outreach-v1' | 'campaign-decay-v2'
   created_at: string
 }
 
@@ -29,6 +30,7 @@ export interface CampaignState {
   campaignClosesOn: string | null
   available: boolean
   usedThisWeek: boolean
+  influenceModel: 'campaign-decay-v2'
   cohorts: CampaignCohort[]
   recentActs: CampaignAct[]
 }
@@ -40,6 +42,11 @@ function validState(raw: unknown): raw is CampaignState {
     && typeof obj.weekStart === 'string'
     && typeof obj.available === 'boolean'
     && typeof obj.usedThisWeek === 'boolean'
+    && obj.influenceModel === 'campaign-decay-v2'
+    && obj.cohorts.every(c => Number.isInteger(c.myInfluence) &&
+      c.myInfluence >= 0 && c.myInfluence <= 20 &&
+      (c.nextDecayOn === null ||
+       (typeof c.nextDecayOn === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(c.nextDecayOn))))
     && Array.isArray(obj.cohorts)
     && Array.isArray(obj.recentActs)
     && (obj.campaignClosesOn === null || typeof obj.campaignClosesOn === 'string')
