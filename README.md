@@ -28,6 +28,10 @@ The **real protocol CI** now validates the actual user-facing magic-link login f
 
 The real ten-party multiplayer room now includes a **Weekly Operations Room** that prioritizes personal editorial-week actions, tracks votes, party stances, legally enacted decisions, official Friday deadlines and unresolved work. It is a read-only composition of the authoritative government, Parliament and calendar RPCs, never a second simulation. The real-GoTrue CI additionally validates **ten synthetic weekly dossiers through the actual editor-review-publisher transaction**, version invalidation, permissions and next-week embargo; it never publishes fictional news to the hosted game. See [full workflow and acceptance boundaries](docs/LEGISLATIVE_WEEK_COMMAND.md).
 
+## Campaigns that require continued political engagement (AOS-048)
+
+Campaign persuasion now has **server-authoritative time decay**: two points of effective influence expire every seven UTC days after the last intervention in each social cohort. New campaigns restore support from the decayed baseline while retaining the once-a-week quota and election blackout. Both territorial election projections and archived daily opinion polls use the same versioned `electoral-districts-v2` model; old official election, poll and campaign records retain their original values. The campaign page shows current support and its next decrease. See [Campaign Relevance and Electoral Balance](docs/CAMPAIGN_RELEVANCE.md).
+
 ## Current implementation (AOS-MVP-001)
 
 The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events, ten-party shared-nation matches and a deterministic, server-authoritative simulation engine.
