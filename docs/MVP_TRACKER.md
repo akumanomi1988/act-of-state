@@ -1,10 +1,18 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-047 complete weekly legislative command and verified local editorial acceptance — PR #40 merged, CI green; external operational gates remain.
+**Latest implementation increment:** AOS-048 versioned electoral campaign renewal and decay — implementation and verification pending.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-048 — Time-bounded campaign persuasion and election relevance (2026-10-25)
+
+- Addresses a long-running electoral strategy flaw: influence previously remained at its capped maximum indefinitely, even after political inactivity. Adds a deterministic **2 effective persuasion points lost per completed 7-day UTC interval** without new action in each social cohort; limits [0,20], no browser-controlled dates or write-on-read. Renewal begins from effective decayed support, preserves the existing one-campaign-per-week cap, safe retries, server row locks and seven-day election blackout.
+- Integrates the single authoritative model with **all six electoral districts**, 300 synthetic households, current election projection, certified immutable future election acts, and the server's daily opinion-poll capture. New models are `campaign-decay-v2` and `electoral-districts-v2`; old act/forecast versions stay readable without historical data migration or recalculation.
+- Campaign UI shows the effective current influence and **next UTC decay date**, with a clear historical-action distinction. Player guide and new balancing documentation updated; campaign and election components, ten JWT local integration and responsive Chromium regressions extended.
+- A new rollback SQL suite covers 0/7/14/30-day boundaries, exact renewal, history integrity, daily opinion snapshots, role isolation and election seat totals. **CI and cloud migration evidence pending**. Scope is game balance engineering, **not** proof of calibrated player engagement or human multiweek operational acceptance.
+- Original strict MVP acceptance **2/18 = 11.1%** remains unchanged until external criteria are independently satisfied; never report these technical changes as automatically accepted product gates. See [CAMPAIGN_RELEVANCE.md](CAMPAIGN_RELEVANCE.md).
 
 ## AOS-047 — Complete weekly legislative operations (2026-10-25)
 
