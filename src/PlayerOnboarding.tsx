@@ -15,9 +15,16 @@ export function onboardingSteps(world: GovernmentWorld | MatchWorld) {
    { label: 'Consulta cómo se vota y se ejecuta una medida', done: false, guide: 'parliament' }
   ]
  }
+ const foundational = (world.dossiers ?? []).filter(dossier => dossier.release_kind === 'intro')
+ const completedIds = new Set(world.events.map(event => event.dossier_id))
+ const foundationalDone = foundational.filter(dossier => completedIds.has(dossier.id)).length
  return [
   { label: 'Gobierno persistente recuperado', done: true, guide: 'access' },
   { label: 'Firma tu primera decisión', done: world.events.length > 0, guide: 'first-decision' },
+  ...(foundational.length > 0 ? [{
+   label: 'Programa fundacional: '+foundationalDone+' de '+foundational.length+' decisiones',
+   done: foundationalDone === foundational.length, guide: 'foundational-programme'
+  }] : []),
   { label: world.calendar.weeklyTotal > 0 ? 'Agenda semanal publicada' : 'La agenda semanal está pendiente de publicación editorial', done: world.calendar.weeklyTotal > 0, guide: 'calendar' },
   { label: 'Conoce el presupuesto y sus consecuencias sociales', done: false, guide: 'budget' }
  ]
