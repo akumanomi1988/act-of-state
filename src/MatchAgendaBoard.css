@@ -1,0 +1,25 @@
+/* AOS-044: command-board scoped styles; existing app typography and palette. */
+.match-agenda-board{min-width:0;margin-bottom:22px}
+.match-agenda-header{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(225px,1fr);gap:18px;align-items:start}
+.match-agenda-header h2{font-size:clamp(25px,2.8vw,35px);margin:9px 0}
+.match-agenda-header p.muted{line-height:1.65;font-size:12px}
+.match-agenda-milestones{display:grid;gap:10px}
+.match-agenda-milestones>div{border:1px solid #65706b;background:#152020;padding:12px}
+.match-agenda-milestones span,.match-agenda-milestones small{display:block;font-size:11px;line-height:1.5;color:#d3dcd5}
+.match-agenda-milestones span{font-weight:700;letter-spacing:.06em}
+.match-agenda-milestones strong{display:block;font:600 16px 'IBM Plex Sans',sans-serif;color:#f5eee2;margin:4px 0}
+.match-agenda-advisory{border-left:3px solid #dbc18e;background:#1a2827;color:#f8e9c6;font-size:12px;line-height:1.7;padding:11px 13px;margin:15px 0}
+.match-agenda-next{display:block;background:#24382f;border:2px solid #b8d3bc;color:#f8fff7;font-weight:700;font-size:13px;padding:12px 16px;cursor:pointer;margin:16px 0}
+.match-agenda-filters{display:flex;gap:8px;flex-wrap:wrap;margin:17px 0 14px}
+.match-agenda-filters button{border:1px solid #85968f;background:#10191a;color:#fffdf5;font-size:12px;font-weight:600;cursor:pointer;padding:10px 12px;line-height:1.4;opacity:1}
+.match-agenda-filters button.active{border:2px solid #e4c59a;background:#263529;color:#fffdf5;box-shadow:inset 0 -3px 0 #e4c59a}
+.match-agenda-filters button:hover:not(.active){border-color:#f0d49f}
+.match-agenda-next:focus-visible,.match-agenda-filters button:focus-visible,.match-agenda-list button:focus-visible{outline:3px solid #f3d2a2;outline-offset:3px}
+.match-agenda-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:8px;margin:0}
+.match-agenda-list button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:6px;min-height:116px;background:#142124;border:1px solid #62756b;padding:13px;color:#f3f3ed;cursor:pointer}
+.match-agenda-list button.selected{border:2px solid #e4c59a;background:#29322c}
+.match-agenda-list button strong{font-size:14px;line-height:1.5}
+.match-agenda-list button small,.match-agenda-kind{font-size:10px;line-height:1.5;color:#c6d6cb;letter-spacing:.035em}
+.match-agenda-empty{grid-column:1/-1;font-size:13px;color:#eee;padding:15px;border:1px dashed #778d85}
+@media(max-width:780px){.match-agenda-header{grid-template-columns:1fr}.match-agenda-milestones{grid-template-columns:1fr 1fr}.match-agenda-list{grid-template-columns:1fr 1fr}}
+@media(max-width:470px){.match-agenda-milestones{grid-template-columns:1fr}.match-agenda-list{grid-template-columns:1fr}.match-agenda-filters button{flex:1 1 auto}}
