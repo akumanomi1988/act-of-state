@@ -24,6 +24,10 @@ The opt-in [real-auth acceptance workflow](.github/workflows/live-auth-acceptanc
 
 The **real protocol CI** now validates the actual user-facing magic-link login form, GoTrue-delivered email captured by local Mailpit, automatic session persistence, private invite-code preservation, UI-created and UI-joined matches, cabinet/opposition privileges, one-use token consumption, logout isolation, and all ten distinct real-JWT Chromium party sessions. This is a disposable local-only stack; no production SMTP traffic or hosted user data is involved. See [email-link and ten-browser acceptance](docs/EMAIL_LINK_TEN_BROWSER_ACCEPTANCE.md).
 
+## Integrated live legislative week (AOS-047)
+
+The real ten-party multiplayer room now includes a **Weekly Operations Room** that prioritizes personal editorial-week actions, tracks votes, party stances, legally enacted decisions, official Friday deadlines and unresolved work. It is a read-only composition of the authoritative government, Parliament and calendar RPCs, never a second simulation. The real-GoTrue CI additionally validates **ten synthetic weekly dossiers through the actual editor-review-publisher transaction**, version invalidation, permissions and next-week embargo; it never publishes fictional news to the hosted game. See [full workflow and acceptance boundaries](docs/LEGISLATIVE_WEEK_COMMAND.md).
+
 ## Current implementation (AOS-MVP-001)
 
 The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events, ten-party shared-nation matches and a deterministic, server-authoritative simulation engine.
