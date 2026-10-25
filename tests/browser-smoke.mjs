@@ -779,7 +779,7 @@ try {
       id:'weekly-published',version:1,title:'Ley semanal verificada de prueba',
       context:'Escenario editorial sintético; no corresponde a una noticia real.',
       category:'Instituciones',release_kind:'weekly',
-      available_from:'2026-10-20',available_until:'2026-10-24',
+      available_from:'2026-10-19',available_until:'2026-10-23',
       source_url:'https://example.invalid/weekly',source_title:'Fuente sintética'
     }
     const introDossier={
@@ -850,7 +850,7 @@ try {
     const page=await context.newPage()
     await page.goto(BASE+'/guide',{waitUntil:'networkidle'})
     await page.getByRole('heading',{level:1}).waitFor()
-    await page.getByRole('navigation',{name:'Contenido del manual'}).getByRole('link',{name:'Una semana política'}).click()
+    await page.getByRole('navigation',{name:'Contenido del manual'}).getByRole('link',{name:'Una semana política',exact:true}).click()
     await page.getByRole('heading',{name:'Una semana política'}).waitFor()
     await checkMobileOverflow(page,'public player manual')
     await checkA11y(page,'public player manual')
