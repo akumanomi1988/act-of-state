@@ -1,7 +1,7 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-047 legislative week command and real editorial workflow acceptance — verification pending.
+**Latest implementation increment:** AOS-047 complete weekly legislative command and verified local editorial acceptance — PR #40 merged, CI green; external operational gates remain.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
@@ -12,7 +12,7 @@ Historical iteration evidence below is retained and may describe superseded bloc
 - Deadline behavior follows server UTC Friday, with stale read fail-closed safeguards, next-day detection, explicit refresh, meaningful no-news warnings, progress per player and navigation to the existing mandated Parliament/decision UI. No extra privileged RPC grants, write endpoints or SQL migrations.
 - Extended responsive/axe Chromium scenarios for weekly urgency, role-specific actions and simulated ballots. New Vitest pure model and React tests cover task transitions, vote/signature separation, no fictitious news publication and availability failures.
 - Extended **real local GoTrue/PostgREST CI** to exercise full ten-case synthetic editorial draft, role assignment, ten signed publisher attestations, CAS revision invalidation, immutable publication, outsider restrictions and next-week embargo. Test source URLs use only `example.invalid`; **this is not a real ten-article news publication**.
-- **Release evidence pending**: CI workflows and exact merged Vercel commit to be verified; original strict acceptance still **2/18 (11.1%)**, because real production editorial operation, human ten-player validation and commercial design sign-off remain outstanding.
+- **Verified:** [PR #40](https://github.com/akumanomi1988/act-of-state/pull/40) merged at `477ce9ffedac3f0cde86ebd8bfd6aa0d4cb472ff`. [Quality CI #40221460826](https://github.com/akumanomi1988/act-of-state/actions/runs/40221460826) **PASS**: **181/181 Vitest** (38 files), TypeScript, build, 15 Chromium browser scenarios, two guest viewport sessions and WCAG; weekly command tested for action priority, server deadline, legal/vote distinction, stale fail-closed and ten-party navigation. [Live Auth CI #40221460670](https://github.com/akumanomi1988/act-of-state/actions/runs/40221460670) **PASS**: authentic local GoTrue/PostgREST and ten browsers (**126** assertions), actual magic-link/Mailpit (**26** assertions), and a separate ten-case publisher-editor **synthetic editorial release with 10 review approvals, CAS edit invalidation, embargo, role isolation and immutable publication (60 assertions)**. All data and messages disposable and local. **The original strict acceptance stays 2/18 (11.1%)**: no human-reviewed real news, hosted SMTP, full human ten-player calendar week or final design sign-off was verified.
 - See [LEGISLATIVE_WEEK_COMMAND.md](LEGISLATIVE_WEEK_COMMAND.md).
 
 ## AOS-046 — Full local magic-link onboarding and ten-browser legislature (2026-10-25)
