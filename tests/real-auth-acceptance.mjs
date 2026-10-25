@@ -151,9 +151,10 @@ const verifiedWorld=await rpc(players[9],'get_match_world',{p_match_id:match.id}
 pass(verifiedWorld.events.length===1 && verifiedWorld.events[0].id===decision.id &&
   verifiedWorld.government.treasury_m_eur===10600,
   'Independent account did not observe the signed national event')
-await rejectedRpc(outsider,'get_government_world',{
-  p_government_id:govId
-},/GOVERNMENT_NOT_FOUND_OR_FORBIDDEN|permission denied/i)
+const { data:alienWorld,error:alienWorldError } =
+  await outsider.client.rpc('get_government_world',{p_government_id:govId})
+pass(alienWorld == null || !!alienWorldError,
+  'Cross-owner snapshot must be NULL or return an authorization error')
 pass((await rpc(outsider,'list_my_matches')).length===0,
   'Outsider discovered a private game')
 
