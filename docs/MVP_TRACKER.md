@@ -1,7 +1,7 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-042 guest training sandbox (PR acceptance pending).
+**Latest implementation increment:** AOS-042 guest training sandbox — merged PR #35, verified quality CI.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
@@ -17,6 +17,7 @@ Historical iteration evidence below is retained and may describe superseded bloc
 - Adds Vitest engine/UI coverage and mobile/desktop Chromium browser QA to the
   opt-in quality workflow, including WCAG checks and assertions forbidding backend
   requests from guest play. See `docs/GUEST_DEMO.md`.
+- **Verified:** [PR #35](https://github.com/akumanomi1988/act-of-state/pull/35) squash-merged into `main` at `42355905b23ba3f517bbe9569055e84d2bdd0a1a`. [Quality CI run 40202300839](https://github.com/akumanomi1988/act-of-state/actions/runs/40202300839) passed clean install, Node oracle, TypeScript, **147 Vitest tests**, production Vite build, **13 existing Chromium scenarios**, **2 guest Chromium widths (390/1440px)**, WCAG 2.1 A/AA scan, no Supabase request, review/sign, reload/reset and screenshot uploads. GitHub's Vercel status on the merge commit reported **success**; live public HTTP and real-user login remain unverified.
 - The original acceptance tally remains **2/18 (11.1%)**, with **+0 percentage
   points** until real authenticated gameplay and other outstanding gate evidence
   are obtained. This guest acquisition feature lies outside the original
