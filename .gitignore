@@ -8,3 +8,6 @@ coverage/
 test-results/
 supabase/.temp/
 *.tsbuildinfo
+
+# Generated at build time, never checked into version control.
+/public/release.json
