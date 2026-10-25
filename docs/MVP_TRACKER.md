@@ -1,10 +1,20 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-049 verifiable production release, public diagnostics, disaster recovery and ten-party HTTP load — branch CI verified; exact hosted main release pending.
+**Latest implementation increment:** AOS-050 four-chapter fictional national reforms — code on isolated development branch, not released to Vercel or hosted Supabase; branch CI not yet run. The AOS-049 exact hosted release check has already passed on main.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-050 — National reform programme (2026-10-25, isolated development)
+
+- Expands the existing ten permanent original fictional dossiers into an authored 28-case policy programme with **18 new long-form dilemmas and 54 distinct policy alternatives** in four connected chapters: welfare/society (5), economy/resources (5), institutional democracy (4), and resilience/external dependencies (4). The original ten IDs, thirty alternatives, cost parameters and archived decisions remain unchanged.
+- Each new option is a true server-authoritative `submit_decision` fiscal/cohort intervention and an immutable act in the existing national history. In the active ten-party game it must pass binding parliamentary approval before government signature; no privileged write path, price, editorial role or fabricated current news was introduced.
+- Adds stable chapter/order metadata, solo chapter progress and continuity, parliamentary stage counts and filters, responsive progress/navigation, updated guide and original authored content; the editorial weekly release and genuine-news embargo are isolated by an explicit new database constraint.
+- Adds a full disposable SQL 18-signature acceptance scenario, checks all 84 option records, political/fiscal trade-offs, idempotency, government ownership and original founding fiscal invariant; adds ten-party real GoTrue parliamentary campaign acceptance, Node content oracle and React tests. Existing weekly fixture snapshots now expect 28 permanent cases separately from ten true weekly news articles.
+- **Verification achieved in-session:** static catalogue inspection finds 18 unique new cases, 54 choices, exact (5/5/4/4) chapter coverage, no underspecified descriptions or scenarios, and positive/negative fiscal alternatives per case. **Not verified:** PostgreSQL execution, Vitest/TypeScript, real GoTrue browser suites or release parity for the new branch; they must run in a safe CI executor before acceptance.
+- **OWNER HOLD — DO NOT PUBLISH:** `aos/050-national-reforms-campaign` is a development branch only. Do **not** merge into main, create a pull request that could deploy to Vercel, change Vercel project state, or apply this migration to the hosted Supabase project without separate explicit owner authorization. [Release safeguard](NO_VERCEL_AUTODEPLOY.md), [campaign technical guide](NATIONAL_REFORM_PROGRAMME.md).
+- The original strict acceptance count stays **2/18 = 11.1%**; an expanded authored campaign does not replace external SMTP, ten consenting human players, actual reviewed news, long-running calibration or human audiovisual QA. No release percentage is invented.
 
 ## AOS-049 — Immutable production releases, diagnostic access and durable recovery (2026-10-25)
 
