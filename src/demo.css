@@ -1,0 +1,49 @@
+/* Guest sandbox: deliberately isolated styles, no interference with official government UX. */
+.demo-shell{min-height:100vh}
+.demo-wrap{width:100%;max-width:1580px;margin:0 auto;padding:0 clamp(18px,3.2vw,52px) 65px}
+.demo-lead{max-width:970px;padding:58px 0 30px}
+.demo-lead h1{max-width:900px}
+.demo-lead>p{font-size:17px;line-height:1.8;color:var(--muted);max-width:750px}
+.demo-disclaimer{max-width:920px;font-size:12px;line-height:1.7;margin:25px 0 0}
+.demo-disclaimer strong{display:block;color:var(--gold-strong);margin-bottom:4px}
+.demo-access{min-height:auto;text-decoration:none;padding:12px 15px;font-size:12px}
+.demo-summary{border:1px solid var(--line);background:var(--panel);padding:clamp(20px,2vw,32px);margin-bottom:28px}
+.demo-summary-head{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.demo-summary-head h2{font-size:28px;margin:8px 0 22px}
+.demo-progress{font:500 12px 'IBM Plex Mono',monospace;color:var(--gold-strong)}
+.demo-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.demo-metric{border-top:1px solid var(--line);padding-top:16px;min-width:0}
+.demo-metric span,.demo-impacts span{display:block;color:var(--muted);font-size:12px;line-height:1.5}
+.demo-metric strong{display:block;font:500 clamp(22px,2.1vw,31px) 'IBM Plex Serif',Georgia,serif;margin:7px 0;overflow-wrap:anywhere}
+.demo-metric small,.demo-impacts small{font-size:11px;line-height:1.5;color:var(--muted)}
+.demo-grid{display:grid;grid-template-columns:minmax(240px,1fr) minmax(0,2.15fr);border:1px solid var(--line);background:var(--panel)}
+.demo-sidebar{background:#131c1e;border-right:1px solid var(--line);padding:clamp(18px,2.5vw,35px)}
+.demo-sidebar h2{font-size:30px;margin:12px 0}
+.demo-main{padding:clamp(22px,3.2vw,46px);min-width:0}
+.demo-main>h2{font-size:clamp(28px,3.1vw,46px);margin-top:14px}
+.demo-main .dossier-context{max-width:800px}
+.demo-outcome{border:1px solid #686049;background:#232b2a;padding:clamp(18px,2.5vw,28px);margin-top:25px}
+.demo-outcome h3{font-size:29px;margin:10px 0}
+.demo-impacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(142px,1fr));gap:13px;margin:22px 0 26px}
+.demo-impacts>div{background:#161f20;border:1px solid var(--line);padding:13px;min-width:0}
+.demo-impacts strong{display:block;font:500 23px 'IBM Plex Serif',Georgia,serif;margin:8px 0;overflow-wrap:anywhere}
+.demo-error{padding:12px 16px;border:1px solid #b87269;background:#3e2525;color:#f6c4bd;margin:20px 0}
+.demo-notice{padding:12px 16px;border-left:2px solid var(--gold);background:#26322e;color:#e0eddf;margin:20px 0}
+.demo-main .review-actions{max-width:640px}
+.demo-main .review-actions .text-button{color:var(--text);min-height:52px}
+.demo-history{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(255px,1fr);gap:28px;margin:28px 0}
+.demo-history>div{border:1px solid var(--line);background:var(--panel);padding:clamp(19px,2.4vw,32px)}
+.demo-history h2{font-size:29px;margin:10px 0 22px}
+.demo-history h3{font-size:26px;margin:0 0 12px}
+.demo-history ol{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+.demo-history li{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.demo-history li button{text-align:left;flex:1;line-height:1.5}
+.demo-history li span{font:500 12px 'IBM Plex Mono',monospace;color:var(--gold-strong);white-space:nowrap}
+.demo-completion p{font-size:13px;color:var(--muted);line-height:1.8}
+.demo-completion>a{text-decoration:none;margin:8px 0}
+.demo-reset{margin-top:25px;border-top:1px solid var(--line);padding-top:17px}
+.demo-reset button{margin-top:5px}
+.demo-shell button:focus-visible,.demo-shell a:focus-visible,.demo-shell input:focus-visible{outline:3px solid var(--gold-strong);outline-offset:3px}
+@media(max-width:1080px){.demo-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.demo-grid{grid-template-columns:minmax(210px,1fr) minmax(0,1.7fr)}}
+@media(max-width:750px){.demo-lead{padding-top:35px}.demo-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.demo-grid,.demo-history{grid-template-columns:minmax(0,1fr)}.demo-sidebar{border-right:0;border-bottom:1px solid var(--line)}.demo-lead>p{font-size:15px}.demo-history li{align-items:flex-start;flex-direction:column}.demo-main .review-actions{grid-template-columns:1fr}}
+@media(max-width:420px){.demo-metrics{grid-template-columns:1fr 1fr}.demo-metric strong{font-size:21px}.demo-access{padding:10px}.demo-shell .masthead{align-items:flex-start;flex-direction:column}.demo-shell .header-end{gap:8px}}

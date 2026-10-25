@@ -1,4 +1,5 @@
 export const guideSections = [
+ ['demo','Ensayo sin cuenta','Puedes visitar /demo y probar cuatro dilemas ficticios sin iniciar sesión. Sus cifras son ejemplos pedagógicos: no siguen el motor real, no afectan a partidas oficiales y no se transfieren al crear tu gobierno. El progreso del ensayo solo se conserva en este navegador.'],
  ['access','Acceso y recuperación','Entra con tu correo y abre el enlace de acceso. Si no llega, revisa spam y espera antes de reenviar. Un límite de correo no significa que hayas iniciado sesión. Mantén tu cuenta para recuperar el mismo gobierno.'],
  ['first-decision','Tu primera decisión','Comienza por los expedientes introductorios ficticios. Lee el contexto, compara opciones, revisa el compromiso fiscal y confirma la firma. La decisión es definitiva; el resultado y su historial proceden del servidor. Si se pierde la respuesta, sincroniza antes de reintentar.'],
  ['calendar','Una semana política','Un día real equivale a un día de juego. El calendario usa UTC. Los lunes se habilitan diez expedientes cuando la redacción los ha verificado y publicado. Se resuelven de lunes a viernes; el cierre se certifica después de terminar el viernes UTC. No hay que dejar el navegador abierto.'],
@@ -14,7 +15,7 @@ export const guideSections = [
 export default function PlayerGuide() {
  return <div className="app-shell"><header className="masthead">
   <div className="wordmark">ACT OF STATE</div><nav className="header-end" aria-label="Navegación principal">
-   <a href="/">Gobierno</a><a href="/multiplayer">Asambleas</a></nav>
+   <a href="/">Gobierno</a><a href="/demo">Ensayo sin cuenta</a><a href="/multiplayer">Asambleas</a></nav>
  </header><main className="guide-content"><p className="eyebrow">MANUAL DEL JUGADOR</p>
   <h1>De tu primera decisión a un mandato compartido</h1>
   <p>Aprende las reglas antes de comprometer a tu gobierno. No necesitas una cuenta para consultar esta guía.</p>

@@ -239,7 +239,7 @@ export default function App() {
           <span className="brand-symbol" aria-hidden="true">A<span>／</span>S</span>
           <div><div className="wordmark">ACT OF STATE</div><div className="brand-caption">EVERY DECISION SHAPES A NATION.</div></div>
         </div>
-        <div className="header-end"><a className="text-button" href="/guide">Manual del jugador</a><span className="online-dot" aria-hidden="true" /> SIMULACIÓN POLÍTICA PERSISTENTE
+        <div className="header-end"><a className="text-button" href="/guide">Manual del jugador</a><a className="text-button" href="/demo">Probar sin cuenta</a><span className="online-dot" aria-hidden="true" /> SIMULACIÓN POLÍTICA PERSISTENTE
           <a href="/multiplayer" className="text-button">Multijugador</a>
           {user && <button type="button" className="text-button" onClick={() => void signOut()} disabled={pending}>Cerrar sesión</button>}
         </div>
@@ -258,6 +258,7 @@ export default function App() {
             <h1>Gobernar es elegir qué consecuencias asumir.</h1>
             <p>Una simulación política seria, persistente y gratuita. Las decisiones modifican la economía, la confianza institucional y el apoyo de grupos de población simulados.</p>
             <p className="caveat">Escenarios editoriales ficticios para la primera iteración.</p>
+            <p><a href="/demo" className="primary-button">Probar cuatro decisiones sin registrarte</a></p>
           </section>
           <section className="login-panel" aria-labelledby="access-title">
             <div className="eyebrow">ACCESO A LA SALA DE GOBIERNO</div>
