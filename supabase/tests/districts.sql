@@ -63,7 +63,7 @@ begin
  perform public.start_match(f.match_id);
  projection:=public.get_election_state(f.match_id)->'projection';
  districts:=projection->'districts';
- if projection->>'modelVersion'<>'electoral-districts-v1'
+ if projection->>'modelVersion'<>'electoral-districts-v2'
    or (projection->>'householdSampleSize')::integer<>300
    or jsonb_array_length(districts)<>6 then
    raise exception 'ELECTION_DISTRICT_VERSION_NOT_ACTIVE'; end if;
