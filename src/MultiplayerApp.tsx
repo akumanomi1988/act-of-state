@@ -1,5 +1,6 @@
 import PlayerOnboarding from './PlayerOnboarding'
 import MatchAgendaBoard from './MatchAgendaBoard'
+import WeeklyMissionControl from './WeeklyMissionControl'
 import { buildMatchAgenda } from './lib/multiplayerAgenda'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
@@ -549,6 +550,14 @@ export default function MultiplayerApp() {
                 'La asamblea ha comenzado.')}>Comenzar legislatura</button>}
             {!host && <p role="status">Esperando la convocatoria del partido de gobierno.</p>}
           </div> : <div className="match-politics" id="match-dossiers">
+            <WeeklyMissionControl key={world.match.id+':'+user!.id}
+              world={world} userId={user!.id}
+              onSelect={id => {
+                setSelectedDossierId(id)
+                setSelectedOptionId('')
+                setReviewCabinet(false)
+                setMandateOptionId(null)
+              }} />
             <MatchAgendaBoard key={world.match.id} world={world} userId={user!.id}
               selectedDossierId={dossier?.id ?? null}
               onSelect={id => {
