@@ -7,7 +7,7 @@ import { chromium } from 'playwright'
 const BASE = process.env.AOS_BROWSER_BASE_URL ?? 'http://127.0.0.1:4173'
 const axeSource = readFileSync('node_modules/axe-core/axe.min.js', 'utf8')
 mkdirSync('test-results/browser', { recursive: true })
-const browser = await chromium.launch({ headless: true })
+const browser = await chromium.launch({ ...(process.env.AOS_CHROMIUM_CHANNEL === 'bundled' ? {} : { channel: 'chrome' }), headless: true, args: ['--no-sandbox'] })
 
 try {
   for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
