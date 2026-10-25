@@ -121,3 +121,24 @@ thousands of accounts, weeks of player traffic or multi-region access.
 
 The strict acceptance numerator cannot increase merely because the new
 CI, local restore and public deployment checks pass.
+
+## Verified pre-merge evidence (2026-10-25)
+
+- [Quality workflow](https://github.com/akumanomi1988/act-of-state/actions/runs/40230726583):
+  192/192 Vitest, 41 suites, 15 main Chromium E2E cases, 2 guest
+  viewports and 2 additional `/status` Chromium/WCAG AA viewports;
+  release metadata source and manifest contract checked.
+- [Database integrity](https://github.com/akumanomi1988/act-of-state/actions/runs/40230726599):
+  AOS_DISPOSABLE_RESTORE_PASS and AOS_CONCURRENCY_PASS. The native
+  PostgreSQL 16 client on hosted GitHub runners cannot dump PostgreSQL
+  17; the final drill uses `postgres:17-alpine` official Docker
+  clients to avoid server/client version mismatch without changing the
+  production database.
+- [Real signed-JWT acceptance](https://github.com/akumanomi1988/act-of-state/actions/runs/40230726582):
+  AOS_MATCH_LOAD_PASS 80 authorized reads / 0 failures / p50 21 ms /
+  **p95 105 ms** / worst 119 ms and 10 denied outsider probes in a
+  disposable local stack; 138 total real-JWT assertions, 26 local
+  Mailpit-email checks and 60 synthetic newsroom checks.
+- **Not yet claimed**: the new AOS-049 exact hosted release parity.
+  Do not mark it verified until the final merged commit has a Vercel
+  production deployment AND the public route/JS SHA checker passes.
