@@ -44,6 +44,13 @@ silently treat a party position as a parliamentary vote.
    immutable publication, idempotent retry, outsider denial and
    next-week embargo.
 
+## Release evidence — 2026-10-25
+
+- [Merged PR #40](https://github.com/akumanomi1988/act-of-state/pull/40) is the original code delivery at `477ce9ffedac3f0cde86ebd8bfd6aa0d4cb472ff`.
+- [Quality workflow #40221460826](https://github.com/akumanomi1988/act-of-state/actions/runs/40221460826) **PASS**: 181/181 Vitest, 38 test files, TypeScript/build, 15 Chromium scenarios, the two guest viewports and WCAG checks. The new Wednesday/Friday deadline and ten-seat action navigation are explicitly exercised.
+- [Actual local GoTrue/PostgREST #40221460670](https://github.com/akumanomi1988/act-of-state/actions/runs/40221460670) **PASS**: `AOS_LIVE_AUTH_PASS` 126 assertions across ten JWT browser identities; `AOS_REAL_EMAIL_PASS` 26 assertions across real local Mailpit magic links; `AOS_EDITORIAL_WEEK_PASS` 60 assertions with ten **synthetic** newsroom sources, ten independent review attestations and approved immutable publication. No real external journalistic sources or production data were written.
+- A build/deployment status from Vercel is independent of a live hosted human acceptance test. The full human/SMTP/editorial acceptance gates remain open.
+
 ## Quality evidence
 
 - `src/lib/weeklyCommand.test.ts`: pure state-machine tests verify the
