@@ -85,12 +85,14 @@ export default function ElectionPanel({
       </div>
       <div className="election-projection">
         <h3>Proyección si se votase hoy</h3>
-        <p className="muted">Estimación dinámica, no resultado certificado.</p>
+        <p className="muted">Estimación dinámica, no resultado certificado. La persuasión electoral acumulada se desgasta si los partidos dejan de actuar.</p>
         {state.projection.parties.map(party => <div className="election-party" key={party.userId}>
           <div className="election-party-head">
             <strong>{party.partyName}{party.userId === userId ? ' · TU PARTIDO' : ''}</strong>
             <span>{party.voteSharePct.toFixed(2)}% · {party.seats} escaños</span>
           </div>
+          {state.projection.modelVersion === 'electoral-districts-v2' &&
+            <small className="muted">Influencia electoral efectiva: {party.campaignInfluenceTotal ?? 0} puntos. Desgaste semanal incluido.</small>}
           <div className="election-track" role="img"
             aria-label={party.partyName + ': ' + party.voteSharePct.toFixed(2) + ' por ciento'}>
             <div style={{ width: party.voteSharePct + '%' }} />
