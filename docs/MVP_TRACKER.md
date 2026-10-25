@@ -1,10 +1,17 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-044 multiplayer command: PR #37 merged, quality CI passed; external real-user acceptance still pending.
+**Latest implementation increment:** AOS-045 real GoTrue/PostgREST CI acceptance epic (validation pending).
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-045 — Real signed Auth and legislature acceptance (2026-10-25)
+
+- Implemented a wholly **disposable, unlinked** local Supabase GoTrue/PostgREST acceptance pipeline with genuine signed JWTs. Eleven auto-confirmed test-only local accounts exercise ten concurrent match admissions, rejection of outsiders, immutable stances, ten parliamentary ballots, a signed national decision, identical retry and conflicting retry rejection, cross-account snapshot consistency and RLS.
+- Two independent real-auth Chromium sessions assert government-versus-opposition controls, ten visible seats, signed policies, reload, responsive and WCAG. Unlike the previous mock network suite, these browser sessions communicate with genuine local Auth and PostgREST. External SMTP and real participant sessions remain untested.
+- **CI acceptance pending** on dedicated [real-auth workflow](.github/workflows/live-auth-acceptance.yml), documentation [REAL_AUTH_ACCEPTANCE.md](REAL_AUTH_ACCEPTANCE.md). No Supabase production SQL changes or credential management changes.
+- The original 2/18 strict acceptance tally is **not raised** until the real-protocol workflow and the full independently defined acceptance gates are verified. Local auth E2E is not a production user sign-off.
 
 ## AOS-044 — Multiplayer legislative command and reconciliation (2026-10-25)
 

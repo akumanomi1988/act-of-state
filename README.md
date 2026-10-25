@@ -16,6 +16,10 @@ Authenticated solo governments can now play a permanent **ten-dossier fictional 
 
 The ten-party shared-nation interface prioritizes time-limited verified weekly dossiers over permanent fictional legislation, distinguishes each party's recorded stance from binding national decisions and provides role-aware action filters. Cabinet signatures and parliamentary votes are reconciled against immutable server acts after network loss, and stale polling cannot erase an already confirmed decision. See [multiplayer command and safety contract](docs/MULTIPLAYER_COMMAND_CENTER.md). SQL tests simulate ten authenticated database identities; separate browser sessions exercise governmental/opposition UIs against mock HTTP, **not** real human ten-account acceptance.
 
+## Real JWT acceptance beyond mocked browser HTTP (AOS-045)
+
+The opt-in [real-auth acceptance workflow](.github/workflows/live-auth-acceptance.yml) now runs a fully isolated local GoTrue + PostgREST stack, signs up eleven test-only users with real JWTs, seats ten political parties, records actual positions and ten parliamentary votes, confirms a binding government policy, exercises safe retries and RLS, then checks two separate authenticated Chromium contexts with responsive/axe assertions. See [evidence boundaries and operator guide](docs/REAL_AUTH_ACCEPTANCE.md). This **does not contact the production Supabase project**, test external SMTP deliverability or replace a ten-human-player acceptance review.
+
 ## Current implementation (AOS-MVP-001)
 
 The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events, ten-party shared-nation matches and a deterministic, server-authoritative simulation engine.

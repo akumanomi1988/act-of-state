@@ -1,0 +1,90 @@
+name: Live Auth acceptance (isolated local stack)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/real-auth-acceptance.mjs'
+      - 'supabase/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/live-auth-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: aos-auth-acceptance-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  real-jwt-parliament:
+    name: Ten real JWTs / PostgREST / two browsers
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.120.0
+      - name: Confirm isolated local Auth configuration
+        run: |
+          set -euo pipefail
+          test -f supabase/config.toml
+          grep -q 'project_id = "act-of-state-acceptance"' supabase/config.toml
+          supabase --version
+          supabase start --help >/dev/null
+          # No remote --linked, access tokens or Supabase project refs are used.
+          supabase start -x studio,analytics,vector,imgproxy,storage,realtime,edge-runtime,inbucket
+      - name: Export only local public API address and anonymous key
+        run: |
+          set -euo pipefail
+          # CLI v2.120.0 prints dotenv-quoted values. Strip only the
+          # surrounding quote syntax; never print or commit credentials.
+          cli_vars="$(supabase status -o env)"
+          local_api="$(printf '%s\n' "$cli_vars" | sed -n 's/^API_URL=//p' | head -1 | tr -d '"\r')"
+          local_anon="$(printf '%s\n' "$cli_vars" | sed -n 's/^ANON_KEY=//p' | head -1 | tr -d '"\r')"
+          test "$local_api" = "http://127.0.0.1:54321" || {
+            echo "Supabase CLI is not targeting the isolated local API"; exit 1;
+          }
+          test "${#local_anon}" -gt 30 || {
+            echo "Local publishable/anon key was not returned"; exit 1;
+          }
+          echo "::add-mask::$local_anon"
+          printf 'API_URL=%s\nANON_KEY=%s\n' "$local_api" "$local_anon" >> "$GITHUB_ENV"
+      - name: Install pinned real browser QA tools
+        run: npm install --no-save --package-lock=false playwright@1.56.1 axe-core@4.10.3
+      - name: Exercise real GoTrue, PostgREST, Parliament and Chromium
+        env:
+          AOS_BROWSER_BASE_URL: http://127.0.0.1:4173
+        run: |
+          set -euo pipefail
+          test -n "$API_URL"
+          test -n "$ANON_KEY"
+          export VITE_SUPABASE_URL="$API_URL"
+          export VITE_SUPABASE_PUBLISHABLE_KEY="$ANON_KEY"
+          npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/aos-auth-vite.log 2>&1 &
+          vite_pid=$!
+          trap 'kill "$vite_pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:4173/ >/dev/null
+          node tests/real-auth-acceptance.mjs
+      - name: Retain real-auth UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aos-real-auth-screenshots
+          path: test-results/browser/auth-real-*.png
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Stop and purge disposable Docker containers
+        if: always()
+        run: supabase stop --no-backup || true
