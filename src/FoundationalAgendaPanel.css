@@ -15,8 +15,8 @@
 .foundation-next{width:100%;white-space:normal;text-align:left;font-size:12px;line-height:1.6;margin-top:14px}
 .foundation-finished{font-size:12px;line-height:1.7;color:#b0ddbd;border-left:2px solid #86ac93;padding-left:10px;margin:16px 0 0}
 .foundation-filters{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 16px}
-.foundation-filters button{font:500 11px 'IBM Plex Sans',Arial,sans-serif;line-height:1.4;cursor:pointer;padding:8px 10px;border:1px solid var(--line);background:#182225;color:var(--text);border-radius:0}
-.foundation-filters button.active{color:#181f1e;background:var(--gold-strong);border-color:var(--gold-strong)}
+.foundation-filters button{font:600 12px 'IBM Plex Sans',Arial,sans-serif;line-height:1.4;cursor:pointer;padding:8px 10px;border:1px solid #67736e;background-color:#10191a;color:#fffdf5;border-radius:0;opacity:1}
+.foundation-filters button.active{color:#fffdf5;background-color:#243029;border:2px solid #e4c59a;box-shadow:inset 0 -3px 0 #e4c59a;opacity:1}
 .foundation-filters button:hover:not(.active){border-color:var(--gold)}
 .foundation-filters button:focus-visible,.foundation-next:focus-visible{outline:3px solid var(--gold-strong);outline-offset:3px}
 @media(max-width:760px){.foundation-overview{padding:16px}.foundation-filters button{flex:1 1 auto}.foundation-balance span{font-size:9px}.foundation-balance strong{font-size:13px}}
