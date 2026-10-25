@@ -129,4 +129,54 @@ describe('official founding programme and source-of-truth agenda', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Esta semana' }))
     expect(screen.getByRole('status')).toHaveTextContent('No hay expedientes para este filtro')
   })
+  it('displays 10 unchanged founding cases plus 18 reforms without claiming news publication',()=>{
+    const chapters=['society','economy','institutions','resilience'] as const
+    const reforms=Array.from({length:18},(_,i)=>({
+      ...intro('reform-'+i),title:'Reforma nacional '+i,
+      programme_chapter:chapters[Math.floor(i/5)===3?3:Math.floor(i/5)],
+      programme_order:i%5+1
+    }))
+    const dossierList=[...ids.map(intro),...reforms]
+    const navigate=vi.fn()
+    render(<FoundationalAgendaPanel world={world([],dossierList)}
+      selectedKey={null} onSelect={navigate}/>)
+    expect(screen.getByText('0 / 10')).toBeInTheDocument()
+    expect(screen.getByText('0 / 18')).toBeInTheDocument()
+    expect(screen.getByRole('progressbar',{name:'Decisiones del programa firmadas'}))
+      .toHaveAttribute('aria-valuemax','10')
+    expect(screen.getByRole('progressbar',{name:'Decisiones de reforma firmadas'}))
+      .toHaveAttribute('aria-valuemax','18')
+    expect(screen.getAllByRole('button',{name:/REFORMA FICTICIA/})).toHaveLength(18)
+    fireEvent.click(screen.getByRole('button',{name:'Abrir capítulo Sociedad'}))
+    expect(screen.getAllByRole('button',{name:/REFORMA FICTICIA/})).toHaveLength(5)
+    fireEvent.click(screen.getByRole('button',{name:/Continuar reformas:/}))
+    expect(navigate).toHaveBeenCalledWith(reforms[0])
+    expect(screen.getAllByRole('button',{name:/REFORMA FICTICIA/})).toHaveLength(18)
+    fireEvent.click(screen.getByRole('button',{name:'Esta semana'}))
+    expect(screen.getByText(/No hay expedientes para este filtro/)).toBeInTheDocument()
+  })
+
+  it('uses separate signed founding and reform counters after independent immutable acts',()=>{
+    const chapters=['society','economy','institutions','resilience'] as const
+    const reforms=Array.from({length:18},(_,i)=>({
+      ...intro('reform-'+i),
+      programme_chapter:chapters[Math.floor(i/5)===3?3:Math.floor(i/5)],
+      programme_order:i%5+1
+    }))
+    const dossierList=[...ids.map(intro),...reforms]
+    render(<FoundationalAgendaPanel world={world(
+      [decision('energy-resilience',12000,11700),
+       decision('reform-0',11700,11900)],dossierList)}
+      selectedKey={null} onSelect={vi.fn()}/>)
+    expect(screen.getByText('1 / 10')).toBeInTheDocument()
+    expect(screen.getByText('1 / 18')).toBeInTheDocument()
+    const signed=screen.getByLabelText('Impactos acumulados de las decisiones fundacionales')
+    expect(signed).toHaveTextContent('-300 M€')
+    expect(signed).not.toHaveTextContent('200 M€')
+    fireEvent.click(screen.getByRole('button',{name:'Reformas nacionales'}))
+    expect(screen.getAllByRole('button',{name:/REFORMA FICTICIA/})).toHaveLength(18)
+    fireEvent.click(screen.getByRole('button',{name:'Firmados'}))
+    expect(screen.getAllByRole('button',{name:/FIRMADO/})).toHaveLength(2)
+  })
+
 })
