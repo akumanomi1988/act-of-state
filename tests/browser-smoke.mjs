@@ -805,7 +805,7 @@ try {
       await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
       const board=page.getByRole('region',{name:'Centro de decisiones de la asamblea'})
       await board.getByRole('heading',{name:'Consejo político'}).waitFor()
-      await page.getByText('Partido 10').waitFor()
+      await page.locator('.match-seat.occupied').filter({hasText:'Partido 10'}).waitFor()
       assert.equal(await page.locator('.match-seat.occupied').count(),10)
       assert.equal(await board.getByText('0 / 1 firmados').count(),2)
       const choices=await board.getByRole('button',{name:/PLAZO SEMANAL|ESCENARIO FICTICIO/}).all()
