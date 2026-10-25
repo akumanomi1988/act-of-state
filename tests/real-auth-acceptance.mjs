@@ -9,6 +9,7 @@ import { randomBytes } from 'node:crypto'
 import { mkdirSync, readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 import { chromium } from 'playwright'
+import { loadReceipt } from './load-metrics.mjs'
 
 const API = process.env.API_URL
 const ANON = process.env.ANON_KEY
@@ -185,6 +186,51 @@ pass(alienWorld == null || !!alienWorldError,
   'Cross-owner snapshot must be NULL or return an authorization error')
 pass((await rpc(outsider,'list_my_matches')).length===0,
   'Outsider discovered a private game')
+
+// AOS-049: actual signed-JWT HTTP concurrency against the disposable game.
+// 80 independent read RPCs across all 10 party identities after an immutable
+// parliamentary vote and cabinet signature, plus 10 outsider denials.
+// No mocking, production Auth traffic, fabricated time or privileged API key.
+const durations=[]
+let failures=0
+for(let passNo=0;passNo<6;passNo++){
+  const reads=await Promise.allSettled(players.map(async actor=>{
+    const start=performance.now()
+    const {data,error}=await actor.client.rpc('get_match_world',{p_match_id:match.id})
+    durations.push(performance.now()-start)
+    if(error)throw error
+    if(data?.match?.id!==match.id||data.players.length!==10||
+      data.events.length!==1||data.events[0]?.id!==decision.id||
+      data.government.treasury_m_eur!==10600)
+      throw Error('LOAD_INCONSISTENT_LEDGER')
+  }))
+  failures+=reads.filter(v=>v.status==='rejected').length
+}
+for(let passNo=0;passNo<2;passNo++){
+  const reads=await Promise.allSettled(players.map(async actor=>{
+    const start=performance.now()
+    const {data,error}=await actor.client.rpc('get_election_state',{p_match_id:match.id})
+    durations.push(performance.now()-start)
+    if(error)throw error
+    if(data?.projection?.modelVersion!=='electoral-districts-v2'||
+      data.projection.parties.reduce((sum,p)=>sum+p.seats,0)!==100||
+      data.projection.districts.length!==6)throw Error('LOAD_INCONSISTENT_ELECTION')
+  }))
+  failures+=reads.filter(v=>v.status==='rejected').length
+}
+const rejectedReads=await Promise.allSettled(Array.from({length:10},async()=>{
+  const {error}=await outsider.client.rpc('get_match_world',{p_match_id:match.id})
+  return !!error && /MATCH_FORBIDDEN/.test(error.message)
+}))
+pass(rejectedReads.every(x=>x.status==='fulfilled'&&x.value===true),
+  'Concurrent foreign-JWT reads escaped match isolation')
+const load=loadReceipt(durations,failures,{ceilingMs:15_000})
+pass(load.reads===80 && load.withinBudget,
+  'Ten-party HTTP throughput exceeded safe CI budget or ledger inconsistent: '+JSON.stringify(load))
+console.log('AOS_MATCH_LOAD_PASS',JSON.stringify({
+  ...load,players:10,foreignDenials:10,signatures:1,
+  scope:'disposable local GoTrue/PostgREST; not hosted performance SLO'
+}))
 
 const browser=await chromium.launch({
   ...(process.env.AOS_CHROMIUM_CHANNEL==='bundled'?{}:{channel:'chrome'}),

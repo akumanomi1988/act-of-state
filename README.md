@@ -32,6 +32,10 @@ The real ten-party multiplayer room now includes a **Weekly Operations Room** th
 
 Campaign persuasion now has **server-authoritative time decay**: two points of effective influence expire every seven UTC days after the last intervention in each social cohort. New campaigns restore support from the decayed baseline while retaining the once-a-week quota and election blackout. Both territorial election projections and archived daily opinion polls use the same versioned `electoral-districts-v2` model; old official election, poll and campaign records retain their original values. The campaign page shows current support and its next decrease. See [Campaign Relevance and Electoral Balance](docs/CAMPAIGN_RELEVANCE.md).
 
+## Version-verified hosted releases and operational recovery (AOS-049)
+
+The public **/status** screen shows the verified build revision, expected electoral model and a limited public authentication availability probe without needing a player session. Production builds stamp an immutable `/release.json`; a GitHub Action checks that all six public routes and the actual JavaScript bundle correspond to **the same** production Git commit, detecting the stale Vercel deployments previously caused by Hobby build-rate limits. Disposable PostgreSQL backup/restore and ten-authenticated-party load tests are integrated into CI. See [operational release and recovery handbook](docs/PRODUCTION_RELEASE_RUNBOOK.md). This does **not** replace production Auth, newsroom, real-user or live backup acceptance.
+
 ## Current implementation (AOS-MVP-001)
 
 The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events, ten-party shared-nation matches and a deterministic, server-authoritative simulation engine.

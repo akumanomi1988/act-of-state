@@ -58,6 +58,14 @@ jobs:
         run: bash supabase/tests/persistent_cross_session.sh
       - name: Exercise concurrent match capacity and decision retries
         run: bash supabase/tests/multiplayer_concurrency.sh
+      - name: Confirm pinned PostgreSQL 17 backup image
+        run: |
+          docker image inspect postgres:17-alpine >/dev/null ||
+            docker pull postgres:17-alpine
+          docker run --rm postgres:17-alpine pg_dump --version |
+            grep -q '17\.'
+      - name: Disaster recovery drill on disposable PostgreSQL 17
+        run: bash supabase/tests/disposable_restore.sh
       - name: Confirm rollback left no synthetic game state
         run: |
           counts=$(psql -Atqc "select

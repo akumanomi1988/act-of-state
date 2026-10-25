@@ -1,0 +1,49 @@
+name: Hosted release parity (production, no credentials)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'tests/public-release.test.mjs'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'vite.config.ts'
+      - 'index.html'
+      - 'vercel.json'
+      - '.github/workflows/public-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: aos-production-release-parity-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  immutable-production:
+    name: Verify deployed SHA and all public entry routes
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      AOS_PUBLIC_BASE_URL: https://act-of-state.vercel.app
+      AOS_EXPECT_SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for the exact committed Vercel deployment, then verify its real assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 16); do
+            if node scripts/check-public-release.mjs; then
+              echo "AOS_PRODUCTION_RELEASE_VERIFIED"
+              exit 0
+            fi
+            echo "Production parity not established for commit $AOS_EXPECT_SHA (attempt $attempt)"
+            if [ "$attempt" -lt 16 ]; then sleep 20; fi
+          done
+          echo "AOS_PRODUCTION_RELEASE_MISMATCH: check Vercel rate-limit, aliases and build commit" >&2
+          exit 1
