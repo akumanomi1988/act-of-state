@@ -1,7 +1,7 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-043 official founding programme — PostgreSQL, UI and Cloud data verified; deployment acceptance pending.
+**Latest implementation increment:** AOS-043 official founding programme — merged, CI verified and Vercel status successful; real browser Auth still unverified.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
@@ -14,7 +14,8 @@ Historical iteration evidence below is retained and may describe superseded bloc
 - Added rollback integration suite covering the complete ten-decision worst-cost combination (8,860 M€), duplicate replay, rival-account RLS denial and 10/30 catalogue in the authoritative world snapshot. Extended React and Chromium browser regressions.
 - **Verified regression:** [PostgreSQL CI #40204049283](https://github.com/akumanomi1988/act-of-state/actions/runs/40204049283) PASS (38 existing + founding migration, rollback integration including ten real-engine decisions, permissions, cross-connection persistence and concurrency); [quality CI #40204049325](https://github.com/akumanomi1988/act-of-state/actions/runs/40204049325) PASS (**153/153 Vitest**, oracle, TypeScript, Vite build, 14 browser flows plus guest tests, responsive 390/1440px, WCAG 2.1 A/AA).
 - **Verified Cloud data:** dedicated Supabase ACT OF STATE project `nwlxkqwbusrrldveijzb` migration `20261025145152_aos_043_foundational_campaign` applied successfully. Post-migration readback: **10 intro dossiers**, **30 intro options**, **8 new dossier IDs**. Migration file version is identical to remote history. No other project modified.
-- **Still unverified:** production UI smoke against live Auth, real multi-browser participant sessions, an editor-reviewed live weekly publication, balancing and human design acceptance. Vercel release state must be checked after merge. Never count a successful commit as real human E2E evidence.
+- **Published:** [PR #36](https://github.com/akumanomi1988/act-of-state/pull/36) squash-merged to `main` at `ff08ab11bb6b05fc50f4607caaf8fc049d61edf6`. GitHub reported **Vercel: success** for this exact merge commit ([deployment details](https://vercel.com/nexttapstudios/act-of-state/FdUbeDznyrdYffGkeicHak5ncvVR)). This does not prove that public HTTP navigation, a real email session or a real ten-player browser game worked; those remain unverified.
+- **Still unverified:** production UI smoke against live Auth, real multi-browser participant sessions, an editor-reviewed live weekly publication, balancing and human design acceptance. Never count a successful commit as real human E2E evidence.
 - The strict 18-gate tally remains **2/18 (11.1%)** until external acceptance is independently verified. This is *not* an implementation-weighted completion percentage.
 
 ## AOS-042 — Guest training sandbox (2026-10-25)
