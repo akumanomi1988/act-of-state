@@ -137,7 +137,7 @@ try {
   const second=await login(guest,guestEmail,invitation)
   const prefilled=guest.getByLabel('Código de invitación')
   check(await prefilled.inputValue()===invite,'Magic-link roundtrip lost invite code')
-  await guest.getByLabel('Tu partido político').fill('Oposición auténtica')
+  await guest.getByLabel('Partido invitado').fill('Oposición auténtica')
   await guest.getByRole('button',{name:'Ocupar escaño'}).click()
   await guest.getByRole('heading',{name:testName}).waitFor({timeout:15000})
   const {data:guestMatches,error:guestListError}=
