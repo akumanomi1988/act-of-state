@@ -43,6 +43,14 @@ The workflow then verifies through **real authenticated HTTP/PostgREST**:
    national act, reload persistence, responsive widths and axe WCAG A/AA
    (critical/serious violations blocked). The screenshots are retained by CI.
 
+## Verified release evidence — 25 October 2026
+
+- [Merged implementation PR #38](https://github.com/akumanomi1988/act-of-state/pull/38), commit `52af59fb7855baa111c146b9cbc5b3215e40d839`.
+- [Real protocol CI #40209127443](https://github.com/akumanomi1988/act-of-state/actions/runs/40209127443) **green**. Runner reported `AOS_LIVE_AUTH_PASS` with **11 genuine disposable signed-up Auth accounts, 10 distinct party participants, real HTTP/PostgREST, 1 immutable cabinet act, 2 genuine JWT browser contexts and 92 passed assertions**.
+- [Existing quality regression #40209127442](https://github.com/akumanomi1988/act-of-state/actions/runs/40209127442) **green**, including TypeScript, build, Vitest, Chromium mock-HTTP smoke and demo accessibility.
+- All tracked migrations applied to a local database. Job destroyed its local Supabase containers and records. **The hosted Cloud project was not accessed.**
+- **Unverified:** actual email-link delivery/production OAuth redirect, human use by ten independently consenting participants, editorial review of ten sourced real weekly stories, real hosted HTTP navigation and final product/visual acceptance. Strict acceptance remains **2/18**, despite stronger protocol E2E evidence.
+
 ## Scope boundaries
 
 - All users and data live only inside ephemeral local containers. Closing the
