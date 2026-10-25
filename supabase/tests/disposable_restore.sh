@@ -5,8 +5,7 @@ set -euo pipefail
 [[ "${CI:-}" == "true" && "${PGHOST:-}" == "localhost" &&
    "${PGPORT:-}" == "5432" && "${PGDATABASE:-}" == "aos_test" ]] ||
    { echo 'AOS_RESTORE_NOT_DISPOSABLE_CI' >&2; exit 1; }
-command -v pg_dump >/dev/null
-command -v pg_restore >/dev/null
+command -v docker >/dev/null
 command -v createdb >/dev/null
 command -v dropdb >/dev/null
 
@@ -61,10 +60,15 @@ source_integrity="$(psql -X -Atq -v ON_ERROR_STOP=1 -d aos_test -c "
 
 # The client and server versions must permit a full PostgreSQL-17 dump.
 # pg_dump refuses older clients; that is a release-recovery blocker.
-pg_dump -Fc -d aos_test -f "$work/aos.dump"
+# Use the exact same official PostgreSQL 17 image as the CI service.
+# The default Ubuntu pg_dump is 16 and cannot safely dump server 17.
+docker run --rm --network host --env PGPASSWORD postgres:17-alpine \
+  pg_dump -Fc -h localhost -p 5432 -U postgres -d aos_test > "$work/aos.dump"
 [[ -s "$work/aos.dump" ]] || { echo 'AOS_RESTORE_EMPTY_DUMP' >&2; exit 1; }
 PGDATABASE=postgres createdb "$restore_db"
-pg_restore --no-owner --exit-on-error -d "$restore_db" "$work/aos.dump"
+docker run --rm -i --network host --env PGPASSWORD postgres:17-alpine \
+  pg_restore --no-owner --exit-on-error -h localhost -p 5432 -U postgres \
+  -d "$restore_db" < "$work/aos.dump"
 
 restored_integrity="$(psql -X -Atq -v ON_ERROR_STOP=1 -d "$restore_db" -c "
   select count(*)||':'||coalesce(sum(g.treasury_m_eur),0)||':'||
