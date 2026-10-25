@@ -1,10 +1,19 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-042 guest training sandbox — merged PR #35, verified quality CI.
+**Latest implementation increment:** AOS-043 founding government programme (implementation validation pending).
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-043 — Full official founding government programme (2026-10-25)
+
+- Added eight original fictional political dossiers with 24 authored choices. Together with the two existing ones this makes **ten permanent intro dossiers, 30 options** in the actual authenticated, PostgreSQL-backed game (not the non-authoritative `/demo`).
+- Reused the protected versioned server decision engine: all options produce immutable, player-owned government consequences. Preserved treasury safety, idempotency, cohort responses and historical titles.
+- Introduced the official programme progress bar, immutable before/after event-derived treasury/approval/trust contributions, weekly-deadline prioritization, five agenda filters and a continuation action. Updated onboarding and manual.
+- Added rollback integration suite covering the complete ten-decision worst-cost combination (8,860 M€), duplicate replay, rival-account RLS denial and 10/30 catalogue in the authoritative world snapshot. Extended React and Chromium browser regressions.
+- **Release evidence pending** at the time of authoring: confirm PostgreSQL and React CI, dedicated-cloud migration and Vercel status. Never count a successful code commit as hosted Auth or human-ten-party E2E evidence.
+- The strict 18-gate tally remains **2/18 (11.1%)** until external acceptance is independently verified. This is *not* an implementation-weighted completion percentage.
 
 ## AOS-042 — Guest training sandbox (2026-10-25)
 
