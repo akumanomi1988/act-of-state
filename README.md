@@ -8,6 +8,10 @@ Free-to-play, browser-based, persistent political simulation. This codebase is i
 
 Visit **`/demo`** to try four authored fictional government dossiers with twelve alternatives, review-before-sign decisions, deterministic local consequences, a reversible-by-reset ledger and browser-only progress. This is **not a real game save or the PostgreSQL simulation**: no authentication, backend calls, live news, party multiplayer or promotion of demonstration choices into an actual government. See [guest training sandbox](docs/GUEST_DEMO.md). Pull-request CI verifies its responsive Chromium flow, no-backend boundary, persistence and accessibility.
 
+## The founding government programme (AOS-043)
+
+Authenticated solo governments can now play a permanent **ten-dossier fictional founding programme** with 30 choices: original energy/water policies plus housing, healthcare, education, infrastructure, employment, food security, digital institutions and climate adaptation. All choices use the existing server-authoritative decision RPC and are permanently recorded. The government dashboard tracks decisions signed, the event-derived cumulative fiscal/social signature impacts, and current weekly dossiers with priority filters. The player guide and onboarding explain the difference between this programme and the separately published current-news cycle. See [full programme and acceptance](docs/FOUNDATIONAL_GOVERNMENT_PROGRAMME.md). The separate `/demo` training mode remains browser-local and non-authoritative.
+
 ## Current implementation (AOS-MVP-001)
 
 The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events, ten-party shared-nation matches and a deterministic, server-authoritative simulation engine.
