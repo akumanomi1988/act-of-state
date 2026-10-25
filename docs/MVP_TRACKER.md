@@ -1,17 +1,27 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-048 versioned electoral campaign renewal and decay — implementation and verification pending.
+**Latest implementation increment:** AOS-049 verifiable production release, player diagnostics, restore/read-load CI — verification pending.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-049 — Immutable production releases, diagnostic access and durable recovery (2026-10-25)
+
+- Resolved AOS-048 backend/frontend deployment mismatch by deploying **exact** reviewed AOS-048 merge SHA `572712cb9dab112b62dc4ceee5d5a2fd4f270134` via authenticated Vercel project connection. Deployment `dpl_EZGPTyCv14n62R8YGH6yozb3oVYg` reached **READY / production** and obtained `act-of-state.vercel.app` alias; no paid account upgrade or credentials changed.
+- Added build-stamped, public `/release.json` with 40-character reviewed Git SHA, build date, source-required electoral/campaign models and route contract. Production build **fails closed** on unverifiable source SHA or incompatible model migration. No secret or auth token is published in this manifest.
+- Added no-login `/status` operational diagnostics, explicitly separating static build identity, public Auth endpoint availability and untested SMTP/database/individual player conditions. Linked from solo, multiplayer and guide, with responsive keyboard/WCAG QA and recovery guidance.
+- Added a no-credential hosted production parity GitHub workflow: checks **exact** `main` commit, all six public SPA routes, active JS bundle MIME and asset presence, rejects wrong hosts/redirects, and reports a red release status if Vercel build-rate-limit leaves stale production code.
+- Added disposable Postgres `pg_dump`/`pg_restore` test of one **committed** signed government act, snapshot history, repeat-idempotency, RLS and privileged grants through separate database connections, including automatic cleanup. No live hosted backup was read or modified.
+- Extended genuine isolated ten-party GoTrue/PostgREST E2E with **80** independently timed simultaneous player read RPCs, ten outsider-denial attempts and a p95 budget, while verifying 100 district mandates, ten seats, one immutable decision and matching national state.
+- **Release and CI verification pending** for AOS-049 source. The strict total remains **2/18=11.1%** until the original external/human criteria are accepted. See [PRODUCTION_RELEASE_RUNBOOK.md](PRODUCTION_RELEASE_RUNBOOK.md).
 
 ## AOS-048 — Time-bounded campaign persuasion and election relevance (2026-10-25)
 
 - Addresses a long-running electoral strategy flaw: influence previously remained at its capped maximum indefinitely, even after political inactivity. Adds a deterministic **2 effective persuasion points lost per completed 7-day UTC interval** without new action in each social cohort; limits [0,20], no browser-controlled dates or write-on-read. Renewal begins from effective decayed support, preserves the existing one-campaign-per-week cap, safe retries, server row locks and seven-day election blackout.
 - Integrates the single authoritative model with **all six electoral districts**, 300 synthetic households, current election projection, certified immutable future election acts, and the server's daily opinion-poll capture. New models are `campaign-decay-v2` and `electoral-districts-v2`; old act/forecast versions stay readable without historical data migration or recalculation.
 - Campaign UI shows the effective current influence and **next UTC decay date**, with a clear historical-action distinction. Player guide and new balancing documentation updated; campaign and election components, ten JWT local integration and responsive Chromium regressions extended.
-- A new rollback SQL suite covers 0/7/14/30-day boundaries, exact renewal, history integrity, daily opinion snapshots, role isolation and election seat totals. **CI and cloud migration evidence pending**. Scope is game balance engineering, **not** proof of calibrated player engagement or human multiweek operational acceptance.
+- A new rollback SQL suite covers 0/7/14/30-day boundaries, exact renewal, history integrity, daily opinion snapshots, role isolation and election seat totals. **Verified:** [PR #41](https://github.com/akumanomi1988/act-of-state/pull/41) merged at `572712cb9dab112b62dc4ceee5d5a2fd4f270134`; [Quality #40227494033](https://github.com/akumanomi1988/act-of-state/actions/runs/40227494033) PASS 186/186 Vitest + 15 Chromium scenarios; [Postgres #40227494008](https://github.com/akumanomi1988/act-of-state/actions/runs/40227494008) PASS; [real-GoTrue #40227493989](https://github.com/akumanomi1988/act-of-state/actions/runs/40227493989) PASS 136 JWT, 26 Mailpit, 60 editorial checks. Supabase Cloud ACT OF STATE `nwlxkqwbusrrldveijzb` migration 20261025194413 applied and read back. Vercel Hobby Git build for merge initially rate-limited; directly redeployed exact code SHA as production at `dpl_EZGPTyCv14n62R8YGH6yozb3oVYg` with READY and primary alias confirmed. Scope is game balance engineering, **not** proof of calibrated player engagement or human multiweek operational acceptance.
 - Original strict MVP acceptance **2/18 = 11.1%** remains unchanged until external criteria are independently satisfied; never report these technical changes as automatically accepted product gates. See [CAMPAIGN_RELEVANCE.md](CAMPAIGN_RELEVANCE.md).
 
 ## AOS-047 — Complete weekly legislative operations (2026-10-25)
