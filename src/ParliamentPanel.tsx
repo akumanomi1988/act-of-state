@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { DossierOption } from './lib/types'
 import type { MatchPlayer } from './lib/multiplayer'
 import {
@@ -32,28 +32,34 @@ export default function ParliamentPanel({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const revisionRef = useRef(0)
+  const aliveRef = useRef(false)
+  const mutatingRef = useRef(false)
 
   useEffect(() => {
     let alive = true
+    aliveRef.current = true
     setState(null)
     setError('')
     onMandateChange(null)
     const refresh = async () => {
+      if (mutatingRef.current) return
+      const revision = ++revisionRef.current
       try {
         const next = await fetchParliamentState(matchId)
-        if (!alive) return
+        if (!alive || revision !== revisionRef.current) return
         setState(next)
         const passed = next.bills.find(b =>
           b.dossier_id === dossierId && b.status === 'passed')
         onMandateChange(passed?.option_id ?? null)
         setError('')
       } catch (reason) {
-        if (alive) setError(matchError(reason))
+        if (alive && revision === revisionRef.current) setError(matchError(reason))
       }
     }
     void refresh()
     const interval = window.setInterval(() => { void refresh() }, 15000)
-    return () => { alive = false; window.clearInterval(interval) }
+    return () => { alive = false; aliveRef.current = false; revisionRef.current++; window.clearInterval(interval) }
   }, [matchId, dossierId, userId, onMandateChange])
 
   const relevant = useMemo(() => state?.bills.filter(b =>
@@ -76,23 +82,37 @@ export default function ParliamentPanel({
   const canFinalize = bill?.status === 'open' &&
     (deadlineReached || ballots.length === eligibleParties)
 
-  async function run(action: () => Promise<unknown>, success: string) {
-    if (busy) return
+  async function run(action: () => Promise<unknown>, success: string,
+    verify: (fresh: ParliamentState) => boolean
+  ) {
+    if (busy || mutatingRef.current || !aliveRef.current) return
+    mutatingRef.current = true
     setBusy(true); setError(''); setNotice('')
     let failure: unknown = null
     try { await action() } catch (reason) { failure = reason }
-    // A lost mutation response must not invent a vote or mandate locally.
+    const revision = ++revisionRef.current
+    // A dropped HTTP response can follow a committed ballot. Reconcile with
+    // the immutable server vote/bill rather than pretending it failed.
     try {
       const fresh = await fetchParliamentState(matchId)
+      if (!aliveRef.current || revision !== revisionRef.current) return
       setState(fresh)
       const passed = fresh.bills.find(b =>
         b.dossier_id === dossierId && b.status === 'passed')
       onMandateChange(passed?.option_id ?? null)
-      if (failure) setError(matchError(failure))
-      else setNotice(success)
+      if (verify(fresh)) setNotice(success)
+      else if (failure) setError(matchError(failure) +
+        ' No se confirmó en el acta parlamentaria. Revisa el estado antes de reintentar.')
+      else setError('El servidor respondió, pero no aparece el resultado en el acta. ' +
+        'Revisa el escrutinio antes de repetir la operación.')
     } catch (reason) {
-      setError('No se pudo sincronizar el escrutinio: ' + matchError(reason))
-    } finally { setBusy(false) }
+      if (aliveRef.current && revision === revisionRef.current)
+        setError('No se pudo sincronizar el escrutinio: ' + matchError(reason) +
+          '. No repitas la acción hasta recuperar el estado.')
+    } finally {
+      mutatingRef.current = false
+      if (aliveRef.current) setBusy(false)
+    }
   }
 
   return <section className="match-panel" aria-label="Votación parlamentaria">
@@ -121,11 +141,14 @@ export default function ParliamentPanel({
           {(['yes','no','abstain'] as const).map(choice =>
             <button key={choice} disabled={busy} onClick={() => void run(
               () => castParliamentVote(bill.id, choice),
-              'Voto registrado y escrutinio actualizado.')}>{voteLabels[choice]}</button>)}
+              'Voto registrado y escrutinio actualizado.', fresh =>
+                fresh.votes.some(v => v.bill_id === bill.id && v.user_id === userId &&
+                  v.choice === choice))}>{voteLabels[choice]}</button>)}
         </div>}
         {canFinalize && <button className="text-button" disabled={busy}
           onClick={() => void run(() => finalizeParliamentBill(bill.id),
-            'Escrutinio cerrado.')}>Cerrar escrutinio</button>}
+            'Escrutinio cerrado.', fresh => fresh.bills.some(b =>
+              b.id === bill.id && b.status !== 'open'))}>Cerrar escrutinio</button>}
       </>}
       {bill?.status === 'rejected' && <p role="status">
         La propuesta no obtuvo apoyo suficiente. El gobierno puede presentar otra opción.
@@ -137,7 +160,10 @@ export default function ParliamentPanel({
       {host && !decided && !approved && bill?.status !== 'open' &&
         <button disabled={busy || !selectedOptionId} onClick={() => void run(
           () => proposeParliamentBill(matchId, dossierId, dossierVersion, selectedOptionId),
-          'Propuesta registrada. La asamblea puede votar.')}>
+          'Propuesta registrada. La asamblea puede votar.', fresh =>
+            fresh.bills.some(b => b.dossier_id === dossierId &&
+              b.dossier_version === dossierVersion && b.option_id === selectedOptionId &&
+              (b.status === 'open' || b.status === 'passed')))}>
           Someter la opción seleccionada a votación
         </button>}
       {!bill && !host && <p role="status">Esperando una propuesta del gobierno.</p>}

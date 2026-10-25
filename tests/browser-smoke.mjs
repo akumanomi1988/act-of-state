@@ -138,24 +138,35 @@ async function routeApi(page,state,{emailLimit=false}={}) {
     }
     if (state.weeklyMatch) {
       const mid='80000000-0000-4000-8000-000000000037'
-      const player={match_id:mid,user_id:state.user.id,seat_no:1,
+      const player=state.syntheticRoster?.find(p=>p.user_id===state.user.id) ?? {
+        match_id:mid,user_id:state.user.id,seat_no:1,
         party_name:'Gobierno compartido',manifesto_policy:50,mandate_seats:100,
-        joined_at:'2026-10-12T09:00:00Z',is_ready:true}
+        joined_at:'2026-10-12T09:00:00Z',is_ready:true
+      }
+      const leaderId=state.syntheticRoster?.[0]?.user_id??state.user.id
       if(path==='/rest/v1/rpc/list_my_matches') return json([{
         id:mid,title:'Prueba de legislatura',status:'active',
-        host_user_id:state.user.id,government_id:state.government.id,
-        seat_no:1,party_name:player.party_name,player_count:2,
+        host_user_id:leaderId,government_id:state.government.id,
+        seat_no:player.seat_no,party_name:player.party_name,player_count:state.syntheticRoster?.length??2,
         created_at:'2026-10-12T09:00:00Z'
       }])
       if(path==='/rest/v1/rpc/get_match_world') return json({
         match:{id:mid,title:'Prueba de legislatura',status:'active',
-          host_user_id:state.user.id,government_id:state.government.id,
+          host_user_id:leaderId,government_id:state.government.id,
           invite_code:'abcdefabcdefabcdefabcdefabcdefab',
           created_at:'2026-10-12T09:00:00Z',started_at:'2026-10-12T10:00:00Z',
           is_public:false,readiness_required:false,max_players:10},
-        me:player,gameDay:'2026-10-24',players:[player],
+        me:player,gameDay:'2026-10-24',players:state.syntheticRoster??[player],
         government:state.government,cohorts:state.world.cohorts,
-        dossiers:[],options:[],events:[],stances:[]
+        dossiers:state.syntheticDossiers??[],options:state.syntheticOptions??[],
+        events:state.events,stances:state.syntheticStances??[]
+      })
+      if(path==='/rest/v1/rpc/get_parliament_state') return json({
+        bills:[],votes:[],serverNow:'2026-10-24T12:00:00Z'
+      })
+      if(path==='/rest/v1/rpc/get_governance_state') return json({
+        hostUserId:leaderId,totalSeats:100,coalitionSeats:10,
+        coalition:[],motions:[],votes:[],serverNow:'2026-10-24T12:00:00Z'
       })
       if(path==='/rest/v1/rpc/get_election_state'){
         const second='80000000-0000-4000-8000-000000000099'
@@ -751,6 +762,68 @@ try {
       await checkMobileOverflow(page,'founding political programme')
       await checkA11y(page,'founding political programme')
       await page.screenshot({path:OUT+'/founding-programme-'+viewport.width+'.png',fullPage:true})
+      await context.close()
+    }
+  })
+
+  await run('Ten-party roster on two isolated Chromium identities: government vs opposition',async()=>{
+    const partyIds=Array.from({length:10},(_,i)=>
+      '71000000-0000-4000-8000-'+String(i+1).padStart(12,'0'))
+    const roster=partyIds.map((user_id,i)=>({
+      match_id:'80000000-0000-4000-8000-000000000037',
+      user_id,seat_no:i+1,party_name:'Partido '+(i+1),
+      manifesto_policy:50,mandate_seats:10,
+      joined_at:'2026-10-12T09:00:00Z',is_ready:true
+    }))
+    const openDossier={
+      id:'weekly-published',version:1,title:'Ley semanal verificada de prueba',
+      context:'Escenario editorial sintético; no corresponde a una noticia real.',
+      category:'Instituciones',release_kind:'weekly',
+      available_from:'2026-10-20',available_until:'2026-10-24',
+      source_url:'https://example.invalid/weekly',source_title:'Fuente sintética'
+    }
+    const introDossier={
+      id:'energy-resilience',version:1,title:'Política energética ficticia',
+      context:'Escenario ficticio permanente',category:'Energía',release_kind:'intro',
+      available_from:null,available_until:null
+    }
+    for(const role of [{index:0,width:1440},{index:4,width:390}]) {
+      const context=await browser.newContext({
+        viewport:{width:role.width,height:900}
+      })
+      const page=await context.newPage()
+      const state=createServerState(partyIds[role.index])
+      state.weeklyMatch=true
+      state.syntheticRoster=roster
+      state.syntheticDossiers=[introDossier,openDossier]
+      state.syntheticOptions=[
+        {...state.option,dossier_id:introDossier.id},
+        {...state.option,dossier_id:openDossier.id}
+      ]
+      await routeApi(page,state)
+      await injectUser(page,state)
+      await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
+      const board=page.getByRole('region',{name:'Centro de decisiones de la asamblea'})
+      await board.getByRole('heading',{name:'Consejo político'}).waitFor()
+      await page.locator('.match-seat.occupied').filter({hasText:'Partido 10'}).waitFor()
+      assert.equal(await page.locator('.match-seat.occupied').count(),10)
+      assert.equal(await board.getByText('0 / 1 firmados').count(),2)
+      const choices=await board.getByRole('button',{name:/PLAZO SEMANAL|ESCENARIO FICTICIO/}).all()
+      assert.match(await choices[0].innerText(),/Ley semanal verificada de prueba/)
+      if(role.index===0) {
+        await board.getByText('Gobierno ejecutivo').waitFor()
+        await page.getByText('COMPETENCIA DEL GOBIERNO').waitFor()
+      } else {
+        await board.getByText('Partido de oposición').waitFor()
+        assert.equal(await page.getByText('COMPETENCIA DEL GOBIERNO').count(),0)
+      }
+      await board.getByRole('button',{name:'Esta semana'}).click()
+      assert.equal(await board.getByRole('button',{name:/PLAZO SEMANAL/}).count(),1)
+      await board.getByRole('button',{name:'Programa inicial'}).click()
+      assert.equal(await board.getByRole('button',{name:/ESCENARIO FICTICIO/}).count(),1)
+      await checkMobileOverflow(page,'ten-party command board '+role.width)
+      await checkA11y(page,'ten-party command board '+role.width)
+      await page.screenshot({path:OUT+'/multi-command-'+role.width+'.png',fullPage:true})
       await context.close()
     }
   })

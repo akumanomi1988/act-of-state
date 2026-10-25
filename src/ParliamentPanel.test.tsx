@@ -86,4 +86,39 @@ describe('binding parliamentary workflow', () => {
       name: 'Someter la opción seleccionada a votación'
     })).not.toBeInTheDocument()
   })
+  it('recognizes a committed proposal after the HTTP acknowledgement is lost',async()=>{
+    mocks.proposeParliamentBill.mockRejectedValueOnce(new Error('network dropped'))
+    mocks.fetchParliamentState.mockResolvedValueOnce(state()).mockResolvedValue(state('open'))
+    render(<ParliamentPanel {...base}/>)
+    fireEvent.click(await screen.findByRole('button',{
+      name:'Someter la opción seleccionada a votación'
+    }))
+    expect(await screen.findByText('Propuesta registrada. La asamblea puede votar.'))
+      .toBeInTheDocument()
+    expect(mocks.proposeParliamentBill).toHaveBeenCalledTimes(1)
+  })
+
+  it('recovers a vote from an authoritative roll call despite network failure',async()=>{
+    mocks.castParliamentVote.mockRejectedValueOnce(new Error('response lost'))
+    const vote={bill_id:billId,match_id:matchId,user_id:guest,choice:'yes' as const,
+      seat_weight:10,created_at:'2026-10-23T13:00:00Z'}
+    mocks.fetchParliamentState.mockResolvedValueOnce(state('open'))
+      .mockResolvedValue({...state('open'),votes:[vote]})
+    render(<ParliamentPanel {...base} host={false} userId={guest}/>)
+    fireEvent.click(await screen.findByRole('button',{name:'A favor'}))
+    expect(await screen.findByText('Voto registrado y escrutinio actualizado.'))
+      .toBeInTheDocument()
+    expect(screen.getByText(/Tu voto quedó registrado: A favor/)).toBeInTheDocument()
+    expect(mocks.castParliamentVote).toHaveBeenCalledTimes(1)
+  })
+
+  it('never announces a successful vote when the server ledger lacks the ballot',async()=>{
+    mocks.fetchParliamentState.mockResolvedValue(state('open'))
+    mocks.castParliamentVote.mockRejectedValueOnce(new Error('transport failed'))
+    render(<ParliamentPanel {...base} host={false} userId={guest}/>)
+    fireEvent.click(await screen.findByRole('button',{name:'A favor'}))
+    expect(await screen.findByRole('alert')).toHaveTextContent(/No se confirmó en el acta/)
+    expect(screen.queryByText('Voto registrado y escrutinio actualizado.')).not.toBeInTheDocument()
+  })
+
 })

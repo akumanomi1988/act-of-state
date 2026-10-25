@@ -12,6 +12,10 @@ Visit **`/demo`** to try four authored fictional government dossiers with twelve
 
 Authenticated solo governments can now play a permanent **ten-dossier fictional founding programme** with 30 choices: original energy/water policies plus housing, healthcare, education, infrastructure, employment, food security, digital institutions and climate adaptation. All choices use the existing server-authoritative decision RPC and are permanently recorded. The government dashboard tracks decisions signed, the event-derived cumulative fiscal/social signature impacts, and current weekly dossiers with priority filters. The player guide and onboarding explain the difference between this programme and the separately published current-news cycle. See [full programme and acceptance](docs/FOUNDATIONAL_GOVERNMENT_PROGRAMME.md). The separate `/demo` training mode remains browser-local and non-authoritative.
 
+## Multiplayer legislative command center (AOS-044)
+
+The ten-party shared-nation interface prioritizes time-limited verified weekly dossiers over permanent fictional legislation, distinguishes each party's recorded stance from binding national decisions and provides role-aware action filters. Cabinet signatures and parliamentary votes are reconciled against immutable server acts after network loss, and stale polling cannot erase an already confirmed decision. See [multiplayer command and safety contract](docs/MULTIPLAYER_COMMAND_CENTER.md). SQL tests simulate ten authenticated database identities; separate browser sessions exercise governmental/opposition UIs against mock HTTP, **not** real human ten-account acceptance.
+
 ## Current implementation (AOS-MVP-001)
 
 The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events, ten-party shared-nation matches and a deterministic, server-authoritative simulation engine.
