@@ -851,7 +851,7 @@ try {
     await page.goto(BASE+'/guide',{waitUntil:'networkidle'})
     await page.getByRole('heading',{level:1}).waitFor()
     await page.getByRole('navigation',{name:'Contenido del manual'}).getByRole('link',{name:'Una semana política',exact:true}).click()
-    await page.getByRole('heading',{name:'Una semana política'}).waitFor()
+    await page.getByRole('heading',{name:'Una semana política',exact:true}).waitFor()
     await checkMobileOverflow(page,'public player manual')
     await checkA11y(page,'public player manual')
     await context.close()
