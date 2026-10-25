@@ -35,7 +35,7 @@ begin
     jsonb_array_length(v_world->'options')<>84 then
   raise exception 'FOUNDATIONAL_DOSSIERS_NOT_IN_SNAPSHOT'; end if;
  if (select count(distinct category) from public.dossiers
-     where release_kind='intro' and version=1)<>10 then
+     where release_kind='intro' and programme_chapter='founding' and version=1)<>10 then
   raise exception 'FOUNDATIONAL_POLICY_COVERAGE_INCOMPLETE'; end if;
  -- Policy costs are bounded by the original 12,000 M€ treasury even when
  -- every most-expensive alternative is signed in one session.
