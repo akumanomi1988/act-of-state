@@ -1,10 +1,23 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-049 verifiable production release, public diagnostics, disaster recovery and ten-party HTTP load — branch CI verified; exact hosted main release pending.
-**Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
-this is an acceptance-gate tally, not a measure of implemented code or effort.
+**Latest main increment:** AOS-049. **Latest development:** AOS-053 progress score on top of CI-green AOS-052 integrated reforms and password-first access; not published.
+**PRIMARY DEVELOPMENT SCORE:** AOS-049 main 52/72 (72.2%); AOS-052 verified development 56/72 (77.8%); **+5.6 percentage points**. Fixed evidence-scored 72 checkpoints in [DEVELOPMENT_PROGRESS.md](DEVELOPMENT_PROGRESS.md) and `npm run progress`.
+**SECONDARY STRICT ACCEPTANCE:** 2/18 (11.1%). This independent external/human gate tally is not a percentage of implemented development.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-053 — Auditable development metric (2026-10-26)
+
+- Replace the artificially frozen accepted-gates percentage as the **primary**
+  development indicator with a fixed 18 × 4 engineering checkpoint ledger.
+- Baseline pinned at AOS-049 `main` SHA `1cb55f26fc5f813a349a146a3bb2df498ceea157`
+  and CI-green AOS-052 SHA `92c626675dc70f6faecd80520e41558784e19edc`.
+- Reproducible result **72.2% → 77.8% (+5.6 pp)**, four actual new
+  checkpoints, while strict external acceptance remains **2/18 = 11.1%**.
+- One machine-readable source, `npm run progress` calculator and Node
+  regression prevent accidental denominator or credit inflation.
+- No release or production schema migration authorized. See
+  [DEVELOPMENT_PROGRESS.md](DEVELOPMENT_PROGRESS.md).
 
 ## AOS-052 — Integrated national reforms + account access (development branch, 2026-10-26)
 

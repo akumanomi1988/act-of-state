@@ -9,6 +9,11 @@
 
 **Every decision shapes a nation.**
 
+**Development progress: 77.8%** (56/72 fixed engineering milestones, AOS-052 CI
+branch); **main code: 72.2%** (52/72); **commercial acceptance: 11.1%** (2/18).
+This transparent engineering score is not release readiness. Run
+`npm run progress` and inspect [the scored checkpoint ledger](docs/DEVELOPMENT_PROGRESS.md).
+
 Free-to-play, browser-based, persistent political simulation. This codebase is independent from Moncloa-AI.
 
 ## Play instantly without an account (AOS-042)

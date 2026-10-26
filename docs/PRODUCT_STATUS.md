@@ -49,5 +49,9 @@ Guidance derives completion from the current authorized world. Reading a guide
 never marks a political action complete or executes a mutation. No new backend
 privilege, persistent browser identity store or external dependency is added.
 
-Strict full-requirement acceptance remains 2/18. A weighted implementation
-percentage has not been established, so this inventory does not invent one.
+Primary engineering progress is now **56/72 = 77.8%** on the validated
+AOS-052 development snapshot, versus **52/72 = 72.2%** on AOS-049 main
+(**+5.6 percentage points**). Checkpoint definitions, pinned SHA evidence
+and exclusions: [DEVELOPMENT_PROGRESS.md](DEVELOPMENT_PROGRESS.md). Strict
+external commercial acceptance remains independently **2/18 = 11.1%**.
+No production release or hosted SQL migration is implied.
