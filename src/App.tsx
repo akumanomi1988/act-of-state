@@ -9,6 +9,7 @@ import { number } from './lib/format'
 import type { Dossier, DossierOption, GovernmentWorld } from './lib/types'
 import Outcome from './components/Outcome'
 import FiscalPanel from './FiscalPanel'
+import MandateObservatory from './MandateObservatory'
 import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
 import PopulationPanel from './PopulationPanel'
 import LivingConditionsPanel from './LivingConditionsPanel'
@@ -412,6 +413,7 @@ export default function App() {
             </aside>
           </main>
           <LivingConditionsPanel governmentId={world.government.id} identity={user?.id ?? ''} />
+          <MandateObservatory governmentId={world.government.id} identity={user?.id ?? ''} />
           <PopulationPanel key={world.government.id + ':' + (user?.id ?? '')}
             governmentId={world.government.id} identity={user?.id ?? ''} />
           <DecisionAnalyticsPanel key={world.government.id}
