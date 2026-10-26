@@ -409,7 +409,10 @@ const treatyBill=await rpc(host,'propose_parliament_bill',{
  p_match_id:match.id,p_dossier_id:treatyId,p_dossier_version:1,
  p_option_id:treatyOption
 })
-for(const actor of players) await rpc(actor,'cast_parliament_vote',{
+for(const actor of players.slice(0,4)) await rpc(actor,'cast_parliament_vote',{
+ p_bill_id:treatyBill.id,p_choice:'no'
+})
+for(const actor of players.slice(4,10)) await rpc(actor,'cast_parliament_vote',{
  p_bill_id:treatyBill.id,p_choice:'yes'
 })
 const approvedDiplomacy=await rpc(players[3],'get_parliament_state',{
