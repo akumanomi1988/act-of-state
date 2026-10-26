@@ -5,7 +5,7 @@ select ('35000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,
  '00000000-0000-0000-0000-000000000000',
  'authenticated','authenticated','finance-'||n||'@example.invalid','',now(),now(),now()
 from generate_series(1,3) n;
-create temporary table finance_fixture(match_id uuid,gov_id uuid);
+create temporary table finance_fixture(match_id uuid,gov_id uuid,invite_code text,target_code text);
 grant select,insert on pg_temp.finance_fixture to authenticated;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','35000000-0000-4000-8000-000000000001',true);
@@ -14,7 +14,8 @@ do $$
 declare m public.matches%rowtype; v jsonb;
 begin
  m:=public.create_match('Finance acceptance nation','Equal Funding Party');
- insert into pg_temp.finance_fixture values(m.id,m.government_id);
+ insert into pg_temp.finance_fixture values(m.id,m.government_id,m.invite_code,
+   public.get_campaign_state(m.id)->'cohorts'->0->>'code');
  v:=public.get_party_finances(m.id);
  if v->>'active'<>'false' or (v->>'earnedCredits')::int<>0
   or (v->>'availableCredits')::int<>0 then
@@ -26,7 +27,7 @@ declare f record; m public.matches%rowtype; v jsonb;
 begin
  select * into f from pg_temp.finance_fixture;
  perform set_config('request.jwt.claim.sub','35000000-0000-4000-8000-000000000002',true);
- perform public.join_match((select invite_code from public.matches where id=f.match_id),'Opposition Reform');
+ perform public.join_match(f.invite_code,'Opposition Reform');
  perform set_config('request.jwt.claim.sub','35000000-0000-4000-8000-000000000001',true);
  m:=public.start_match(f.match_id);
  v:=public.get_party_finances(f.match_id);
@@ -40,8 +41,8 @@ declare f record; evt public.match_campaign_events%rowtype;
  retry public.match_campaign_events%rowtype; v jsonb; receipt public.match_campaign_spending%rowtype;
 begin
  select * into f from pg_temp.finance_fixture;
- evt:=public.launch_campaign(f.match_id,(select code from public.population_cohorts where government_id=f.gov_id order by code limit 1),'policy_forum');
- retry:=public.launch_campaign(f.match_id,(select code from public.population_cohorts where government_id=f.gov_id order by code limit 1),'policy_forum');
+ evt:=public.launch_campaign(f.match_id,f.target_code,'policy_forum');
+ retry:=public.launch_campaign(f.match_id,f.target_code,'policy_forum');
  if evt.id<>retry.id then raise exception 'FINANCE_IDEMPOTENCY_FAILED'; end if;
  v:=public.get_party_finances(f.match_id);
  if (v->>'availableCredits')::int<>2 or (v->>'spentCredits')::int<>10
@@ -71,7 +72,7 @@ begin
  if not blocked then raise exception 'FINANCE_NONMEMBER_READ_ALLOWED'; end if;
  blocked:=false;
  begin
-  perform public.launch_campaign(f.match_id,(select code from public.population_cohorts where government_id=f.gov_id order by code limit 1),'dialogue');
+  perform public.launch_campaign(f.match_id,f.target_code,'dialogue');
  exception when insufficient_privilege then blocked:=true;
  end;
  if not blocked then raise exception 'FINANCE_NONMEMBER_WRITE_ALLOWED'; end if;
@@ -89,7 +90,7 @@ begin
  if not blocked then raise exception 'FINANCE_DIRECT_WRITE_ALLOWED'; end if;
  blocked:=false;
  begin
-   perform public.launch_campaign(f.match_id,(select code from public.population_cohorts where government_id=f.gov_id order by code limit 1),'dialogue');
+   perform public.launch_campaign(f.match_id,f.target_code,'dialogue');
  exception when sqlstate 'P0001' then blocked:=true;
  end;
  if not blocked then raise exception 'FINANCE_WEEKLY_QUOTA_BYPASS'; end if;
