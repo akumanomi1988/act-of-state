@@ -35,7 +35,7 @@ begin
    where o->>'dossier_id'='energy-resilience') then
   raise exception 'EXPIRED_EDITORIAL_CATALOG_VISIBLE'; end if;
  if jsonb_array_length(w->'dossiers') <> 27
- or jsonb_array_length(w->'options') <> 81
+ or jsonb_array_length(w->'options') <> 135
  or not exists(select 1 from jsonb_array_elements(w->'dossiers') d
      where d->>'id'='water-security') then
   raise exception 'OTHER_AVAILABLE_DOSSIER_HIDDEN'; end if;
