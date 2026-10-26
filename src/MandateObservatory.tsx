@@ -69,7 +69,7 @@ export default function MandateObservatory({ governmentId, identity, matchId }: 
     void load()
     const interval = window.setInterval(() => void load(), 60000)
     return () => { active = false; window.clearInterval(interval) }
-  }, [governmentId, identity, matchId, days, refresh, expanded, key]
+  }, [governmentId, identity, matchId, days, refresh, expanded, key])
 
   const data = stored?.key === key ? stored : null
   const outcome = useMemo(() => {
