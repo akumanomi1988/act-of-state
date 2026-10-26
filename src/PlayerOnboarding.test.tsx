@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, expect, it } from 'vitest'
 import PlayerGuide from './PlayerGuide'
 import PlayerOnboarding from './PlayerOnboarding'
@@ -12,6 +12,25 @@ it('makes every manual section accessible without a session or network',()=>{
  expect(screen.getByRole('heading',{name:'Acceso y recuperación'})).toBeInTheDocument()
  for(const link of screen.getAllByRole('link').filter(l=>l.getAttribute('href')?.startsWith('#')))
   expect(document.getElementById(link.getAttribute('href')!.slice(1))).not.toBeNull()
+})
+it('opens the complete public manual in English without changing game state',()=>{
+ const original=window.location.href
+ window.history.replaceState({},'', '/guide?lang=en')
+ try {
+  const view=render(<PlayerGuide />)
+  expect(screen.getByRole('heading',{name:'From your first decision to a shared mandate'})).toBeInTheDocument()
+  expect(screen.getByRole('heading',{name:'Government and opposition'})).toBeInTheDocument()
+  expect(screen.getByRole('heading',{name:'Campaigns and elections'})).toBeInTheDocument()
+  expect(screen.getByRole('button',{name:'English'})).toHaveAttribute('aria-pressed','true')
+  expect(view.container.querySelectorAll('main section')).toHaveLength(16)
+  for(const link of screen.getAllByRole('link').filter(x=>x.getAttribute('href')?.startsWith('#')))
+   expect(document.getElementById(link.getAttribute('href')!.slice(1))).not.toBeNull()
+  fireEvent.click(screen.getByRole('button',{name:'Español'}))
+  expect(screen.getByRole('heading',{name:'Una semana política'})).toBeInTheDocument()
+  expect(screen.getByRole('button',{name:'English'})).toHaveAttribute('aria-pressed','false')
+ } finally {
+  window.history.replaceState({},'',original)
+ }
 })
 it('shows unpublished weekly content as pending, without marking study as execution',()=>{
  const world={events:[],calendar:{weeklyTotal:0}} as unknown as GovernmentWorld

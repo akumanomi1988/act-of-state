@@ -19,6 +19,15 @@
 - Progress: no weight change to the 100-point final release baseline;
   human editorial source verification and publish credentials remain pending.
 
+## AOS-059 — Bilingual public player manual (development branch)
+
+- Entire public player manual translated into English (16 sections) with an
+  accessible ES/EN switch and deep links preserving stable chapter anchors.
+- Does not require an account or change the political game; includes tested
+  keyboard-style button interaction and no backend or provider dependency.
+- Scope boundary: full application localization is NOT complete. No weights
+  change and no deployment is authorized.
+
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.

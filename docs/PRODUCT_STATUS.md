@@ -66,3 +66,7 @@ separately remains UNKNOWN until each F001-F008 acceptance boundary can be
 observed across its entire original end-to-end requirement. This is not
 equivalent to completion of the unreleased product or actual real-news slate.
 See TECHNICAL_ACCEPTANCE_AOS_057.md and EXECUTION_TO_100.md.
+
+## AOS-059 — Bilingual public player manual (development only)
+
+The public /guide route is available in Spanish and English, with all 16 rule sections and keyboard-usable navigation. The game UI remains Spanish-first. This is not acceptance of full ES/EN application localization. No hosted deployment has occurred.
