@@ -2,7 +2,7 @@ name: Quality (opt-in)
 on:
   # Isolated development QA; never triggers Vercel publication.
   push:
-    branches: [feature/aos-052-integrated-reforms]
+    branches: [feature/aos-053-mandate-observatory]
   pull_request:
     branches: [main]
   workflow_dispatch:
