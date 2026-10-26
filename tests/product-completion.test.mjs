@@ -12,7 +12,7 @@ test('frozen whole-product completion weights and distinct criteria',()=>{
 test('accepted score is evidenced not inferred from code volume',()=>{
   const accepted=b.criteria.filter(c=>c.accepted)
   assert(accepted.every(c=>c.evidence))
-  assert.deepEqual(accepted.map(c=>c.id),['MVP-T001','MVP-T003'])
-  assert.equal(accepted.reduce((sum,c)=>sum+c.weight,0),10)
+  assert.deepEqual(accepted.map(c=>c.id),['MVP-T001','MVP-T002','MVP-T003','MVP-T004','MVP-T005'])
+  assert.equal(accepted.reduce((sum,c)=>sum+c.weight,0),23)
 })
 

@@ -55,3 +55,14 @@ privilege, persistent browser identity store or external dependency is added.
 
 Strict full-requirement acceptance remains 2/18. A weighted implementation
 percentage has not been established, so this inventory does not invent one.
+
+
+### Technical acceptance checkpoint — AOS-057
+
+The immutable formal whole-product denominator remains 100; accepted
+technical gates increased from 10 to 23 points on independently successful
+Quality/PostgreSQL/GoTrue CI evidence. The actual functional percentage
+separately remains UNKNOWN until each F001-F008 acceptance boundary can be
+observed across its entire original end-to-end requirement. This is not
+equivalent to completion of the unreleased product or actual real-news slate.
+See TECHNICAL_ACCEPTANCE_AOS_057.md and EXECUTION_TO_100.md.

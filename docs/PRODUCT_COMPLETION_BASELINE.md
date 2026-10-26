@@ -24,3 +24,18 @@ Run: node --test tests/product-completion.test.mjs.
 AOS-053 fictional political funding improves gameplay implementation
 but does not autonomously close any original full-product gate.
 
+
+
+## Versioned technical acceptance event — AOS-057, 2026-10-26
+
+The 100 total weight points and all 18 requirements are unchanged.
+Previously accepted T001/T003 remain accepted (10 points).
+Three independently automated TECHNICAL gates have now been reviewed
+against the successful, immutable AOS-056 GitHub CI evidence:
+T002 (authenticated account isolation), T004 (idempotency/concurrent
+operations), T005 (full automated quality tooling). Their weights are 5,
+4 and 4. These contribute **13 new accepted points**, for **23/100 = 23%**
+binary whole-project acceptance. These are technical gates, NOT social,
+editorial, production, external email or human player acceptance.
+See TECHNICAL_ACCEPTANCE_AOS_057.md. No partially complete gameplay
+requirements have received points, and REL remains 0/10.

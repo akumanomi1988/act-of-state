@@ -63,7 +63,8 @@
       "id": "MVP-T002",
       "name": "Auth and isolation",
       "weight": 5,
-      "accepted": false
+      "accepted": true,
+      "evidence": "docs/TECHNICAL_ACCEPTANCE_AOS_057.md"
     },
     {
       "id": "MVP-T003",
@@ -76,13 +77,15 @@
       "id": "MVP-T004",
       "name": "Safe retries and concurrency",
       "weight": 4,
-      "accepted": false
+      "accepted": true,
+      "evidence": "docs/TECHNICAL_ACCEPTANCE_AOS_057.md"
     },
     {
       "id": "MVP-T005",
       "name": "Automated quality",
       "weight": 4,
-      "accepted": false
+      "accepted": true,
+      "evidence": "docs/TECHNICAL_ACCEPTANCE_AOS_057.md"
     },
     {
       "id": "MVP-T006",
