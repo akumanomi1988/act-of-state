@@ -38,7 +38,7 @@ end $$;
 
 do $$
 declare f record; evt public.match_campaign_events%rowtype;
- retry public.match_campaign_events%rowtype; v jsonb; receipt public.match_campaign_spending%rowtype;
+ retry public.match_campaign_events%rowtype; v jsonb;
 begin
  select * into f from pg_temp.finance_fixture;
  evt:=public.launch_campaign(f.match_id,f.target_code,'policy_forum');
@@ -48,11 +48,10 @@ begin
  if (v->>'availableCredits')::int<>2 or (v->>'spentCredits')::int<>10
   or jsonb_array_length(v->'recentSpending')<>1 then
    raise exception 'FINANCE_SPEND_MISMATCH: %',v; end if;
- select * into receipt from public.match_campaign_spending where campaign_event_id=evt.id;
- if receipt.cost_credits<>10 or receipt.strategy<>'policy_forum' then
-   raise exception 'FINANCE_RECEIPT_INVALID'; end if;
- if (select count(*) from public.match_campaign_spending where match_id=f.match_id)<>1 then
-   raise exception 'FINANCE_RETRY_DOUBLE_SPEND'; end if;
+ if v->'recentSpending'->0->>'campaignEventId'<>evt.id::text or
+    (v->'recentSpending'->0->>'costCredits')::integer<>10 or
+    v->'recentSpending'->0->>'strategy'<>'policy_forum' then
+   raise exception 'FINANCE_RECEIPT_INVALID_OR_DOUBLE_SPEND: %',v; end if;
 end $$;
 
 do $$
