@@ -6,6 +6,33 @@
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
 
+## AOS-051 — Password sign-in and manual-only Vercel deployment (2026-10-26, development)
+
+- The Vercel project update endpoint was accessed successfully without a
+  misleading team-scope parameter. Applied `previewDeploymentsDisabled=true`
+  and `commandForIgnoringBuildStep='exit 0'`. Added
+  `git.deploymentEnabled:false` to the repo's `vercel.json`, preserving
+  existing SPA rewrites. After subsequent development commits the Vercel
+  project deployment list showed **no new deployments** (latest previously
+  recorded preview had SHA `492b4dcfc613`). No production alias or hosted
+  Supabase settings were changed.
+- Added email/password sign-in using the existing Supabase Auth identity in
+  both solo and multijugador. Existing email link first access stays; logged-in
+  accounts can configure a password through `auth.updateUser`, with client
+  minimum 12 characters and confirmation (GoTrue enforces policy).
+- Added explicit forgotten-password recovery, generic error handling to avoid
+  account enumeration, password-only ephemeral component state, no client
+  password storage, and preserved persistent GoTrue sessions.
+- Added a local pure password-policy test (2/2 PASS) and React/GoTrue test
+  coverage, including a genuine Mailpit-link user who establishes a password,
+  signs out and returns through `signInWithPassword` without another OTP
+  while retaining the same match. **Full integrated CI for AOS-051 is not yet
+  verified** and none of this new login UI is currently published.
+- [Password operations](PASSWORD_LOGIN.md). All changes remain on
+  `aos/050-national-reforms-campaign` and **must not deploy to Vercel or
+  migrate hosted Supabase without separate release authorization**.
+  Strict product acceptance remains **2/18 = 11.1%**, not a code percentage.
+
 ## AOS-050 — National reform programme (2026-10-25, isolated development)
 
 - Expands the existing ten permanent original fictional dossiers into an authored 28-case policy programme with **18 new long-form dilemmas and 54 distinct policy alternatives** in four connected chapters: welfare/society (5), economy/resources (5), institutional democracy (4), and resilience/external dependencies (4). The original ten IDs, thirty alternatives, cost parameters and archived decisions remain unchanged.
