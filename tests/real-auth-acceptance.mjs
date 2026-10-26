@@ -287,9 +287,44 @@ try {
     pass(failures.length===0,'React browser runtime errors: '+failures.join('; '))
     await context.close()
   }
+
+  // AOS-050: real UI sign-in, password rotation and persistent shared game.
+  // Unlike injected-JWT contexts above, this context begins with no Auth storage.
+  const passwordContext=await browser.newContext({viewport:{width:390,height:900}})
+  const passwordPage=await passwordContext.newPage()
+  const passwordErrors=[]
+  passwordPage.on('pageerror',error=>passwordErrors.push(error.message))
+  await passwordPage.goto(APP+'/multiplayer',{waitUntil:'networkidle'})
+  await passwordPage.getByRole('button',{name:'Iniciar sesión'}).waitFor()
+  await passwordPage.getByLabel('Correo electrónico').fill(host.email)
+  await passwordPage.getByLabel('Contraseña',{exact:true}).fill(password)
+  await passwordPage.getByRole('button',{name:'Iniciar sesión'}).click()
+  await passwordPage.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor({timeout:15000})
+  pass(true,'Password UI established a real GoTrue browser session')
+  await passwordPage.reload({waitUntil:'networkidle'})
+  await passwordPage.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor({timeout:15000})
+  pass(true,'Password UI restored the shared match after reload')
+  await passwordPage.getByRole('button',{name:'Seguridad de la cuenta · Contraseña'}).click()
+  const rotatedPassword=password+'-rotated'
+  await passwordPage.getByLabel('Contraseña nueva (mínimo 12 caracteres)').fill(rotatedPassword)
+  await passwordPage.getByLabel('Repetir contraseña nueva').fill(rotatedPassword)
+  await passwordPage.getByRole('button',{name:'Guardar contraseña'}).click()
+  await passwordPage.getByText('Contraseña actualizada. Ya puedes entrar sin solicitar un enlace por correo.')
+    .waitFor({timeout:15000})
+  pass(true,'Authenticated password rotation was confirmed by local GoTrue')
+  await passwordPage.getByRole('button',{name:'Cerrar sesión'}).click()
+  await passwordPage.getByRole('button',{name:'Iniciar sesión'}).waitFor()
+  await passwordPage.getByLabel('Correo electrónico').fill(host.email)
+  await passwordPage.getByLabel('Contraseña',{exact:true}).fill(rotatedPassword)
+  await passwordPage.getByRole('button',{name:'Iniciar sesión'}).click()
+  await passwordPage.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor({timeout:15000})
+  pass(true,'Rotated password re-authenticated the same existing party')
+  pass(passwordErrors.length===0,'Password browser runtime errors: '+passwordErrors.join('; '))
+  await passwordPage.screenshot({path:'test-results/browser/auth-password-390.png',fullPage:true})
+  await passwordContext.close()
 } finally { await browser.close() }
 console.log('AOS_LIVE_AUTH_PASS',JSON.stringify({
   signedUp:actors.length,distinctPlayers:10,realHttp:true,
-  fixedSignedActs:1,browserContexts:10,decayV2:true,assertions,
-  note:'Ten authentic HTTP/JWT browser contexts, local GoTrue; no production SMTP or real people'
+  fixedSignedActs:1,browserContexts:11,passwordLogin:true,passwordRotation:true,decayV2:true,assertions,
+  note:'Ten injected-JWT browser contexts plus one real password UI journey, local GoTrue; no production SMTP or real people'
 }))
