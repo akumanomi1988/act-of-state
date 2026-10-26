@@ -3,7 +3,7 @@
 Project: ACT OF STATE
 Repo: akumanomi1988/act-of-state
 Branch: aos/050-national-reforms-campaign
-Increment commit: 680ff44263d1374dfa909325e35f497cb62be935
+Last completed development: AOS-059 bilingual player guide (16 sections); GitHub branch head for current SHA.
 Production: no deployment and no hosted Supabase migration authorized.
 Original total weight: 100, formally accepted weight: 23.
 Functional engineering subledger total: 62, evidenced: 45, outstanding: 17.
@@ -15,7 +15,8 @@ This is the first granular engineering score, not an increase from 23.
 2. Run a consenting human 10-player Monday-through-Friday match, verifying government and opposition permissions, votes, signatures, absence/rejoin and game balance. Existing GoTrue simulated parties are technical acceptance only.
 3. Conduct genuine human accessibility, mobile usability, password recovery and sustained fiscal/diplomatic balancing trials. Implement and retest findings.
 4. Validate hosted email, autonomous daily/weekly scheduler, production backup restore, operational monitoring, rate limiting and an authorized immutable production release; none has been asserted complete.
-5. Review the eight full functional product gates and remaining release gates against observed evidence. Keep the frozen 100-point numerator/denominator distinct from the new 62-point functional subledger.
+5. Complete full ES/EN application localization beyond the standalone English manual, with browser and accessibility checks.
+6. Review the eight full functional product gates and remaining release gates against observed evidence. Keep the frozen 100-point numerator/denominator distinct from the new 62-point functional subledger.
 
 ## Next permitted engineering continuation
 

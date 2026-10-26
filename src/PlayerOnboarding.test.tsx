@@ -26,6 +26,7 @@ it('opens the complete public manual in English without changing game state',()=
   for(const link of screen.getAllByRole('link').filter(x=>x.getAttribute('href')?.startsWith('#')))
    expect(document.getElementById(link.getAttribute('href')!.slice(1))).not.toBeNull()
   fireEvent.click(screen.getByRole('button',{name:'Español'}))
+  expect(new URLSearchParams(window.location.search).get('lang')).toBe('es')
   expect(screen.getByRole('heading',{name:'Una semana política'})).toBeInTheDocument()
   expect(screen.getByRole('button',{name:'English'})).toHaveAttribute('aria-pressed','false')
  } finally {

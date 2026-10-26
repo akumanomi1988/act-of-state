@@ -24,6 +24,12 @@ export default function PlayerGuide() {
    const fromUrl=new URLSearchParams(window.location.search).get('lang')
    return fromUrl==='en'?'en':'es'
  })
+ function chooseLanguage(next:'es'|'en') {
+   const url=new URL(window.location.href)
+   url.searchParams.set('lang',next)
+   window.history.replaceState(window.history.state,'',url)
+   setLanguage(next)
+ }
  const en=language==='en'
  const sections=en?guideSectionsEnglish:guideSections
  return <div className="app-shell"><header className="masthead">
@@ -33,8 +39,8 @@ export default function PlayerGuide() {
    <a href="/status">{en?'Service status':'Estado del servicio'}</a></nav>
  </header><main className="guide-content" lang={language}>
   <div role="group" aria-label={en?'Guide language':'Idioma del manual'}>
-    <button type="button" aria-pressed={!en} onClick={()=>setLanguage('es')}>Español</button>
-    <button type="button" aria-pressed={en} onClick={()=>setLanguage('en')}>English</button>
+    <button type="button" aria-pressed={!en} onClick={()=>chooseLanguage('es')}>Español</button>
+    <button type="button" aria-pressed={en} onClick={()=>chooseLanguage('en')}>English</button>
   </div>
   <p className="eyebrow">{en?'PLAYER MANUAL':'MANUAL DEL JUGADOR'}</p>
   <h1>{en?'From your first decision to a shared mandate':'De tu primera decisión a un mandato compartido'}</h1>
