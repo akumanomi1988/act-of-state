@@ -6,6 +6,22 @@
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
 
+## AOS-053 — Strategic Mandate Observatory and 12-week balance regression (development branch)
+
+- Added lazy authenticated 7/30/90-day economic, welfare and electoral analysis
+  to solo and multiplayer, with incomplete-days warnings and member isolation.
+- Added 10% revenue-loss and expenditure-rise budget stress scenarios,
+  explicitly labelled hypothetical and never persisted.
+- Added cross-source retrospective summaries, certified elections versus vote
+  estimates, 12-act fiscal retention caveat, read-error recovery and mobile UI.
+- Added a rollback-only 12-week fiscal transaction, debt exhaustion, duplicate
+  retry, bounded authorized history and second-user access denial matrix.
+- Vitest, Chromium and PostgreSQL workflows must PASS on this SHA before
+  the branch is called technically verified. No deployment, production data
+  migration or account alteration is authorized.
+- **Commercial acceptance still 2/18**; synthetic replay cannot certify real
+  90-day operation or electoral balance.
+
 ## AOS-052 — Integrated national reforms + account access (development branch, 2026-10-26)
 
 - Consolidated the 18 authored national reform dossiers (54 outcomes), ten original
