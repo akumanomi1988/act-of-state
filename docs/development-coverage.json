@@ -1,0 +1,633 @@
+{
+  "schemaVersion": 1,
+  "title": "ACT OF STATE — Implementation Coverage",
+  "measurement": "Four independently evidenced, binary implementation milestones for each of the 18 original MVP requirements. Equal area weight, no partial credit within a milestone. Never confuse this technical implementation measure with full commercial acceptance.",
+  "baseMilestone": "AOS-052",
+  "currentMilestone": "AOS-053",
+  "evidenceRuns": {
+    "quality": "https://github.com/akumanomi1988/act-of-state/actions/runs/40293220246",
+    "database": "https://github.com/akumanomi1988/act-of-state/actions/runs/40293220248",
+    "realAuth": "https://github.com/akumanomi1988/act-of-state/actions/runs/40293220228"
+  },
+  "commercialAcceptance": {
+    "complete": [
+      "MVP-T001",
+      "MVP-T003"
+    ],
+    "total": 18
+  },
+  "requirements": [
+    {
+      "id": "MVP-F001",
+      "name": "Persistent government session",
+      "checkpoints": [
+        {
+          "key": "MVP-F001.1",
+          "description": "Persistent per-owner nation and account session",
+          "state": "verified",
+          "proof": "src/lib/game.ts",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F001.2",
+          "description": "Password-first login and registration across routes",
+          "state": "verified",
+          "proof": "src/AuthGateway.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F001.3",
+          "description": "Authenticated password reset, change and safe logout",
+          "state": "verified",
+          "proof": "src/AccountSecurity.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F001.4",
+          "description": "Externally verified hosted two-device password/account recovery",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F002",
+      "name": "Dossiers and policy options",
+      "checkpoints": [
+        {
+          "key": "MVP-F002.1",
+          "description": "Ten foundational permanent government dossiers",
+          "state": "verified",
+          "proof": "docs/FOUNDATIONAL_GOVERNMENT_PROGRAMME.md",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F002.2",
+          "description": "Eighteen reform dossiers and 54 policy options",
+          "state": "verified",
+          "proof": "src/lib/nationalProgramme.ts",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F002.3",
+          "description": "Ten-case sourced editorial draft and reviewed publishing workflow",
+          "state": "verified",
+          "proof": "src/EditorialApp.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F002.4",
+          "description": "One independent real-news reviewed and published editorial week",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F003",
+      "name": "Persistent validated decisions",
+      "checkpoints": [
+        {
+          "key": "MVP-F003.1",
+          "description": "Server-authorized fiscal/political decision transaction",
+          "state": "verified",
+          "proof": "supabase/migrations/20261023050112_aos_001_foundation.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F003.2",
+          "description": "Immutable signed event ledger and deterministic safe retry",
+          "state": "verified",
+          "proof": "supabase/tests/decision_flow.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F003.3",
+          "description": "Real-auth cabinet signature, archived result and reload acceptance",
+          "state": "verified",
+          "proof": "tests/real-auth-acceptance.mjs",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F003.4",
+          "description": "Hosted production browser decision journey with independent identities",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F004",
+      "name": "Synthetic households and cohorts",
+      "checkpoints": [
+        {
+          "key": "MVP-F004.1",
+          "description": "Three hundred generated synthetic households",
+          "state": "verified",
+          "proof": "supabase/migrations/20261024104835_aos_031_synthetic_households.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F004.2",
+          "description": "Six constituencies and resident-weighted party support",
+          "state": "verified",
+          "proof": "supabase/migrations/20261024132435_aos_034_constituency_elections.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F004.3",
+          "description": "Daily welfare feedback by household and income segment",
+          "state": "verified",
+          "proof": "supabase/migrations/20261024201821_aos_040_daily_living_conditions.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F004.4",
+          "description": "Empirically calibrated population archetypes with documented balance review",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F005",
+      "name": "National state and economy",
+      "checkpoints": [
+        {
+          "key": "MVP-F005.1",
+          "description": "Tax/allocation budget and weekly treasury settlement",
+          "state": "verified",
+          "proof": "supabase/migrations/20261023200000_aos_027_national_fiscal_engine.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F005.2",
+          "description": "Persistent debt, GDP-index, unemployment and inflation model",
+          "state": "verified",
+          "proof": "src/lib/fiscal.ts",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F005.3",
+          "description": "Daily welfare model linked to actual fiscal inputs",
+          "state": "verified",
+          "proof": "src/lib/livingConditions.ts",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F005.4",
+          "description": "Cross-system 90-day mandate observatory and 12-week stress regression",
+          "state": "verified",
+          "proof": "src/lib/mandateObservatory.ts",
+          "creditedIn": "AOS-053"
+        }
+      ]
+    },
+    {
+      "id": "MVP-F006",
+      "name": "Daily and weekly calendar",
+      "checkpoints": [
+        {
+          "key": "MVP-F006.1",
+          "description": "Trusted server-owned UTC day and cron settlement",
+          "state": "verified",
+          "proof": "supabase/migrations/20261023180000_aos_023_autonomous_calendar.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F006.2",
+          "description": "Monday editorial opening and Friday immutable closure",
+          "state": "verified",
+          "proof": "supabase/tests/weekly_release.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F006.3",
+          "description": "Due vote, election and fiscal processing with recovery",
+          "state": "verified",
+          "proof": "supabase/tests/autonomous_calendar.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F006.4",
+          "description": "Observed complete multiweek hosted calendar with real source publications",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F007",
+      "name": "Elections and campaigns",
+      "checkpoints": [
+        {
+          "key": "MVP-F007.1",
+          "description": "Six-district deterministic 100-seat D'Hondt elections",
+          "state": "verified",
+          "proof": "supabase/tests/districts.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F007.2",
+          "description": "Weekly persuasion, explicit blackout and decaying influence",
+          "state": "verified",
+          "proof": "supabase/tests/campaign_decay.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F007.3",
+          "description": "Certified election acts and cabinet succession",
+          "state": "verified",
+          "proof": "src/ElectionPanel.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F007.4",
+          "description": "Human-tested 90-day campaign balance and multiparty election cycle",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F008",
+      "name": "Asynchronous multiplayer",
+      "checkpoints": [
+        {
+          "key": "MVP-F008.1",
+          "description": "Ten-party invite/public lobby and readiness",
+          "state": "verified",
+          "proof": "src/MultiplayerApp.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F008.2",
+          "description": "Mandate-weighted Parliament, votes and binding cabinet signature",
+          "state": "verified",
+          "proof": "src/ParliamentPanel.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F008.3",
+          "description": "Coalitions, confidence motions and cabinet handover",
+          "state": "verified",
+          "proof": "src/GovernancePanel.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-F008.4",
+          "description": "Complete seven-day session with ten independent human parties",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-T001",
+      "name": "Transactional persistence",
+      "checkpoints": [
+        {
+          "key": "MVP-T001.1",
+          "description": "Versioned PostgreSQL schema with scoped access",
+          "state": "verified",
+          "proof": "supabase/migrations/20261023050112_aos_001_foundation.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T001.2",
+          "description": "Committed acts persist across independent server connections",
+          "state": "verified",
+          "proof": "supabase/tests/decision_flow.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T001.3",
+          "description": "Isolated dump/restore of immutable signed acts and permissions",
+          "state": "verified",
+          "proof": "supabase/tests/disposable_restore.sh",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T001.4",
+          "description": "Provider-backed hosted backup and complete restore acceptance",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-T002",
+      "name": "Authentication and isolation",
+      "checkpoints": [
+        {
+          "key": "MVP-T002.1",
+          "description": "Owner/member RLS and private privileged read/write contracts",
+          "state": "verified",
+          "proof": "supabase/tests/access_contract.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T002.2",
+          "description": "Real local GoTrue password and ten-party authenticated UI",
+          "state": "verified",
+          "proof": "tests/real-auth-acceptance.mjs",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T002.3",
+          "description": "Recovery, logout and reused identity across applications",
+          "state": "verified",
+          "proof": "src/AccountSecurity.test.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T002.4",
+          "description": "Production SMTP, login, recovery and independent security signoff",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-T003",
+      "name": "Deterministic versioned outcomes",
+      "checkpoints": [
+        {
+          "key": "MVP-T003.1",
+          "description": "Independent deterministic simulation oracle",
+          "state": "verified",
+          "proof": "tests/reference-simulation.test.mjs",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T003.2",
+          "description": "Golden database scenario and model contract checks",
+          "state": "verified",
+          "proof": "supabase/tests/decision_flow.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T003.3",
+          "description": "Versioned campaign/electoral result compatibility",
+          "state": "verified",
+          "proof": "supabase/tests/campaign_decay.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T003.4",
+          "description": "Preserved archival policy outcomes across migrations",
+          "state": "verified",
+          "proof": "supabase/tests/historical_decision.sql",
+          "creditedIn": "AOS-052"
+        }
+      ]
+    },
+    {
+      "id": "MVP-T004",
+      "name": "Safe retries and concurrency",
+      "checkpoints": [
+        {
+          "key": "MVP-T004.1",
+          "description": "Atomic duplicate decision and contradictory replay safeguards",
+          "state": "verified",
+          "proof": "supabase/tests/decision_flow.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T004.2",
+          "description": "Concurrent ten-party admissions and ballot isolation",
+          "state": "verified",
+          "proof": "supabase/tests/multiplayer_concurrency.sh",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T004.3",
+          "description": "Front-end uncertain-signature reconciliation against server",
+          "state": "verified",
+          "proof": "src/MultiplayerApp.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T004.4",
+          "description": "Sustained hosted concurrent-play load/abuse envelope and independent audit",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-T005",
+      "name": "Automated quality and regression",
+      "checkpoints": [
+        {
+          "key": "MVP-T005.1",
+          "description": "Typed production build and component regression test suite",
+          "state": "verified",
+          "proof": "src/App.test.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T005.2",
+          "description": "Disposable PostgreSQL ordered migration and integration suite",
+          "state": "verified",
+          "proof": "supabase/tests/national_fiscal.sql",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T005.3",
+          "description": "Responsive Chromium, axe and authenticated local real-HTTP QA",
+          "state": "verified",
+          "proof": "tests/browser-smoke.mjs",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T005.4",
+          "description": "External hosted end-to-end release QA with independent participants",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-T006",
+      "name": "Operations and deployment",
+      "checkpoints": [
+        {
+          "key": "MVP-T006.1",
+          "description": "Reproducible GitHub quality/integrity actions",
+          "state": "verified",
+          "proof": "scripts/release-contract.mjs",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T006.2",
+          "description": "Server scheduler, retries and private failure diagnostics",
+          "state": "verified",
+          "proof": "docs/CALENDAR_OPERATIONS.md",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T006.3",
+          "description": "Immutable release stamp, status page and disposable restore runbook",
+          "state": "verified",
+          "proof": "docs/PRODUCTION_RELEASE_RUNBOOK.md",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-T006.4",
+          "description": "Sustained hosted SLO monitoring, backup recovery and alert ownership",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-V001",
+      "name": "Brand identity",
+      "checkpoints": [
+        {
+          "key": "MVP-V001.1",
+          "description": "Coherent dark visual palette and typography",
+          "state": "verified",
+          "proof": "src/styles.css",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-V001.2",
+          "description": "Consistent public wordmark and accessible app branding",
+          "state": "verified",
+          "proof": "src/App.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-V001.3",
+          "description": "Approved final artwork and distinctive brand asset family",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        },
+        {
+          "key": "MVP-V001.4",
+          "description": "Human-approved commercial visual direction",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-V002",
+      "name": "Core dashboard and dossier UX",
+      "checkpoints": [
+        {
+          "key": "MVP-V002.1",
+          "description": "Interactive national government dashboard",
+          "state": "verified",
+          "proof": "src/App.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-V002.2",
+          "description": "Shared Parliament and ten-party dashboard",
+          "state": "verified",
+          "proof": "src/MultiplayerApp.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-V002.3",
+          "description": "Historical decision/fiscal/political detail views",
+          "state": "verified",
+          "proof": "src/DecisionAnalyticsPanel.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-V002.4",
+          "description": "Joined 7/30/90-day political, fiscal and social mandate dashboard",
+          "state": "verified",
+          "proof": "src/MandateObservatory.tsx",
+          "creditedIn": "AOS-053"
+        }
+      ]
+    },
+    {
+      "id": "MVP-V003",
+      "name": "Responsive accessibility",
+      "checkpoints": [
+        {
+          "key": "MVP-V003.1",
+          "description": "Responsive multi-viewport layouts and mobile controls",
+          "state": "verified",
+          "proof": "src/styles.css",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-V003.2",
+          "description": "Automated 390px and desktop browser overflow checks",
+          "state": "verified",
+          "proof": "tests/browser-smoke.mjs",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-V003.3",
+          "description": "Automated serious/critical WCAG violation checks and semantic UI",
+          "state": "verified",
+          "proof": "tests/browser-smoke.mjs",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-V003.4",
+          "description": "Human keyboard-only and assistive-technology end-to-end signoff",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-V004",
+      "name": "Visual consistency and QA",
+      "checkpoints": [
+        {
+          "key": "MVP-V004.1",
+          "description": "Shared UI style system for government and assembly",
+          "state": "verified",
+          "proof": "src/styles.css",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-V004.2",
+          "description": "Screenshots retained from responsive Chromium flows",
+          "state": "verified",
+          "proof": "tests/browser-smoke.mjs",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-V004.3",
+          "description": "Automated interactive component regressions for multiple routes",
+          "state": "verified",
+          "proof": "src/MultiplayerApp.test.tsx",
+          "creditedIn": "AOS-052"
+        },
+        {
+          "key": "MVP-V004.4",
+          "description": "Independent visual QA on real mobile devices and human art signoff",
+          "state": "pending",
+          "proof": null,
+          "creditedIn": null
+        }
+      ]
+    }
+  ]
+}
