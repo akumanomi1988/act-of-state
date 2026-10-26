@@ -321,15 +321,15 @@ try {
  * dossier embargo stay separate. No production users, email or privileged API.
  */
 const reformId='pension-covenant'
-const reformChoice='retirement-timetable'
+const reformChoice='levy-pension-covenant'
 const reformWorld=await rpc(players[2],'get_match_world',{p_match_id:match.id})
 const newReforms=reformWorld.dossiers.filter(d=>d.release_kind==='intro' &&
   d.programme_chapter && d.programme_chapter!=='founding')
 pass(newReforms.length===18 && new Set(newReforms.map(d=>d.id)).size===18,
   'Real Supabase catalogue is missing the 18 permanent national reforms')
 pass(reformWorld.dossiers.filter(d=>d.programme_chapter==='founding').length===10 &&
-  reformWorld.options.length===84,
-  'The ten unchanged founding scenarios and 84 alternatives were not visible')
+  reformWorld.options.length===140,
+  'The ten unchanged founding scenarios and 140 alternatives were not visible')
 pass(newReforms.every(d=>d.context.startsWith('Escenario ficticio:') &&
   d.source_url===null && d.available_from===null),
   'Permanent fiction was misrepresented as sourced news')
@@ -359,7 +359,7 @@ const reformAct=await rpc(host,'submit_decision',{
   p_dossier_version:1,p_option_id:reformChoice
 })
 pass(reformAct.state_before.treasury_m_eur===10600 &&
-  reformAct.state_after.treasury_m_eur===10730 &&
+  reformAct.state_after.treasury_m_eur===10840 &&
   reformAct.option_title_snapshot?.length>3,
   'Versioned economic consequence of the national pension reform was not signed')
 const reformRetry=await rpc(host,'submit_decision',{
@@ -375,14 +375,14 @@ const reformObserved=await rpc(players[8],'get_match_world',{p_match_id:match.id
 pass(reformObserved.events.length===2 &&
   reformObserved.events.some(event=>event.id===decision.id) &&
   reformObserved.events.some(event=>event.id===reformAct.id) &&
-  reformObserved.government.treasury_m_eur===10730,
+  reformObserved.government.treasury_m_eur===10840,
   'Independent opposition identity cannot see both persistent reforms and founding act')
 await rejectedRpc(outsider,'get_match_world',{
   p_match_id:match.id
 },/MATCH_FORBIDDEN/)
 console.log('AOS_REFORM_PARLIAMENT_PASS',JSON.stringify({
-  permanentCases:28,foundingUnchanged:10,reforms:18,alternatives:84,
-  authenticPlayers:10,signedActs:2,finalTreasuryM:10730,
+  permanentCases:28,foundingUnchanged:10,reforms:18,alternatives:140,
+  authenticPlayers:10,signedActs:2,finalTreasuryM:10840,
   preservedHistoricalAct:true,
   note:'Local GoTrue verified; no real news or human participant account'
 }))

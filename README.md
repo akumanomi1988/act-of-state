@@ -8,6 +8,14 @@ Free-to-play, browser-based, persistent political simulation. This codebase is i
 
 Visit **`/demo`** to try four authored fictional government dossiers with twelve alternatives, review-before-sign decisions, deterministic local consequences, a reversible-by-reset ledger and browser-only progress. This is **not a real game save or the PostgreSQL simulation**: no authentication, backend calls, live news, party multiplayer or promotion of demonstration choices into an actual government. See [guest training sandbox](docs/GUEST_DEMO.md). Pull-request CI verifies its responsive Chromium flow, no-backend boundary, persistence and accessibility.
 
+## Five-option decisions and weekly newsroom (AOS-054, unreleased)
+
+The 28 permanent fictional dossiers now have five distinct server-authoritative
+policy alternatives each (140 in total). The previously published 84 options
+retain their original IDs and values. The editorial newsroom can author
+and publish five validated choices for each independently reviewed weekly
+dossier. These developer-branch changes are not released to production.
+
 ## Party financing and campaign costs (AOS-053, unreleased)
 
 All parties receive deterministic equal fictional political funding (12 credits

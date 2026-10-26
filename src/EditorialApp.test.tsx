@@ -103,6 +103,21 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('editorial workbench', () => {
+  it('authors a fifth editorial choice without silently publishing it',async()=>{
+    mocks.fetchEditorialRole.mockResolvedValue('editor')
+    render(<EditorialApp />)
+    await screen.findByText('Ficha de decisión')
+    const add=screen.getByRole('button',{name:'+ Añadir opción'})
+    fireEvent.click(add)
+    fireEvent.click(add)
+    fireEvent.click(add)
+    expect(screen.getByRole('textbox',{name:'Decisión option-e'})).toBeInTheDocument()
+    expect(add).toBeDisabled()
+    expect(screen.getByText(/OPCIÓN E/)).toBeInTheDocument()
+    expect(mocks.saveEditorialWeek).not.toHaveBeenCalled()
+    expect(mocks.publishEditorialWeek).not.toHaveBeenCalled()
+  })
+
   it('prepares a ten-reference Monday agenda, but never auto-saves or auto-publishes',async()=>{
     mocks.fetchEditorialRole.mockResolvedValue('publisher')
     render(<EditorialApp />)

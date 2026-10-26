@@ -26,7 +26,7 @@ begin
   raise exception 'WORLD_CALENDAR_INITIAL_DRIFT'; end if;
  if jsonb_array_length(v->'cohorts') <> 2
  or jsonb_array_length(v->'dossiers') <> 28
- or jsonb_array_length(v->'options') <> 84
+ or jsonb_array_length(v->'options') <> 140
  or jsonb_array_length(v->'events') <> 0 then
   raise exception 'WORLD_INITIAL_COLLECTIONS_INCORRECT'; end if;
  ev:=public.submit_decision(g.id,'energy-resilience',1,'household-support');

@@ -37,9 +37,9 @@ begin
      ('society','economy','institutions','resilience'))<>18
  or (select count(*) from public.dossier_options o
      join public.dossiers d on d.id=o.dossier_id and d.version=o.dossier_version
-     where d.release_kind='intro')<>84
+     where d.release_kind='intro')<>140
  or jsonb_array_length(v_world->'dossiers')<>28
- or jsonb_array_length(v_world->'options')<>84 then
+ or jsonb_array_length(v_world->'options')<>140 then
    raise exception 'AOS_REFORM_CATALOGUE_AND_SNAPSHOT_INCOMPLETE';
  end if;
 
@@ -67,7 +67,7 @@ begin
        on o.dossier_id=d.id and o.dossier_version=d.version
      where d.programme_chapter in ('society','economy','institutions','resilience')
      group by d.id,d.version
-   ) quality where alternatives<>3 or targets<>3 or min_cost>=0 or
+   ) quality where alternatives<>5 or targets<>5 or min_cost>=0 or
      max_cost<=0 or shortest_choice<45)
  or (select count(distinct (programme_chapter,programme_order))
      from public.dossiers where programme_chapter in

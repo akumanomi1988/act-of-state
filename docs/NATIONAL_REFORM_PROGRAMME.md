@@ -1,5 +1,15 @@
 # AOS-050 — A complete fictional national reform campaign
 
+
+## AOS-054 — Five distinct alternatives per permanent dossier
+
+The original 28 dossiers now offer **five** fiscal/political options each,
+for 140 independent options. The original 84 IDs/values remain intact; the
+56 additional alternatives are versioned in a forward-only migration.
+The weekly newsroom can now author and publish up to five validated choices
+per issue, subject to all existing review, source and publication gates.
+Existing two-to-four-option editorial drafts remain backward compatible.
+
 ## Player-facing campaign
 
 ACT OF STATE now contains **28 permanent, original political dossiers and

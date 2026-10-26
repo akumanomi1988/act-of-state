@@ -29,10 +29,10 @@ begin
   raise exception 'FOUNDATIONAL_DOSSIER_COUNT_INCORRECT'; end if;
  if (select count(*) from public.dossier_options o join public.dossiers d
       on d.id=o.dossier_id and d.version=o.dossier_version
-      where d.release_kind='intro' and d.programme_chapter='founding' and d.version=1)<>30 then
+      where d.release_kind='intro' and d.programme_chapter='founding' and d.version=1)<>50 then
   raise exception 'FOUNDATIONAL_OPTIONS_COUNT_INCORRECT'; end if;
  if jsonb_array_length(v_world->'dossiers')<>28 or
-    jsonb_array_length(v_world->'options')<>84 then
+    jsonb_array_length(v_world->'options')<>140 then
   raise exception 'FOUNDATIONAL_DOSSIERS_NOT_IN_SNAPSHOT'; end if;
  if (select count(distinct category) from public.dossiers
      where release_kind='intro' and programme_chapter='founding' and version=1)<>10 then

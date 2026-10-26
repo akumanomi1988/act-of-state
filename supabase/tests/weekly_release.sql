@@ -165,7 +165,7 @@ begin
  w:=public.get_government_world(g.id);
  if extract(isodow from (now() at time zone 'UTC')::date)>5 then
    if jsonb_array_length(w->'dossiers')<>28 or
-      jsonb_array_length(w->'options')<>84 then
+      jsonb_array_length(w->'options')<>140 then
      raise exception 'CLOSED_WEEKLY_DOSSIERS_STILL_ACTIONABLE'; end if;
    begin
      perform public.submit_decision(g.id,'weekly-test-1',1,'act');

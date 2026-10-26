@@ -14,7 +14,7 @@ import {
 } from './lib/editorial'
 
 const SLOTS = 10
-const optionIds = ['option-a', 'option-b', 'option-c', 'option-d']
+const optionIds = ['option-a', 'option-b', 'option-c', 'option-d', 'option-e']
 
 function slotDraft(week: string, saved: EditorialDossier[] = []): EditorialDossier[] {
   return Array.from({ length: SLOTS }, (_, index) => {
@@ -209,7 +209,7 @@ export default function EditorialApp() {
   }
 
   function addOption() {
-    if (!canEdit || dossier.options.length >= 4) return
+    if (!canEdit || dossier.options.length >= 5) return
     const id = optionIds.find(item => !dossier.options.some(option => option.id === item))
     if (!id) return
     updateDossier('options', [...dossier.options, {
@@ -516,7 +516,7 @@ export default function EditorialApp() {
           <div className="editorial-options-header">
             <div><p className="eyebrow">ELECCIONES Y EFECTOS</p>
               <h3>Opciones políticas</h3></div>
-            <button className="text-button" onClick={addOption} disabled={!canEdit || dossier.options.length >= 4}>
+            <button className="text-button" onClick={addOption} disabled={!canEdit || dossier.options.length >= 5}>
               + Añadir opción
             </button>
           </div>

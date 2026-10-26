@@ -12,7 +12,7 @@ The game is browser-based, free to play, with no paid competitive advantages.
 | Daily society | Economic security, services, welfare, bounded political feedback, immutable daily records | Multi-day operational observation and gameplay balancing |
 | Fiscal engine | Treasury, debt, GDP index, inflation, unemployment, budget revisions and weekly accounts | Economic calibration, extreme-policy balancing |
 | Strategic policy planning | Shared temporary solo/Parliament five-chapter fiscal portfolio with signed-event reconciliation (AOS-052 branch) | Human usability acceptance; persistent cross-device plan and macroeconomic forecasts intentionally excluded |
-| Permanent policy content | 28 original fictional dossiers and 84 choices, founding/reform chapters in solo and ten-party Parliament; historical events preserved (AOS-050 branch) | Run complete branch CI and obtain explicit release authorization; balance with humans |
+| Permanent policy content | 28 original fictional dossiers and 140 choices, founding/reform chapters in solo and ten-party Parliament; historical events preserved (AOS-050 branch) | Run complete branch CI and obtain explicit release authorization; balance with humans |
 | Weekly dossiers | Ten-slot newsroom, source discovery, draft revision control, manual review and atomic publication | Actual reviewed news for every operational week; staff operation |
 | Time | One real UTC day per game day, Monday publication windows, Friday closure, autonomous jobs | Sustained live operation across week boundaries |
 | Multiplayer | Up to ten parties, private invitations/public discovery, lobby withdrawal and readiness | Ten actual accounts and a human playtest |

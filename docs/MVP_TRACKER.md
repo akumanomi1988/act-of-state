@@ -1,10 +1,24 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-053 equal-rule political campaign finance, following AOS-052 cross-dossier policy portfolio on isolated development branch, extending AOS-050 reforms and AOS-051 password access. Development changes are not authorized for hosted release. The AOS-049 exact hosted release check has already passed on main.
+**Latest implementation increment:** AOS-054 five-option campaign and newsroom, following AOS-053 equal-rule political campaign finance, following AOS-052 cross-dossier policy portfolio on isolated development branch, extending AOS-050 reforms and AOS-051 password access. Development changes are not authorized for hosted release. The AOS-049 exact hosted release check has already passed on main.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-054 — Five-option national programme and weekly editorial authoring (development)
+
+- Expanded all 28 permanent fictional dossiers from three to five independently
+  playable alternatives: 56 original option rows; 140 total. The 84 prior
+  choices remain byte-for-byte unchanged in the original migrations, preserving
+  signed history, mandate keys, and saved national state.
+- The editorial UI can create/edit five strategies; the server-owned reviewed
+  Monday publication RPC accepts up to five uniquely identified and validated
+  options per weekly dossier. Two-to-four-option drafts remain compatible.
+- Added catalogue/oracle, publisher SQL, browser/React and authenticated
+  decision checks; deployment requires separately authorized cloud migration.
+- The 100-point **original acceptance baseline remains frozen**. Partial
+  development evidence is not automatically a whole-product accepted gate.
 
 ## AOS-053 — Equal-rule party finances and verified campaign expenditure (2026-10-26)
 

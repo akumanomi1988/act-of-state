@@ -36,6 +36,18 @@ const build = (props: Partial<Parameters<typeof PolicyPortfolioPanel>[0]> = {}) 
   return { ...view, onSelect }
 }
 describe('cross-mode strategic portfolio', () => {
+  it('shows all five published alternatives and budgets the fifth without signing', () => {
+    const choices = [o('one','energy',-30),o('two','energy',-20),
+      o('three','energy',0),o('four','energy',10),o('five','energy',40)]
+    const {onSelect} = build({options:choices})
+    fireEvent.click(screen.getByRole('button',{name:'Abrir planificación'}))
+    const selector=screen.getByRole('combobox',{name:'Planificar Expediente energy'})
+    expect(within(selector).getAllByRole('option')).toHaveLength(6)
+    fireEvent.change(selector,{target:{value:'five'}})
+    expect(screen.getAllByText('140 M€')).toHaveLength(1)
+    expect(onSelect).not.toHaveBeenCalled()
+  })
+
   it('starts collapsed with trustworthy authoritative counters, not a fake commitment', () => {
     build()
     expect(screen.getByText('0/3')).toBeInTheDocument()

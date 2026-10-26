@@ -68,7 +68,7 @@ export function editorialReady(d: EditorialDossier): boolean {
     d.source_title.trim().length >= 5 && d.source_title.length <= 300 &&
     /^https:\/\/[^\s]+$/.test(d.source_url) && d.source_url.length <= 2048 &&
     Number.isFinite(published) && published <= Date.now() &&
-    d.options.length >= 2 && d.options.length <= 4 &&
+    d.options.length >= 2 && d.options.length <= 5 &&
     new Set(d.options.map(o => o.id)).size === d.options.length &&
     d.options.every(o => /^[a-z0-9-]+$/.test(o.id) &&
       o.title.trim().length >= 4 && o.title.length <= 160 &&
