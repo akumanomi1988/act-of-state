@@ -205,7 +205,7 @@ try {
     if(request.url().includes('/auth/v1/otp'))newOtps++
   })
   await guest.getByLabel('Correo para contraseña').fill(guestEmail)
-  await guest.getByLabel('Contraseña').fill(guestPassword)
+  await guest.getByLabel('Contraseña',{exact:true}).fill(guestPassword)
   await guest.getByRole('button',{name:'Entrar con contraseña'}).click()
   await guest.getByRole('heading',{name:testName}).waitFor({timeout:15000})
   const back=await accountFromBrowser(guest)
