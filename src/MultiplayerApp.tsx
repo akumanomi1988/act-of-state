@@ -1,4 +1,6 @@
 import PlayerOnboarding from './PlayerOnboarding'
+import AuthGateway from './AuthGateway'
+import AccountSecurity from './AccountSecurity'
 import MatchAgendaBoard from './MatchAgendaBoard'
 import WeeklyMissionControl from './WeeklyMissionControl'
 import { buildMatchAgenda } from './lib/multiplayerAgenda'
@@ -32,8 +34,7 @@ import {
 export default function MultiplayerApp() {
   const [user, setUser] = useState<User | null>(null)
   const [authReady, setAuthReady] = useState(false)
-  const [email, setEmail] = useState('')
-  const [mailSent, setMailSent] = useState(false)
+  const [recovering, setRecovering] = useState(false)
   const [title, setTitle] = useState('')
   const [hostParty, setHostParty] = useState('')
   const [inviteCode, setInviteCode] = useState(() => inviteCodeFromQuery(window.location.search) ?? '')
@@ -84,6 +85,7 @@ export default function MultiplayerApp() {
     }).catch(() => { if (alive) setAuthReady(true) })
     const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
       if (!alive) return
+      if (event === 'PASSWORD_RECOVERY') setRecovering(true)
       if (event !== 'INITIAL_SESSION') authRevision += 1
       acceptUser(session?.user ?? null)
       setAuthReady(true)
@@ -164,23 +166,6 @@ export default function MultiplayerApp() {
   const host = !!world && world.match.host_user_id === user?.id
   const active = world?.match.status === 'active'
   const mandateReady = !!mandateOptionId && selectedOptionId === mandateOptionId
-
-  async function onLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!client) return
-    setPending(true); setError('')
-    try {
-      const { error: authError } = await client.auth.signInWithOtp({
-        email: email.trim(),
-        options: { emailRedirectTo: isInviteCode(inviteCode) ?
-          invitationUrl(window.location.origin,inviteCode) :
-          window.location.origin + '/multiplayer' }
-      })
-      if (authError) setError(friendlyError(authError))
-      else setMailSent(true)
-    } catch (reason) { setError(friendlyError(reason)) }
-    finally { setPending(false) }
-  }
 
   async function mutate(action: () => Promise<unknown>, success: string, selectId?: string) {
     if (!user || pending) return
@@ -353,18 +338,13 @@ export default function MultiplayerApp() {
     : !user ? <main className="match-entry">
       <p className="eyebrow">ASAMBLEA NACIONAL</p><h1>El poder no se ejerce solo.</h1>
       <p className="muted">Diez partidos, una nación persistente. Inicia sesión para fundar o unirte a una partida.</p>
-      <form className="match-form" onSubmit={event => void onLogin(event)}>
-        <label>Correo electrónico
-          <input type="email" value={email} required autoComplete="email"
-            onChange={event => setEmail(event.target.value)} />
-        </label>
-        <button disabled={pending} type="submit">Recibir enlace de acceso</button>
-      </form>
-      {mailSent && <p role="status">Enlace enviado a tu correo.</p>}
+      <AuthGateway redirectTo={isInviteCode(inviteCode) ?
+        invitationUrl(window.location.origin, inviteCode) : window.location.origin + '/multiplayer'} />
       {error && <p role="alert" className="editorial-alert">{error}</p>}
     </main>
     : <main className="match-layout">
       <aside className="match-sidebar">
+        <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />
         <p className="eyebrow">CENTRO DE PARTIDAS</p><h1>Tu asamblea</h1>
         <div className="match-panel">
           <h3>Crear partida</h3>
