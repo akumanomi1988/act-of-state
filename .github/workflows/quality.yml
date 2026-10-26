@@ -1,5 +1,8 @@
 name: Quality (opt-in)
 on:
+  # Disposable CI for the non-deploying development branch only.
+  push:
+    branches: [aos/050-national-reforms-campaign]
   pull_request:
     branches: [main]
   workflow_dispatch:
