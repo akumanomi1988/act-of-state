@@ -440,9 +440,10 @@ try {
     const state=createServerState()
     await routeApi(page,state)
     await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    await page.getByRole('button',{name:'Acceder por correo'}).click()
     await page.getByLabel('Correo electrónico').fill('browser@example.invalid')
-    await page.getByRole('button',{name:'Enviar enlace de acceso'}).click()
-    try { await page.getByText(/se ha solicitado el enlace de acceso/i).waitFor({timeout:8000}) }
+    await page.getByRole('button',{name:'Enviar enlace'}).click()
+    try { await page.getByText(/Si la cuenta existe, recibirás un enlace de acceso/i).waitFor({timeout:8000}) }
     catch (err) {
       console.error('Browser OTP diagnostics:', JSON.stringify({
         count:state.otpCount,lastOtp:state.lastOtp,
@@ -465,10 +466,11 @@ try {
     const state=createServerState()
     await routeApi(page,state,{emailLimit:true})
     await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    await page.getByRole('button',{name:'Acceder por correo'}).click()
     await page.getByLabel('Correo electrónico').fill('browser@example.invalid')
-    await page.getByRole('button',{name:'Enviar enlace de acceso'}).click()
+    await page.getByRole('button',{name:'Enviar enlace'}).click()
     await page.getByRole('alert').waitFor()
-    assert.equal(await page.getByText(/se ha solicitado el enlace de acceso/i).count(),0)
+    assert.equal(await page.getByText(/Si la cuenta existe, recibirás un enlace de acceso/i).count(),0)
     assert.equal(state.otpCount,1)
     await context.close()
   })
@@ -631,8 +633,9 @@ try {
     const code='ab12ab12ab12ab12ab12ab12ab12ab12'
     await routeApi(page,state)
     await page.goto(BASE+'/multiplayer?invite='+code,{waitUntil:'networkidle'})
+    await page.getByRole('button',{name:'Acceder por correo'}).click()
     await page.getByLabel('Correo electrónico').fill('newplayer@example.invalid')
-    await page.getByRole('button',{name:'Recibir enlace de acceso'}).click()
+    await page.getByRole('button',{name:'Enviar enlace'}).click()
     assert.equal(state.otpCount,1)
     assert.equal(new URL(state.lastOtp.url).searchParams.get('redirect_to'),
       BASE+'/multiplayer?invite='+code)

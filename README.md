@@ -133,10 +133,10 @@ Requires Node.js 22, npm, and a **separate** Supabase project reserved for ACT O
 
 1. Clone this repository and run \`npm ci\` (uses the committed integrity-checked lockfile).
 2. The dedicated Akumanomi ACT OF STATE project has the approved game migrations applied. For a **new empty** isolated project, apply all versioned files under \`supabase/migrations/\` in order using the approved migration workflow. Do **not** apply them again to this project, Anvil Fitness, Moncloa-AI, or production databases of other products.
-3. Enable Supabase Auth email magic-link sign in and configure the permitted redirect URL for this frontend origin.
+3. Enable the Supabase Auth email provider with password sign-in; allowlist the frontend origin, the multiplayer/editorial redirect routes and approved invitation URLs. Email confirmation/recovery still needs SMTP. See `docs/PASSWORD_ACCESS.md`.
 4. Copy \`.env.example\` to \`.env.local\`; set \`VITE_SUPABASE_URL\` and \`VITE_SUPABASE_PUBLISHABLE_KEY\` from the dedicated project. These are browser-safe public values, never a service-role/secret key.
 5. Run \`npm run dev\` and open the shown local URL.
-6. Log in via email link; a government and exactly two representative cohorts are seeded on first successful session. Returning players resume the same government.
+6. Register once with an email and password (confirm the email if the provider requires it); return with the same password. Existing link-only accounts can use the optional access link once to set a password. A government is seeded on the first authenticated solo session and persists for the same account.
 7. Open either fictional introductory dossier, select an option, review its authored fiscal commitment, then explicitly sign one decision. Reload: the same choice and calculated state must remain persisted; duplicate RPC execution must not apply twice.
 
 ## Verification

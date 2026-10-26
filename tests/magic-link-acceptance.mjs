@@ -87,9 +87,20 @@ async function mailbox(email) {
 }
 async function login(page,email,path='/multiplayer') {
   await page.goto(app+path,{waitUntil:'networkidle'})
+  // Legacy link flow no longer silently creates accounts. Register from
+  // the real password UI first, then sign out and request a real email link.
+  await page.getByRole('button',{name:'Crear cuenta'}).click()
   await page.getByLabel('Correo electrónico').fill(email)
-  await page.getByRole('button',{name:'Recibir enlace de acceso'}).click()
-  await page.getByText('Enlace enviado a tu correo.').waitFor({timeout:12000})
+  await page.getByLabel('Contraseña',{exact:true}).fill('AOS-local-passphrase-'+runId)
+  await page.getByLabel('Confirmar contraseña').fill('AOS-local-passphrase-'+runId)
+  await page.getByRole('button',{name:'Registrar cuenta'}).click()
+  await page.getByRole('button',{name:'Cerrar sesión'}).waitFor({timeout:15000})
+  await page.getByRole('button',{name:'Cerrar sesión'}).click()
+  await page.getByRole('button',{name:'Iniciar sesión'}).waitFor({timeout:15000})
+  await page.getByRole('button',{name:'Acceder por correo'}).click()
+  await page.getByLabel('Correo electrónico').fill(email)
+  await page.getByRole('button',{name:'Enviar enlace'}).click()
+  await page.getByText(/Si la cuenta existe, recibirás un enlace de acceso/).waitFor({timeout:12000})
   const link=await mailbox(email)
   const linkUrl=new URL(link)
   const redirect=linkUrl.searchParams.get('redirect_to') ??
@@ -172,7 +183,7 @@ try {
   const replay=await replayContext.newPage()
   await replay.goto(second.link,{waitUntil:'networkidle'})
   await replay.goto(app+'/multiplayer',{waitUntil:'networkidle'})
-  await replay.getByRole('button',{name:'Recibir enlace de acceso'})
+  await replay.getByRole('button',{name:'Iniciar sesión'})
     .waitFor({timeout:12000})
   check(await replay.getByRole('heading',{name:'Tu asamblea'}).count()===0,
     'Consumed one-time token authorized a second device')
@@ -180,9 +191,9 @@ try {
 
   // Logout clears identity and private match UI even after reload.
   await guest.getByRole('button',{name:'Cerrar sesión'}).click()
-  await guest.getByRole('button',{name:'Recibir enlace de acceso'}).waitFor()
+  await guest.getByRole('button',{name:'Iniciar sesión'}).waitFor()
   await guest.reload({waitUntil:'networkidle'})
-  await guest.getByRole('button',{name:'Recibir enlace de acceso'}).waitFor()
+  await guest.getByRole('button',{name:'Iniciar sesión'}).waitFor()
   check(await guest.getByRole('heading',{name:testName}).count()===0,
     'Private match leaked after browser sign-out')
   const axe=readFileSync('node_modules/axe-core/axe.min.js','utf8')

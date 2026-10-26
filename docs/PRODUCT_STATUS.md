@@ -1,11 +1,11 @@
 # ACT OF STATE — Current product inventory
 
-Updated 2026-10-25. Implementation is distinguished from final acceptance.
+Updated 2026-10-26. AOS-050 is in an unmerged feature branch, not yet hosted. Implementation is distinguished from final acceptance.
 The game is browser-based, free to play, with no paid competitive advantages.
 
 | System | Implemented | Remaining acceptance / development |
 |---|---|---|
-| Access | Email-link Auth, session recovery, account isolation, visible delivery errors | Actual email delivery and multi-account browser acceptance |
+| Access | Password-first Auth, explicit registration, one-time legacy email link, password recovery/change, session recovery and isolation (AOS-050 feature branch) | CI acceptance, production password/SMTP settings, real hosted signup and human multi-account acceptance |
 | Player onboarding | Public /guide manual, contextual solo/multiplayer steps from server state, recovery guidance | Observe first-time human players; adjust based on usability evidence |
 | Solo government | Persistent nation, decisions, authoritative outcomes, archived acts | Full real-Auth browser acceptance |
 | Population | 300 persistent synthetic households, age/income/settlement and six districts | Demographic balancing; no empirical demographic claims |

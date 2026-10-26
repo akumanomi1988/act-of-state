@@ -6,6 +6,21 @@
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
 
+## AOS-050 — Password-first identity and legacy access migration (unmerged, 2026-10-26)
+
+- Built a shared password-first Auth entry for solo, multiplayer and editorial
+  routes; direct login sends no email, signup confirms only if configured.
+- Added explicit existing-account magic-link fallback with no silent signup,
+  provider-mediated password reset and authenticated password setup/change.
+- Introduced React Auth regression and disposable GoTrue + Chromium login,
+  password rotation, session reload and persisted party identity acceptance.
+- Existing magic-link/ten-browser QA is adapted to register through the real
+  user interface before testing the optional one-use email link.
+- **Status: implementation on isolated feature branch, CI and human release
+  review pending.** No production Auth settings changed or schema migrated.
+  Hosted password flow/SMTP and manual journey remain unverified. Strict
+  acceptance remains 2/18 until independently confirmed.
+
 ## AOS-049 — Immutable production releases, diagnostic access and durable recovery (2026-10-25)
 
 - Resolved AOS-048 backend/frontend deployment mismatch by deploying **exact** reviewed AOS-048 merge SHA `572712cb9dab112b62dc4ceee5d5a2fd4f270134` via authenticated Vercel project connection. Deployment `dpl_EZGPTyCv14n62R8YGH6yozb3oVYg` reached **READY / production** and obtained `act-of-state.vercel.app` alias; no paid account upgrade or credentials changed.

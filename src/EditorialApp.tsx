@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import AuthGateway from './AuthGateway'
+import AccountSecurity from './AccountSecurity'
 import type { User } from '@supabase/supabase-js'
 import { client, friendlyError } from './lib/game'
 import NewsDiscoveryPanel, { type NewsCandidate } from './NewsDiscoveryPanel'
@@ -38,8 +40,7 @@ function positiveInteger(raw: string): number {
 export default function EditorialApp() {
   const [user, setUser] = useState<User | null>(null)
   const [authReady, setAuthReady] = useState(false)
-  const [email, setEmail] = useState('')
-  const [mailSent, setMailSent] = useState(false)
+  const [recovering, setRecovering] = useState(false)
   const [role, setRole] = useState<EditorialRole | null>(null)
   const [reviews,setReviews]=useState<EditorialReview[]>([])
   const [permissionReady, setPermissionReady] = useState(false)
@@ -81,6 +82,8 @@ export default function EditorialApp() {
     }).catch(() => { if (alive) setAuthReady(true) })
     const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
       if (!alive) return
+      if (event === 'PASSWORD_RECOVERY') setRecovering(true)
+      if (event === 'SIGNED_OUT') setRecovering(false)
       if (event !== 'INITIAL_SESSION') authRevision += 1
       acceptUser(session?.user ?? null)
       setAuthReady(true)
@@ -223,23 +226,6 @@ export default function EditorialApp() {
     updateDossier('options', dossier.options.filter((_, i) => i !== index))
   }
 
-  async function onLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!client) return
-    setPending(true)
-    setError('')
-    try {
-      const { error: authError } = await client.auth.signInWithOtp({
-        email: email.trim(),
-        options: { emailRedirectTo: window.location.origin + '/editorial' }
-      })
-      if (authError) setError(friendlyError(authError))
-      else setMailSent(true)
-    } catch (reason) {
-      setError(friendlyError(reason))
-    } finally { setPending(false) }
-  }
-
   function onPreparePolicyScenarios() {
     if (!canEdit) return
     const result=preparePolicyScenarios(draft)
@@ -356,6 +342,8 @@ export default function EditorialApp() {
     <div className="session-strip"><span>AGENDA POLÍTICA · CONTROL EDITORIAL</span>
       <span>PUBLICACIÓN AUTORIZADA · FUENTES VERIFICABLES</span></div>
 
+    {user && <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />}
+
     {!authReady ? <main className="editorial-state"><p role="status">Comprobando sesión…</p></main>
     : !client ? <main className="editorial-state">
       <h1>Servicio no configurado</h1><p>Falta la conexión segura al servidor.</p>
@@ -364,13 +352,7 @@ export default function EditorialApp() {
       <p className="eyebrow">ACCESO RESTRINGIDO</p>
       <h1>La mesa editorial</h1>
       <p className="muted">Elabora la agenda nacional con trazabilidad de fuentes y aprobación independiente. El acceso requiere una cuenta autorizada.</p>
-      <form onSubmit={event => void onLogin(event)} className="editorial-login">
-        <label htmlFor="editorial-email">Correo electrónico</label>
-        <input id="editorial-email" type="email" value={email}
-          onChange={event => setEmail(event.target.value)} required autoComplete="email" />
-        <button type="submit" disabled={pending}>{pending ? 'Enviando…' : 'Recibir enlace de acceso'}</button>
-      </form>
-      {mailSent && <p role="status">Enlace enviado. Comprueba tu correo electrónico.</p>}
+      <AuthGateway redirectTo={window.location.origin + '/editorial'} />
       {error && <p className="editorial-alert" role="alert">{error}</p>}
     </main>
     : loading || !permissionReady ? <main className="editorial-state">
