@@ -17,6 +17,11 @@ const filters: ReadonlyArray<{ id: MatchAgendaFilter; label: string }> = [
   { id: 'all', label: 'Todos' },
   { id: 'weekly', label: 'Esta semana' },
   { id: 'foundation', label: 'Programa inicial' },
+  { id: 'reforms', label: 'Reformas' },
+  { id: 'society', label: 'Sociedad' },
+  { id: 'economy', label: 'Economía' },
+  { id: 'institutions', label: 'Instituciones' },
+  { id: 'resilience', label: 'Resiliencia' },
   { id: 'action', label: 'Mis asuntos pendientes' },
   { id: 'signed', label: 'Decisiones firmadas' }
 ]
@@ -62,6 +67,9 @@ export default function MatchAgendaBoard({ world, userId, selectedDossierId, onS
           <small>{snapshot.weekly.stances} posiciones tuyas</small></div>
         <div><span>PROGRAMA PERMANENTE</span><strong>{summary(snapshot.foundation.total, snapshot.foundation.signed)}</strong>
           <small>{snapshot.foundation.stances} posiciones tuyas</small></div>
+        <div><span>REFORMAS NACIONALES · FICCIÓN</span>
+          <strong>{summary(snapshot.reforms.total, snapshot.reforms.signed)}</strong>
+          <small>{snapshot.reforms.stances} posiciones tuyas</small></div>
       </div>
     </header>
     {snapshot.weekly.total === 0 && <p className="match-agenda-advisory" role="status">
@@ -81,7 +89,10 @@ export default function MatchAgendaBoard({ world, userId, selectedDossierId, onS
           className={selected === dossier.id ? 'selected' : ''}
           aria-pressed={selected === dossier.id} onClick={() => open(dossier.id)}>
           <span className="match-agenda-kind">
-            {dossier.release_kind === 'weekly' ? 'PLAZO SEMANAL' : 'ESCENARIO FICTICIO'}
+            {dossier.release_kind === 'weekly' ? 'PLAZO SEMANAL' :
+              dossier.programme_chapter && dossier.programme_chapter !== 'founding'
+                ? 'REFORMA FICTICIA · ' + dossier.programme_chapter.toUpperCase()
+                : 'PROGRAMA INICIAL FICTICIO'}
           </span>
           <strong>{dossier.title}</strong>
           <small>{statusLabels[status]}{hasStance && signed ? ' · TU POSICIÓN ARCHIVADA' : ''}</small>

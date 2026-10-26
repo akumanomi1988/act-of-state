@@ -27,6 +27,8 @@ export interface Dossier {
   context: string
   category: string
   release_kind: 'intro' | 'weekly'
+  programme_chapter?: 'founding' | 'society' | 'economy' | 'institutions' | 'resilience' | null
+  programme_order?: number | null
   available_from: string | null
   available_until: string | null
   source_url?: string | null
