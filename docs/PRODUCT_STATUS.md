@@ -74,3 +74,15 @@ The public /guide route is available in Spanish and English, with all 16 rule se
 ## AOS-060 — Bilingual playable guest training
 
 The complete four-case guest demo now exposes all twelve authored choices in Spanish and English, including budget, outcomes, archive, review and reset. The same immutable scenario IDs, fiscal effects and local-only saved decisions are used in either locale. This is not full ES/EN game localization; no server or production changes.
+
+
+## AOS-061 — Bilingual public onboarding and operational status (branch only)
+
+The public manual, independent playable guest training and anonymous status
+screen now form a connected English/Spanish visitor journey. The status page
+correctly distinguishes an accessible Auth HTTP endpoint from verified login,
+SMTP, database transactions, and an actual match. Locale deep links are
+allowlisted and do not create authenticated session or server traffic.
+The first vertical slice of public localization is complete; the authenticated
+game/editorial application remains Spanish-first and unaccepted for whole-app
+English support. No production deployment has been performed.

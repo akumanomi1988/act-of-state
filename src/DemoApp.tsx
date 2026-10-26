@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import {parsePublicLanguage, publicRoute, updatePublicLanguage} from './lib/publicLanguage'
 import {
   DEMO_CASES, INITIAL_METRICS, applyDemoDecision, clearDemoProgress,
   emptyDemoProgress, evaluateDemo, loadDemoProgress, saveDemoProgress,
@@ -22,14 +23,12 @@ function signed(value: number, suffix: string) {
 
 export default function DemoApp() {
   const [language,setLanguage]=useState<'es'|'en'>(()=>{
-    return new URLSearchParams(window.location.search).get('lang')==='en'?'en':'es'
+    return parsePublicLanguage(window.location.search)
   })
   const en=language==='en'
   const t=(es:string,english:string)=>en?english:es
   function chooseLanguage(next:'es'|'en') {
-    const url=new URL(window.location.href)
-    url.searchParams.set('lang',next)
-    window.history.replaceState(window.history.state,'',url)
+    updatePublicLanguage(next)
     setLanguage(next)
   }
   const cases=useMemo(()=>demoCasesFor(language),[language])
@@ -91,7 +90,7 @@ export default function DemoApp() {
         <div><div className="wordmark">ACT OF STATE</div><div className="brand-caption">EVERY DECISION SHAPES A NATION.</div></div>
       </div>
       <nav className="header-end" aria-label={t('Navegación principal','Main navigation')}>
-        <a className="text-button" href="/guide">{t("Manual","Guide")}</a>
+        <a className="text-button" href={publicRoute("/guide",language)}>{t("Manual","Guide")}</a>
         <a className="text-button" href="/multiplayer">{t("Asambleas","Assemblies")}</a>
         <a className="primary-button demo-access" href="/">{t("Entrar al juego real","Enter the real game")}</a>
       </nav>

@@ -21,6 +21,28 @@ beforeEach(()=>{
   }) as typeof fetch
 })
 afterEach(()=>{cleanup();globalThis.fetch=savedFetch;vi.unstubAllEnvs()})
+describe('bilingual no-login status and release safety',()=>{
+ it('displays limited public checks in English without extra privileged requests',async()=>{
+  const original=window.location.href
+  window.history.replaceState({},'','/status?lang=en')
+  try{
+   render(<ServiceStatus />)
+   expect(screen.getByRole('heading',{name:'Game technical status'})).toBeInTheDocument()
+   expect(screen.getByRole('link',{name:'Guide'})).toHaveAttribute('href','/guide?lang=en')
+   const list=await screen.findByRole('list',{name:'Technical checks'})
+   expect(within(list).getByText('Authentication endpoint reachable')).toBeInTheDocument()
+   expect(within(list).getByText('Email delivery is not tested here.')).toBeInTheDocument()
+   expect(screen.getByText(/not a test of your email delivery/i)).toBeInTheDocument()
+   expect(screen.getByRole('link',{name:/Read recovery instructions/}))
+    .toHaveAttribute('href','/guide?lang=en')
+   fireEvent.click(screen.getByRole('button',{name:'Español'}))
+   expect(new URLSearchParams(window.location.search).get('lang')).toBeNull()
+   expect(screen.getByRole('heading',{name:'Estado técnico del juego'})).toBeInTheDocument()
+   expect(globalThis.fetch).toHaveBeenCalledTimes(2)
+  } finally{window.history.replaceState({},'',original)}
+ })
+})
+
 describe('public operational release diagnostics',()=>{
   it('identifies exact version and a separate, limited Auth endpoint check',async()=>{
     render(<ServiceStatus />)

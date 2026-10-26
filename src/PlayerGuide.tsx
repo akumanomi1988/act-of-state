@@ -1,4 +1,5 @@
 import {useState} from 'react'
+import {parsePublicLanguage, publicRoute, updatePublicLanguage} from './lib/publicLanguage'
 import {guideSectionsEnglish} from './PlayerGuide.en'
 export const guideSections = [
  ['demo','Ensayo sin cuenta','Puedes visitar /demo y probar cuatro dilemas ficticios sin iniciar sesión. Sus cifras son ejemplos pedagógicos: no siguen el motor real, no afectan a partidas oficiales y no se transfieren al crear tu gobierno. El progreso del ensayo solo se conserva en este navegador.'],
@@ -21,22 +22,19 @@ export const guideSections = [
 
 export default function PlayerGuide() {
  const [language,setLanguage]=useState<'es'|'en'>(()=>{
-   const fromUrl=new URLSearchParams(window.location.search).get('lang')
-   return fromUrl==='en'?'en':'es'
+   return parsePublicLanguage(window.location.search)
  })
  function chooseLanguage(next:'es'|'en') {
-   const url=new URL(window.location.href)
-   url.searchParams.set('lang',next)
-   window.history.replaceState(window.history.state,'',url)
+   updatePublicLanguage(next)
    setLanguage(next)
  }
  const en=language==='en'
  const sections=en?guideSectionsEnglish:guideSections
  return <div className="app-shell"><header className="masthead">
   <div className="wordmark">ACT OF STATE</div><nav className="header-end" aria-label={en?'Main navigation':'Navegación principal'}>
-   <a href="/">{en?'Government':'Gobierno'}</a><a href="/demo">{en?'Try the demo':'Ensayo sin cuenta'}</a>
+   <a href="/">{en?'Government':'Gobierno'}</a><a href={publicRoute("/demo",language)}>{en?'Try the demo':'Ensayo sin cuenta'}</a>
    <a href="/multiplayer">{en?'Assemblies':'Asambleas'}</a>
-   <a href="/status">{en?'Service status':'Estado del servicio'}</a></nav>
+   <a href={publicRoute("/status",language)}>{en?'Service status':'Estado del servicio'}</a></nav>
  </header><main className="guide-content" lang={language}>
   <div role="group" aria-label={en?'Guide language':'Idioma del manual'}>
     <button type="button" aria-pressed={!en} onClick={()=>chooseLanguage('es')}>Español</button>

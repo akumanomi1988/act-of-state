@@ -41,6 +41,22 @@
 - Whole-game localization and final commercial acceptance remain outstanding;
   frozen 100-point / 62-point progress denominators remain unchanged.
 
+## AOS-061 — Bilingual public entry and diagnostics (isolated development)
+
+- The public no-login \`/status\` route is fully localized in Spanish/English:
+  release identity, limited Auth health, missing data, failure messages,
+  recovery guidance, and refresh controls. Neither localized status claims
+  verified SMTP deliverability, real database health or a playable match.
+- A shared \`publicLanguage\` contract now serves \`/guide\`, \`/demo\`,
+  and \`/status\`. English links preserve the canonical \`?lang=en\`;
+  Spanish pages omit redundant query parameters. The switch does not
+  persist secrets, create an account, or touch official game state.
+- Unit tests cover language inputs, supported paths, untrusted query values,
+  refetch neutrality and preserved demo choices; Chromium checks both mobile
+  status accessibility and public cross-route links.
+- Authenticated national/government and parliamentary interfaces remain
+  Spanish-first. Whole-product completion baseline weights are unchanged.
+
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.

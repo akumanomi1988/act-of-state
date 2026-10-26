@@ -28,6 +28,7 @@ describe('English guest demo: complete independent playable journey',()=>{
     try{
       render(<DemoApp/>)
       expect(screen.getByRole('heading',{name:'Govern before signing up.'})).toBeInTheDocument()
+      expect(screen.getByRole('link',{name:'Guide'})).toHaveAttribute('href','/guide?lang=en')
       expect(screen.getByRole('button',{name:'Review practice choice'})).toBeDisabled()
       fireEvent.click(screen.getByRole('radio',{name:/Direct assistance to families/}))
       fireEvent.click(screen.getByRole('button',{name:'Review practice choice'}))
@@ -38,7 +39,7 @@ describe('English guest demo: complete independent playable journey',()=>{
       fireEvent.click(screen.getByRole('button',{name:'Español'}))
       expect(screen.getByText('1 / 4 expedientes')).toBeInTheDocument()
       expect(screen.getByRole('heading',{name:'Ayuda directa a familias'})).toBeInTheDocument()
-      expect(new URLSearchParams(window.location.search).get('lang')).toBe('es')
+      expect(new URLSearchParams(window.location.search).get('lang')).toBeNull()
     } finally {window.history.replaceState({},'',original)}
   })
 })

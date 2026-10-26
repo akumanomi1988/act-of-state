@@ -461,12 +461,16 @@ try {
     assert.equal(new URL(page.url()).hash,'#weekly-operations')
     await page.getByRole('button',{name:'Español'}).click()
     await page.getByRole('heading',{name:'Una semana política',exact:true}).waitFor()
-    assert.equal(new URL(page.url()).searchParams.get('lang'),'es')
+    assert.equal(new URL(page.url()).searchParams.get('lang'),null)
     await page.reload({waitUntil:'networkidle'})
     await page.getByRole('heading',{name:'De tu primera decisión a un mandato compartido'}).waitFor()
     await page.getByRole('button',{name:'English'}).click()
     await page.reload({waitUntil:'networkidle'})
     await page.getByRole('heading',{name:'From your first decision to a shared mandate'}).waitFor()
+    assert.equal(await page.getByRole('link',{name:'Try the demo'}).getAttribute('href'),
+      '/demo?lang=en')
+    assert.equal(await page.getByRole('link',{name:'Service status'}).getAttribute('href'),
+      '/status?lang=en')
     await checkMobileOverflow(page,'English player guide')
     await checkA11y(page,'English player guide')
     await context.close()
@@ -477,6 +481,8 @@ try {
     const page=await context.newPage()
     await page.goto(BASE+'/demo?lang=en',{waitUntil:'networkidle'})
     await page.getByRole('heading',{name:'Govern before signing up.'}).waitFor()
+    assert.equal(await page.getByRole('link',{name:'Guide'}).getAttribute('href'),
+      '/guide?lang=en')
     await page.getByRole('radio',{name:/Direct assistance to families/}).check()
     await page.getByRole('button',{name:'Review practice choice'}).click()
     await page.getByRole('button',{name:'Apply practice choice'}).click()

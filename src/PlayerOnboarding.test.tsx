@@ -23,10 +23,12 @@ it('opens the complete public manual in English without changing game state',()=
   expect(screen.getByRole('heading',{name:'Campaigns and elections'})).toBeInTheDocument()
   expect(screen.getByRole('button',{name:'English'})).toHaveAttribute('aria-pressed','true')
   expect(view.container.querySelectorAll('main section')).toHaveLength(16)
+  expect(screen.getByRole('link',{name:'Try the demo'})).toHaveAttribute('href','/demo?lang=en')
+  expect(screen.getByRole('link',{name:'Service status'})).toHaveAttribute('href','/status?lang=en')
   for(const link of screen.getAllByRole('link').filter(x=>x.getAttribute('href')?.startsWith('#')))
    expect(document.getElementById(link.getAttribute('href')!.slice(1))).not.toBeNull()
   fireEvent.click(screen.getByRole('button',{name:'Español'}))
-  expect(new URLSearchParams(window.location.search).get('lang')).toBe('es')
+  expect(new URLSearchParams(window.location.search).get('lang')).toBeNull()
   expect(screen.getByRole('heading',{name:'Una semana política'})).toBeInTheDocument()
   expect(screen.getByRole('button',{name:'English'})).toHaveAttribute('aria-pressed','false')
  } finally {
