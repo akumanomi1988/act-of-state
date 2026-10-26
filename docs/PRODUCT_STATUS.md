@@ -70,3 +70,7 @@ See TECHNICAL_ACCEPTANCE_AOS_057.md and EXECUTION_TO_100.md.
 ## AOS-059 — Bilingual public player manual (development only)
 
 The public /guide route is available in Spanish and English, with all 16 rule sections and keyboard-usable navigation. The game UI remains Spanish-first. This is not acceptance of full ES/EN application localization. No hosted deployment has occurred.
+
+## AOS-060 — Bilingual playable guest training
+
+The complete four-case guest demo now exposes all twelve authored choices in Spanish and English, including budget, outcomes, archive, review and reset. The same immutable scenario IDs, fiscal effects and local-only saved decisions are used in either locale. This is not full ES/EN game localization; no server or production changes.

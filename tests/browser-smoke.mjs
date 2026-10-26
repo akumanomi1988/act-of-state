@@ -472,6 +472,24 @@ try {
     await context.close()
   })
 
+  await run('English guest demo signs an isolated choice and survives language reload',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    await page.goto(BASE+'/demo?lang=en',{waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'Govern before signing up.'}).waitFor()
+    await page.getByRole('radio',{name:/Direct assistance to families/}).check()
+    await page.getByRole('button',{name:'Review practice choice'}).click()
+    await page.getByRole('button',{name:'Apply practice choice'}).click()
+    await page.getByText('1 / 4 dossiers').waitFor()
+    await page.getByRole('button',{name:'Español'}).click()
+    await page.getByRole('heading',{name:'Ayuda directa a familias'}).waitFor()
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByText('1 / 4 expedientes').waitFor()
+    await checkMobileOverflow(page,'bilingual guest training')
+    await checkA11y(page,'bilingual guest training')
+    await context.close()
+  })
+
   await run('Anonymous login, redirect origin and responsive root',async()=>{
     const context=await browser.newContext({viewport:{width:375,height:812}})
     const page=await context.newPage()

@@ -28,6 +28,19 @@
 - Scope boundary: full application localization is NOT complete. No weights
   change and no deployment is authorized.
 
+## AOS-060 — Spanish/English anonymous training vertical slice
+
+- Implemented all four demo scenarios and twelve independent choices in English,
+  without cloning decision logic, changing stored IDs or altering their authored
+  fiscal/social effects; saved browser-only decisions survive language changes
+  and language-specific deep links. All game/disclaimer/actions/metrics/history
+  in the guest demo are localized.
+- Added scenario parity, interactive React choice/review/sign/locale regression
+  and mobile Chromium smoke. The demo remains explicitly non-authoritative,
+  never posts to production and requires no login.
+- Whole-game localization and final commercial acceptance remain outstanding;
+  frozen 100-point / 62-point progress denominators remain unchanged.
+
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
