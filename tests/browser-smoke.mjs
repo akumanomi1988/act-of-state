@@ -738,6 +738,33 @@ try {
       await context.close()
     }
   })
+  await run('Mandate observatory: 90-day evidence, fiscal stress, mobile accessibility and fallback',async()=>{
+    for(const width of [390,1440]) {
+      const context=await browser.newContext({viewport:{width,height:900}})
+      const page=await context.newPage()
+      const state=createServerState()
+      await routeApi(page,state)
+      await injectUser(page,state)
+      await page.goto(BASE+'/',{waitUntil:'networkidle'})
+      const panel=page.getByRole('region',{name:'Observatorio estratégico del mandato'})
+      await panel.getByRole('button',{name:'Analizar mandato'}).click()
+      await panel.getByRole('heading',{name:'Resistencia presupuestaria'}).waitFor()
+      await panel.getByText('Ingresos un 10 % menores').waitFor()
+      await panel.getByRole('radio',{name:'90 días'}).check()
+      await panel.getByText(/Actas sociales:/).waitFor()
+      await checkMobileOverflow(page,'mandate observatory '+width)
+      await checkA11y(page,'mandate observatory '+width)
+      await page.screenshot({path:OUT+'/mandate-observatory-'+width+'.png',fullPage:true})
+      await page.reload({waitUntil:'networkidle'})
+      await panel.getByRole('button',{name:'Analizar mandato'}).click()
+      await panel.getByText('Ingresos un 10 % menores').waitFor()
+      state.livingError=true
+      await panel.getByRole('button',{name:'Actualizar actas'}).click()
+      await panel.getByRole('alert').waitFor()
+      await panel.getByText('No se pudieron recuperar las actas de bienestar.').waitFor()
+      await context.close()
+    }
+  })
   await run('Ten-dossier authoritative founding programme, persist, filter and mobile accessibility',async()=>{
     for (const viewport of [{width:390,height:844},{width:1440,height:900}]) {
       const context=await browser.newContext({viewport})
