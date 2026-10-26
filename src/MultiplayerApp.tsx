@@ -86,6 +86,7 @@ export default function MultiplayerApp() {
     const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
       if (!alive) return
       if (event === 'PASSWORD_RECOVERY') setRecovering(true)
+      if (event === 'SIGNED_OUT') setRecovering(false)
       if (event !== 'INITIAL_SESSION') authRevision += 1
       acceptUser(session?.user ?? null)
       setAuthReady(true)
