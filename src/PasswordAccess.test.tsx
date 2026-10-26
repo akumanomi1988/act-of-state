@@ -24,6 +24,47 @@ beforeEach(()=>{
 })
 afterEach(()=>cleanup())
 
+describe('bilingual password sign-in and recovery',()=>{
+  it('authenticates in English through the same real password operation, never magic link',async()=>{
+    const onError=vi.fn(),onEmail=vi.fn()
+    render(<PasswordSignIn email="  Player@Example.Invalid "
+      onEmailChange={onEmail} onError={onError}
+      redirectTo="https://example.invalid/" language="en" />)
+    fireEvent.change(screen.getByLabelText('Password'),{
+      target:{value:'long safe password'}
+    })
+    fireEvent.click(screen.getByRole('button',{name:'Sign in with password'}))
+    await waitFor(()=>expect(mocks.signInWithPassword).toHaveBeenCalledWith({
+      email:'player@example.invalid',password:'long safe password'
+    }))
+    expect(mocks.signInWithOtp).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button',{name:'Forgot password'}))
+    await waitFor(()=>expect(mocks.resetPasswordForEmail).toHaveBeenCalledWith(
+      'player@example.invalid',{redirectTo:'https://example.invalid/'}))
+    expect(await screen.findByText(/If an account exists/)).toBeInTheDocument()
+  })
+  it('keeps unknown-account responses generic in English and enforces password policy',async()=>{
+    const onError=vi.fn()
+    mocks.signInWithPassword.mockResolvedValue({data:null,error:{message:'Synthetic invalid user'}})
+    render(<PasswordSignIn email="Nobody@Example.Invalid" language="en"
+      onEmailChange={vi.fn()} onError={onError} redirectTo="https://example.invalid/" />)
+    fireEvent.change(screen.getByLabelText('Password'),{target:{value:'test-password'}})
+    fireEvent.click(screen.getByRole('button',{name:'Sign in with password'}))
+    await waitFor(()=>expect(onError).toHaveBeenCalledWith(expect.stringContaining('Check your email and password')))
+    expect(onError).not.toHaveBeenCalledWith(expect.stringContaining('Synthetic invalid user'))
+  })
+  it('sets the same verified identity password in English',async()=>{
+    render(<AccountPasswordPanel language="en" />)
+    fireEvent.click(screen.getByText('Set up password access'))
+    fireEvent.change(screen.getByLabelText('New password'),{target:{value:'correct long password'}})
+    fireEvent.change(screen.getByLabelText('Repeat password'),{target:{value:'correct long password'}})
+    fireEvent.click(screen.getByRole('button',{name:'Save password'}))
+    await waitFor(()=>expect(mocks.updateUser).toHaveBeenCalledWith({password:'correct long password'}))
+    expect(await screen.findByText(/Password saved/)).toBeInTheDocument()
+    expect(mocks.signInWithOtp).not.toHaveBeenCalled()
+  })
+})
+
 describe('password-based access to the same Supabase account',()=>{
   it('authenticates through GoTrue password without issuing a mail link',async()=>{
     const onError=vi.fn(),onEmail=vi.fn()

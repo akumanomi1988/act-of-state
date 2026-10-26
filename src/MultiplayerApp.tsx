@@ -1,5 +1,6 @@
 import PlayerOnboarding from './PlayerOnboarding'
 import { PasswordSignIn, AccountPasswordPanel } from './PasswordAccess'
+import {parsePublicLanguage,publicRoute,updatePublicLanguage,type PublicLanguage} from './lib/publicLanguage'
 import MatchAgendaBoard from './MatchAgendaBoard'
 import PolicyPortfolioPanel from './PolicyPortfolioPanel'
 import DiplomacyPanel from './DiplomacyPanel'
@@ -33,6 +34,12 @@ import {
 } from './lib/multiplayer'
 
 export default function MultiplayerApp() {
+  const [language,setLanguage]=useState<PublicLanguage>(()=>parsePublicLanguage(window.location.search))
+  const t=(es:string,en:string)=>language==='en'?en:es
+  function chooseLanguage(next:PublicLanguage) {
+    updatePublicLanguage(next)
+    setLanguage(next)
+  }
   const [user, setUser] = useState<User | null>(null)
   const [authReady, setAuthReady] = useState(false)
   const [email, setEmail] = useState('')
@@ -342,7 +349,7 @@ export default function MultiplayerApp() {
         <div><div className="wordmark">ACT OF STATE</div>
           <div className="brand-caption">MULTIPLAYER NATIONAL ASSEMBLY</div></div>
       </div>
-      <div className="header-end"><a className="text-button" href="/guide">Manual del jugador</a><a className="text-button" href="/status">Estado del servicio</a><a className="text-button" href="/">Gobierno</a>
+      <div className="header-end"><a className="text-button" href={publicRoute("/guide",language)}>{t("Manual del jugador","Player guide")}</a><a className="text-button" href={publicRoute("/status",language)}>{t("Estado del servicio","Service status")}</a><a className="text-button" href={language==="en"?"/?lang=en":"/"}>{t("Gobierno","Government")}</a>
         <a className="text-button" href="/editorial">Editorial</a>
         {user && <button className="text-button" disabled={pending}
           onClick={() => void onSignOut()}>Cerrar sesión</button>}</div>
@@ -353,28 +360,34 @@ export default function MultiplayerApp() {
     {!authReady ? <main className="match-entry"><p role="status">Comprobando identidad…</p></main>
     : !client ? <main className="match-entry"><h1>Servidor no configurado</h1>
       <p className="muted">Conecta el proyecto ACT OF STATE.</p></main>
-    : !user ? <main className="match-entry">
-      <p className="eyebrow">ASAMBLEA NACIONAL</p><h1>El poder no se ejerce solo.</h1>
-      <p className="muted">Diez partidos, una nación persistente. Inicia sesión para fundar o unirte a una partida.</p>
+    : !user ? <main className="match-entry" lang={language}>
+      <div role="group" aria-label={t('Idioma de acceso','Sign-in language')}>
+        <button type="button" aria-pressed={language==='es'} onClick={()=>chooseLanguage('es')}>Español</button>
+        <button type="button" aria-pressed={language==='en'} onClick={()=>chooseLanguage('en')}>English</button>
+      </div>
+      <p className="eyebrow">{t('ASAMBLEA NACIONAL','NATIONAL ASSEMBLY')}</p>
+      <h1>{t('El poder no se ejerce solo.','Power is never exercised alone.')}</h1>
+      <p className="muted">{t('Diez partidos, una nación persistente. Inicia sesión para fundar o unirte a una partida.','Ten political parties, one persistent country. Sign in to create or join an assembly.')}</p>
+      <p className="muted">{t('La partida completa sigue utilizando pantallas en español.','The full assembly interface is currently Spanish-first.')}</p>
       <PasswordSignIn email={email} onEmailChange={setEmail} onError={setError}
-        redirectTo={isInviteCode(inviteCode)
+        language={language} redirectTo={isInviteCode(inviteCode)
           ? invitationUrl(window.location.origin,inviteCode)
           : window.location.origin+'/multiplayer'} disabled={pending} />
-      <p>¿Aún no tienes contraseña? Usa el enlace una vez y configúrala en la cuenta.</p>
+      <p>{t('¿Aún no tienes contraseña? Usa el enlace una vez y configúrala en la cuenta.','No password yet? Use an email link once and set your password in your account.')}</p>
       <form className="match-form" onSubmit={event => void onLogin(event)}>
-        <label>Correo electrónico
+        <label>{t('Correo electrónico','Email address')}
           <input type="email" value={email} required autoComplete="email"
             onChange={event => setEmail(event.target.value)} />
         </label>
-        <button disabled={pending} type="submit">Recibir enlace de acceso</button>
+        <button disabled={pending} type="submit">{t('Recibir enlace de acceso','Send sign-in link')}</button>
       </form>
-      {mailSent && <p role="status">Enlace enviado a tu correo.</p>}
+      {mailSent && <p role="status">{t('Enlace enviado a tu correo.','Sign-in email requested.')}</p>}
       {error && <p role="alert" className="editorial-alert">{error}</p>}
     </main>
     : <main className="match-layout">
       <aside className="match-sidebar">
         <p className="eyebrow">CENTRO DE PARTIDAS</p><h1>Tu asamblea</h1>
-        <AccountPasswordPanel />
+        <AccountPasswordPanel language={language} />
         <div className="match-panel">
           <h3>Crear partida</h3>
           <form className="match-form" onSubmit={event => void onCreate(event)}>

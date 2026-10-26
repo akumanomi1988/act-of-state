@@ -97,6 +97,25 @@ function reviewAndSign() {
   fireEvent.click(screen.getByRole('button', { name: 'Firmar y ejecutar decisión' }))
 }
 
+describe('English cabinet sign-in entry',()=>{
+ it('allows English sign-in without replacing government gameplay authority',async()=>{
+  const original=window.location.href
+  window.history.replaceState({},'','/?lang=en')
+  mocks.getUser.mockResolvedValue({data:{user:null},error:null})
+  try{
+   render(<App />)
+   expect(await screen.findByRole('heading',{name:'To govern is to choose which consequences to accept.'})).toBeInTheDocument()
+   expect(screen.getByRole('button',{name:'Sign in with password'})).toBeInTheDocument()
+   expect(screen.getByRole('link',{name:'Try four decisions without an account'}))
+     .toHaveAttribute('href','/demo?lang=en')
+   expect(screen.getByText('The full game interface is currently Spanish-first.')).toBeInTheDocument()
+   fireEvent.click(screen.getByRole('button',{name:'Español'}))
+   expect(screen.getByRole('heading',{name:'Gobernar es elegir qué consecuencias asumir.'})).toBeInTheDocument()
+   expect(mocks.startGovernment).not.toHaveBeenCalled()
+  } finally{window.history.replaceState({},'',original)}
+ })
+})
+
 describe('browser decision flow with controlled Supabase adapter', () => {
   it('requires review before signature and displays only authored fiscal inputs', async () => {
     mocks.fetchWorld.mockResolvedValue(initial)

@@ -57,6 +57,23 @@
 - Authenticated national/government and parliamentary interfaces remain
   Spanish-first. Whole-product completion baseline weights are unchanged.
 
+## AOS-062 — Accessible English account entry on both political routes
+
+- Both Government and Assembly signed-out screens support Spanish/English,
+  including email link explanation, password entry, generic failure messages,
+  account recovery, and first-account password enrolment. A separate
+  language selector changes only presentation; game mutations remain on
+  existing GoTrue and PostgreSQL authorization boundaries.
+- Neither route changes invite code interpretation or the existing verified
+  Supabase email callback destination. Password sign-in does not issue an
+  email link on ordinary visits; recovery remains an explicit action and
+  cannot reveal whether an email address is registered.
+- Client and Chromium checks cover same authenticated account, default
+  Spanish compatibility, English safe errors, mobile layout and keyboard
+  access. Cabinet/Parliament gameplay AFTER sign-in remains Spanish-first.
+- This is an implementation increment, not a completed whole-game
+  translation or externally verified email deliverability.
+
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.

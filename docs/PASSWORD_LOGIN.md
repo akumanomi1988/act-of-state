@@ -59,3 +59,15 @@ provide layered deployment protection. Only a separately authorized,
 large validated release may replace production.
 
 See also `docs/NO_VERCEL_AUTODEPLOY.md`.
+
+
+## AOS-062 — English password access, unchanged security model
+
+Existing Cabinet and Assembly users may select English before login.
+Sign-in, forgotten-password recovery and authenticated password enrollment
+share the existing GoTrue functions and same-account persistence across
+languages. Passwords are never logged or stored by the application, and
+error messages never disclose whether an email is registered. OTP redirect
+and private match invitation semantics remain unchanged so this localization
+does not require new hosted Auth callback URL allowlists. The national
+decision and Parliamentary screens are still Spanish-first after login.

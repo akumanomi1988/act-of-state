@@ -3,7 +3,7 @@
 Project: ACT OF STATE
 Repo: akumanomi1988/act-of-state
 Branch: aos/050-national-reforms-campaign
-Last in-session code milestone: AOS-061 fully bilingual public /guide, /demo and /status visitor flow. Check GitHub branch HEAD for current revision and CI status.
+Last in-session code milestone: AOS-062 bilingual Cabinet/Assembly login, recovery and password enrollment after AOS-061 fully bilingual public visitor flow. Check GitHub branch HEAD for current revision and CI status.
 Production: no deployment and no hosted Supabase migration authorized.
 Original total weight: 100, formally accepted weight: 23.
 Functional engineering subledger total: 62, evidenced: 45, outstanding: 17.

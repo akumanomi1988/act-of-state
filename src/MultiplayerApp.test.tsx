@@ -149,6 +149,24 @@ beforeEach(() => {
 })
 afterEach(cleanup)
 
+describe('English ten-party sign-in entry',()=>{
+ it('preserves the existing invitation and parliamentary auth gate in English',async()=>{
+  const original=window.location.href
+  window.history.replaceState({},'','/multiplayer?lang=en')
+  mocks.getUser.mockResolvedValue({data:{user:null},error:null})
+  try{
+    render(<MultiplayerApp />)
+    expect(await screen.findByRole('heading',{name:'Power is never exercised alone.'})).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Sign in with password'})).toBeInTheDocument()
+    expect(screen.getByRole('link',{name:'Player guide'})).toHaveAttribute('href','/guide?lang=en')
+    expect(screen.getByText('The full assembly interface is currently Spanish-first.')).toBeInTheDocument()
+    expect(mocks.createMatch).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button',{name:'Español'}))
+    expect(screen.getByRole('heading',{name:'El poder no se ejerce solo.'})).toBeInTheDocument()
+  } finally {window.history.replaceState({},'',original)}
+ })
+})
+
 describe('ten-party multiplayer assembly', () => {
   it('coordinates ten-party readiness and blocks the host while anyone is pending',async()=>{
     const fixture=world('lobby',3)

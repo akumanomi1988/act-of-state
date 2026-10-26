@@ -1,5 +1,6 @@
 import PlayerOnboarding from './PlayerOnboarding'
 import { PasswordSignIn, AccountPasswordPanel } from './PasswordAccess'
+import {parsePublicLanguage,publicRoute,updatePublicLanguage,type PublicLanguage} from './lib/publicLanguage'
 import FoundationalAgendaPanel from './FoundationalAgendaPanel'
 import PolicyPortfolioPanel from './PolicyPortfolioPanel'
 import DiplomacyPanel from './DiplomacyPanel'
@@ -24,6 +25,12 @@ function available(d: Dossier, day: string): boolean {
 }
 
 export default function App() {
+  const [language,setLanguage]=useState<PublicLanguage>(()=>parsePublicLanguage(window.location.search))
+  const t=(es:string,en:string)=>language==='en'?en:es
+  function chooseLanguage(next:PublicLanguage) {
+    updatePublicLanguage(next)
+    setLanguage(next)
+  }
   const [user, setUser] = useState<User | null>(null)
   const [authReady, setAuthReady] = useState(false)
   const [email, setEmail] = useState('')
@@ -243,8 +250,8 @@ export default function App() {
           <span className="brand-symbol" aria-hidden="true">A<span>／</span>S</span>
           <div><div className="wordmark">ACT OF STATE</div><div className="brand-caption">EVERY DECISION SHAPES A NATION.</div></div>
         </div>
-        <div className="header-end"><a className="text-button" href="/guide">Manual del jugador</a><a className="text-button" href="/status">Estado del servicio</a><a className="text-button" href="/demo">Probar sin cuenta</a><span className="online-dot" aria-hidden="true" /> SIMULACIÓN POLÍTICA PERSISTENTE
-          <a href="/multiplayer" className="text-button">Multijugador</a>
+        <div className="header-end"><a className="text-button" href={publicRoute("/guide",language)}>{t("Manual del jugador","Player guide")}</a><a className="text-button" href={publicRoute("/status",language)}>{t("Estado del servicio","Service status")}</a><a className="text-button" href={publicRoute("/demo",language)}>{t("Probar sin cuenta","Try without account")}</a><span className="online-dot" aria-hidden="true" /> SIMULACIÓN POLÍTICA PERSISTENTE
+          <a href={language==="en"?"/multiplayer?lang=en":"/multiplayer"} className="text-button">{t("Multijugador","Multiplayer")}</a>
           {user && <button type="button" className="text-button" onClick={() => void signOut()} disabled={pending}>Cerrar sesión</button>}
         </div>
       </header>
@@ -257,27 +264,34 @@ export default function App() {
       ) : !authReady ? (
         <main className="entry-content" role="status">Verificando credenciales…</main>
       ) : !user ? (
-        <main className="entry-layout">
-          <section className="hero-intro"><div className="eyebrow">EL PESO DEL PODER · INICIO</div>
-            <h1>Gobernar es elegir qué consecuencias asumir.</h1>
-            <p>Una simulación política seria, persistente y gratuita. Las decisiones modifican la economía, la confianza institucional y el apoyo de grupos de población simulados.</p>
-            <p className="caveat">Escenarios editoriales ficticios para la primera iteración.</p>
-            <p><a href="/demo" className="primary-button">Probar cuatro decisiones sin registrarte</a></p>
+        <main className="entry-layout" lang={language}>
+          <section className="hero-intro">
+            <div role="group" aria-label={t('Idioma de acceso','Sign-in language')}>
+              <button type="button" aria-pressed={language==='es'} onClick={()=>chooseLanguage('es')}>Español</button>
+              <button type="button" aria-pressed={language==='en'} onClick={()=>chooseLanguage('en')}>English</button>
+            </div>
+            <div className="eyebrow">{t('EL PESO DEL PODER · INICIO','THE WEIGHT OF POWER · START')}</div>
+            <h1>{t('Gobernar es elegir qué consecuencias asumir.','To govern is to choose which consequences to accept.')}</h1>
+            <p>{t('Una simulación política seria, persistente y gratuita. Las decisiones modifican la economía, la confianza institucional y el apoyo de grupos de población simulados.','A serious, persistent and free political simulation. Your decisions change the economy, institutional trust and the support of synthetic population groups.')}</p>
+            <p className="caveat">{t('Escenarios editoriales ficticios para la primera iteración.','The introductory scenarios are fictional, not real-world news.')}</p>
+            <p><a href={publicRoute('/demo',language)} className="primary-button">{t('Probar cuatro decisiones sin registrarte','Try four decisions without an account')}</a></p>
           </section>
           <section className="login-panel" aria-labelledby="access-title">
-            <div className="eyebrow">ACCESO A LA SALA DE GOBIERNO</div>
-            <h2 id="access-title">Tu mandato comienza aquí.</h2>
-            <p>Si ya has establecido una contraseña, puedes iniciar sesión sin esperar un correo.</p>
+            <div className="eyebrow">{t('ACCESO A LA SALA DE GOBIERNO','GOVERNMENT CHAMBER SIGN-IN')}</div>
+            <h2 id="access-title">{t('Tu mandato comienza aquí.','Your mandate starts here.')}</h2>
+            <p>{t('Si ya has establecido una contraseña, puedes iniciar sesión sin esperar un correo.','If you already have a password, sign in without waiting for email.')}</p>
+            <p className="muted">{t('El juego completo aún utiliza pantallas en español.','The full game interface is currently Spanish-first.')}</p>
             <PasswordSignIn email={email} onEmailChange={setEmail} onError={setError}
-              redirectTo={window.location.origin} disabled={pending} />
-            <p>¿Es tu primera visita o aún no has configurado contraseña? Solicita un enlace de acceso una sola vez y configúrala dentro de tu cuenta.</p>
+              redirectTo={window.location.origin}
+              disabled={pending} language={language} />
+            <p>{t('¿Es tu primera visita o aún no has configurado contraseña? Solicita un enlace de acceso una sola vez y configúrala dentro de tu cuenta.','First visit or no password yet? Request an email sign-in link once, then set a password inside your account.')}</p>
             <form onSubmit={event => void onLogin(event)}>
-              <label htmlFor="email">Correo electrónico</label>
+              <label htmlFor="email">{t('Correo electrónico','Email address')}</label>
               <input id="email" type="email" autoComplete="email" required value={email}
                 onChange={event => setEmail(event.target.value)} placeholder="tu@correo.es" />
-              <button className="primary-button" type="submit" disabled={pending}>{pending ? 'Enviando…' : 'Enviar enlace de acceso'}</button>
+              <button className="primary-button" type="submit" disabled={pending}>{pending ? t('Enviando…','Sending…') : t('Enviar enlace de acceso','Send sign-in link')}</button>
             </form>
-            {mailSent && <p className="success" role="status">Comprueba tu correo. Se ha solicitado el enlace de acceso.</p>}
+            {mailSent && <p className="success" role="status">{t('Comprueba tu correo. Se ha solicitado el enlace de acceso.','Check your inbox. A sign-in link has been requested.')}</p>}
           </section>
         </main>
       ) : loading || !world ? (
@@ -292,7 +306,7 @@ export default function App() {
       ) : (
         <>
           <PlayerOnboarding world={world} />
-          <AccountPasswordPanel />
+          <AccountPasswordPanel language={language} />
           <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
           <FiscalPanel key={world.government.id} governmentId={world.government.id} />
           <main className="government-layout">

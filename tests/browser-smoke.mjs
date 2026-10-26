@@ -496,6 +496,28 @@ try {
     await context.close()
   })
 
+  await run('English real-account entry remains safe across Cabinet and Assembly',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    const state=createServerState()
+    await routeApi(page,state)
+    await page.goto(BASE+'/?lang=en',{waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'To govern is to choose which consequences to accept.'}).waitFor()
+    await page.getByRole('button',{name:'Sign in with password'}).waitFor()
+    assert.equal(await page.getByRole('link',{name:'Try four decisions without an account'})
+      .getAttribute('href'),'/demo?lang=en')
+    await checkMobileOverflow(page,'English Cabinet account entry')
+    await checkA11y(page,'English Cabinet account entry')
+    await page.goto(BASE+'/multiplayer?lang=en',{waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'Power is never exercised alone.'}).waitFor()
+    await page.getByRole('button',{name:'Sign in with password'}).waitFor()
+    assert.equal(await page.getByRole('link',{name:'Player guide'})
+      .getAttribute('href'),'/guide?lang=en')
+    await checkMobileOverflow(page,'English Parliament account entry')
+    await checkA11y(page,'English Parliament account entry')
+    await context.close()
+  })
+
   await run('Anonymous login, redirect origin and responsive root',async()=>{
     const context=await browser.newContext({viewport:{width:375,height:812}})
     const page=await context.newPage()

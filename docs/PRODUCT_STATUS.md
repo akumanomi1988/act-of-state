@@ -86,3 +86,13 @@ allowlisted and do not create authenticated session or server traffic.
 The first vertical slice of public localization is complete; the authenticated
 game/editorial application remains Spanish-first and unaccepted for whole-app
 English support. No production deployment has been performed.
+
+
+## AOS-062 — English entry for existing identities
+
+The Cabinet and Legislature anonymous entry views, password login,
+recovery and in-account password enrollment now support an English
+presentation. Authentication still uses the same Supabase Auth provider,
+unchanged account identity and invite callback; no migration or custom
+password backend was introduced. The authenticated policy experience
+is not yet fully translated, which remains an explicit backlog item.
