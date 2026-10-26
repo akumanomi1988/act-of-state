@@ -18,6 +18,7 @@ import ActionInboxPanel from './ActionInboxPanel'
 import type {InboxSection} from './lib/actionInbox'
 import GovernancePanel from './GovernancePanel'
 import FiscalPanel from './FiscalPanel'
+import MandateObservatory from './MandateObservatory'
 import LivingConditionsPanel from './LivingConditionsPanel'
 import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
 import PublicMatchPanel from './PublicMatchPanel'
@@ -427,6 +428,9 @@ export default function MultiplayerApp() {
             governmentId={world.government.id} compact />
           {world.match.status === 'active' && <LivingConditionsPanel
             governmentId={world.government.id} identity={user.id} />}
+          {world.match.status === 'active' && <MandateObservatory
+            key={world.match.id+':'+user.id} governmentId={world.government.id}
+            identity={user.id} matchId={world.match.id} />}
           <div className="match-invite">
             <div><span>INVITACIÓN A LA ASAMBLEA</span>
               <code>{world.match.invite_code}</code>
