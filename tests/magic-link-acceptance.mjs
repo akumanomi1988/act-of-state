@@ -100,7 +100,7 @@ async function login(page,email,path='/multiplayer') {
   await page.getByRole('button',{name:'Acceder por correo'}).click()
   await page.getByLabel('Correo electrónico').fill(email)
   await page.getByRole('button',{name:'Enviar enlace'}).click()
-  await page.getByText('Si la cuenta existe, recibirás un enlace de acceso.').waitFor({timeout:12000})
+  await page.getByText(/Si la cuenta existe, recibirás un enlace de acceso/).waitFor({timeout:12000})
   const link=await mailbox(email)
   const linkUrl=new URL(link)
   const redirect=linkUrl.searchParams.get('redirect_to') ??
