@@ -460,7 +460,7 @@ try {
     await page.getByRole('link',{name:'Working through a political week'}).click()
     assert.equal(new URL(page.url()).hash,'#weekly-operations')
     await page.getByRole('button',{name:'Español'}).click()
-    await page.getByRole('heading',{name:'Una semana política'}).waitFor()
+    await page.getByRole('heading',{name:'Una semana política',exact:true}).waitFor()
     assert.equal(new URL(page.url()).searchParams.get('lang'),'es')
     await page.reload({waitUntil:'networkidle'})
     await page.getByRole('heading',{name:'De tu primera decisión a un mandato compartido'}).waitFor()
