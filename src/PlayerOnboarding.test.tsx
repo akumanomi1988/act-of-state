@@ -32,3 +32,22 @@ it('keeps another party stance from completing the current player step',()=>{
   me:{...world.me,is_ready:true},stances:[{user_id:'mine'}]} as MatchWorld} />)
  expect(screen.getByText(/Registra tu primera postura/)).toHaveTextContent('✓')
 })
+
+it('tracks founding and 18 nationally signed reforms independently',()=>{
+ const founding=Array.from({length:10},(_,i)=>({
+   id:'founding-'+i,version:1,release_kind:'intro',programme_chapter:'founding'
+ }))
+ const reforms=Array.from({length:18},(_,i)=>({
+   id:'reform-'+i,version:1,release_kind:'intro',
+   programme_chapter:(['society','economy','institutions','resilience'] as const)[i%4]
+ }))
+ const world={
+   dossiers:[...founding,...reforms],
+   events:[{dossier_id:'founding-0'},{dossier_id:'reform-0'}],
+   calendar:{weeklyTotal:0}
+ } as unknown as GovernmentWorld
+ render(<PlayerOnboarding world={world}/>)
+ expect(screen.getByText(/Programa fundacional: 1 de 10/)).toHaveTextContent('○')
+ expect(screen.getByText(/Programa nacional de reformas: 1 de 18/)).toHaveTextContent('○')
+ expect(screen.queryByText(/Programa fundacional: 1 de 28/)).not.toBeInTheDocument()
+})
