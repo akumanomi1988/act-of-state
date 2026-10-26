@@ -31,7 +31,18 @@ describe('English guest demo: complete independent playable journey',()=>{
       expect(screen.getByRole('button',{name:'Review practice choice'})).toBeDisabled()
       fireEvent.click(screen.getByRole('radio',{name:/Direct assistance to families/}))
       fireEvent.click(screen.getByRole('button',{name:'Review practice choice'}))
-      expect(screen.getByRole('region',{name:'Training confirmation'})).toHaveTextContent('-...[truncated]
+      expect(screen.getByRole('region',{name:'Training confirmation'})).toHaveTextContent('-1.200 M€')
+      fireEvent.click(screen.getByRole('button',{name:'Apply practice choice'}))
+      expect(screen.getByText('1 / 4 dossiers')).toBeInTheDocument()
+      expect(screen.getByRole('heading',{name:'Direct assistance to families'})).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button',{name:'Español'}))
+      expect(screen.getByText('1 / 4 expedientes')).toBeInTheDocument()
+      expect(screen.getByRole('heading',{name:'Ayuda directa a familias'})).toBeInTheDocument()
+      expect(new URLSearchParams(window.location.search).get('lang')).toBe('es')
+    } finally {window.history.replaceState({},'',original)}
+  })
+})
+
 describe('guest sandbox complete gameplay', () => {
   it('offers playable onboarding without credentials and discloses isolation', () => {
     render(<DemoApp />)
