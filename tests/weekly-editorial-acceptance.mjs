@@ -82,7 +82,13 @@ const dossier=slot=>({
     {id:'act',title:'Authorize measure',description:'Illustrative intervention in a synthetic test.',
       treasury_delta_m_eur:-60,policy_target:25,response_intensity:20,trust_base_delta:1},
     {id:'hold',title:'Preserve reserves',description:'Synthetic budget preserving alternative.',
-      treasury_delta_m_eur:0,policy_target:75,response_intensity:10,trust_base_delta:-1}
+      treasury_delta_m_eur:0,policy_target:75,response_intensity:10,trust_base_delta:-1},
+    {id:'consult',title:'Consult the regions',description:'Synthetic negotiation and oversight alternative.',
+      treasury_delta_m_eur:-30,policy_target:40,response_intensity:25,trust_base_delta:2},
+    {id:'delegate',title:'Delegate the programme',description:'Synthetic regional delegation with audit requirements.',
+      treasury_delta_m_eur:-45,policy_target:55,response_intensity:30,trust_base_delta:0},
+    {id:'levy',title:'Apply a progressive levy',description:'Synthetic levy funding a narrower public intervention.',
+      treasury_delta_m_eur:90,policy_target:90,response_intensity:45,trust_base_delta:-2}
   ]
 })
 const draft=Array.from({length:10},(_,i)=>dossier(i+1))
