@@ -1,0 +1,319 @@
+{
+  "schema": 1,
+  "metric": "engineering-checkpoint-coverage",
+  "as_of": "2026-10-26",
+  "main_sha": "1cb55f26fc5f813a349a146a3bb2df498ceea157",
+  "development_sha": "92c626675dc70f6faecd80520e41558784e19edc",
+  "accepted_requirements": {
+    "done": 2,
+    "total": 18
+  },
+  "requirements": [
+    {
+      "id": "MVP-F001",
+      "title": "Persistent government access",
+      "area": "Gameplay",
+      "main": 2,
+      "development": 4,
+      "checkpoints": [
+        "Owned persistent government creation",
+        "Reopen the same government after session reload",
+        "Password-first login without recurring email",
+        "Signup, account recovery and security in game routes"
+      ],
+      "evidence": [
+        "src/App.tsx",
+        "src/AuthGateway.tsx",
+        "src/AccountSecurity.tsx",
+        "tests/real-auth-acceptance.mjs"
+      ]
+    },
+    {
+      "id": "MVP-F002",
+      "title": "Dossiers and policy options",
+      "area": "Gameplay",
+      "main": 2,
+      "development": 3,
+      "checkpoints": [
+        "Original founding cases and options",
+        "Weekly editor authoring and protected publication",
+        "18 additional authored national reforms",
+        "Genuine sourced and staffed weekly publication"
+      ],
+      "evidence": [
+        "docs/FOUNDATIONAL_GOVERNMENT_PROGRAMME.md",
+        "docs/EDITORIAL_OPERATIONS.md",
+        "docs/NATIONAL_REFORM_PROGRAMME.md"
+      ]
+    },
+    {
+      "id": "MVP-F003",
+      "title": "Persistent political decisions",
+      "area": "Gameplay",
+      "main": 4,
+      "development": 4,
+      "checkpoints": [
+        "Authorized transactional decisions",
+        "Immutable national archive",
+        "Binding parliamentary mandate",
+        "Real-JWT decision and retry acceptance"
+      ],
+      "evidence": [
+        "supabase/tests/decision_flow.sql",
+        "tests/real-auth-acceptance.mjs"
+      ]
+    },
+    {
+      "id": "MVP-F004",
+      "title": "Population and households",
+      "area": "Gameplay",
+      "main": 3,
+      "development": 3,
+      "checkpoints": [
+        "Policy-responsive synthetic cohorts",
+        "300 persistent synthetic households",
+        "Six districts integrated with election rules",
+        "Empirically reviewed demographic balance"
+      ],
+      "evidence": [
+        "docs/HOUSEHOLD_SIMULATION.md",
+        "docs/TERRITORIAL_ELECTIONS.md"
+      ]
+    },
+    {
+      "id": "MVP-F005",
+      "title": "National social and fiscal state",
+      "area": "Gameplay",
+      "main": 3,
+      "development": 3,
+      "checkpoints": [
+        "Versioned national indicators",
+        "Treasury, budget and debt settlement",
+        "Daily welfare/opinion feedback",
+        "Multiweek calibrated extreme-policy scenarios"
+      ],
+      "evidence": [
+        "docs/NATIONAL_FISCAL_OPERATIONS.md",
+        "docs/DAILY_LIVING_CONDITIONS.md"
+      ]
+    },
+    {
+      "id": "MVP-F006",
+      "title": "Political calendar",
+      "area": "Gameplay",
+      "main": 3,
+      "development": 3,
+      "checkpoints": [
+        "Authoritative real-day UTC clock",
+        "Scheduled settlement and deadlines",
+        "Weekly accountability and history",
+        "Observed full multicycle hosted operation"
+      ],
+      "evidence": [
+        "docs/CALENDAR_OPERATIONS.md",
+        "docs/WEEKLY_ACCOUNTABILITY.md"
+      ]
+    },
+    {
+      "id": "MVP-F007",
+      "title": "Elections and campaigns",
+      "area": "Gameplay",
+      "main": 3,
+      "development": 3,
+      "checkpoints": [
+        "Deterministic D'Hondt seats",
+        "Six resident-weighted constituencies",
+        "Campaign decay and confidence transitions",
+        "Validated long-run campaign/election balance"
+      ],
+      "evidence": [
+        "docs/ELECTION_RULES.md",
+        "docs/CAMPAIGN_RELEVANCE.md"
+      ]
+    },
+    {
+      "id": "MVP-F008",
+      "title": "Ten-party multiplayer",
+      "area": "Gameplay",
+      "main": 3,
+      "development": 3,
+      "checkpoints": [
+        "Invitations, admission and readiness",
+        "Persistent ten-party vote and Parliament",
+        "Role-aware action inbox and operations",
+        "Real ten-human multiday play acceptance"
+      ],
+      "evidence": [
+        "docs/MULTIPLAYER_LOBBY.md",
+        "docs/LEGISLATIVE_WEEK_COMMAND.md"
+      ]
+    },
+    {
+      "id": "MVP-T001",
+      "title": "Transactional persistence",
+      "area": "Technology",
+      "main": 4,
+      "development": 4,
+      "checkpoints": [
+        "Atomic database writes",
+        "Durable independent reads",
+        "Retry-safe persisted mutations",
+        "Disposal-only snapshot restore proof"
+      ],
+      "evidence": [
+        "supabase/tests/disposable_restore.sh"
+      ]
+    },
+    {
+      "id": "MVP-T002",
+      "title": "Authentication and isolation",
+      "area": "Technology",
+      "main": 3,
+      "development": 4,
+      "checkpoints": [
+        "RLS ownership",
+        "Real JWT and PostgREST tests",
+        "Cross-account authenticated browser isolation",
+        "Password change/recovery real-Auth journey"
+      ],
+      "evidence": [
+        "docs/REAL_AUTH_ACCEPTANCE.md",
+        "tests/real-auth-acceptance.mjs"
+      ]
+    },
+    {
+      "id": "MVP-T003",
+      "title": "Deterministic outcomes",
+      "area": "Technology",
+      "main": 4,
+      "development": 4,
+      "checkpoints": [
+        "Deterministic policy model",
+        "Versioned and immutable snapshots",
+        "Reference oracles and golden fixtures",
+        "Shared simulation/election history checks"
+      ],
+      "evidence": [
+        "tests/reference-simulation.test.mjs",
+        "supabase/tests/national_fiscal.sql"
+      ]
+    },
+    {
+      "id": "MVP-T004",
+      "title": "Concurrency and retries",
+      "area": "Technology",
+      "main": 4,
+      "development": 4,
+      "checkpoints": [
+        "Lock and serialization safety",
+        "Idempotent mutations",
+        "Ten-party race verification",
+        "Committed replay and restore checks"
+      ],
+      "evidence": [
+        "supabase/tests/multiplayer_concurrency.sh"
+      ]
+    },
+    {
+      "id": "MVP-T005",
+      "title": "Automated quality",
+      "area": "Technology",
+      "main": 3,
+      "development": 3,
+      "checkpoints": [
+        "Unit, TypeScript and oracle checks",
+        "PostgreSQL RLS/SQL regression",
+        "Browser/real JWT acceptance CI",
+        "Hosted extended play/accessibility/performance gate"
+      ],
+      "evidence": [
+        ".github/workflows/quality.yml",
+        ".github/workflows/live-auth-acceptance.yml"
+      ]
+    },
+    {
+      "id": "MVP-T006",
+      "title": "Release operations",
+      "area": "Technology",
+      "main": 3,
+      "development": 3,
+      "checkpoints": [
+        "Reproducible build and migrations",
+        "Scheduler and failure diagnostics",
+        "Release identity/status/disposable restore",
+        "Production monitoring and provider-managed restore"
+      ],
+      "evidence": [
+        "docs/PRODUCTION_RELEASE_RUNBOOK.md"
+      ]
+    },
+    {
+      "id": "MVP-V001",
+      "title": "Visual brand",
+      "area": "Experience",
+      "main": 1,
+      "development": 1,
+      "checkpoints": [
+        "Provisional shared palette and typography",
+        "Approved brand design system",
+        "Production art assets integrated",
+        "Human art-direction sign-off"
+      ],
+      "evidence": [
+        "src/styles.css",
+        "docs/PRODUCT_STATUS.md"
+      ]
+    },
+    {
+      "id": "MVP-V002",
+      "title": "Playable interfaces",
+      "area": "Experience",
+      "main": 3,
+      "development": 3,
+      "checkpoints": [
+        "Solo government dashboard",
+        "Multiplayer Parliament and tools",
+        "Editorial console and onboarding",
+        "Human-accepted final navigation polish"
+      ],
+      "evidence": [
+        "src/App.tsx",
+        "src/MultiplayerApp.tsx",
+        "src/EditorialApp.tsx"
+      ]
+    },
+    {
+      "id": "MVP-V003",
+      "title": "Responsive accessibility",
+      "area": "Experience",
+      "main": 2,
+      "development": 2,
+      "checkpoints": [
+        "Mobile and desktop layouts",
+        "Automated axe/overflow checks",
+        "Keyboard-only full-flow verification",
+        "Real screen-reader acceptance"
+      ],
+      "evidence": [
+        "tests/browser-smoke.mjs"
+      ]
+    },
+    {
+      "id": "MVP-V004",
+      "title": "Visual QA",
+      "area": "Experience",
+      "main": 2,
+      "development": 2,
+      "checkpoints": [
+        "CI screenshot capture",
+        "Shared visual styling",
+        "Approved baseline visual regression test",
+        "Final human visual acceptance"
+      ],
+      "evidence": [
+        ".github/workflows/quality.yml",
+        "src/styles.css"
+      ]
+    }
+  ]
+}
