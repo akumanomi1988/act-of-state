@@ -144,7 +144,7 @@ update public.match_campaign_spending
  where match_id=(select match_id from pg_temp.campaign_decay_fixture)
  and user_id='58000000-0000-4000-8000-000000000001';
 update public.matches
- set started_at=started_at-interval '7 days'
+ set started_at=started_at-interval '14 days'
  where id=(select match_id from pg_temp.campaign_decay_fixture);
 set local role authenticated;
 select set_config('request.jwt.claim.sub','58000000-0000-4000-8000-000000000001',true);
