@@ -473,6 +473,37 @@ try {
     await context.close()
   })
 
+  await run('Strategic portfolio compares two permanent reforms without authorizing any act',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    const state=createServerState()
+    const pension={...state.dossier,id:'fiction-pension-reform',
+      title:'Jubilaciones sostenibles',programme_chapter:'society',programme_order:1}
+    const choice={...state.option,dossier_id:pension.id,id:'targeted-pensions',
+      title:'Financiación intergeneracional',treasury_delta_m_eur:-600}
+    state.foundationalDossiers=[state.dossier,pension]
+    state.foundationalOptions=[state.option,choice]
+    await routeApi(page,state)
+    await injectUser(page,state)
+    await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    const planner=page.getByRole('region',{name:'Planificador de cartera legislativa'})
+    await planner.getByRole('button',{name:'Abrir planificación'}).click()
+    await planner.getByLabel('Planificar Plan de resiliencia energética')
+      .selectOption('household-support')
+    await planner.getByLabel('Planificar Jubilaciones sostenibles')
+      .selectOption('targeted-pensions')
+    await planner.getByLabel('Medidas seleccionadas').getByRole('listitem').first().waitFor()
+    await planner.getByText('-2.000 M€').waitFor()
+    await planner.getByText('10.000 M€').waitFor()
+    assert.equal(state.events.length,0,'draft must not submit a national act')
+    await checkMobileOverflow(page,'multi-policy portfolio')
+    await checkA11y(page,'multi-policy portfolio')
+    await page.screenshot({path:OUT+'/policy-portfolio-mobile.png',fullPage:true})
+    await planner.getByRole('button',{name:'Vaciar borrador'}).click()
+    await planner.getByText('0 M€').waitFor()
+    await context.close()
+  })
+
   await run('Authenticated national decisions survive browser reload',async()=>{
     const context=await browser.newContext({viewport:{width:1800,height:1000}})
     const page=await context.newPage()

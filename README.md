@@ -8,6 +8,15 @@ Free-to-play, browser-based, persistent political simulation. This codebase is i
 
 Visit **`/demo`** to try four authored fictional government dossiers with twelve alternatives, review-before-sign decisions, deterministic local consequences, a reversible-by-reset ledger and browser-only progress. This is **not a real game save or the PostgreSQL simulation**: no authentication, backend calls, live news, party multiplayer or promotion of demonstration choices into an actual government. See [guest training sandbox](docs/GUEST_DEMO.md). Pull-request CI verifies its responsive Chromium flow, no-backend boundary, persistence and accessibility.
 
+## National policy portfolio (AOS-052, unreleased)
+
+Solo and Parliamentary players can compare direct fiscal exposure across multiple
+pending permanent fictional dossiers without enacting legislation. The temporary
+five-chapter planner reconciles server-signed acts, versioned options and programme
+availability; weekly news and predicted social outcomes remain out of scope.
+See [national policy portfolio](docs/POLICY_PORTFOLIO.md).
+This is only on the isolated development branch, not released to Vercel.
+
 ## The founding government programme (AOS-043)
 
 Authenticated solo governments can now play a permanent **ten-dossier fictional founding programme** with 30 choices: original energy/water policies plus housing, healthcare, education, infrastructure, employment, food security, digital institutions and climate adaptation. All choices use the existing server-authoritative decision RPC and are permanently recorded. The government dashboard tracks decisions signed, the event-derived cumulative fiscal/social signature impacts, and current weekly dossiers with priority filters. The player guide and onboarding explain the difference between this programme and the separately published current-news cycle. See [full programme and acceptance](docs/FOUNDATIONAL_GOVERNMENT_PROGRAMME.md). The separate `/demo` training mode remains browser-local and non-authoritative.

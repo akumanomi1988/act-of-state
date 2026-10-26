@@ -1,6 +1,7 @@
 import PlayerOnboarding from './PlayerOnboarding'
 import { PasswordSignIn, AccountPasswordPanel } from './PasswordAccess'
 import MatchAgendaBoard from './MatchAgendaBoard'
+import PolicyPortfolioPanel from './PolicyPortfolioPanel'
 import WeeklyMissionControl from './WeeklyMissionControl'
 import { buildMatchAgenda } from './lib/multiplayerAgenda'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
@@ -561,6 +562,16 @@ export default function MultiplayerApp() {
               world={world} userId={user!.id}
               onSelect={id => {
                 setSelectedDossierId(id)
+                setSelectedOptionId('')
+                setReviewCabinet(false)
+                setMandateOptionId(null)
+              }} />
+            <PolicyPortfolioPanel key={world.match.id + ':portfolio:' + user!.id}
+              mode="parliament" dossiers={world.dossiers} options={world.options}
+              events={world.events} gameDay={world.gameDay}
+              treasury={world.government.treasury_m_eur}
+              onSelect={item => {
+                setSelectedDossierId(item.id)
                 setSelectedOptionId('')
                 setReviewCabinet(false)
                 setMandateOptionId(null)

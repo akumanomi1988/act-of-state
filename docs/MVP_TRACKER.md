@@ -1,10 +1,21 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-050 four-chapter fictional national reforms — code on isolated development branch, not released to Vercel or hosted Supabase; branch CI not yet run. The AOS-049 exact hosted release check has already passed on main.
+**Latest implementation increment:** AOS-052 cross-dossier policy portfolio on isolated development branch, extending AOS-050 reforms and AOS-051 password access. Development changes are not authorized for hosted release. The AOS-049 exact hosted release check has already passed on main.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-052 — Read-only multi-dossier national policy portfolio (2026-10-26, development)
+
+- Added a shared solo/Parliament planner: chapter progress, multi-dossier fiscal
+  comparison, budget risk indicator, signed-state reconciliation and dossier navigation.
+- Temporary drafts are not authorized decisions, stances or votes. No RPC,
+  data migration or new server trust boundary was introduced.
+- Added independent model and UI regressions. Full operational acceptance still
+  requires branch CI and separate human review.
+- See [national policy portfolio](POLICY_PORTFOLIO.md).
+- Strict original full-product acceptance stays at 2/18 (11.1 percent).
 
 ## AOS-051 — Password sign-in and manual-only Vercel deployment (2026-10-26, development)
 

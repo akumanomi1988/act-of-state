@@ -1,6 +1,7 @@
 import PlayerOnboarding from './PlayerOnboarding'
 import { PasswordSignIn, AccountPasswordPanel } from './PasswordAccess'
 import FoundationalAgendaPanel from './FoundationalAgendaPanel'
+import PolicyPortfolioPanel from './PolicyPortfolioPanel'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, fetchWorld, friendlyError, startGovernment, submitDecision } from './lib/game'
@@ -331,6 +332,10 @@ export default function App() {
               </section>
               <FoundationalAgendaPanel world={world}
                 selectedKey={dossier ? dossierKey(dossier) : null}
+                onSelect={selectDossier} />
+              <PolicyPortfolioPanel key={world.government.id} mode="solo"
+                dossiers={world.dossiers} options={world.options} events={world.events}
+                gameDay={world.gameDay} treasury={world.government.treasury_m_eur}
                 onSelect={selectDossier} />
             </aside>
             <section className="main-panel" aria-label="Expediente político">
