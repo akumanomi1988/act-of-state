@@ -37,9 +37,10 @@ export default function MandateObservatory({ governmentId, identity, matchId }: 
   const [expanded, setExpanded] = useState(false)
   const [refresh, setRefresh] = useState(0)
   const [stored, setStored] = useState<Sources | null>(null)
-  const [busy, setBusy] = useState(true)
+  const [busy, setBusy] = useState(false)
   const key = governmentId + ':' + identity + ':' + (matchId ?? 'solo') + ':' + days
   useEffect(() => {
+    if (!expanded) return
     let active = true
     setStored(null); setBusy(true)
     async function load() {
@@ -68,7 +69,7 @@ export default function MandateObservatory({ governmentId, identity, matchId }: 
     void load()
     const interval = window.setInterval(() => void load(), 60000)
     return () => { active = false; window.clearInterval(interval) }
-  }, [governmentId, identity, matchId, days, refresh, key])
+  }, [governmentId, identity, matchId, days, refresh, expanded, key]
 
   const data = stored?.key === key ? stored : null
   const outcome = useMemo(() => {
