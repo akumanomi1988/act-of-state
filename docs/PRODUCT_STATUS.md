@@ -1,6 +1,6 @@
 # ACT OF STATE — Current product inventory
 
-Updated 2026-10-26. AOS-052 integrates two green source branches; this combined build is not yet released. Implementation is distinguished from final acceptance.
+Updated 2026-10-26. AOS-053 adds long-run mandate analytics to the CI-verified AOS-052 branch; this development build is not yet released. Implementation is distinguished from final acceptance.
 The game is browser-based, free to play, with no paid competitive advantages.
 
 | System | Implemented | Remaining acceptance / development |
@@ -10,7 +10,7 @@ The game is browser-based, free to play, with no paid competitive advantages.
 | Solo government | Persistent nation, 10 founding decisions + 18 additional authored reform dilemmas (development branch), server-authoritative outcomes and archived acts | Integrated CI and hosted real-Auth acceptance, product balancing |
 | Population | 300 persistent synthetic households, age/income/settlement and six districts | Demographic balancing; no empirical demographic claims |
 | Daily society | Economic security, services, welfare, bounded political feedback, immutable daily records | Multi-day operational observation and gameplay balancing |
-| Fiscal engine | Treasury, debt, GDP index, inflation, unemployment, budget revisions and weekly accounts | Economic calibration, extreme-policy balancing |
+| Fiscal engine | Treasury, debt, GDP index, inflation, unemployment, budget revisions, immutable weekly acts and isolated 12-week bankruptcy/issuance regression (AOS-053) | Empirical economic calibration, hosted 90-day observation and extreme-policy balancing |
 | Weekly dossiers | Ten-slot newsroom, source discovery, draft revision control, manual review and atomic publication | Actual reviewed news for every operational week; staff operation |
 | Time | One real UTC day per game day, Monday publication windows, Friday closure, autonomous jobs | Sustained live operation across week boundaries |
 | Multiplayer | Up to ten parties, private invitations/public discovery, lobby withdrawal and readiness | Ten actual accounts and a human playtest |
@@ -19,7 +19,7 @@ The game is browser-based, free to play, with no paid competitive advantages.
 | Elections | Household electorate, six constituencies, 100 D'Hondt seats, immutable certification, cabinet succession | Electoral and campaign balance; human acceptance |
 | Campaigns | Weekly party interventions, targeting, caps, pre-election closure, server-owned 2pt/7-day decay and renewed support | Multi-week campaign-voter balance review, empirical coefficients, player feedback |
 | Governance | Consensual coalitions and constructive confidence votes | Human coalition/transition acceptance |
-| History | Decision analytics, weekly accountability, daily polls and welfare history with explicit gaps | Long-running storage and traffic observation |
+| History | Decision analytics, weekly accountability, daily polls and welfare history, plus 7/30/90-day strategic observatory with observed gaps and guarded fiscal stress (AOS-053 branch) | Human validation of strategic indicators and long-running storage/traffic observation |
 | Activity | Private agenda, contextual tasks, persistent read receipts | External notifications are not implemented or required for in-game delivery |
 | Security | RLS, private server-owned tables, owner/member authorization, transactional locking | Independent audit, abuse/load exercises; existing Auth password-protection warning |
 | Quality | TypeScript, unit/component/oracle/SQL tests, concurrency and durability CI, responsive Chromium/axe, measured 10-JWT local read-load baseline and exact-build hosted smoke | Real SMTP-backed hosted E2E, manual keyboard/screen-reader acceptance and production traffic load/balance testing |
