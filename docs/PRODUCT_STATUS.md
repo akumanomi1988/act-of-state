@@ -1,13 +1,13 @@
 # ACT OF STATE — Current product inventory
 
-Updated 2026-10-26. AOS-050 is in an unmerged feature branch, not yet hosted. Implementation is distinguished from final acceptance.
+Updated 2026-10-26. AOS-052 integrates two green source branches; this combined build is not yet released. Implementation is distinguished from final acceptance.
 The game is browser-based, free to play, with no paid competitive advantages.
 
 | System | Implemented | Remaining acceptance / development |
 |---|---|---|
 | Access | Password-first Auth, explicit registration, one-time legacy email link, password recovery/change, session recovery and isolation (AOS-050 feature branch) | CI acceptance, production password/SMTP settings, real hosted signup and human multi-account acceptance |
 | Player onboarding | Public /guide manual, contextual solo/multiplayer steps from server state, recovery guidance | Observe first-time human players; adjust based on usability evidence |
-| Solo government | Persistent nation, decisions, authoritative outcomes, archived acts | Full real-Auth browser acceptance |
+| Solo government | Persistent nation, 10 founding decisions + 18 additional authored reform dilemmas (development branch), server-authoritative outcomes and archived acts | Integrated CI and hosted real-Auth acceptance, product balancing |
 | Population | 300 persistent synthetic households, age/income/settlement and six districts | Demographic balancing; no empirical demographic claims |
 | Daily society | Economic security, services, welfare, bounded political feedback, immutable daily records | Multi-day operational observation and gameplay balancing |
 | Fiscal engine | Treasury, debt, GDP index, inflation, unemployment, budget revisions and weekly accounts | Economic calibration, extreme-policy balancing |
@@ -15,7 +15,7 @@ The game is browser-based, free to play, with no paid competitive advantages.
 | Time | One real UTC day per game day, Monday publication windows, Friday closure, autonomous jobs | Sustained live operation across week boundaries |
 | Multiplayer | Up to ten parties, private invitations/public discovery, lobby withdrawal and readiness | Ten actual accounts and a human playtest |
 | Party positions | Immutable member positions and political affinity | Balance feedback from actual players |
-| Parliament | Weighted votes, proposal windows, binding approval before cabinet execution | Full human government/opposition flow |
+| Parliament | Weighted votes, proposal windows, binding approval before cabinet execution; permanent reform agenda supported | Full human government/opposition flow |
 | Elections | Household electorate, six constituencies, 100 D'Hondt seats, immutable certification, cabinet succession | Electoral and campaign balance; human acceptance |
 | Campaigns | Weekly party interventions, targeting, caps, pre-election closure, server-owned 2pt/7-day decay and renewed support | Multi-week campaign-voter balance review, empirical coefficients, player feedback |
 | Governance | Consensual coalitions and constructive confidence votes | Human coalition/transition acceptance |

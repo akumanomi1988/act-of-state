@@ -6,6 +6,23 @@
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
 
+## AOS-052 — Integrated national reforms + account access (development branch, 2026-10-26)
+
+- Consolidated the 18 authored national reform dossiers (54 outcomes), ten original
+  founding dossiers, unified password-first Auth and legacy recovery without
+  duplicating the user identity or changing existing immutable political acts.
+- Server-authoritative fiscal consequences, cabinet signature, parliamentary
+  votes, territory/elections response, archive, chapter filters and contextual
+  onboarding all use the existing authorisation and save model.
+- Database schema change is **migration on the branch only**; it has not been
+  applied to hosted Supabase. No Vercel release or Git merge authorised.
+- Mandatory validation: unit/oracle/TypeScript/Vite; PostgreSQL 17 migration,
+  unique content and 18-policy transactional replay; signed ten-JWT Parliament,
+  password login/rotation, Mailpit and Chromium mobile/desktop UX.
+- Acceptance requires CI evidence from **this integrated SHA**, not merely
+  two individually green source branches. Strict full-product acceptance
+  remains **2/18** until actual production/human acceptance criteria pass.
+
 ## AOS-050 — Password-first identity and legacy access migration (unmerged, 2026-10-26)
 
 - Built a shared password-first Auth entry for solo, multiplayer and editorial

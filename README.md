@@ -1,5 +1,12 @@
 # ACT OF STATE
 
+> **Development branch AOS-052 (not released):** merges password-first Auth and a 28-case
+> permanent fictional national programme (10 founding + 18 reforms, 84 policy
+> alternatives), across solo and parliamentary play. The newsroom is separate;
+> releases are operator-gated. See [National Reform Programme](docs/NATIONAL_REFORM_PROGRAMME.md),
+> [Password Access](docs/PASSWORD_ACCESS.md) and
+> [No Vercel Autodeploy](docs/NO_VERCEL_AUTODEPLOY.md).
+
 **Every decision shapes a nation.**
 
 Free-to-play, browser-based, persistent political simulation. This codebase is independent from Moncloa-AI.
