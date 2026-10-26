@@ -764,6 +764,12 @@ try {
     await checkMobileOverflow(page,'editorial source import')
     await checkA11y(page,'editorial source import')
     await page.screenshot({path:OUT+'/editorial-sources-mobile.png',fullPage:true})
+    await page.getByRole('button',{name:'Preparar diez escenarios políticos'}).click()
+    await page.getByRole('textbox',{name:'Decisión option-e'}).waitFor()
+    assert.equal(await progress.getAttribute('aria-valuenow'),'10')
+    assert.equal(await page.getByRole('button',{name:'Revisar publicación'}).isDisabled(),true)
+    await checkMobileOverflow(page,'five-way editorial slate')
+    await checkA11y(page,'five-way editorial slate')
     // Import is a local draft, not an unreviewed publication or implicit save.
     await page.reload({waitUntil:'networkidle'})
     assert.equal(await page.getByRole('textbox',{name:'Título de la fuente'}).inputValue(),'')

@@ -1,3 +1,17 @@
+## AOS-056 — Five-way ten-story editorial publication enforcement
+
+- New weekly Monday releases must contain ten independently sourced and
+  publisher-reviewed dossiers, EACH with five unique political positions.
+- Five optional fictional scenario stances can be drafted for cited news;
+  they are never represented as quotations or real government announcements.
+- Atomic publisher-only SQL validates unique IDs, titles and policy targets;
+  invalid partial slates leave no playable record. Existing published
+  histories, credentials and staff gates remain unchanged.
+- Acceptance: ten-article fixture, four-choice/duplicate choice rejection,
+  approved 50-choice release, retry idempotence and Chromium newsroom QA.
+- Progress: no weight change to the 100-point final release baseline;
+  human editorial source verification and publish credentials remain pending.
+
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.

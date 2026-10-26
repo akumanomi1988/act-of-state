@@ -68,3 +68,16 @@ policy choices, disabled publish controls, staff management and mobile WCAG.
 Real human fact-checking, actual staff provisioning and a complete
 authenticated cross-account week in production remain required before
 declaring the weekly operation fully accepted.
+
+
+## AOS-056 — mandatory five-choice publication
+
+All NEW weekly releases now require exactly five uniquely titled and
+substantively distinct policy positions per dossier (distinct policy targets,
+immutable IDs, validated bounds) before the database will materialize a
+Monday release. Editor drafts from earlier versions can still be loaded and
+revised; any with fewer than five choices must be completed before they can
+be reviewed as publishable. Already published histories are immutable and
+unchanged. The newsroom's fictional scenario drafting aid proposes all
+five positions but never fabricates factual source verification, auto-saves
+or grants itself publishing rights.

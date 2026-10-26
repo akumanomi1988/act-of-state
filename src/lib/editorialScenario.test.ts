@@ -9,15 +9,26 @@ function cited(category='Economía') {
   source_published_at:new Date(Date.now()-3600000).toISOString()}
 }
 describe('AOS-035 deterministic editorial scenario authoring',()=>{
- it('creates a fictional scenario with three distinct playable policy choices',()=>{
+ it('creates a fictional scenario with five distinct playable policy choices',()=>{
   const result=draftPolicyScenario(cited())
   expect(result.context).toMatch(/hipotético/)
   expect(result.context).toMatch(/no afirmaciones sobre medidas reales/)
-  expect(result.options).toHaveLength(3)
-  expect(new Set(result.options.map(o=>o.policy_target)).size).toBe(3)
+  expect(result.options).toHaveLength(5)
+  expect(new Set(result.options.map(o=>o.policy_target)).size).toBe(5)
   expect(result.options[0].treasury_delta_m_eur).toBe(-1200)
   expect(result.options[2].treasury_delta_m_eur).toBe(0)
+  expect(result.options[4].treasury_delta_m_eur).toBe(300)
   expect(editorialReady(result)).toBe(true)
+ })
+ it('refuses incomplete or substantively duplicate alternatives',()=>{
+  const full=draftPolicyScenario(cited())
+  expect(editorialReady({...full,options:full.options.slice(0,4)})).toBe(false)
+  expect(editorialReady({...full,options:[
+    ...full.options.slice(0,4),{...full.options[4],title:full.options[0].title}
+  ]})).toBe(false)
+  expect(editorialReady({...full,options:[
+    ...full.options.slice(0,4),{...full.options[4],policy_target:full.options[0].policy_target}
+  ]})).toBe(false)
  })
  it('does not invent sources or overwrite authored policy effects',()=>{
   const noSource=newEditorialDossier('2026-10-26',1)

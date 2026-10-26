@@ -67,7 +67,13 @@ function completeDraft(): EditorialDossier[] {
       { id: 'option-a', title: 'Approve reform', description: 'Approve a limited reform package.',
         treasury_delta_m_eur: -100, policy_target: 30, response_intensity: 25, trust_base_delta: 2 },
       { id: 'option-b', title: 'Maintain policy', description: 'Maintain the existing legal position.',
-        treasury_delta_m_eur: 0, policy_target: 70, response_intensity: 15, trust_base_delta: -1 }
+        treasury_delta_m_eur: 0, policy_target: 70, response_intensity: 15, trust_base_delta: -1 },
+      { id: 'option-c', title: 'Negotiate a compromise', description: 'Negotiate a time-limited regional review process.',
+        treasury_delta_m_eur: -40, policy_target: 40, response_intensity: 20, trust_base_delta: 1 },
+      { id: 'option-d', title: 'Expand government support', description: 'Finance a targeted expansion of assistance.',
+        treasury_delta_m_eur: -200, policy_target: 10, response_intensity: 45, trust_base_delta: 3 },
+      { id: 'option-e', title: 'Establish a progressive levy', description: 'Fund assistance via a dedicated progressive levy.',
+        treasury_delta_m_eur: 90, policy_target: 90, response_intensity: 40, trust_base_delta: -2 }
     ]
   }))
 }
@@ -145,6 +151,8 @@ describe('editorial workbench', () => {
       .value).toContain('hipotético')
     expect(screen.getByRole('textbox',{name:'Decisión option-a'}))
       .toHaveValue('Impulsar una intervención pública')
+    expect(screen.getByRole('textbox',{name:'Decisión option-e'}))
+      .toHaveValue('Financiar con un gravamen finalista')
     expect(screen.queryByRole('button',{name:'Revisar publicación'})).not.toBeInTheDocument()
     expect(mocks.saveEditorialWeek).not.toHaveBeenCalled()
   })

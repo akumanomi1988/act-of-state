@@ -417,7 +417,7 @@ export default function EditorialApp() {
             onClick={onPreparePolicyScenarios}>
             Preparar diez escenarios políticos
           </button>
-          <p>Genera contextos y tres alternativas hipotéticas por expediente
+          <p>Genera contextos y cinco alternativas hipotéticas por expediente
             citado, sin sobrescribir textos ya redactados. No verifica ni
             reproduce hechos: requiere contraste humano y aprobación posterior.</p>
         </div>
