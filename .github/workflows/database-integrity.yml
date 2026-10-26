@@ -2,7 +2,7 @@ name: PostgreSQL integrity (SQL changes)
 on:
   # Isolated development QA; never triggers Vercel publication.
   push:
-    branches: [feature/aos-052-integrated-reforms]
+    branches: [feature/aos-053-mandate-observatory]
   pull_request:
     branches: [main]
     paths:
@@ -54,7 +54,7 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f supabase/tests/access_contract.sql
       - name: Run transactional game integration suites
         run: |
-          for suite in reform_programme campaign_decay decision_flow world_snapshot historical_decision weekly_release editorial_workflow multiplayer_ten_party elections autonomous_calendar coalitions_confidence national_fiscal campaigns households public_matchmaking districts editorial_staff lobby_lifecycle weekly_accountability political_action_inbox daily_opinion_polls daily_living_conditions; do
+          for suite in mandate_longrun_balance reform_programme campaign_decay decision_flow world_snapshot historical_decision weekly_release editorial_workflow multiplayer_ten_party elections autonomous_calendar coalitions_confidence national_fiscal campaigns households public_matchmaking districts editorial_staff lobby_lifecycle weekly_accountability political_action_inbox daily_opinion_polls daily_living_conditions; do
             psql -v ON_ERROR_STOP=1 -f "supabase/tests/$suite.sql"
           done
       - name: Verify committed cross-connection durability and cleanup
