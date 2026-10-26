@@ -136,7 +136,8 @@ begin
    perform public.submit_decision(v_g.id,'care-economy',1,'public-home-care');
  exception when insufficient_privilege then v_denied:=true; end;
  if not v_denied then raise exception 'AOS_REFORM_CROSS_OWNER_WRITE'; end if;
- if public.start_government().owner_id=
+ v_g:=public.start_government();
+ if v_g.owner_id=
       '51000000-0000-4000-8000-000000000001'::uuid then
    raise exception 'AOS_REFORM_CROSS_OWNER_GOVERNMENT';
  end if;
