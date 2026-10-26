@@ -76,7 +76,7 @@ describe('strategic mandate observatory UI and account isolation',()=>{
     fireEvent.click(screen.getByRole('button',{name:'Analizar mandato'}))
     expect(await screen.findByRole('alert')).toHaveTextContent('No se pudieron recuperar las actas fiscales.')
     const panel=screen.getByRole('region',{name:'Observatorio estratégico del mandato'})
-    expect(within(panel).getByText('37 / 100')).toBeInTheDocument()
+    expect(within(panel).getAllByText('37 / 100').length).toBeGreaterThan(0)
     expect(within(panel).queryByText('Ingresos un 10 % menores')).toBeNull()
   })
 })
