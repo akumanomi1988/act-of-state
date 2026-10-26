@@ -70,10 +70,10 @@ begin
 end $$;
 -- Isolated UTC fixture: choose the Wednesday of the immediately previous\n-- closed fiscal week regardless of today's ISO weekday (the old -10 days\n-- shifted the start to an earlier week every Monday).
 reset role;
-update public.governments set created_at=((game_internal.week_start((now() at time zone 'UTC')::date)-5)::timestamp at time zone 'UTC')
+update public.governments set created_at=((game_internal.week_start((now() at time zone 'UTC')::date)+case when extract(isodow from (now() at time zone 'UTC')::date)>=6 then 2 else -5 end)::timestamp at time zone 'UTC')
 where id in (select gov_id from pg_temp.fiscal_fixture union
              select other_id from pg_temp.fiscal_fixture);
-update public.fiscal_policies set created_at=((game_internal.week_start((now() at time zone 'UTC')::date)-5)::timestamp at time zone 'UTC')
+update public.fiscal_policies set created_at=((game_internal.week_start((now() at time zone 'UTC')::date)+case when extract(isodow from (now() at time zone 'UTC')::date)>=6 then 2 else -5 end)::timestamp at time zone 'UTC')
 where government_id in (select gov_id from pg_temp.fiscal_fixture union
                         select other_id from pg_temp.fiscal_fixture);
 insert into public.fiscal_policy_versions(
