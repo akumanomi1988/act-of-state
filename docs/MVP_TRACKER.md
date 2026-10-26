@@ -1,10 +1,19 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-049 verifiable production release, public diagnostics, disaster recovery and ten-party HTTP load — branch CI verified; exact hosted main release pending.
-**Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
-this is an acceptance-gate tally, not a measure of implemented code or effort.
-Historical iteration evidence below is retained and may describe superseded blockers.
+**Latest implementation increment:** AOS-053 strategic mandate observatory and long-run economic regression, tested in isolated development branch; last published main is AOS-049.
+**Development coverage:** **56/72 = 77.8%** on AOS-053, compared with **54/72 = 75.0%** on AOS-052 (**+2.8 percentage points**). Based on four evidenced binary implementation milestones in each of the original 18 MVP areas; recalculated from [the scorecard](DEVELOPMENT_PROGRESS.md), not commit counts.
+**Strict commercial acceptance:** **2/18 = 11.1%**, unchanged; hosted/human acceptance gates are separate and cannot be credited from local CI alone.
+This technical-coverage indicator is a measure of explicitly defined scope, not an estimate of remaining engineering hours. Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-054 — Evidence-based development progress metric (2026-10-26)
+
+- Replaced the misleading use of the 2/18 commercial acceptance tally as a development percentage.
+- Added `docs/development-coverage.json` with 72 explicit implementation checkpoints across all 18 MVP requirements, including evidence paths and individual verification states.
+- `scripts/development-progress.mjs` computes implementation and acceptance independently, reconstructs the AOS-052 baseline, rejects unsupported credited items and generates `docs/DEVELOPMENT_PROGRESS.md`.
+- Before AOS-053: **54/72 = 75.0%**; after AOS-053: **56/72 = 77.8%**; net **+2.8 pp** for actual new evidence. Acceptance remains **2/18 = 11.1%**.
+- The criteria are binary. An incomplete stage, a code commit without evidence, a synthetic editorial fixture or a local authentication test cannot count as a completed externally required gate. Score does not imply that the project is 77.8% through its calendar schedule.
+- A dedicated Node regression and the quality pipeline detect score/report drift on subsequent branches. No deploy or hosted migration authorized.
 
 ## AOS-053 — Strategic Mandate Observatory and 12-week balance regression (development branch)
 
