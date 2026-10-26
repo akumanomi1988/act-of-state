@@ -98,7 +98,7 @@ end $$;
 -- Internal mathematical helper is intentionally inaccessible to authenticated users.
 -- Inspect the fixed calendar boundary as the test harness owner instead.
 reset role;
-do $
+do $$
 begin
  if game_internal.party_campaign_entitlement('2026-10-26 12:00+00'::timestamptz,'2026-10-26')<>12 or
     game_internal.party_campaign_entitlement('2026-10-26 12:00+00'::timestamptz,'2026-11-02')<>16 or
