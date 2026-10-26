@@ -3,6 +3,27 @@
 Updated 2026-10-26. AOS-053 adds long-run mandate analytics to the CI-verified AOS-052 branch; this development build is not yet released. Implementation is distinguished from final acceptance.
 The game is browser-based, free to play, with no paid competitive advantages.
 
+## Measured development coverage (the game actually implemented)
+
+| Score | AOS-052 (before) | AOS-053 (current) | Change |
+| --- | ---: | ---: | ---: |
+| **Implemented & evidenced** | **54/72 = 75.0%** | **56/72 = 77.8%** | **+2.8 percentage points** |
+| Full commercial acceptance | 2/18 = 11.1% | 2/18 = 11.1% | +0.0 pp |
+
+The **development percentage** counts four concrete binary deliverables under
+each of the 18 original MVP requirements (72 equally weighted checkpoints).
+Every credited deliverable has an evidence path in
+[the reproducible coverage matrix](DEVELOPMENT_PROGRESS.md). It deliberately
+does not award points for unfinished features or mere code volume. New AOS-053
+points are cross-system mandate analytics and 12-week economy diagnostics
+(F005.4) and the integrated political strategy dashboard (V002.4).
+
+**11.1%** is the separate, strict commercial acceptance indicator: it requires
+hosted operations, real newsroom publication and external/human signoff where
+the original product contract demands them. Neither figure is a measured
+estimate of remaining engineering hours. This score covers the isolated
+**development branch**; live production is behind until authorized release.
+
 | System | Implemented | Remaining acceptance / development |
 |---|---|---|
 | Access | Password-first Auth, explicit registration, one-time legacy email link, password recovery/change, session recovery and isolation (AOS-050 feature branch) | CI acceptance, production password/SMTP settings, real hosted signup and human multi-account acceptance |
@@ -49,5 +70,6 @@ Guidance derives completion from the current authorized world. Reading a guide
 never marks a political action complete or executes a mutation. No new backend
 privilege, persistent browser identity store or external dependency is added.
 
-Strict full-requirement acceptance remains 2/18. A weighted implementation
-percentage has not been established, so this inventory does not invent one.
+Strict full-requirement acceptance remains 2/18. The separately measured
+implementation coverage is 56/72 = 77.8% on AOS-053, versus 54/72 = 75.0%
+on AOS-052; see [the audited model](DEVELOPMENT_PROGRESS.md).
