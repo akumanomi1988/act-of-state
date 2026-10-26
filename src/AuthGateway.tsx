@@ -110,7 +110,9 @@ export default function AuthGateway({ redirectTo }: { redirectTo: string }) {
           value={confirmation} onChange={event => setConfirmation(event.target.value)} />
       </>}
       <button className="primary-button" disabled={pending} type="submit">
-        {pending ? 'Comprobando…' : modeLabels[mode]}
+        {pending ? 'Comprobando…' : mode === 'login' ? 'Iniciar sesión' :
+          mode === 'register' ? 'Registrar cuenta' : mode === 'magic' ?
+          'Enviar enlace' : 'Solicitar recuperación'}
       </button>
     </form>
     {notice && <p className="auth-notice" role="status">{notice}</p>}
