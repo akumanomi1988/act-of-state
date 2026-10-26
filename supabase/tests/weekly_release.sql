@@ -175,7 +175,7 @@ begin
    end;
  else
    if jsonb_array_length(w->'dossiers')<>38 or
-      jsonb_array_length(w->'options')<>104 then
+      jsonb_array_length(w->'options')<>160 then
      raise exception 'APPROVED_WEEKLY_CONTENT_NOT_VISIBLE'; end if;
  end if;
  if w->'calendar'->>'weekStart'<>v_monday::text or
