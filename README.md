@@ -1,11 +1,23 @@
 # ACT OF STATE
 
-> **Development branch AOS-052 (not released):** merges password-first Auth and a 28-case
+> **Development branch AOS-053 (not released):** merges password-first Auth and a 28-case
 > permanent fictional national programme (10 founding + 18 reforms, 84 policy
 > alternatives), across solo and parliamentary play. The newsroom is separate;
 > releases are operator-gated. See [National Reform Programme](docs/NATIONAL_REFORM_PROGRAMME.md),
 > [Password Access](docs/PASSWORD_ACCESS.md) and
 > [No Vercel Autodeploy](docs/NO_VERCEL_AUTODEPLOY.md).
+
+**Development progress (evidence-based): 77.8% implemented** (56/72 explicitly
+defined milestones), compared with 75.0% (54/72) before AOS-053, or +2.8 pp.
+**Commercial acceptance: 11.1%** (2/18 complete product gates). These
+measures are deliberately separate and do not claim that the latest development
+branch has been published. [Auditable scorecard and method](docs/DEVELOPMENT_PROGRESS.md).
+
+Reproduce with `npm run progress`, validate the committed report with
+`npm run progress:check` and regenerate after completing verified scope with
+`npm run progress:write`. The 72 checkpoint definitions are stored in
+`docs/development-coverage.json`; neither lines of code nor iterations
+themselves award progress.
 
 **Every decision shapes a nation.**
 
