@@ -449,6 +449,29 @@ async function run(name,fn) {
 try {
   browser=await chromium.launch({...(process.env.AOS_CHROMIUM_CHANNEL==='bundled'?{}:{channel:'chrome'}),headless:true,args:['--no-sandbox']})
 
+  await run('Bilingual public guide preserves chapter navigation, language link and mobile accessibility',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    await page.goto(BASE+'/guide?lang=en',{waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'From your first decision to a shared mandate'}).waitFor()
+    await page.getByRole('heading',{name:'Government and opposition'}).waitFor()
+    const sections=page.locator('main section')
+    assert.equal(await sections.count(),16)
+    await page.getByRole('link',{name:'Working through a political week'}).click()
+    assert.equal(new URL(page.url()).hash,'#weekly-operations')
+    await page.getByRole('button',{name:'Español'}).click()
+    await page.getByRole('heading',{name:'Una semana política'}).waitFor()
+    assert.equal(new URL(page.url()).searchParams.get('lang'),'es')
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'De tu primera decisión a un mandato compartido'}).waitFor()
+    await page.getByRole('button',{name:'English'}).click()
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'From your first decision to a shared mandate'}).waitFor()
+    await checkMobileOverflow(page,'English player guide')
+    await checkA11y(page,'English player guide')
+    await context.close()
+  })
+
   await run('Anonymous login, redirect origin and responsive root',async()=>{
     const context=await browser.newContext({viewport:{width:375,height:812}})
     const page=await context.newPage()
