@@ -500,7 +500,7 @@ try {
     await checkA11y(page,'multi-policy portfolio')
     await page.screenshot({path:OUT+'/policy-portfolio-mobile.png',fullPage:true})
     await planner.getByRole('button',{name:'Vaciar borrador'}).click()
-    await planner.getByText('0 M€').waitFor()
+    await planner.locator('.policy-portfolio-fiscal').getByText('0 M€', { exact: true }).first().waitFor()
     await context.close()
   })
 
