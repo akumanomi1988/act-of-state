@@ -1,0 +1,281 @@
+{
+  "schemaVersion": 1,
+  "createdOn": "2026-10-26",
+  "parent": "docs/product-completion.json",
+  "parentFunctionalWeight": 62,
+  "scoring": "Only independently verifiable completed subcriteria with cited executed acceptance suites earn weight; no documentation/scaffolding credit. Final 100-point accepted gate remains unchanged.",
+  "evidence": {
+    "postgres": "https://github.com/akumanomi1988/act-of-state/actions/runs/40374320610",
+    "auth": "https://github.com/akumanomi1988/act-of-state/actions/runs/40374320426",
+    "quality": "https://github.com/akumanomi1988/act-of-state/actions/runs/40374320579"
+  },
+  "groups": [
+    {
+      "id": "MVP-F001",
+      "weight": 6,
+      "criteria": [
+        {
+          "id": "MVP-F001-01",
+          "name": "Persistence and re-entry",
+          "weight": 2,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/decision_flow.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F001-02",
+          "name": "Persistent password session",
+          "weight": 2,
+          "accepted": true,
+          "evidence": {
+            "test": "tests/real-auth-acceptance.mjs",
+            "run": "auth"
+          }
+        },
+        {
+          "id": "MVP-F001-03",
+          "name": "Human recovery and continuity",
+          "weight": 2,
+          "accepted": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F002",
+      "weight": 8,
+      "criteria": [
+        {
+          "id": "MVP-F002-01",
+          "name": "Ten-slot editorial authoring",
+          "weight": 3,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/editorial_workflow.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F002-02",
+          "name": "Five validated editorial choices",
+          "weight": 3,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/editorial_five_way.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F002-03",
+          "name": "Human fact-checked weekly publication",
+          "weight": 2,
+          "accepted": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F003",
+      "weight": 7,
+      "criteria": [
+        {
+          "id": "MVP-F003-01",
+          "name": "Server signed outcome and fiscal effects",
+          "weight": 3,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/decision_flow.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F003-02",
+          "name": "Immutable archive and exact retry",
+          "weight": 2,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/historical_decision.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F003-03",
+          "name": "Live authenticated sign-and-reconcile",
+          "weight": 2,
+          "accepted": true,
+          "evidence": {
+            "test": "tests/real-auth-acceptance.mjs",
+            "run": "auth"
+          }
+        }
+      ]
+    },
+    {
+      "id": "MVP-F004",
+      "weight": 6,
+      "criteria": [
+        {
+          "id": "MVP-F004-01",
+          "name": "300-household synthetic population",
+          "weight": 2,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/households.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F004-02",
+          "name": "Six district population model",
+          "weight": 2,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/districts.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F004-03",
+          "name": "Human demographic and balancing review",
+          "weight": 2,
+          "accepted": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F005",
+      "weight": 9,
+      "criteria": [
+        {
+          "id": "MVP-F005-01",
+          "name": "Treasury and national fiscal authority",
+          "weight": 3,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/national_fiscal.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F005-02",
+          "name": "Daily living conditions and deterministic ticks",
+          "weight": 3,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/daily_living_conditions.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F005-03",
+          "name": "Sustained multi-week economic balancing",
+          "weight": 3,
+          "accepted": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F006",
+      "weight": 6,
+      "criteria": [
+        {
+          "id": "MVP-F006-01",
+          "name": "UTC real-day autonomous calendar",
+          "weight": 2,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/autonomous_calendar.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F006-02",
+          "name": "Weekly political accountability",
+          "weight": 2,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/weekly_accountability.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F006-03",
+          "name": "Live staffed Monday-through-Friday week",
+          "weight": 2,
+          "accepted": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F007",
+      "weight": 8,
+      "criteria": [
+        {
+          "id": "MVP-F007-01",
+          "name": "Deterministic electoral model",
+          "weight": 3,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/elections.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F007-02",
+          "name": "Campaign rights and costs",
+          "weight": 3,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/party_finances.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F007-03",
+          "name": "Long-duration human electoral balance",
+          "weight": 2,
+          "accepted": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "MVP-F008",
+      "weight": 12,
+      "criteria": [
+        {
+          "id": "MVP-F008-01",
+          "name": "Ten-party authenticated matches and isolation",
+          "weight": 4,
+          "accepted": true,
+          "evidence": {
+            "test": "supabase/tests/multiplayer_ten_party.sql",
+            "run": "postgres"
+          }
+        },
+        {
+          "id": "MVP-F008-02",
+          "name": "Binding bills and parliamentary votes",
+          "weight": 4,
+          "accepted": true,
+          "evidence": {
+            "test": "tests/real-auth-acceptance.mjs",
+            "run": "auth"
+          }
+        },
+        {
+          "id": "MVP-F008-03",
+          "name": "Human complete ten-player weekly session",
+          "weight": 4,
+          "accepted": false,
+          "evidence": null
+        }
+      ]
+    }
+  ]
+}
