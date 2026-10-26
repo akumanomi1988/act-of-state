@@ -254,6 +254,12 @@ try {
     const board=page.getByRole('region',{name:'Centro de decisiones de la asamblea'})
     await board.getByRole('heading',{name:'Consejo político'}).waitFor()
     await page.getByText('10 / 10').first().waitFor()
+    if(index===0 || index===5) {
+      await board.getByRole('button',{name:'Reformas'}).click()
+      await board.getByRole('button',{name:/Pacto de pensiones y generaciones/}).waitFor()
+      pass(await board.getByText('REFORMA FICTICIA · SOCIETY').count()>0,
+        'National reform was not distinguished from current news')
+    }
     await board.getByRole('button',{name:'Decisiones firmadas'}).click()
     await board.getByRole('button',{name:/Plan de resiliencia energética/}).waitFor()
     if(index===0){
@@ -323,8 +329,82 @@ try {
   await passwordPage.screenshot({path:'test-results/browser/auth-password-390.png',fullPage:true})
   await passwordContext.close()
 } finally { await browser.close() }
+/**
+ * AOS-050: genuinely authenticated TEN-PARTY parliamentary approval of the
+ * second, newly authored permanent campaign, on the SAME immutable nation.
+ * Existing founding historical act, training policies and real editorial
+ * dossier embargo stay separate. No production users, email or privileged API.
+ */
+const reformId='pension-covenant'
+const reformChoice='retirement-timetable'
+const reformWorld=await rpc(players[2],'get_match_world',{p_match_id:match.id})
+const newReforms=reformWorld.dossiers.filter(d=>d.release_kind==='intro' &&
+  d.programme_chapter && d.programme_chapter!=='founding')
+pass(newReforms.length===18 && new Set(newReforms.map(d=>d.id)).size===18,
+  'Real Supabase catalogue is missing the 18 permanent national reforms')
+pass(reformWorld.dossiers.filter(d=>d.programme_chapter==='founding').length===10 &&
+  reformWorld.options.length===84,
+  'The ten unchanged founding scenarios and 84 alternatives were not visible')
+pass(newReforms.every(d=>d.context.startsWith('Escenario ficticio:') &&
+  d.source_url===null && d.available_from===null),
+  'Permanent fiction was misrepresented as sourced news')
+const reformStances=await Promise.allSettled(players.map(actor=>
+  rpc(actor,'record_match_stance',{p_match_id:match.id,
+    p_dossier_id:reformId,p_dossier_version:1,p_option_id:reformChoice})
+))
+pass(reformStances.every(v=>v.status==='fulfilled'),
+  'All ten real-JWT parties must be able to take a reform policy stance')
+const reformBill=await rpc(host,'propose_parliament_bill',{
+  p_match_id:match.id,p_dossier_id:reformId,p_dossier_version:1,
+  p_option_id:reformChoice
+})
+pass(reformBill.status==='open','Real reform bill proposal was not permitted')
+for(const actor of players.slice(0,4))
+  await rpc(actor,'cast_parliament_vote',{p_bill_id:reformBill.id,p_choice:'no'})
+for(const actor of players.slice(4,10))
+  await rpc(actor,'cast_parliament_vote',{p_bill_id:reformBill.id,p_choice:'yes'})
+const reformParliament=await rpc(players[7],'get_parliament_state',{
+  p_match_id:match.id
+})
+pass(reformParliament.bills.find(x=>x.id===reformBill.id)?.status==='passed' &&
+  reformParliament.votes.filter(v=>v.bill_id===reformBill.id).length===10,
+  'Reform failed to pass an authentic ten-person binding vote')
+const reformAct=await rpc(host,'submit_decision',{
+  p_government_id:govId,p_dossier_id:reformId,
+  p_dossier_version:1,p_option_id:reformChoice
+})
+pass(reformAct.state_before.treasury_m_eur===10600 &&
+  reformAct.state_after.treasury_m_eur===10730 &&
+  reformAct.option_title_snapshot?.length>3,
+  'Versioned economic consequence of the national pension reform was not signed')
+const reformRetry=await rpc(host,'submit_decision',{
+  p_government_id:govId,p_dossier_id:reformId,
+  p_dossier_version:1,p_option_id:reformChoice
+})
+pass(reformRetry.id===reformAct.id,'Reform network retry produced two signed laws')
+await rejectedRpc(host,'submit_decision',{
+  p_government_id:govId,p_dossier_id:reformId,
+  p_dossier_version:1,p_option_id:'basic-pension-floor'
+},/DOSSIER_ALREADY_DECIDED/)
+const reformObserved=await rpc(players[8],'get_match_world',{p_match_id:match.id})
+pass(reformObserved.events.length===2 &&
+  reformObserved.events.some(event=>event.id===decision.id) &&
+  reformObserved.events.some(event=>event.id===reformAct.id) &&
+  reformObserved.government.treasury_m_eur===10730,
+  'Independent opposition identity cannot see both persistent reforms and founding act')
+await rejectedRpc(outsider,'get_match_world',{
+  p_match_id:match.id
+},/MATCH_FORBIDDEN/)
+console.log('AOS_REFORM_PARLIAMENT_PASS',JSON.stringify({
+  permanentCases:28,foundingUnchanged:10,reforms:18,alternatives:84,
+  authenticPlayers:10,signedActs:2,finalTreasuryM:10730,
+  preservedHistoricalAct:true,
+  note:'Local GoTrue verified; no real news or human participant account'
+}))
+
+
 console.log('AOS_LIVE_AUTH_PASS',JSON.stringify({
   signedUp:actors.length,distinctPlayers:10,realHttp:true,
-  fixedSignedActs:1,browserContexts:11,passwordLogin:true,passwordRotation:true,decayV2:true,assertions,
+  fixedSignedActs:2,browserContexts:11,passwordLogin:true,passwordRotation:true,decayV2:true,permanentCases:28,assertions,
   note:'Ten injected-JWT browser contexts plus one real password UI journey, local GoTrue; no production SMTP or real people'
 }))
