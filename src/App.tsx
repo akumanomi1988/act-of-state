@@ -1,6 +1,8 @@
 import PlayerOnboarding from './PlayerOnboarding'
+import AuthGateway from './AuthGateway'
+import AccountSecurity from './AccountSecurity'
 import FoundationalAgendaPanel from './FoundationalAgendaPanel'
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, fetchWorld, friendlyError, startGovernment, submitDecision } from './lib/game'
 import { number } from './lib/format'
@@ -23,8 +25,7 @@ function available(d: Dossier, day: string): boolean {
 export default function App() {
   const [user, setUser] = useState<User | null>(null)
   const [authReady, setAuthReady] = useState(false)
-  const [email, setEmail] = useState('')
-  const [mailSent, setMailSent] = useState(false)
+  const [recovering, setRecovering] = useState(false)
   const [storedWorld, setWorld] = useState<GovernmentWorld | null>(null)
   const [bootRevision, setBootRevision] = useState(0)
   const authenticatedOwnerRef = useRef<string | null>(null)
@@ -58,6 +59,7 @@ export default function App() {
     }).catch(() => { if (alive) setAuthReady(true) })
     const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
       if (!alive) return
+      if (event === 'PASSWORD_RECOVERY') setRecovering(true)
       if (event !== 'INITIAL_SESSION') authRevision += 1
       acceptUser(session?.user ?? null)
       setAuthReady(true)
@@ -110,25 +112,6 @@ export default function App() {
     e.dossier_id === dossier?.id) ?? null, [world, dossier])
   const historicalEvent = useMemo(() => world?.events.find(e =>
     e.id === selectedEventId) ?? null, [world, selectedEventId])
-
-  async function onLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!client) return
-    setPending(true)
-    setError('')
-    try {
-      const { error: authError } = await client.auth.signInWithOtp({
-        email: email.trim(),
-        options: { emailRedirectTo: window.location.origin }
-      })
-      if (authError) setError(friendlyError(authError))
-      else setMailSent(true)
-    } catch (reason) {
-      setError(friendlyError(reason))
-    } finally {
-      setPending(false)
-    }
-  }
 
   async function onDecision() {
     if (!world || !dossier || !selectedOption || !reviewingDecision || !user || pending || decision || needsReconciliation) return
@@ -206,7 +189,7 @@ export default function App() {
     try {
       const { error: signOutError } = await client.auth.signOut()
       if (signOutError) setError(friendlyError(signOutError))
-      else { acceptUser(null); setWorld(null); setMailSent(false); setReviewingDecision(false); setNeedsReconciliation(false) }
+      else { acceptUser(null); setWorld(null); setRecovering(false); setReviewingDecision(false); setNeedsReconciliation(false) }
     } catch (reason) {
       setError(friendlyError(reason))
     } finally {
@@ -264,14 +247,7 @@ export default function App() {
           <section className="login-panel" aria-labelledby="access-title">
             <div className="eyebrow">ACCESO A LA SALA DE GOBIERNO</div>
             <h2 id="access-title">Tu mandato comienza aquí.</h2>
-            <p>Recibirás un enlace de acceso seguro por correo electrónico.</p>
-            <form onSubmit={event => void onLogin(event)}>
-              <label htmlFor="email">Correo electrónico</label>
-              <input id="email" type="email" autoComplete="email" required value={email}
-                onChange={event => setEmail(event.target.value)} placeholder="tu@correo.es" />
-              <button className="primary-button" type="submit" disabled={pending}>{pending ? 'Enviando…' : 'Enviar enlace de acceso'}</button>
-            </form>
-            {mailSent && <p className="success" role="status">Comprueba tu correo. Se ha solicitado el enlace de acceso.</p>}
+            <AuthGateway redirectTo={window.location.origin} />
           </section>
         </main>
       ) : loading || !world ? (
@@ -287,6 +263,7 @@ export default function App() {
         <>
           <PlayerOnboarding world={world} />
           <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
+          <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />
           <FiscalPanel key={world.government.id} governmentId={world.government.id} />
           <main className="government-layout">
             <aside className="side-panel">
