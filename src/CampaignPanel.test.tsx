@@ -2,14 +2,17 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import CampaignPanel from './CampaignPanel'
 import type { CampaignState } from './lib/campaign'
+import type { PartyFinanceState } from './lib/partyFinances'
 
 const mocks = vi.hoisted(() => ({
-  fetchCampaignState: vi.fn(), launchPartyCampaign: vi.fn()
+  fetchCampaignState: vi.fn(), launchPartyCampaign: vi.fn(), fetchPartyFinances: vi.fn()
 }))
 vi.mock('./lib/campaign', () => ({
   fetchCampaignState: mocks.fetchCampaignState,
   launchPartyCampaign: mocks.launchPartyCampaign
 }))
+
+vi.mock('./lib/partyFinances',()=>({fetchPartyFinances:mocks.fetchPartyFinances}))
 
 const matchId='00000000-0000-4000-8000-000000000001'
 const userId='00000000-0000-4000-8000-000000000002'
@@ -22,9 +25,21 @@ const full: CampaignState = {
     idealPolicy:25,myInfluence:2,nextDecayOn:'2026-10-31'}],
   recentActs:[]
 }
+const finances: PartyFinanceState = {
+  matchId,serverDay:'2026-10-24',weekStart:'2026-10-19',
+  financeModel:'equal-public-weekly-v1',active:true,
+  earnedCredits:12,spentCredits:0,availableCredits:12,
+  costs:{dialogue:4,field_visit:7,policy_forum:10},recentSpending:[]
+}
+const spent: PartyFinanceState = {
+  ...finances,spentCredits:10,availableCredits:2,
+  recentSpending:[{id:'receipt-1',weekStart:'2026-10-19',strategy:'policy_forum',
+    cohortCode:'workers',costCredits:10,campaignEventId:'event-1'}]
+}
 beforeEach(() => {
   vi.resetAllMocks()
   mocks.fetchCampaignState.mockResolvedValue(full)
+  mocks.fetchPartyFinances.mockResolvedValue(finances)
   mocks.launchPartyCampaign.mockResolvedValue({
     id:'event-1',cohort_code:'workers',strategy:'dialogue'
   })
@@ -42,11 +57,12 @@ describe('real campaign action boundary',() => {
   })
 
   it('submits exactly the selected strategy, confirms readback and locks the week',async()=>{
+    mocks.fetchPartyFinances.mockResolvedValueOnce(finances).mockResolvedValueOnce(spent)
     mocks.fetchCampaignState.mockResolvedValueOnce(full).mockResolvedValueOnce({
       ...full,available:false,usedThisWeek:true,
       cohorts:[{...full.cohorts[0],myInfluence:5}],
       recentActs:[{id:'event-1',user_id:userId,party_name:'Alliance',
-        week_start:full.weekStart,cohort_code:'workers',strategy:'dialogue',
+        week_start:full.weekStart,cohort_code:'workers',strategy:'policy_forum',
         influence_delta:3,influence_after:5,model_version:'campaign-decay-v2',
         created_at:'2026-10-24T12:00:00Z'}]
     })
@@ -58,6 +74,34 @@ describe('real campaign action boundary',() => {
       matchId,'workers','policy_forum'))
     await screen.findByText(/Tu partido ya ha realizado su campaña/)
     expect(notify).toHaveBeenCalledOnce()
+  })
+
+  it('displays public funding and blocks unaffordable actions before mutation',async()=>{
+    mocks.fetchPartyFinances.mockResolvedValue({...finances,availableCredits:5,
+      spentCredits:7})
+    render(<CampaignPanel matchId={matchId} userId={userId} active onCampaignRecorded={notify}/>)
+    await screen.findByText(/Financiación pública ficticia/)
+    fireEvent.change(screen.getByLabelText('Acción política'),{target:{value:'policy_forum'}})
+    expect(screen.getByRole('button',{name:'Realizar campaña semanal'})).toBeDisabled()
+    expect(screen.getByText(/Créditos insuficientes/)).toBeInTheDocument()
+    expect(mocks.launchPartyCampaign).not.toHaveBeenCalled()
+    fireEvent.change(screen.getByLabelText('Acción política'),{target:{value:'dialogue'}})
+    expect(screen.getByRole('button',{name:'Realizar campaña semanal'})).toBeEnabled()
+  })
+
+  it('does not confirm a campaign without an authoritative expense receipt',async()=>{
+    mocks.fetchCampaignState.mockResolvedValueOnce(full).mockResolvedValueOnce({
+      ...full,available:false,usedThisWeek:true,
+      recentActs:[{id:'event-1',user_id:userId,party_name:'Alliance',
+        week_start:full.weekStart,cohort_code:'workers',strategy:'dialogue',
+        influence_delta:3,influence_after:3,model_version:'campaign-decay-v2',
+        created_at:'2026-10-24T12:00:00Z'}]
+    })
+    render(<CampaignPanel matchId={matchId} userId={userId} active onCampaignRecorded={notify}/>)
+    await screen.findByRole('option',{name:'Trabajadores'})
+    fireEvent.click(screen.getByRole('button',{name:'Realizar campaña semanal'}))
+    await screen.findByText(/todavía no está confirmada en los registros/)
+    expect(notify).not.toHaveBeenCalled()
   })
 
   it('rejects server denial instead of faking an electoral gain',async()=>{

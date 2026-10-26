@@ -168,6 +168,13 @@ async function routeApi(page,state,{emailLimit=false}={}) {
         hostUserId:leaderId,totalSeats:100,coalitionSeats:10,
         coalition:[],motions:[],votes:[],serverNow:'2026-10-24T12:00:00Z'
       })
+      if(path==='/rest/v1/rpc/get_party_finances') return json({
+        matchId:mid,serverDay:'2026-10-24',weekStart:'2026-10-19',
+        financeModel:'equal-public-weekly-v1',active:true,
+        earnedCredits:16,spentCredits:0,availableCredits:16,
+        costs:{dialogue:4,field_visit:7,policy_forum:10},
+        recentSpending:[]
+      })
       if(path==='/rest/v1/rpc/get_campaign_state') return json({
         serverDay:'2026-10-24',weekStart:'2026-10-19',
         campaignClosesOn:'2027-01-03',available:true,usedThisWeek:false,
@@ -860,6 +867,9 @@ try {
       const campaign=page.getByRole('region',{name:'Campaña electoral'})
       await campaign.getByText('Influencia efectiva actual:',{exact:false}).first().waitFor()
       await campaign.getByText('Próximo desgaste: 2026-10-31 (UTC)').waitFor()
+      await campaign.getByRole('heading',{name:'Financiación pública ficticia'}).waitFor()
+      await campaign.getByText('Disponibles').waitFor()
+      await campaign.getByText('Coste de esta estrategia: 4 créditos.').waitFor()
       await campaign.getByText(/se desgasta dos puntos cada siete días/).waitFor()
       const mission=page.getByRole('region',{name:'Sala de operaciones legislativas'})
       await mission.getByRole('heading',{name:'Operaciones legislativas'}).waitFor()

@@ -105,6 +105,15 @@ pass(restart.started_at===start.started_at,'Starting again changed persisted tim
 
 // AOS-048: real distinct JWT observes the SAME versioned persuasion model
 // that supplies official district forecasts and archived daily opinion.
+const partyMoneyBefore=await rpc(players[9],'get_party_finances',{p_match_id:match.id})
+pass(partyMoneyBefore.financeModel==='equal-public-weekly-v1' &&
+  partyMoneyBefore.earnedCredits>=12 && partyMoneyBefore.spentCredits===0 &&
+  partyMoneyBefore.availableCredits===partyMoneyBefore.earnedCredits,
+  'Authenticated party financing did not start with equal public credits')
+const otherMoneyBefore=await rpc(players[8],'get_party_finances',{p_match_id:match.id})
+pass(otherMoneyBefore.spentCredits===0 &&
+  otherMoneyBefore.availableCredits===partyMoneyBefore.availableCredits,
+  'Independent party did not receive equal initial financing')
 const campaignBefore=await rpc(players[9],'get_campaign_state',{p_match_id:match.id})
 pass(campaignBefore.influenceModel==='campaign-decay-v2' &&
   campaignBefore.cohorts.every(c=>c.myInfluence===0&&c.nextDecayOn===null),
@@ -117,6 +126,15 @@ const campaignAct=await rpc(players[9],'launch_campaign',{
 pass(campaignAct.model_version==='campaign-decay-v2'&&
   campaignAct.influence_delta>=1&&campaignAct.influence_delta<=5,
   'Campaign v2 did not return a server-authored act')
+const partyMoneyAfter=await rpc(players[9],'get_party_finances',{p_match_id:match.id})
+pass(partyMoneyAfter.spentCredits===10 &&
+  partyMoneyAfter.availableCredits===partyMoneyBefore.availableCredits-10 &&
+  partyMoneyAfter.recentSpending.length===1 &&
+  partyMoneyAfter.recentSpending[0].campaignEventId===campaignAct.id,
+  'Real authenticated campaign did not atomically pay its recorded cost')
+const partyMoneyOther=await rpc(players[8],'get_party_finances',{p_match_id:match.id})
+pass(partyMoneyOther.spentCredits===0 && partyMoneyOther.recentSpending.length===0,
+  'Campaign credits or private receipt leaked across party identities')
 const campaignAfter=await rpc(players[9],'get_campaign_state',{p_match_id:match.id})
 const affected=campaignAfter.cohorts.find(c=>c.code===targetCohort)
 pass(affected?.myInfluence===campaignAct.influence_after &&

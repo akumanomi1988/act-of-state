@@ -16,6 +16,14 @@ begin
     raise exception 'GAME_TABLE_RLS_NOT_ENABLED';
   end if;
 
+  if has_table_privilege('authenticated','public.match_campaign_spending','SELECT')
+    or has_table_privilege('authenticated','public.match_campaign_spending','INSERT')
+    or has_table_privilege('anon','public.match_campaign_spending','SELECT')
+    or not (select relrowsecurity from pg_class where oid='public.match_campaign_spending'::regclass)
+    or has_function_privilege('anon','public.get_party_finances(uuid)','EXECUTE') then
+    raise exception 'PARTY_FINANCE_ACCESS_LEAK';
+  end if;
+
   if not has_table_privilege('authenticated', 'public.governments', 'SELECT')
     or not has_table_privilege('authenticated', 'public.population_cohorts', 'SELECT')
     or not has_table_privilege('authenticated', 'public.dossiers', 'SELECT')

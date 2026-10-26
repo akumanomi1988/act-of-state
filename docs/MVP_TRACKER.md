@@ -1,10 +1,29 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-052 cross-dossier policy portfolio on isolated development branch, extending AOS-050 reforms and AOS-051 password access. Development changes are not authorized for hosted release. The AOS-049 exact hosted release check has already passed on main.
+**Latest implementation increment:** AOS-053 equal-rule political campaign finance, following AOS-052 cross-dossier policy portfolio on isolated development branch, extending AOS-050 reforms and AOS-051 password access. Development changes are not authorized for hosted release. The AOS-049 exact hosted release check has already passed on main.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-053 — Equal-rule party finances and verified campaign expenditure (2026-10-26)
+
+- Added server-only 12-credit starting allocation and 4-credit UTC-week grants
+  to every active party; fixed 4/7/10 strategy costs are enforced under the
+  existing campaign row lock, weekly quota and election embargo.
+- Recorded campaign expense receipts with no direct client grants and RLS,
+  membership-scoped financial RPC, immutable history and exact-retry
+  protection. Government and opposition use identical entitlement rules.
+- Implemented finance dashboard and cost-aware electoral campaigning with
+  authoritative post-action confirmation. Added SQL, React, client contract,
+  Chromium and real-JWT integration assertions.
+- Established stable weighted whole-product baseline in
+  [PRODUCT_COMPLETION_BASELINE.md](PRODUCT_COMPLETION_BASELINE.md):
+  **10.0% weighted accepted** (10/100). Historical 2/18 (11.1%) is retained;
+  both only count MVP-T001 and MVP-T003 and are not directly comparable.
+- Isolated branch only; no hosted Supabase migration, Vercel deploy or
+  editorial publication is authorized. GitHub CI results are independent
+  evidence and must be confirmed before claiming the milestone verified.
 
 ## AOS-052 — Read-only multi-dossier national policy portfolio (2026-10-26, development)
 

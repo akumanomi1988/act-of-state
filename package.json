@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:oracle": "node --test tests/reference-simulation.test.mjs tests/news-feed.test.mjs tests/release-contract.test.mjs tests/public-release.test.mjs tests/load-metrics.test.mjs tests/reform-content.test.mjs",
+    "test:oracle": "node --test tests/reference-simulation.test.mjs tests/news-feed.test.mjs tests/release-contract.test.mjs tests/public-release.test.mjs tests/load-metrics.test.mjs tests/reform-content.test.mjs tests/product-completion.test.mjs",
     "prebuild": "node scripts/release-contract.mjs --emit",
     "check:release": "node scripts/check-public-release.mjs"
   },

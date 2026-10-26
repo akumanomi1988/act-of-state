@@ -519,3 +519,17 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 @media (max-width: 600px) { .living-scores { grid-template-columns: 1fr; } .living-table th, .living-table td { font-size: .75rem; padding: 8px 4px; } }
 
 .guide-content{width:min(880px,100%);margin:0 auto;padding:32px 24px;line-height:1.7}.guide-content section{scroll-margin-top:20px;border-top:1px solid var(--line);padding:20px 0}.guide-content nav a{display:inline-block;padding:6px}.onboarding-panel{padding:20px;margin:20px 0;border:1px solid var(--line);background:var(--panel)}.onboarding-panel ol{display:grid;gap:12px;padding-left:24px}.onboarding-panel li{line-height:1.6}.onboarding-panel h2{margin-top:0}
+
+
+/* AOS-053: public, fully fictional political finances */
+.campaign-finances{margin:1rem 0;padding:1rem;border:1px solid var(--line);
+ border-radius:12px;background:var(--panel2)}
+.campaign-finances h3{margin:0 0 .5rem}
+.campaign-finance-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:.6rem;margin:1rem 0}
+.campaign-finance-summary span{padding:.8rem;border:1px solid var(--line);
+ border-radius:8px;font-size:.82rem}
+.campaign-finance-summary strong{display:block;font-size:1.35rem;
+ font-variant-numeric:tabular-nums}
+.campaign-insufficient{border-left:3px solid var(--gold);padding:.6rem}
+@media(max-width:580px){.campaign-finance-summary{grid-template-columns:1fr}}

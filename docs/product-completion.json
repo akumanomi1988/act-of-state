@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "establishedOn": "2026-10-26",
+  "immutableTotalWeight": 100,
+  "scoring": "Binary independently accepted final gates; partial code tracked separately",
+  "criteria": [
+    {
+      "id": "MVP-F001",
+      "name": "Persistent government session",
+      "weight": 6,
+      "accepted": false
+    },
+    {
+      "id": "MVP-F002",
+      "name": "Reviewed dossiers and choices",
+      "weight": 8,
+      "accepted": false
+    },
+    {
+      "id": "MVP-F003",
+      "name": "Signed decisions and history",
+      "weight": 7,
+      "accepted": false
+    },
+    {
+      "id": "MVP-F004",
+      "name": "Households and population",
+      "weight": 6,
+      "accepted": false
+    },
+    {
+      "id": "MVP-F005",
+      "name": "Fiscal and social simulation",
+      "weight": 9,
+      "accepted": false
+    },
+    {
+      "id": "MVP-F006",
+      "name": "Real-day political calendar",
+      "weight": 6,
+      "accepted": false
+    },
+    {
+      "id": "MVP-F007",
+      "name": "Elections and campaigns",
+      "weight": 8,
+      "accepted": false
+    },
+    {
+      "id": "MVP-F008",
+      "name": "Ten-party multiplayer",
+      "weight": 12,
+      "accepted": false
+    },
+    {
+      "id": "MVP-T001",
+      "name": "Transaction durability",
+      "weight": 5,
+      "accepted": true,
+      "evidence": "docs/MVP_TRACKER.md"
+    },
+    {
+      "id": "MVP-T002",
+      "name": "Auth and isolation",
+      "weight": 5,
+      "accepted": false
+    },
+    {
+      "id": "MVP-T003",
+      "name": "Deterministic outcomes",
+      "weight": 5,
+      "accepted": true,
+      "evidence": "docs/MVP_TRACKER.md"
+    },
+    {
+      "id": "MVP-T004",
+      "name": "Safe retries and concurrency",
+      "weight": 4,
+      "accepted": false
+    },
+    {
+      "id": "MVP-T005",
+      "name": "Automated quality",
+      "weight": 4,
+      "accepted": false
+    },
+    {
+      "id": "MVP-T006",
+      "name": "Operations and releases",
+      "weight": 5,
+      "accepted": false
+    },
+    {
+      "id": "REL-001",
+      "name": "Staff-reviewed weekly news",
+      "weight": 2,
+      "accepted": false
+    },
+    {
+      "id": "REL-002",
+      "name": "Human ten-party weekly playtest",
+      "weight": 3,
+      "accepted": false
+    },
+    {
+      "id": "REL-003",
+      "name": "Human visual UX and a11y signoff",
+      "weight": 3,
+      "accepted": false
+    },
+    {
+      "id": "REL-004",
+      "name": "Sustained hosted recovery",
+      "weight": 2,
+      "accepted": false
+    }
+  ]
+}

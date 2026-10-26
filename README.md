@@ -8,6 +8,16 @@ Free-to-play, browser-based, persistent political simulation. This codebase is i
 
 Visit **`/demo`** to try four authored fictional government dossiers with twelve alternatives, review-before-sign decisions, deterministic local consequences, a reversible-by-reset ledger and browser-only progress. This is **not a real game save or the PostgreSQL simulation**: no authentication, backend calls, live news, party multiplayer or promotion of demonstration choices into an actual government. See [guest training sandbox](docs/GUEST_DEMO.md). Pull-request CI verifies its responsive Chromium flow, no-backend boundary, persistence and accessibility.
 
+## Party financing and campaign costs (AOS-053, unreleased)
+
+All parties receive deterministic equal fictional political funding (12 credits
+initially and 4 credits each UTC week) and pay server-authoritative costs for
+campaign activities (4/7/10). The permanent per-party spending ledger is
+isolated by membership and server permissions; retries never charge twice.
+The campaign UI displays the available budget and private account history.
+See [party finance design](docs/PARTY_FINANCE.md). No real-money donations
+or production migration are involved.
+
 ## National policy portfolio (AOS-052, unreleased)
 
 Solo and Parliamentary players can compare direct fiscal exposure across multiple

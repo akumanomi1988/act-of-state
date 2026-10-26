@@ -4,6 +4,7 @@ import {
   type CampaignState, type CampaignStrategy
 } from './lib/campaign'
 import { matchError } from './lib/multiplayer'
+import { fetchPartyFinances, type PartyFinanceState } from './lib/partyFinances'
 
 const strategyNames: Record<CampaignStrategy, string> = {
   dialogue: 'Diálogo vecinal',
@@ -20,6 +21,7 @@ interface Props {
 
 export default function CampaignPanel({ matchId, userId, active, onCampaignRecorded }: Props) {
   const [state, setState] = useState<CampaignState | null>(null)
+  const [finance, setFinance] = useState<PartyFinanceState | null>(null)
   const [cohort, setCohort] = useState('')
   const [strategy, setStrategy] = useState<CampaignStrategy>('dialogue')
   const [busy, setBusy] = useState(false)
@@ -28,11 +30,13 @@ export default function CampaignPanel({ matchId, userId, active, onCampaignRecor
 
   useEffect(() => {
     let alive = true
-    setState(null); setCohort(''); setError(''); setNotice('')
+    setState(null); setFinance(null); setCohort(''); setError(''); setNotice('')
     async function refresh() {
       try {
-        const next = await fetchCampaignState(matchId)
-        if (alive) { setState(next); setError('') }
+        const [next, ledger] = await Promise.all([
+          fetchCampaignState(matchId), fetchPartyFinances(matchId)
+        ])
+        if (alive) { setState(next); setFinance(ledger); setError('') }
       } catch (reason) {
         if (alive) setError(matchError(reason))
       }
@@ -44,21 +48,33 @@ export default function CampaignPanel({ matchId, userId, active, onCampaignRecor
 
   const selected = cohort || state?.cohorts[0]?.code || ''
 
+  const cost = finance?.costs[strategy] ?? 0
+  const affordable = !!finance && finance.active && finance.availableCredits >= cost
+
   async function execute() {
-    if (!state?.available || busy || !selected || !active) return
+    if (!state?.available || busy || !selected || !active || !affordable) return
     setBusy(true); setError(''); setNotice('')
+    let issuedId: string | null = null
     let issuedError: unknown = null
-    try { await launchPartyCampaign(matchId, selected, strategy) }
-    catch (reason) { issuedError = reason }
     try {
-      // Never announce campaign effects until the authoritative read confirms them.
-      const fresh = await fetchCampaignState(matchId)
-      setState(fresh)
-      if (issuedError) setError(matchError(issuedError))
-      else {
-        setNotice('Campaña registrada. La proyección electoral incorpora el nuevo apoyo.')
+      const act = await launchPartyCampaign(matchId, selected, strategy)
+      issuedId = act.id
+    } catch (reason) { issuedError = reason }
+    try {
+      // Both immutable receipts and campaign history must confirm the same act.
+      const [fresh, ledger] = await Promise.all([
+        fetchCampaignState(matchId), fetchPartyFinances(matchId)
+      ])
+      setState(fresh); setFinance(ledger)
+      const matched = fresh.recentActs.find(act => act.id === issuedId
+        && act.user_id === userId && act.strategy === strategy
+        && act.cohort_code === selected)
+      const receipt = ledger.recentSpending.find(item => item.campaignEventId === issuedId)
+      if (issuedId && matched && receipt && receipt.costCredits === cost) {
+        setNotice('Campaña registrada. El gasto y el apoyo constan en el historial oficial.')
         onCampaignRecorded()
-      }
+      } else setError(issuedError ? matchError(issuedError)
+        : 'La campaña todavía no está confirmada en los registros. Comprueba el historial.')
     } catch (reason) {
       setError(matchError(issuedError ?? reason))
     } finally { setBusy(false) }
@@ -85,6 +101,23 @@ export default function CampaignPanel({ matchId, userId, active, onCampaignRecor
           {group.nextDecayOn && <small>Próximo desgaste: {group.nextDecayOn} (UTC)</small>}
         </div>)}
       </div>
+      {finance && <section className="campaign-finances" aria-label="Tesorería electoral del partido">
+        <h3>Financiación pública ficticia</h3>
+        <p className="muted">Todas las candidaturas reciben 12 créditos al comenzar
+          y 4 créditos adicionales cada lunes UTC. No hay compras ni donaciones.</p>
+        <div className="campaign-finance-summary">
+          <span>Asignados <strong>{finance.earnedCredits}</strong></span>
+          <span>Invertidos <strong>{finance.spentCredits}</strong></span>
+          <span>Disponibles <strong>{finance.availableCredits}</strong></span>
+        </div>
+        {finance.recentSpending.length > 0 && <details>
+          <summary>Libro de gastos ({finance.recentSpending.length})</summary>
+          <ol>{finance.recentSpending.map(item => <li key={item.id}>
+            {item.weekStart} · {strategyNames[item.strategy]} · {item.cohortCode}
+            {' '}· −{item.costCredits} créditos
+          </li>)}</ol>
+        </details>}
+      </section>}
       {active && state.available ? <div className="campaign-actions">
         <label>Grupo social objetivo
           <select value={selected} disabled={busy} onChange={e => setCohort(e.target.value)}>
@@ -98,7 +131,12 @@ export default function CampaignPanel({ matchId, userId, active, onCampaignRecor
               <option key={code} value={code}>{name}</option>)}
           </select>
         </label>
-        <button disabled={busy || !selected} onClick={() => void execute()}>
+        <p className="muted">Coste de esta estrategia: {cost} créditos.</p>
+        {!affordable && finance && <p role="status" className="campaign-insufficient">
+          Créditos insuficientes. Elige una estrategia más económica o espera
+          la próxima asignación semanal.
+        </p>}
+        <button disabled={busy || !selected || !affordable} onClick={() => void execute()}>
           {busy ? 'Registrando…' : 'Realizar campaña semanal'}
         </button>
       </div> : <p role="status" className="muted">
