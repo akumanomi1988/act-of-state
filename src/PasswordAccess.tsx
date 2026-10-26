@@ -71,7 +71,7 @@ export function PasswordSignIn({
   return <div className="password-signin">
     <h3>Entrar sin esperar un correo</h3>
     <form onSubmit={event => void signIn(event)}>
-      <label>Correo electrónico
+      <label>Correo para contraseña
         <input type="email" autoComplete="email" required value={email}
           disabled={blocked} onChange={event => onEmailChange(event.target.value)} />
       </label>
