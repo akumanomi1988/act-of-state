@@ -1,3 +1,10 @@
+## AOS-057 — Authenticated MCP client bridge
+
+- Seven game read tools and four confirmation-gated actions over official MCP v2 stdio.
+- Uses existing JWT-scoped PostgreSQL RPC permissions, without a new backend.
+- Six local tests with a true MCP client/child process and CI; hosted token renewal NOT_TESTED.
+- Product acceptance weights remain unchanged pending final gates.
+
 ## AOS-056 — Five-way ten-story editorial publication enforcement
 
 - New weekly Monday releases must contain ten independently sourced and

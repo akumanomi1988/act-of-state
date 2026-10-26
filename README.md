@@ -8,6 +8,12 @@ Free-to-play, browser-based, persistent political simulation. This codebase is i
 
 Visit **`/demo`** to try four authored fictional government dossiers with twelve alternatives, review-before-sign decisions, deterministic local consequences, a reversible-by-reset ledger and browser-only progress. This is **not a real game save or the PostgreSQL simulation**: no authentication, backend calls, live news, party multiplayer or promotion of demonstration choices into an actual government. See [guest training sandbox](docs/GUEST_DEMO.md). Pull-request CI verifies its responsive Chromium flow, no-backend boundary, persistence and accessibility.
 
+## Optional MCP adapter (AOS-057, unreleased)
+
+A local stdio bridge offers seven authenticated read-only game tools and four
+explicit-confirmation political actions without service keys or new hosted
+services. See docs/MCP_INTEGRATION.md.
+
 ## International diplomacy (AOS-055, unreleased)
 
 Three foreign-policy dossiers (Europe, Asia and United States) offer
