@@ -1,10 +1,23 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-054 five-option campaign and newsroom, following AOS-053 equal-rule political campaign finance, following AOS-052 cross-dossier policy portfolio on isolated development branch, extending AOS-050 reforms and AOS-051 password access. Development changes are not authorized for hosted release. The AOS-049 exact hosted release check has already passed on main.
+**Latest implementation increment:** AOS-055 international diplomacy, following AOS-054 five-option campaign and newsroom, following AOS-053 equal-rule political campaign finance, following AOS-052 cross-dossier policy portfolio on isolated development branch, extending AOS-050 reforms and AOS-051 password access. Development changes are not authorized for hosted release. The AOS-049 exact hosted release check has already passed on main.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-055 — International diplomacy (isolated development)
+
+- Three fictional diplomatic negotiations with Europe, Asia and United
+  States, each with five authored fiscal and geopolitical alternatives.
+  Development catalogue grows to 31 permanent cases / 155 options.
+- Versioned 45-vector relations matrix; effects snapshotted atomically from
+  authenticated national signatures; immutable replay and member-scoped
+  consultation. No alternative executive privilege to bypass Parliament.
+- Solo/Parliament dashboards, region indices, history, navigation and
+  cross-device authenticated visibility with mobile/browser/SQL tests.
+- Formal 100-weight acceptance baseline is unchanged. Human balance,
+  real external publication and hosted release remain open.
 
 ## AOS-054 — Five-option national programme and weekly editorial authoring (development)
 

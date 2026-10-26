@@ -34,7 +34,7 @@ describe('authoritative national programme portfolio', () => {
     const result = buildPolicyPortfolio(catalogue, options, [], '2026-10-26', {}, 100)
     expect(result.cases.map(item => item.dossier.id)).toEqual([
       'energy', 'pension', 'industry', 'courts', 'drought'])
-    expect(result.chapters.map(ch => ch.total)).toEqual([1,1,1,1,1])
+    expect(result.chapters.map(ch => ch.total)).toEqual([1,1,1,1,1,0])
     expect(result.available).toBe(5)
     expect(result.total).toBe(5)
   })

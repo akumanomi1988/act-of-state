@@ -41,7 +41,7 @@ export default function PolicyPortfolioPanel({
       <div>
         <p className="eyebrow">SIMULACIÓN ESTRATÉGICA · SIN FIRMA</p>
         <h2>Planifica tu próxima agenda</h2>
-        <p className="muted">Compara decisiones pendientes de los cinco capítulos antes de actuar.</p>
+        <p className="muted">Compara decisiones pendientes de los seis capítulos antes de actuar.</p>
       </div>
       <button type="button" className="text-button" aria-expanded={expanded}
         aria-controls="policy-portfolio-body" onClick={() => setExpanded(value => !value)}>

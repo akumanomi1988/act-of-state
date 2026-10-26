@@ -103,6 +103,14 @@ async function routeApi(page,state,{emailLimit=false}={}) {
       return route.fulfill({status:204,headers:{
         'access-control-allow-origin':'*','access-control-allow-methods':'GET,POST,OPTIONS',
         'access-control-allow-headers':'*'}})
+    if (path==='/rest/v1/rpc/get_diplomacy_state') return json({
+      governmentId:state.government.id,modelVersion:'diplomacy-v1',
+      blocs:[
+        {id:'europe',label:'Europa',relation:50,tradeIndex:100,signedEffects:0},
+        {id:'asia',label:'Asia',relation:50,tradeIndex:100,signedEffects:0},
+        {id:'usa',label:'Estados Unidos',relation:50,tradeIndex:100,signedEffects:0}
+      ],recentEffects:[]
+    })
     if (path==='/auth/v1/user') return json(state.user)
     if (path==='/auth/v1/logout')
       return route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}})
@@ -477,6 +485,31 @@ try {
     await page.getByRole('alert').waitFor()
     assert.equal(await page.getByText(/se ha solicitado el enlace de acceso/i).count(),0)
     assert.equal(state.otpCount,1)
+    await context.close()
+  })
+
+  await run('Diplomacy panel shows authoritative blocs and routes into treaty dossier',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    const state=createServerState()
+    const treaty={...state.dossier,id:'diplomacy-europe',title:'Pacto político con Europa',
+      programme_chapter:'diplomacy',programme_order:1,category:'Europa'}
+    state.foundationalDossiers=[state.dossier,treaty]
+    state.foundationalOptions=[state.option,{...state.option,
+      dossier_id:'diplomacy-europe',id:'europe-social-treaty',
+      title:'Tratado de movilidad social'}]
+    await routeApi(page,state)
+    await injectUser(page,state)
+    await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    const diplomacy=page.getByRole('region',{name:'Diplomacia y relaciones internacionales'})
+    await diplomacy.getByRole('progressbar',{name:'Relación con Europa'}).waitFor()
+    assert.equal(await diplomacy.getByRole('progressbar',{
+      name:'Relación con Europa'}).getAttribute('aria-valuenow'),'50')
+    await diplomacy.getByRole('button',{name:'Negociar expediente'}).first().click()
+    await page.getByRole('heading',{name:'Pacto político con Europa'}).last().waitFor()
+    assert.equal(state.events.length,0,'just opening a treaty must never sign it')
+    await checkMobileOverflow(page,'diplomacy mobile')
+    await checkA11y(page,'diplomacy mobile')
     await context.close()
   })
 

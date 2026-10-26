@@ -23,7 +23,7 @@ describe('permanent national reform chapters',()=>{
     expect(result).toMatchObject({total:10,signed:0})
     expect(result.chapters[0]).toMatchObject({id:'founding',total:10,next:ten[0]})
     expect(CHAPTERS.map(c=>c.id)).toEqual([
-      'founding','society','economy','institutions','resilience'])
+      'founding','society','economy','institutions','resilience','diplomacy'])
   })
   it('separates 18 reforms from ten founding and excluded fake news',()=>{
     const legacy=Array.from({length:10},(_,i)=>intro('old-'+i,'founding',i+1))

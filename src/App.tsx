@@ -2,6 +2,7 @@ import PlayerOnboarding from './PlayerOnboarding'
 import { PasswordSignIn, AccountPasswordPanel } from './PasswordAccess'
 import FoundationalAgendaPanel from './FoundationalAgendaPanel'
 import PolicyPortfolioPanel from './PolicyPortfolioPanel'
+import DiplomacyPanel from './DiplomacyPanel'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, fetchWorld, friendlyError, startGovernment, submitDecision } from './lib/game'
@@ -330,6 +331,10 @@ export default function App() {
                     {number(world.calendar.weeklyTreasuryDeltaM)} M€</strong>
                 </div>}
               </section>
+              <DiplomacyPanel key={world.government.id+':'+user!.id}
+                identity={user!.id} governmentId={world.government.id}
+                dossiers={world.dossiers} events={world.events}
+                mode="solo" onSelect={selectDossier} />
               <FoundationalAgendaPanel world={world}
                 selectedKey={dossier ? dossierKey(dossier) : null}
                 onSelect={selectDossier} />

@@ -18,7 +18,7 @@ declare
 begin
  g:=public.start_government();
  w:=public.get_government_world(g.id);
- if jsonb_array_length(w->'dossiers')<>28 or jsonb_array_length(w->'options')<>140 then
+ if jsonb_array_length(w->'dossiers')<>31 or jsonb_array_length(w->'options')<>155 then
    raise exception 'FIVE_CHOICE_WORLD_NOT_COMPLETE'; end if;
  if (select count(*) from (
     select d.id,d.version,count(*) c,count(distinct o.id) variants,

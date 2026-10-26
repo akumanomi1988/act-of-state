@@ -5,7 +5,8 @@ export const CHAPTERS = [
   { id:'society', label:'Bienestar y pacto social', short:'Sociedad' },
   { id:'economy', label:'Prosperidad y recursos', short:'Economía' },
   { id:'institutions', label:'Instituciones y democracia', short:'Instituciones' },
-  { id:'resilience', label:'Resiliencia y relaciones exteriores', short:'Resiliencia' }
+  { id:'resilience', label:'Resiliencia y emergencias', short:'Resiliencia' },
+  { id:'diplomacy', label:'Diplomacia internacional', short:'Exterior' }
 ] as const
 
 export type ProgrammeChapter = typeof CHAPTERS[number]['id']

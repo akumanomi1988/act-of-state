@@ -324,12 +324,12 @@ const reformId='pension-covenant'
 const reformChoice='levy-pension-covenant'
 const reformWorld=await rpc(players[2],'get_match_world',{p_match_id:match.id})
 const newReforms=reformWorld.dossiers.filter(d=>d.release_kind==='intro' &&
-  d.programme_chapter && d.programme_chapter!=='founding')
+  d.programme_chapter && !['founding','diplomacy'].includes(d.programme_chapter))
 pass(newReforms.length===18 && new Set(newReforms.map(d=>d.id)).size===18,
   'Real Supabase catalogue is missing the 18 permanent national reforms')
 pass(reformWorld.dossiers.filter(d=>d.programme_chapter==='founding').length===10 &&
-  reformWorld.options.length===140,
-  'The ten unchanged founding scenarios and 140 alternatives were not visible')
+  reformWorld.options.length===155,
+  'The ten unchanged founding scenarios and 155 alternatives were not visible')
 pass(newReforms.every(d=>d.context.startsWith('Escenario ficticio:') &&
   d.source_url===null && d.available_from===null),
   'Permanent fiction was misrepresented as sourced news')
@@ -381,14 +381,76 @@ await rejectedRpc(outsider,'get_match_world',{
   p_match_id:match.id
 },/MATCH_FORBIDDEN/)
 console.log('AOS_REFORM_PARLIAMENT_PASS',JSON.stringify({
-  permanentCases:28,foundingUnchanged:10,reforms:18,alternatives:140,
+  permanentCases:31,foundingUnchanged:10,reforms:18,alternatives:155,
   authenticPlayers:10,signedActs:2,finalTreasuryM:10840,
   preservedHistoricalAct:true,
   note:'Local GoTrue verified; no real news or human participant account'
 }))
 
+// AOS-055: a real ten-party treaty vote is mandatory before an immutable
+// government signature can move all three diplomatic blocs.
+const treatyId='diplomacy-europe'
+const treatyOption='europe-social-treaty'
+const initialDiplomacy=await rpc(players[6],'get_diplomacy_state',{
+  p_government_id:govId
+})
+pass(initialDiplomacy.blocs.length===3 &&
+ initialDiplomacy.blocs.every(b=>b.relation===50 && b.tradeIndex===100),
+ 'Public diplomacy must start neutral without invented historic alliances')
+await rejectedRpc(outsider,'get_diplomacy_state',{
+ p_government_id:govId
+},/DIPLOMACY_FORBIDDEN/)
+const treatyStances=await Promise.allSettled(players.map(actor=>rpc(actor,
+ 'record_match_stance',{p_match_id:match.id,p_dossier_id:treatyId,
+ p_dossier_version:1,p_option_id:treatyOption})))
+pass(treatyStances.every(x=>x.status==='fulfilled'),
+ 'Ten parties cannot independently debate the same diplomatic option')
+const treatyBill=await rpc(host,'propose_parliament_bill',{
+ p_match_id:match.id,p_dossier_id:treatyId,p_dossier_version:1,
+ p_option_id:treatyOption
+})
+for(const actor of players) await rpc(actor,'cast_parliament_vote',{
+ p_bill_id:treatyBill.id,p_choice:'yes'
+})
+const approvedDiplomacy=await rpc(players[3],'get_parliament_state',{
+ p_match_id:match.id
+})
+pass(approvedDiplomacy.bills.some(x=>x.id===treatyBill.id&&x.status==='passed'),
+ 'European diplomatic treaty did not obtain binding ten-party mandate')
+const treatyAct=await rpc(host,'submit_decision',{
+ p_government_id:govId,p_dossier_id:treatyId,p_dossier_version:1,
+ p_option_id:treatyOption
+})
+pass(treatyAct.state_before.treasury_m_eur===10840 &&
+ treatyAct.state_after.treasury_m_eur===10400,
+ 'Treaty did not enforce the signed state-owned fiscal consequence')
+const treatyRetry=await rpc(host,'submit_decision',{
+ p_government_id:govId,p_dossier_id:treatyId,p_dossier_version:1,
+ p_option_id:treatyOption
+})
+pass(treatyRetry.id===treatyAct.id,
+ 'Treaty retry generated a new political decision')
+const signedDiplomacy=await rpc(players[7],'get_diplomacy_state',{
+ p_government_id:govId
+})
+pass(signedDiplomacy.blocs[0].relation===64 &&
+ signedDiplomacy.blocs[1].relation===47 &&
+ signedDiplomacy.blocs[2].relation===52 &&
+ signedDiplomacy.recentEffects.length===3 &&
+ signedDiplomacy.recentEffects.every(e=>e.eventId===treatyAct.id),
+ 'Authenticated opposition cannot verify signed cross-bloc effects')
+await rejectedRpc(players[8],'submit_decision',{
+ p_government_id:govId,p_dossier_id:'diplomacy-asia',p_dossier_version:1,
+ p_option_id:'asia-supply-compact'
+},/GOVERNMENT_NOT_FOUND_OR_FORBIDDEN/)
+console.log('AOS_DIPLOMACY_AUTH_PASS',JSON.stringify({
+ blocs:3,permanentCases:31,alternatives:155,
+ tenPartyMandate:true,governmentSigned:true,
+ effects:3,treasuryM:10400,outsiderReadDenied:true
+}))
+
 console.log('AOS_LIVE_AUTH_PASS',JSON.stringify({
   signedUp:actors.length,distinctPlayers:10,realHttp:true,
-  fixedSignedActs:2,browserContexts:10,decayV2:true,permanentCases:28,assertions,
+  fixedSignedActs:3,browserContexts:10,decayV2:true,permanentCases:31,assertions,
   note:'Ten authentic HTTP/JWT browser contexts, local GoTrue; no production SMTP or real people'
 }))

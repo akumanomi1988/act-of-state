@@ -1,0 +1,19 @@
+.diplomacy-panel{border:1px solid var(--line);border-radius:12px;padding:1.1rem;margin:1.5rem 0;background:var(--panel2,#20282b)}
+.diplomacy-heading{display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap}
+.diplomacy-heading h2{margin:.2rem 0 .5rem;font-size:clamp(1.4rem,2.1vw,2rem)}
+.diplomacy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;margin:1rem 0}
+.diplomacy-bloc{border:1px solid var(--line);border-radius:8px;padding:1rem;min-width:0}
+.diplomacy-bloc h3{margin:0 0 .8rem}
+.diplomacy-value{display:flex;flex-direction:column;gap:.2rem}
+.diplomacy-value strong{font-size:1.5rem;font-variant-numeric:tabular-nums}
+.diplomacy-value span{color:var(--muted);font-size:.78rem}
+.diplomacy-track{height:8px;border-radius:8px;background:#343d3c;overflow:hidden;margin:.7rem 0}
+.diplomacy-track span{display:block;height:100%;background:var(--gold);min-width:0}
+.diplomacy-bloc p{font-size:.87rem;line-height:1.45}
+.diplomacy-bloc button{min-height:42px;text-align:left;white-space:normal}
+.diplomacy-history summary{cursor:pointer;min-height:44px}
+.diplomacy-history ol{padding-left:1.3rem}
+.diplomacy-history li{padding:.5rem 0}
+.diplomacy-history li span{display:block;font-size:.84rem}
+@media(max-width:760px){.diplomacy-grid{grid-template-columns:1fr}}
+

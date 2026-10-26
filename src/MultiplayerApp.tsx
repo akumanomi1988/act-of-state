@@ -2,6 +2,7 @@ import PlayerOnboarding from './PlayerOnboarding'
 import { PasswordSignIn, AccountPasswordPanel } from './PasswordAccess'
 import MatchAgendaBoard from './MatchAgendaBoard'
 import PolicyPortfolioPanel from './PolicyPortfolioPanel'
+import DiplomacyPanel from './DiplomacyPanel'
 import WeeklyMissionControl from './WeeklyMissionControl'
 import { buildMatchAgenda } from './lib/multiplayerAgenda'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
@@ -562,6 +563,15 @@ export default function MultiplayerApp() {
               world={world} userId={user!.id}
               onSelect={id => {
                 setSelectedDossierId(id)
+                setSelectedOptionId('')
+                setReviewCabinet(false)
+                setMandateOptionId(null)
+              }} />
+            <DiplomacyPanel key={world.match.id+':diplomacy:'+user!.id}
+              identity={user!.id} governmentId={world.government.id}
+              dossiers={world.dossiers} events={world.events}
+              mode="parliament" onSelect={item => {
+                setSelectedDossierId(item.id)
                 setSelectedOptionId('')
                 setReviewCabinet(false)
                 setMandateOptionId(null)

@@ -12,13 +12,14 @@ The game is browser-based, free to play, with no paid competitive advantages.
 | Daily society | Economic security, services, welfare, bounded political feedback, immutable daily records | Multi-day operational observation and gameplay balancing |
 | Fiscal engine | Treasury, debt, GDP index, inflation, unemployment, budget revisions and weekly accounts | Economic calibration, extreme-policy balancing |
 | Strategic policy planning | Shared temporary solo/Parliament five-chapter fiscal portfolio with signed-event reconciliation (AOS-052 branch) | Human usability acceptance; persistent cross-device plan and macroeconomic forecasts intentionally excluded |
-| Permanent policy content | 28 original fictional dossiers and 140 choices, founding/reform chapters in solo and ten-party Parliament; historical events preserved (AOS-050 branch) | Run complete branch CI and obtain explicit release authorization; balance with humans |
+| Permanent policy content | 31 original fictional dossiers and 155 choices, founding/reform chapters in solo and ten-party Parliament; historical events preserved (AOS-050 branch) | Run complete branch CI and obtain explicit release authorization; balance with humans |
 | Weekly dossiers | Ten-slot newsroom, source discovery, draft revision control, manual review and atomic publication | Actual reviewed news for every operational week; staff operation |
 | Time | One real UTC day per game day, Monday publication windows, Friday closure, autonomous jobs | Sustained live operation across week boundaries |
 | Multiplayer | Up to ten parties, private invitations/public discovery, lobby withdrawal and readiness | Ten actual accounts and a human playtest |
 | Party positions | Immutable member positions and political affinity | Balance feedback from actual players |
 | Parliament | Weighted votes, proposal windows, binding approval before cabinet execution | Full human government/opposition flow |
 | Elections | Household electorate, six constituencies, 100 D'Hondt seats, immutable certification, cabinet succession | Electoral and campaign balance; human acceptance |
+| International diplomacy (AOS-055 branch) | Three diplomatic negotiations, five choices each, 45 regional impacts, immutable post-signature ledger and regional dashboards | Human geopolitical balance, hosted migration and release acceptance |
 | Party finance (AOS-053 branch) | Equal public campaign credits, per-strategy costs, private receipts, atomic budget enforcement, cross-week saving and party ledger UI | Host migration and multiweek human fiscal/game balance acceptance |
 | Campaigns | Weekly party interventions, targeting, caps, pre-election closure, server-owned 2pt/7-day decay and renewed support | Multi-week campaign-voter balance review, empirical coefficients, player feedback |
 | Governance | Consensual coalitions and constructive confidence votes | Human coalition/transition acceptance |

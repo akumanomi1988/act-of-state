@@ -4,7 +4,7 @@ import { number } from './lib/format'
 import { buildProgrammeProgress, chapterOf, CHAPTERS, reformChapter } from './lib/nationalProgramme'
 import './FoundationalAgendaPanel.css'
 
-type AgendaFilter = 'all' | 'weekly' | 'foundational' | 'reforms' | 'society' | 'economy' | 'institutions' | 'resilience' | 'pending' | 'completed'
+type AgendaFilter = 'all' | 'weekly' | 'foundational' | 'reforms' | 'society' | 'economy' | 'institutions' | 'resilience' | 'diplomacy' | 'pending' | 'completed'
 
 export interface FoundationalAgendaProps {
   world: GovernmentWorld
@@ -21,6 +21,7 @@ const FILTERS: readonly { key: AgendaFilter; label: string }[] = [
   { key: 'economy', label: 'Economía' },
   { key: 'institutions', label: 'Instituciones' },
   { key: 'resilience', label: 'Resiliencia' },
+  { key: 'diplomacy', label: 'Diplomacia' },
   { key: 'pending', label: 'Pendientes' },
   { key: 'completed', label: 'Firmados' }
 ]

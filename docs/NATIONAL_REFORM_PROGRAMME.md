@@ -1,6 +1,13 @@
 # AOS-050 — A complete fictional national reform campaign
 
 
+## AOS-055 — International diplomacy extension
+
+A separate foreign affairs chapter adds three negotiations and fifteen
+policy choices, expanding the permanent development catalogue to 31/155.
+It leaves the initial 28 cases and their options unchanged and reuses
+the existing government/Parliament authorization. See DIPLOMACY.md.
+
 ## AOS-054 — Five distinct alternatives per permanent dossier
 
 The original 28 dossiers now offer **five** fiscal/political options each,
