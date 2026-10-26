@@ -2,6 +2,16 @@
 
 ## Instruction from the project owner
 
+Verified as of 2026-10-26: project `act-of-state` accepted the Vercel
+plugin update `previewDeploymentsDisabled=true` and
+`commandForIgnoringBuildStep='exit 0'`. The repository's
+`vercel.json` now includes `git.deploymentEnabled:false`. A subsequent
+Vercel deployment-list check showed no builds resulting from new GitHub
+commits. Note that the ignored-build hook alone can still count canceled
+attempts against Vercel's Hobby quotas, so `git.deploymentEnabled:false`
+is the primary protection. Deliberate releases should use separately
+authorized deployment mechanics after an explicit full acceptance gate.
+
 The owner has explicitly rejected repeated Vercel deployments following
 build-rate-limit failures. **Do not run any Vercel deployment, alias change,
 redeploy, or production/preview publication without a separate explicit
