@@ -54,6 +54,24 @@ failures. Do **not** create a Vercel production/preview deployment, merge
 into `main`, or apply the new production database migration without a separate
 explicit release authorization. See [no automatic deployment instructions](docs/NO_VERCEL_AUTODEPLOY.md).
 
+## Password sign-in and manual Vercel releases (AOS-051 — branch only)
+
+Login now supports Supabase `signInWithPassword` in both solo and ten-party
+multiplayer, alongside existing one-time email links. A magic-link user can
+attach a strong password to their own verified Supabase identity with
+`updateUser`; their government and seats remain tied to that user ID.
+Password recovery is opt-in, uses a neutral response without user enumeration,
+and relies on the same authenticated session flow. No application password
+database, third-party authentication provider, plaintext secret logs or
+privileged backend endpoint is introduced. See [password setup guide](docs/PASSWORD_LOGIN.md).
+
+**Manual publication only:** Vercel project settings have previews disabled
+and the Ignored Build Step set to `exit 0`. The committed `vercel.json`
+has `git.deploymentEnabled: false`. We therefore do not automatically publish
+Git pushes, PRs or merges. Changes in this development branch are NOT
+deployed; production remains on AOS-049 until a deliberate, separately
+authorized large release.
+
 ## Current implementation (AOS-MVP-001)
 
 The React/TypeScript frontend uses Supabase Auth and displays only state returned from PostgreSQL. The database holds owner-bound governments, fictional introductory dossiers, governed sourced weekly dossiers, weighted population cohorts, decision events, ten-party shared-nation matches and a deterministic, server-authoritative simulation engine.
