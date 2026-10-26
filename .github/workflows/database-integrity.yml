@@ -1,5 +1,8 @@
 name: PostgreSQL integrity (SQL changes)
 on:
+  # Isolated development QA; never triggers Vercel publication.
+  push:
+    branches: [feature/aos-052-integrated-reforms]
   pull_request:
     branches: [main]
     paths:

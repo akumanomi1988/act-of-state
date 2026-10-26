@@ -1,5 +1,8 @@
 name: Live Auth acceptance (isolated local stack)
 on:
+  # Isolated development QA; never triggers Vercel publication.
+  push:
+    branches: [feature/aos-052-integrated-reforms]
   pull_request:
     branches: [main]
     paths:
