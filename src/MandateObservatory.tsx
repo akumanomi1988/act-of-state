@@ -159,7 +159,7 @@ export default function MandateObservatory({ governmentId, identity, matchId }: 
               {' '}Deuda emitida en actas: <strong>{fiscal ? number(fiscal.debtIssued)+' M€' : 'Sin dato'}</strong>.</p>
             <p className="muted">El servidor devuelve hasta doce cierres fiscales recientes;
               la ausencia de un cierre anterior no equivale a saldo cero.</p>
-            {data.fiscal && <div className="mandate-table"><table>
+            {data?.fiscal && <div className="mandate-table"><table>
               <caption>Escenarios aritméticos, no previstos ni ejecutados</caption>
               <thead><tr><th scope="col">Supuesto</th><th scope="col">Saldo semanal</th>
                 <th scope="col">Colchón de tesorería</th></tr></thead>
