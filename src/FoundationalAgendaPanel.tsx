@@ -136,7 +136,7 @@ export default function FoundationalAgendaPanel({ world, selectedKey, onSelect }
       <div className="reform-chapter-grid" aria-label="Progreso por capítulo">
         {reformChapters.filter(chapter=>chapter.total>0).map(chapter=><button key={chapter.id}
           type="button" className="reform-chapter"
-          onClick={()=>setFilter(chapter.id)} aria-label={'Abrir capítulo '+chapter.short}>
+          onClick={()=>{if(chapter.id!=='founding')setFilter(chapter.id)}} aria-label={'Abrir capítulo '+chapter.short}>
           <span>{chapter.label}</span><strong>{chapter.signed} / {chapter.total}</strong>
           <small>{chapter.pending===0?'Capítulo completado':chapter.pending+' asuntos pendientes'}</small>
         </button>)}
