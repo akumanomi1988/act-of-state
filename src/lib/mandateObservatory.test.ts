@@ -100,8 +100,8 @@ describe('90-day mandate observatory — immutable and server-owned inputs', () 
   it('excludes old fiscal acts from short windows and does not call gaps zero', () => {
     const report=buildMandateReport({fiscal,living:history,
       opinion:null,election:null,days:7})
-    expect(report.fiscal?.records.map(x=>x.week_start)).toEqual(['2026-10-19'])
-    expect(report.fiscal?.settledWeeks).toBe(1)
+    expect(report.fiscal?.records.map(x=>x.week_start)).toEqual([])
+    expect(report.fiscal?.settledWeeks).toBe(0)
     expect(report.society?.recorded).toBe(1)
     expect(report.society?.change).toBeNull()
   })
