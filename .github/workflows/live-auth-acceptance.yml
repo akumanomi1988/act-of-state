@@ -1,5 +1,8 @@
 name: Live Auth acceptance (isolated local stack)
 on:
+  # Disposable CI for the non-deploying development branch only.
+  push:
+    branches: [aos/050-national-reforms-campaign]
   pull_request:
     branches: [main]
     paths:
