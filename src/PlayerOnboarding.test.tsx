@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, expect, it } from 'vitest'
 import PlayerGuide from './PlayerGuide'
 import PlayerOnboarding from './PlayerOnboarding'
@@ -12,6 +12,26 @@ it('makes every manual section accessible without a session or network',()=>{
  expect(screen.getByRole('heading',{name:'Acceso y recuperación'})).toBeInTheDocument()
  for(const link of screen.getAllByRole('link').filter(l=>l.getAttribute('href')?.startsWith('#')))
   expect(document.getElementById(link.getAttribute('href')!.slice(1))).not.toBeNull()
+})
+it('opens the complete public manual in English without changing game state',()=>{
+ const original=window.location.href
+ window.history.replaceState({},'', '/guide?lang=en')
+ try {
+  const view=render(<PlayerGuide />)
+  expect(screen.getByRole('heading',{name:'From your first decision to a shared mandate'})).toBeInTheDocument()
+  expect(screen.getByRole('heading',{name:'Government and opposition'})).toBeInTheDocument()
+  expect(screen.getByRole('heading',{name:'Campaigns and elections'})).toBeInTheDocument()
+  expect(screen.getByRole('button',{name:'English'})).toHaveAttribute('aria-pressed','true')
+  expect(view.container.querySelectorAll('main section')).toHaveLength(16)
+  for(const link of screen.getAllByRole('link').filter(x=>x.getAttribute('href')?.startsWith('#')))
+   expect(document.getElementById(link.getAttribute('href')!.slice(1))).not.toBeNull()
+  fireEvent.click(screen.getByRole('button',{name:'Español'}))
+  expect(new URLSearchParams(window.location.search).get('lang')).toBe('es')
+  expect(screen.getByRole('heading',{name:'Una semana política'})).toBeInTheDocument()
+  expect(screen.getByRole('button',{name:'English'})).toHaveAttribute('aria-pressed','false')
+ } finally {
+  window.history.replaceState({},'',original)
+ }
 })
 it('shows unpublished weekly content as pending, without marking study as execution',()=>{
  const world={events:[],calendar:{weeklyTotal:0}} as unknown as GovernmentWorld
@@ -31,4 +51,23 @@ it('keeps another party stance from completing the current player step',()=>{
  view.rerender(<PlayerOnboarding world={{...world,match:{...world.match,status:'active'},
   me:{...world.me,is_ready:true},stances:[{user_id:'mine'}]} as MatchWorld} />)
  expect(screen.getByText(/Registra tu primera postura/)).toHaveTextContent('✓')
+})
+
+it('tracks founding and 18 nationally signed reforms independently',()=>{
+ const founding=Array.from({length:10},(_,i)=>({
+   id:'founding-'+i,version:1,release_kind:'intro',programme_chapter:'founding'
+ }))
+ const reforms=Array.from({length:18},(_,i)=>({
+   id:'reform-'+i,version:1,release_kind:'intro',
+   programme_chapter:(['society','economy','institutions','resilience'] as const)[i%4]
+ }))
+ const world={
+   dossiers:[...founding,...reforms],
+   events:[{dossier_id:'founding-0'},{dossier_id:'reform-0'}],
+   calendar:{weeklyTotal:0}
+ } as unknown as GovernmentWorld
+ render(<PlayerOnboarding world={world}/>)
+ expect(screen.getByText(/Programa fundacional: 1 de 10/)).toHaveTextContent('○')
+ expect(screen.getByText(/Programa nacional de reformas: 1 de 18/)).toHaveTextContent('○')
+ expect(screen.queryByText(/Programa fundacional: 1 de 28/)).not.toBeInTheDocument()
 })

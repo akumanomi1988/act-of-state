@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('./WeeklyAccountabilityPanel', () => ({ default: () => <div>Legislature history fixture</div> }))
 vi.mock('./ActionInboxPanel', () => ({ default: () => <div>Political action inbox fixture</div> }))
+vi.mock('./DiplomacyPanel', () => ({ default: () => null }))
 vi.mock('./PopulationPanel', () => ({ default: () => null }))
 vi.mock('./LivingConditionsPanel', () => ({ default: () => null }))
 vi.mock('./PublicMatchPanel', () => ({ default: () => <div>Public lobby test fixture</div> }))

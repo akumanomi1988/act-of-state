@@ -105,6 +105,15 @@ pass(restart.started_at===start.started_at,'Starting again changed persisted tim
 
 // AOS-048: real distinct JWT observes the SAME versioned persuasion model
 // that supplies official district forecasts and archived daily opinion.
+const partyMoneyBefore=await rpc(players[9],'get_party_finances',{p_match_id:match.id})
+pass(partyMoneyBefore.financeModel==='equal-public-weekly-v1' &&
+  partyMoneyBefore.earnedCredits>=12 && partyMoneyBefore.spentCredits===0 &&
+  partyMoneyBefore.availableCredits===partyMoneyBefore.earnedCredits,
+  'Authenticated party financing did not start with equal public credits')
+const otherMoneyBefore=await rpc(players[8],'get_party_finances',{p_match_id:match.id})
+pass(otherMoneyBefore.spentCredits===0 &&
+  otherMoneyBefore.availableCredits===partyMoneyBefore.availableCredits,
+  'Independent party did not receive equal initial financing')
 const campaignBefore=await rpc(players[9],'get_campaign_state',{p_match_id:match.id})
 pass(campaignBefore.influenceModel==='campaign-decay-v2' &&
   campaignBefore.cohorts.every(c=>c.myInfluence===0&&c.nextDecayOn===null),
@@ -117,6 +126,15 @@ const campaignAct=await rpc(players[9],'launch_campaign',{
 pass(campaignAct.model_version==='campaign-decay-v2'&&
   campaignAct.influence_delta>=1&&campaignAct.influence_delta<=5,
   'Campaign v2 did not return a server-authored act')
+const partyMoneyAfter=await rpc(players[9],'get_party_finances',{p_match_id:match.id})
+pass(partyMoneyAfter.spentCredits===10 &&
+  partyMoneyAfter.availableCredits===partyMoneyBefore.availableCredits-10 &&
+  partyMoneyAfter.recentSpending.length===1 &&
+  partyMoneyAfter.recentSpending[0].campaignEventId===campaignAct.id,
+  'Real authenticated campaign did not atomically pay its recorded cost')
+const partyMoneyOther=await rpc(players[8],'get_party_finances',{p_match_id:match.id})
+pass(partyMoneyOther.spentCredits===0 && partyMoneyOther.recentSpending.length===0,
+  'Campaign credits or private receipt leaked across party identities')
 const campaignAfter=await rpc(players[9],'get_campaign_state',{p_match_id:match.id})
 const affected=campaignAfter.cohorts.find(c=>c.code===targetCohort)
 pass(affected?.myInfluence===campaignAct.influence_after &&
@@ -254,6 +272,13 @@ try {
     const board=page.getByRole('region',{name:'Centro de decisiones de la asamblea'})
     await board.getByRole('heading',{name:'Consejo político'}).waitFor()
     await page.getByText('10 / 10').first().waitFor()
+    if(index===0 || index===5) {
+      await board.getByRole('button',{name:'Reformas'}).click()
+      await board.getByRole('button',{name:/Pacto de pensiones y generaciones/})
+        .waitFor()
+      pass(await board.getByText('REFORMA FICTICIA · SOCIETY').count()>0,
+        'Reform content not independently labeled as fiction')
+    }
     await board.getByRole('button',{name:'Decisiones firmadas'}).click()
     await board.getByRole('button',{name:/Plan de resiliencia energética/}).waitFor()
     if(index===0){
@@ -288,8 +313,147 @@ try {
     await context.close()
   }
 } finally { await browser.close() }
+
+/**
+ * AOS-050: genuinely authenticated TEN-PARTY parliamentary approval of the
+ * second, newly authored permanent campaign, on the SAME immutable nation.
+ * Existing founding historical act, training policies and real editorial
+ * dossier embargo stay separate. No production users, email or privileged API.
+ */
+const reformId='pension-covenant'
+const reformChoice='levy-pension-covenant'
+const reformWorld=await rpc(players[2],'get_match_world',{p_match_id:match.id})
+const newReforms=reformWorld.dossiers.filter(d=>d.release_kind==='intro' &&
+  d.programme_chapter && !['founding','diplomacy'].includes(d.programme_chapter))
+pass(newReforms.length===18 && new Set(newReforms.map(d=>d.id)).size===18,
+  'Real Supabase catalogue is missing the 18 permanent national reforms')
+pass(reformWorld.dossiers.filter(d=>d.programme_chapter==='founding').length===10 &&
+  reformWorld.options.length===155,
+  'The ten unchanged founding scenarios and 155 alternatives were not visible')
+pass(newReforms.every(d=>d.context.startsWith('Escenario ficticio:') &&
+  d.source_url===null && d.available_from===null),
+  'Permanent fiction was misrepresented as sourced news')
+const reformStances=await Promise.allSettled(players.map(actor=>
+  rpc(actor,'record_match_stance',{p_match_id:match.id,
+    p_dossier_id:reformId,p_dossier_version:1,p_option_id:reformChoice})
+))
+pass(reformStances.every(v=>v.status==='fulfilled'),
+  'All ten real-JWT parties must be able to take a reform policy stance')
+const reformBill=await rpc(host,'propose_parliament_bill',{
+  p_match_id:match.id,p_dossier_id:reformId,p_dossier_version:1,
+  p_option_id:reformChoice
+})
+pass(reformBill.status==='open','Real reform bill proposal was not permitted')
+for(const actor of players.slice(0,4))
+  await rpc(actor,'cast_parliament_vote',{p_bill_id:reformBill.id,p_choice:'no'})
+for(const actor of players.slice(4,10))
+  await rpc(actor,'cast_parliament_vote',{p_bill_id:reformBill.id,p_choice:'yes'})
+const reformParliament=await rpc(players[7],'get_parliament_state',{
+  p_match_id:match.id
+})
+pass(reformParliament.bills.find(x=>x.id===reformBill.id)?.status==='passed' &&
+  reformParliament.votes.filter(v=>v.bill_id===reformBill.id).length===10,
+  'Reform failed to pass an authentic ten-person binding vote')
+const reformAct=await rpc(host,'submit_decision',{
+  p_government_id:govId,p_dossier_id:reformId,
+  p_dossier_version:1,p_option_id:reformChoice
+})
+pass(reformAct.state_before.treasury_m_eur===10600 &&
+  reformAct.state_after.treasury_m_eur===10840 &&
+  reformAct.option_title_snapshot?.length>3,
+  'Versioned economic consequence of the national pension reform was not signed')
+const reformRetry=await rpc(host,'submit_decision',{
+  p_government_id:govId,p_dossier_id:reformId,
+  p_dossier_version:1,p_option_id:reformChoice
+})
+pass(reformRetry.id===reformAct.id,'Reform network retry produced two signed laws')
+await rejectedRpc(host,'submit_decision',{
+  p_government_id:govId,p_dossier_id:reformId,
+  p_dossier_version:1,p_option_id:'basic-pension-floor'
+},/DOSSIER_ALREADY_DECIDED/)
+const reformObserved=await rpc(players[8],'get_match_world',{p_match_id:match.id})
+pass(reformObserved.events.length===2 &&
+  reformObserved.events.some(event=>event.id===decision.id) &&
+  reformObserved.events.some(event=>event.id===reformAct.id) &&
+  reformObserved.government.treasury_m_eur===10840,
+  'Independent opposition identity cannot see both persistent reforms and founding act')
+await rejectedRpc(outsider,'get_match_world',{
+  p_match_id:match.id
+},/MATCH_FORBIDDEN/)
+console.log('AOS_REFORM_PARLIAMENT_PASS',JSON.stringify({
+  permanentCases:31,foundingUnchanged:10,reforms:18,alternatives:155,
+  authenticPlayers:10,signedActs:2,finalTreasuryM:10840,
+  preservedHistoricalAct:true,
+  note:'Local GoTrue verified; no real news or human participant account'
+}))
+
+// AOS-055: a real ten-party treaty vote is mandatory before an immutable
+// government signature can move all three diplomatic blocs.
+const treatyId='diplomacy-europe'
+const treatyOption='europe-social-treaty'
+const initialDiplomacy=await rpc(players[6],'get_diplomacy_state',{
+  p_government_id:govId
+})
+pass(initialDiplomacy.blocs.length===3 &&
+ initialDiplomacy.blocs.every(b=>b.relation===50 && b.tradeIndex===100),
+ 'Public diplomacy must start neutral without invented historic alliances')
+await rejectedRpc(outsider,'get_diplomacy_state',{
+ p_government_id:govId
+},/DIPLOMACY_FORBIDDEN/)
+const treatyStances=await Promise.allSettled(players.map(actor=>rpc(actor,
+ 'record_match_stance',{p_match_id:match.id,p_dossier_id:treatyId,
+ p_dossier_version:1,p_option_id:treatyOption})))
+pass(treatyStances.every(x=>x.status==='fulfilled'),
+ 'Ten parties cannot independently debate the same diplomatic option')
+const treatyBill=await rpc(host,'propose_parliament_bill',{
+ p_match_id:match.id,p_dossier_id:treatyId,p_dossier_version:1,
+ p_option_id:treatyOption
+})
+for(const actor of players.slice(0,4)) await rpc(actor,'cast_parliament_vote',{
+ p_bill_id:treatyBill.id,p_choice:'no'
+})
+for(const actor of players.slice(4,10)) await rpc(actor,'cast_parliament_vote',{
+ p_bill_id:treatyBill.id,p_choice:'yes'
+})
+const approvedDiplomacy=await rpc(players[3],'get_parliament_state',{
+ p_match_id:match.id
+})
+pass(approvedDiplomacy.bills.some(x=>x.id===treatyBill.id&&x.status==='passed'),
+ 'European diplomatic treaty did not obtain binding ten-party mandate')
+const treatyAct=await rpc(host,'submit_decision',{
+ p_government_id:govId,p_dossier_id:treatyId,p_dossier_version:1,
+ p_option_id:treatyOption
+})
+pass(treatyAct.state_before.treasury_m_eur===10840 &&
+ treatyAct.state_after.treasury_m_eur===10400,
+ 'Treaty did not enforce the signed state-owned fiscal consequence')
+const treatyRetry=await rpc(host,'submit_decision',{
+ p_government_id:govId,p_dossier_id:treatyId,p_dossier_version:1,
+ p_option_id:treatyOption
+})
+pass(treatyRetry.id===treatyAct.id,
+ 'Treaty retry generated a new political decision')
+const signedDiplomacy=await rpc(players[7],'get_diplomacy_state',{
+ p_government_id:govId
+})
+pass(signedDiplomacy.blocs[0].relation===64 &&
+ signedDiplomacy.blocs[1].relation===47 &&
+ signedDiplomacy.blocs[2].relation===52 &&
+ signedDiplomacy.recentEffects.length===3 &&
+ signedDiplomacy.recentEffects.every(e=>e.eventId===treatyAct.id),
+ 'Authenticated opposition cannot verify signed cross-bloc effects')
+await rejectedRpc(players[8],'submit_decision',{
+ p_government_id:govId,p_dossier_id:'diplomacy-asia',p_dossier_version:1,
+ p_option_id:'asia-supply-compact'
+},/GOVERNMENT_NOT_FOUND_OR_FORBIDDEN/)
+console.log('AOS_DIPLOMACY_AUTH_PASS',JSON.stringify({
+ blocs:3,permanentCases:31,alternatives:155,
+ tenPartyMandate:true,governmentSigned:true,
+ effects:3,treasuryM:10400,outsiderReadDenied:true
+}))
+
 console.log('AOS_LIVE_AUTH_PASS',JSON.stringify({
   signedUp:actors.length,distinctPlayers:10,realHttp:true,
-  fixedSignedActs:1,browserContexts:10,decayV2:true,assertions,
+  fixedSignedActs:3,browserContexts:10,decayV2:true,permanentCases:31,assertions,
   note:'Ten authentic HTTP/JWT browser contexts, local GoTrue; no production SMTP or real people'
 }))

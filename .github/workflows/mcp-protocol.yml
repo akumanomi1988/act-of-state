@@ -1,0 +1,32 @@
+name: MCP stdio protocol (isolated)
+
+on:
+  push:
+    branches: [main, dev, staging, 'aos/**']
+    paths: ['mcp/**', '.github/workflows/mcp-protocol.yml']
+  pull_request:
+    paths: ['mcp/**', '.github/workflows/mcp-protocol.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mcp-protocol-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-mcp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: mcp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: mcp/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test

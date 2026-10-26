@@ -1,5 +1,8 @@
 import PlayerOnboarding from './PlayerOnboarding'
+import { PasswordSignIn, AccountPasswordPanel } from './PasswordAccess'
 import MatchAgendaBoard from './MatchAgendaBoard'
+import PolicyPortfolioPanel from './PolicyPortfolioPanel'
+import DiplomacyPanel from './DiplomacyPanel'
 import WeeklyMissionControl from './WeeklyMissionControl'
 import { buildMatchAgenda } from './lib/multiplayerAgenda'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
@@ -353,6 +356,11 @@ export default function MultiplayerApp() {
     : !user ? <main className="match-entry">
       <p className="eyebrow">ASAMBLEA NACIONAL</p><h1>El poder no se ejerce solo.</h1>
       <p className="muted">Diez partidos, una nación persistente. Inicia sesión para fundar o unirte a una partida.</p>
+      <PasswordSignIn email={email} onEmailChange={setEmail} onError={setError}
+        redirectTo={isInviteCode(inviteCode)
+          ? invitationUrl(window.location.origin,inviteCode)
+          : window.location.origin+'/multiplayer'} disabled={pending} />
+      <p>¿Aún no tienes contraseña? Usa el enlace una vez y configúrala en la cuenta.</p>
       <form className="match-form" onSubmit={event => void onLogin(event)}>
         <label>Correo electrónico
           <input type="email" value={email} required autoComplete="email"
@@ -366,6 +374,7 @@ export default function MultiplayerApp() {
     : <main className="match-layout">
       <aside className="match-sidebar">
         <p className="eyebrow">CENTRO DE PARTIDAS</p><h1>Tu asamblea</h1>
+        <AccountPasswordPanel />
         <div className="match-panel">
           <h3>Crear partida</h3>
           <form className="match-form" onSubmit={event => void onCreate(event)}>
@@ -554,6 +563,25 @@ export default function MultiplayerApp() {
               world={world} userId={user!.id}
               onSelect={id => {
                 setSelectedDossierId(id)
+                setSelectedOptionId('')
+                setReviewCabinet(false)
+                setMandateOptionId(null)
+              }} />
+            <DiplomacyPanel key={world.match.id+':diplomacy:'+user!.id}
+              identity={user!.id} governmentId={world.government.id}
+              dossiers={world.dossiers} events={world.events}
+              mode="parliament" onSelect={item => {
+                setSelectedDossierId(item.id)
+                setSelectedOptionId('')
+                setReviewCabinet(false)
+                setMandateOptionId(null)
+              }} />
+            <PolicyPortfolioPanel key={world.match.id + ':portfolio:' + user!.id}
+              mode="parliament" dossiers={world.dossiers} options={world.options}
+              events={world.events} gameDay={world.gameDay}
+              treasury={world.government.treasury_m_eur}
+              onSelect={item => {
+                setSelectedDossierId(item.id)
                 setSelectedOptionId('')
                 setReviewCabinet(false)
                 setMandateOptionId(null)

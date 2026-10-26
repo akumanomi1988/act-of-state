@@ -1,10 +1,147 @@
+## AOS-057 — Authenticated MCP client bridge
+
+- Seven game read tools and four confirmation-gated actions over official MCP v2 stdio.
+- Uses existing JWT-scoped PostgreSQL RPC permissions, without a new backend.
+- Six local tests with a true MCP client/child process and CI; hosted token renewal NOT_TESTED.
+- Product acceptance weights remain unchanged pending final gates.
+
+## AOS-056 — Five-way ten-story editorial publication enforcement
+
+- New weekly Monday releases must contain ten independently sourced and
+  publisher-reviewed dossiers, EACH with five unique political positions.
+- Five optional fictional scenario stances can be drafted for cited news;
+  they are never represented as quotations or real government announcements.
+- Atomic publisher-only SQL validates unique IDs, titles and policy targets;
+  invalid partial slates leave no playable record. Existing published
+  histories, credentials and staff gates remain unchanged.
+- Acceptance: ten-article fixture, four-choice/duplicate choice rejection,
+  approved 50-choice release, retry idempotence and Chromium newsroom QA.
+- Progress: no weight change to the 100-point final release baseline;
+  human editorial source verification and publish credentials remain pending.
+
+## AOS-059 — Bilingual public player manual (development branch)
+
+- Entire public player manual translated into English (16 sections) with an
+  accessible ES/EN switch and deep links preserving stable chapter anchors.
+- Does not require an account or change the political game; includes tested
+  keyboard-style button interaction and no backend or provider dependency.
+- Scope boundary: full application localization is NOT complete. No weights
+  change and no deployment is authorized.
+
+## AOS-060 — Spanish/English anonymous training vertical slice
+
+- Implemented all four demo scenarios and twelve independent choices in English,
+  without cloning decision logic, changing stored IDs or altering their authored
+  fiscal/social effects; saved browser-only decisions survive language changes
+  and language-specific deep links. All game/disclaimer/actions/metrics/history
+  in the guest demo are localized.
+- Added scenario parity, interactive React choice/review/sign/locale regression
+  and mobile Chromium smoke. The demo remains explicitly non-authoritative,
+  never posts to production and requires no login.
+- Whole-game localization and final commercial acceptance remain outstanding;
+  frozen 100-point / 62-point progress denominators remain unchanged.
+
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-049 verifiable production release, public diagnostics, disaster recovery and ten-party HTTP load — branch CI verified; exact hosted main release pending.
+**Latest implementation increment:** AOS-055 international diplomacy, following AOS-054 five-option campaign and newsroom, following AOS-053 equal-rule political campaign finance, following AOS-052 cross-dossier policy portfolio on isolated development branch, extending AOS-050 reforms and AOS-051 password access. Development changes are not authorized for hosted release. The AOS-049 exact hosted release check has already passed on main.
 **Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
 this is an acceptance-gate tally, not a measure of implemented code or effort.
 Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-055 — International diplomacy (isolated development)
+
+- Three fictional diplomatic negotiations with Europe, Asia and United
+  States, each with five authored fiscal and geopolitical alternatives.
+  Development catalogue grows to 31 permanent cases / 155 options.
+- Versioned 45-vector relations matrix; effects snapshotted atomically from
+  authenticated national signatures; immutable replay and member-scoped
+  consultation. No alternative executive privilege to bypass Parliament.
+- Solo/Parliament dashboards, region indices, history, navigation and
+  cross-device authenticated visibility with mobile/browser/SQL tests.
+- Formal 100-weight acceptance baseline is unchanged. Human balance,
+  real external publication and hosted release remain open.
+
+## AOS-054 — Five-option national programme and weekly editorial authoring (development)
+
+- Expanded all 28 permanent fictional dossiers from three to five independently
+  playable alternatives: 56 original option rows; 140 total. The 84 prior
+  choices remain byte-for-byte unchanged in the original migrations, preserving
+  signed history, mandate keys, and saved national state.
+- The editorial UI can create/edit five strategies; the server-owned reviewed
+  Monday publication RPC accepts up to five uniquely identified and validated
+  options per weekly dossier. Two-to-four-option drafts remain compatible.
+- Added catalogue/oracle, publisher SQL, browser/React and authenticated
+  decision checks; deployment requires separately authorized cloud migration.
+- The 100-point **original acceptance baseline remains frozen**. Partial
+  development evidence is not automatically a whole-product accepted gate.
+
+## AOS-053 — Equal-rule party finances and verified campaign expenditure (2026-10-26)
+
+- Added server-only 12-credit starting allocation and 4-credit UTC-week grants
+  to every active party; fixed 4/7/10 strategy costs are enforced under the
+  existing campaign row lock, weekly quota and election embargo.
+- Recorded campaign expense receipts with no direct client grants and RLS,
+  membership-scoped financial RPC, immutable history and exact-retry
+  protection. Government and opposition use identical entitlement rules.
+- Implemented finance dashboard and cost-aware electoral campaigning with
+  authoritative post-action confirmation. Added SQL, React, client contract,
+  Chromium and real-JWT integration assertions.
+- Established stable weighted whole-product baseline in
+  [PRODUCT_COMPLETION_BASELINE.md](PRODUCT_COMPLETION_BASELINE.md):
+  **10.0% weighted accepted** (10/100). Historical 2/18 (11.1%) is retained;
+  both only count MVP-T001 and MVP-T003 and are not directly comparable.
+- Isolated branch only; no hosted Supabase migration, Vercel deploy or
+  editorial publication is authorized. GitHub CI results are independent
+  evidence and must be confirmed before claiming the milestone verified.
+
+## AOS-052 — Read-only multi-dossier national policy portfolio (2026-10-26, development)
+
+- Added a shared solo/Parliament planner: chapter progress, multi-dossier fiscal
+  comparison, budget risk indicator, signed-state reconciliation and dossier navigation.
+- Temporary drafts are not authorized decisions, stances or votes. No RPC,
+  data migration or new server trust boundary was introduced.
+- Added independent model and UI regressions. Full operational acceptance still
+  requires branch CI and separate human review.
+- See [national policy portfolio](POLICY_PORTFOLIO.md).
+- Strict original full-product acceptance stays at 2/18 (11.1 percent).
+
+## AOS-051 — Password sign-in and manual-only Vercel deployment (2026-10-26, development)
+
+- The Vercel project update endpoint was accessed successfully without a
+  misleading team-scope parameter. Applied `previewDeploymentsDisabled=true`
+  and `commandForIgnoringBuildStep='exit 0'`. Added
+  `git.deploymentEnabled:false` to the repo's `vercel.json`, preserving
+  existing SPA rewrites. After subsequent development commits the Vercel
+  project deployment list showed **no new deployments** (latest previously
+  recorded preview had SHA `492b4dcfc613`). No production alias or hosted
+  Supabase settings were changed.
+- Added email/password sign-in using the existing Supabase Auth identity in
+  both solo and multijugador. Existing email link first access stays; logged-in
+  accounts can configure a password through `auth.updateUser`, with client
+  minimum 12 characters and confirmation (GoTrue enforces policy).
+- Added explicit forgotten-password recovery, generic error handling to avoid
+  account enumeration, password-only ephemeral component state, no client
+  password storage, and preserved persistent GoTrue sessions.
+- Added a local pure password-policy test (2/2 PASS) and React/GoTrue test
+  coverage, including a genuine Mailpit-link user who establishes a password,
+  signs out and returns through `signInWithPassword` without another OTP
+  while retaining the same match. **Full integrated CI for AOS-051 is not yet
+  verified** and none of this new login UI is currently published.
+- [Password operations](PASSWORD_LOGIN.md). All changes remain on
+  `aos/050-national-reforms-campaign` and **must not deploy to Vercel or
+  migrate hosted Supabase without separate release authorization**.
+  Strict product acceptance remains **2/18 = 11.1%**, not a code percentage.
+
+## AOS-050 — National reform programme (2026-10-25, isolated development)
+
+- Expands the existing ten permanent original fictional dossiers into an authored 28-case policy programme with **18 new long-form dilemmas and 54 distinct policy alternatives** in four connected chapters: welfare/society (5), economy/resources (5), institutional democracy (4), and resilience/external dependencies (4). The original ten IDs, thirty alternatives, cost parameters and archived decisions remain unchanged.
+- Each new option is a true server-authoritative `submit_decision` fiscal/cohort intervention and an immutable act in the existing national history. In the active ten-party game it must pass binding parliamentary approval before government signature; no privileged write path, price, editorial role or fabricated current news was introduced.
+- Adds stable chapter/order metadata, solo chapter progress and continuity, parliamentary stage counts and filters, responsive progress/navigation, updated guide and original authored content; the editorial weekly release and genuine-news embargo are isolated by an explicit new database constraint.
+- Adds a full disposable SQL 18-signature acceptance scenario, checks all 84 option records, political/fiscal trade-offs, idempotency, government ownership and original founding fiscal invariant; adds ten-party real GoTrue parliamentary campaign acceptance, Node content oracle and React tests. Existing weekly fixture snapshots now expect 28 permanent cases separately from ten true weekly news articles.
+- **Verification achieved in-session:** static catalogue inspection finds 18 unique new cases, 54 choices, exact (5/5/4/4) chapter coverage, no underspecified descriptions or scenarios, and positive/negative fiscal alternatives per case. **Not verified:** PostgreSQL execution, Vitest/TypeScript, real GoTrue browser suites or release parity for the new branch; they must run in a safe CI executor before acceptance.
+- **OWNER HOLD — DO NOT PUBLISH:** `aos/050-national-reforms-campaign` is a development branch only. Do **not** merge into main, create a pull request that could deploy to Vercel, change Vercel project state, or apply this migration to the hosted Supabase project without separate explicit owner authorization. [Release safeguard](NO_VERCEL_AUTODEPLOY.md), [campaign technical guide](NATIONAL_REFORM_PROGRAMME.md).
+- The original strict acceptance count stays **2/18 = 11.1%**; an expanded authored campaign does not replace external SMTP, ten consenting human players, actual reviewed news, long-running calibration or human audiovisual QA. No release percentage is invented.
 
 ## AOS-049 — Immutable production releases, diagnostic access and durable recovery (2026-10-25)
 

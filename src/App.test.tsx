@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   submitDecision: vi.fn()
 }))
 
+vi.mock('./DiplomacyPanel', () => ({ default: () => null }))
 vi.mock('./PopulationPanel', () => ({ default: () => null }))
 vi.mock('./LivingConditionsPanel', () => ({ default: () => null }))
 

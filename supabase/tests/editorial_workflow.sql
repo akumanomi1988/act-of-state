@@ -37,7 +37,19 @@ select monday,
     jsonb_build_object('id','option-b','title','Reject policy',
       'description','Rollback-only option: reject the measure.',
       'treasury_delta_m_eur',0,'policy_target',70,
-      'response_intensity',10,'trust_base_delta',-1))
+      'response_intensity',10,'trust_base_delta',-1),
+    jsonb_build_object('id','option-c','title','Cooperate on review',
+      'description','Rollback-only option: negotiate a review commission.',
+      'treasury_delta_m_eur',-30,'policy_target',40,
+      'response_intensity',15,'trust_base_delta',1),
+    jsonb_build_object('id','option-d','title','Delegate policy',
+      'description','Rollback-only option: assign oversight to regions.',
+      'treasury_delta_m_eur',-20,'policy_target',60,
+      'response_intensity',25,'trust_base_delta',0),
+    jsonb_build_object('id','option-e','title','Raise dedicated tax',
+      'description','Rollback-only option: finance reform through a levy.',
+      'treasury_delta_m_eur',80,'policy_target',90,
+      'response_intensity',30,'trust_base_delta',-2))
   ) order by n) as full_draft
 from calendar cross join generate_series(1,10) n
 group by monday;
@@ -146,7 +158,7 @@ begin
      where release_kind='weekly' and available_from=f.monday)<>10 or
     (select count(*) from public.dossier_options o join public.dossiers d
       on d.id=o.dossier_id and d.version=o.dossier_version
-      where d.release_kind='weekly' and d.available_from=f.monday)<>20 then
+      where d.release_kind='weekly' and d.available_from=f.monday)<>50 then
   raise exception 'EDITORIAL_PUBLICATION_MATERIALIZATION_FAILED'; end if;
 end $$;
 set local role authenticated;

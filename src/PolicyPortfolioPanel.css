@@ -1,0 +1,30 @@
+.policy-portfolio{margin:1.25rem 0;padding:1.3rem;border:1px solid var(--line,#475569);border-radius:1rem;background:var(--panel,#182124);color:inherit}
+.policy-portfolio-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.policy-portfolio-top h2{margin:.25rem 0;font-size:clamp(1.2rem,2vw,1.55rem)}
+.policy-portfolio-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin-top:1rem}
+.policy-portfolio-summary span{border:1px solid var(--line,#475569);border-radius:.7rem;padding:.7rem;font-size:.85rem}
+.policy-portfolio-summary strong{display:block;font-size:1.35rem;font-variant-numeric:tabular-nums}
+.policy-portfolio-disclaimer{font-size:.9rem;line-height:1.6;max-width:80ch}
+.policy-portfolio-fiscal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;margin:1rem 0}
+.policy-portfolio-fiscal>div{padding:.85rem;border-radius:.65rem;background:rgba(105,133,166,.12);display:grid;gap:.35rem}
+.policy-portfolio-fiscal span{font-size:.75rem;letter-spacing:.04em}
+.policy-portfolio-fiscal strong{font-size:1.1rem;font-variant-numeric:tabular-nums}
+.policy-portfolio-risk{border-left:3px solid #e99d57;padding:.7rem 1rem;background:rgba(217,136,58,.10)}
+.policy-portfolio-filters{display:flex;gap:.45rem;flex-wrap:wrap;margin:1.3rem 0 .85rem}
+.policy-portfolio-filters button{background:transparent;color:inherit;border:1px solid var(--line,#64748b);border-radius:999px;padding:.45rem .7rem;cursor:pointer}
+.policy-portfolio-filters button[aria-pressed=true]{border-color:currentColor;background:rgba(105,133,166,.18)}
+.policy-portfolio-cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:.7rem}
+.policy-portfolio-case{display:grid;gap:.65rem;padding:1rem;border:1px solid var(--line,#64748b);border-radius:.7rem;align-content:start}
+.policy-portfolio-case-heading{display:flex;align-items:start;gap:.5rem;justify-content:space-between}
+.policy-portfolio-case h3{font-size:1rem;margin:0}
+.policy-portfolio-case-heading span{font-size:.72rem;white-space:nowrap}
+.policy-portfolio-case label{display:grid;gap:.35rem;font-size:.83rem}
+.policy-portfolio-case select{width:100%;background:var(--panel2,#202a2c);color:inherit;border:1px solid var(--line,#64748b);border-radius:.4rem;padding:.55rem;min-width:0}
+.policy-portfolio-draft{padding:.8rem;border:1px dashed var(--line,#64748b);border-radius:.7rem}
+.policy-portfolio-draft ol{padding-left:1.4rem}
+.policy-portfolio-draft li{margin:.4rem 0}
+.policy-portfolio-draft li button{margin-left:.5rem}
+@media(max-width:650px){.policy-portfolio-summary,.policy-portfolio-fiscal{grid-template-columns:1fr}.policy-portfolio{padding:1rem}}
+
+
+.policy-portfolio-option-explanation{display:block;color:var(--muted,#aeb9b8);line-height:1.5;margin-top:.25rem}

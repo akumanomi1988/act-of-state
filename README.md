@@ -8,6 +8,46 @@ Free-to-play, browser-based, persistent political simulation. This codebase is i
 
 Visit **`/demo`** to try four authored fictional government dossiers with twelve alternatives, review-before-sign decisions, deterministic local consequences, a reversible-by-reset ledger and browser-only progress. This is **not a real game save or the PostgreSQL simulation**: no authentication, backend calls, live news, party multiplayer or promotion of demonstration choices into an actual government. See [guest training sandbox](docs/GUEST_DEMO.md). Pull-request CI verifies its responsive Chromium flow, no-backend boundary, persistence and accessibility.
 
+## Optional MCP adapter (AOS-057, unreleased)
+
+A local stdio bridge offers seven authenticated read-only game tools and four
+explicit-confirmation political actions without service keys or new hosted
+services. See docs/MCP_INTEGRATION.md.
+
+## International diplomacy (AOS-055, unreleased)
+
+Three foreign-policy dossiers (Europe, Asia and United States) offer
+15 five-way policies. Their signatures atomically produce 45 regional
+consequences. The dashboard is shared by solo government and Parliament.
+Existing legislative authorization is retained. See docs/DIPLOMACY.md.
+
+## Five-option decisions and weekly newsroom (AOS-054, unreleased)
+
+The 28 permanent fictional dossiers now have five distinct server-authoritative
+policy alternatives each (140 in total). The previously published 84 options
+retain their original IDs and values. The editorial newsroom can author
+and publish five validated choices for each independently reviewed weekly
+dossier. These developer-branch changes are not released to production.
+
+## Party financing and campaign costs (AOS-053, unreleased)
+
+All parties receive deterministic equal fictional political funding (12 credits
+initially and 4 credits each UTC week) and pay server-authoritative costs for
+campaign activities (4/7/10). The permanent per-party spending ledger is
+isolated by membership and server permissions; retries never charge twice.
+The campaign UI displays the available budget and private account history.
+See [party finance design](docs/PARTY_FINANCE.md). No real-money donations
+or production migration are involved.
+
+## National policy portfolio (AOS-052, unreleased)
+
+Solo and Parliamentary players can compare direct fiscal exposure across multiple
+pending permanent fictional dossiers without enacting legislation. The temporary
+five-chapter planner reconciles server-signed acts, versioned options and programme
+availability; weekly news and predicted social outcomes remain out of scope.
+See [national policy portfolio](docs/POLICY_PORTFOLIO.md).
+This is only on the isolated development branch, not released to Vercel.
+
 ## The founding government programme (AOS-043)
 
 Authenticated solo governments can now play a permanent **ten-dossier fictional founding programme** with 30 choices: original energy/water policies plus housing, healthcare, education, infrastructure, employment, food security, digital institutions and climate adaptation. All choices use the existing server-authoritative decision RPC and are permanently recorded. The government dashboard tracks decisions signed, the event-derived cumulative fiscal/social signature impacts, and current weekly dossiers with priority filters. The player guide and onboarding explain the difference between this programme and the separately published current-news cycle. See [full programme and acceptance](docs/FOUNDATIONAL_GOVERNMENT_PROGRAMME.md). The separate `/demo` training mode remains browser-local and non-authoritative.
@@ -35,6 +75,42 @@ Campaign persuasion now has **server-authoritative time decay**: two points of e
 ## Version-verified hosted releases and operational recovery (AOS-049)
 
 The public **/status** screen shows the verified build revision, expected electoral model and a limited public authentication availability probe without needing a player session. Production builds stamp an immutable `/release.json`; a GitHub Action checks that all six public routes and the actual JavaScript bundle correspond to **the same** production Git commit, detecting the stale Vercel deployments previously caused by Hobby build-rate limits. Disposable PostgreSQL backup/restore and ten-authenticated-party load tests are integrated into CI. See [operational release and recovery handbook](docs/PRODUCTION_RELEASE_RUNBOOK.md). This does **not** replace production Auth, newsroom, real-user or live backup acceptance.
+
+## National reform campaign (AOS-050 — development branch only)
+
+A second **18-dossier, four-chapter fictional national policy campaign**
+extends the unchanged ten-case introductory government programme to **28
+permanent decisions and 84 alternatives**. Society, economy, democratic
+institutions and resilience have separate progress tracking and accessible
+filters in both single-player and ten-party Parliament. Every policy reuses
+signed server-side fiscal and population consequences, binding parliamentary
+approval and historically immutable acts; verified weekly real-news dossiers
+remain separately embargoed. See [authored campaign and integration](docs/NATIONAL_REFORM_PROGRAMME.md).
+
+**Release hold:** this increment is on
+`aos/050-national-reforms-campaign`, not merged or published. The owner
+explicitly prohibits routine Vercel deployments after repeated build-rate-limit
+failures. Do **not** create a Vercel production/preview deployment, merge
+into `main`, or apply the new production database migration without a separate
+explicit release authorization. See [no automatic deployment instructions](docs/NO_VERCEL_AUTODEPLOY.md).
+
+## Password sign-in and manual Vercel releases (AOS-051 — branch only)
+
+Login now supports Supabase `signInWithPassword` in both solo and ten-party
+multiplayer, alongside existing one-time email links. A magic-link user can
+attach a strong password to their own verified Supabase identity with
+`updateUser`; their government and seats remain tied to that user ID.
+Password recovery is opt-in, uses a neutral response without user enumeration,
+and relies on the same authenticated session flow. No application password
+database, third-party authentication provider, plaintext secret logs or
+privileged backend endpoint is introduced. See [password setup guide](docs/PASSWORD_LOGIN.md).
+
+**Manual publication only:** Vercel project settings have previews disabled
+and the Ignored Build Step set to `exit 0`. The committed `vercel.json`
+has `git.deploymentEnabled: false`. We therefore do not automatically publish
+Git pushes, PRs or merges. Changes in this development branch are NOT
+deployed; production remains on AOS-049 until a deliberate, separately
+authorized large release.
 
 ## Current implementation (AOS-MVP-001)
 

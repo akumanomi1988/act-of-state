@@ -103,6 +103,14 @@ async function routeApi(page,state,{emailLimit=false}={}) {
       return route.fulfill({status:204,headers:{
         'access-control-allow-origin':'*','access-control-allow-methods':'GET,POST,OPTIONS',
         'access-control-allow-headers':'*'}})
+    if (path==='/rest/v1/rpc/get_diplomacy_state') return json({
+      governmentId:state.government.id,modelVersion:'diplomacy-v1',
+      blocs:[
+        {id:'europe',label:'Europa',relation:50,tradeIndex:100,signedEffects:0},
+        {id:'asia',label:'Asia',relation:50,tradeIndex:100,signedEffects:0},
+        {id:'usa',label:'Estados Unidos',relation:50,tradeIndex:100,signedEffects:0}
+      ],recentEffects:[]
+    })
     if (path==='/auth/v1/user') return json(state.user)
     if (path==='/auth/v1/logout')
       return route.fulfill({status:204,headers:{'access-control-allow-origin':'*'}})
@@ -167,6 +175,13 @@ async function routeApi(page,state,{emailLimit=false}={}) {
       if(path==='/rest/v1/rpc/get_governance_state') return json({
         hostUserId:leaderId,totalSeats:100,coalitionSeats:10,
         coalition:[],motions:[],votes:[],serverNow:'2026-10-24T12:00:00Z'
+      })
+      if(path==='/rest/v1/rpc/get_party_finances') return json({
+        matchId:mid,serverDay:'2026-10-24',weekStart:'2026-10-19',
+        financeModel:'equal-public-weekly-v1',active:true,
+        earnedCredits:16,spentCredits:0,availableCredits:16,
+        costs:{dialogue:4,field_visit:7,policy_forum:10},
+        recentSpending:[]
       })
       if(path==='/rest/v1/rpc/get_campaign_state') return json({
         serverDay:'2026-10-24',weekStart:'2026-10-19',
@@ -434,6 +449,47 @@ async function run(name,fn) {
 try {
   browser=await chromium.launch({...(process.env.AOS_CHROMIUM_CHANNEL==='bundled'?{}:{channel:'chrome'}),headless:true,args:['--no-sandbox']})
 
+  await run('Bilingual public guide preserves chapter navigation, language link and mobile accessibility',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    await page.goto(BASE+'/guide?lang=en',{waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'From your first decision to a shared mandate'}).waitFor()
+    await page.getByRole('heading',{name:'Government and opposition'}).waitFor()
+    const sections=page.locator('main section')
+    assert.equal(await sections.count(),16)
+    await page.getByRole('link',{name:'Working through a political week'}).click()
+    assert.equal(new URL(page.url()).hash,'#weekly-operations')
+    await page.getByRole('button',{name:'Español'}).click()
+    await page.getByRole('heading',{name:'Una semana política',exact:true}).waitFor()
+    assert.equal(new URL(page.url()).searchParams.get('lang'),'es')
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'De tu primera decisión a un mandato compartido'}).waitFor()
+    await page.getByRole('button',{name:'English'}).click()
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'From your first decision to a shared mandate'}).waitFor()
+    await checkMobileOverflow(page,'English player guide')
+    await checkA11y(page,'English player guide')
+    await context.close()
+  })
+
+  await run('English guest demo signs an isolated choice and survives language reload',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    await page.goto(BASE+'/demo?lang=en',{waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'Govern before signing up.'}).waitFor()
+    await page.getByRole('radio',{name:/Direct assistance to families/}).check()
+    await page.getByRole('button',{name:'Review practice choice'}).click()
+    await page.getByRole('button',{name:'Apply practice choice'}).click()
+    await page.getByText('1 / 4 dossiers').waitFor()
+    await page.getByRole('button',{name:'Español'}).click()
+    await page.getByRole('heading',{name:'Ayuda directa a familias'}).waitFor()
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByText('1 / 4 expedientes').waitFor()
+    await checkMobileOverflow(page,'bilingual guest training')
+    await checkA11y(page,'bilingual guest training')
+    await context.close()
+  })
+
   await run('Anonymous login, redirect origin and responsive root',async()=>{
     const context=await browser.newContext({viewport:{width:375,height:812}})
     const page=await context.newPage()
@@ -470,6 +526,62 @@ try {
     await page.getByRole('alert').waitFor()
     assert.equal(await page.getByText(/se ha solicitado el enlace de acceso/i).count(),0)
     assert.equal(state.otpCount,1)
+    await context.close()
+  })
+
+  await run('Diplomacy panel shows authoritative blocs and routes into treaty dossier',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    const state=createServerState()
+    const treaty={...state.dossier,id:'diplomacy-europe',title:'Pacto político con Europa',
+      programme_chapter:'diplomacy',programme_order:1,category:'Europa'}
+    state.foundationalDossiers=[state.dossier,treaty]
+    state.foundationalOptions=[state.option,{...state.option,
+      dossier_id:'diplomacy-europe',id:'europe-social-treaty',
+      title:'Tratado de movilidad social'}]
+    await routeApi(page,state)
+    await injectUser(page,state)
+    await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    const diplomacy=page.getByRole('region',{name:'Diplomacia y relaciones internacionales'})
+    await diplomacy.getByRole('progressbar',{name:'Relación con Europa'}).waitFor()
+    assert.equal(await diplomacy.getByRole('progressbar',{
+      name:'Relación con Europa'}).getAttribute('aria-valuenow'),'50')
+    await diplomacy.getByRole('button',{name:'Negociar expediente'}).first().click()
+    await page.getByRole('heading',{name:'Pacto político con Europa'}).last().waitFor()
+    assert.equal(state.events.length,0,'just opening a treaty must never sign it')
+    await checkMobileOverflow(page,'diplomacy mobile')
+    await checkA11y(page,'diplomacy mobile')
+    await context.close()
+  })
+
+  await run('Strategic portfolio compares two permanent reforms without authorizing any act',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    const state=createServerState()
+    const pension={...state.dossier,id:'fiction-pension-reform',
+      title:'Jubilaciones sostenibles',programme_chapter:'society',programme_order:1}
+    const choice={...state.option,dossier_id:pension.id,id:'targeted-pensions',
+      title:'Financiación intergeneracional',treasury_delta_m_eur:-600}
+    state.foundationalDossiers=[state.dossier,pension]
+    state.foundationalOptions=[state.option,choice]
+    await routeApi(page,state)
+    await injectUser(page,state)
+    await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    const planner=page.getByRole('region',{name:'Planificador de cartera legislativa'})
+    await planner.getByRole('button',{name:'Abrir planificación'}).click()
+    await planner.getByLabel('Planificar Plan de resiliencia energética')
+      .selectOption('household-support')
+    await planner.getByLabel('Planificar Jubilaciones sostenibles')
+      .selectOption('targeted-pensions')
+    await planner.getByLabel('Medidas seleccionadas').getByRole('listitem').first().waitFor()
+    await planner.getByText('-2.000 M€').waitFor()
+    await planner.getByText('10.000 M€').waitFor()
+    assert.equal(state.events.length,0,'draft must not submit a national act')
+    await checkMobileOverflow(page,'multi-policy portfolio')
+    await checkA11y(page,'multi-policy portfolio')
+    await page.screenshot({path:OUT+'/policy-portfolio-mobile.png',fullPage:true})
+    await planner.getByRole('button',{name:'Vaciar borrador'}).click()
+    await planner.locator('.policy-portfolio-fiscal').getByText('0 M€', { exact: true }).first().waitFor()
     await context.close()
   })
 
@@ -693,6 +805,12 @@ try {
     await checkMobileOverflow(page,'editorial source import')
     await checkA11y(page,'editorial source import')
     await page.screenshot({path:OUT+'/editorial-sources-mobile.png',fullPage:true})
+    await page.getByRole('button',{name:'Preparar diez escenarios políticos'}).click()
+    await page.getByRole('textbox',{name:'Decisión option-e'}).waitFor()
+    assert.equal(await progress.getAttribute('aria-valuenow'),'10')
+    assert.equal(await page.getByRole('button',{name:'Revisar publicación'}).isDisabled(),true)
+    await checkMobileOverflow(page,'five-way editorial slate')
+    await checkA11y(page,'five-way editorial slate')
     // Import is a local draft, not an unreviewed publication or implicit save.
     await page.reload({waitUntil:'networkidle'})
     assert.equal(await page.getByRole('textbox',{name:'Título de la fuente'}).inputValue(),'')
@@ -755,7 +873,7 @@ try {
       await agenda.getByRole('progressbar',{name:'Decisiones del programa firmadas'}).waitFor()
       await agenda.getByRole('button',{name:'Esta semana'}).click()
       await agenda.getByRole('status').filter({hasText:'No hay expedientes'}).waitFor()
-      await agenda.getByRole('button',{name:'Programa de gobierno'}).click()
+      await agenda.getByRole('button',{name:'Programa inicial'}).click()
       assert.equal(await agenda.getByRole('button',{name:/FICTICIO/}).count(),10)
       await page.getByRole('radio',{name:/Proteger a los hogares/}).check()
       await page.getByRole('button',{name:'Revisar decisión'}).click()
@@ -829,6 +947,9 @@ try {
       const campaign=page.getByRole('region',{name:'Campaña electoral'})
       await campaign.getByText('Influencia efectiva actual:',{exact:false}).first().waitFor()
       await campaign.getByText('Próximo desgaste: 2026-10-31 (UTC)').waitFor()
+      await campaign.getByRole('heading',{name:'Financiación pública ficticia'}).waitFor()
+      await campaign.getByText('Disponibles').waitFor()
+      await campaign.getByText('Coste de esta estrategia: 4 créditos.').waitFor()
       await campaign.getByText(/se desgasta dos puntos cada siete días/).waitFor()
       const mission=page.getByRole('region',{name:'Sala de operaciones legislativas'})
       await mission.getByRole('heading',{name:'Operaciones legislativas'}).waitFor()
@@ -839,7 +960,7 @@ try {
       await page.locator('.match-seat.occupied').filter({hasText:'Partido 10'}).waitFor()
       assert.equal(await page.locator('.match-seat.occupied').count(),10)
       assert.equal(await board.getByText('0 / 1 firmados').count(),2)
-      const choices=await board.getByRole('button',{name:/PLAZO SEMANAL|ESCENARIO FICTICIO/}).all()
+      const choices=await board.getByRole('button',{name:/PLAZO SEMANAL|PROGRAMA INICIAL FICTICIO/}).all()
       assert.match(await choices[0].innerText(),/Ley semanal verificada de prueba/)
       if(role.index===0) {
         await board.getByText('Gobierno ejecutivo').waitFor()
@@ -851,7 +972,7 @@ try {
       await board.getByRole('button',{name:'Esta semana'}).click()
       assert.equal(await board.getByRole('button',{name:/PLAZO SEMANAL/}).count(),1)
       await board.getByRole('button',{name:'Programa inicial'}).click()
-      assert.equal(await board.getByRole('button',{name:/ESCENARIO FICTICIO/}).count(),1)
+      assert.equal(await board.getByRole('button',{name:/PROGRAMA INICIAL FICTICIO/}).count(),1)
       await checkMobileOverflow(page,'ten-party command board '+role.width)
       await checkA11y(page,'ten-party command board '+role.width)
       await page.screenshot({path:OUT+'/multi-command-'+role.width+'.png',fullPage:true})

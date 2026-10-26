@@ -38,7 +38,19 @@ export function draftPolicyScenario(dossier: EditorialDossier): EditorialDossier
       description: 'Conservar la estrategia actual sobre ' + category.subject +
         ', evitando nuevos compromisos presupuestarios y aplazando la intervención.',
       treasury_delta_m_eur: 0, policy_target: Math.min(100,category.target+20),
-      response_intensity: 20, trust_base_delta: -1 }
+      response_intensity: 20, trust_base_delta: -1 },
+    { id: 'option-d', title: 'Delegar y evaluar con los territorios',
+      description: 'Transferir temporalmente la coordinación de ' + category.subject +
+        ' a una mesa territorial con evaluación independiente, indicadores públicos y revisión de competencias.',
+      treasury_delta_m_eur: -Math.round(category.publicCost/5),
+      policy_target: Math.max(0, category.target-35), response_intensity: 40,
+      trust_base_delta: 3 },
+    { id: 'option-e', title: 'Financiar con un gravamen finalista',
+      description: 'Introducir una contribución progresiva y temporal para ' + category.subject +
+        ', compensando parte del coste fiscal y aceptando oposición de los sectores afectados.',
+      treasury_delta_m_eur: Math.round(category.publicCost/4),
+      policy_target: Math.min(100, category.target+35), response_intensity: 65,
+      trust_base_delta: -3 }
   ]
   const missingContext=!dossier.context.trim()
   const missingOptions=!dossier.options.some(option=>option.title.trim()||option.description.trim())

@@ -64,7 +64,7 @@ A constructive confidence vote may transfer executive authority between ordinary
 - Campaign actions cost no real money and confer no paid competitive advantage. They do not directly alter treasury, overall government approval, or cohort trust. They add a small, bounded electoral affinity modifier at the next election and appear in an immutable interparty register.
 - The electoral algorithm and future election records now use electoral-cohorts-v2, preserving previous v1 election records as historical truth. Election snapshots include campaignInfluenceTotal for each party.
 - Campaign table access is denied to browser roles. Only authenticated match members can call state/read and action RPCs; even the API cannot accept client-calculated boosts.
-- This is not a complete political-party finance system, media market, or real-world demographic forecast. The campaign feature does not certify a full political-simulator release.
+- The AOS-053 development branch adds an equal-credit campaign expenditure system, but it is not a complete political-party finance system, media market, or real-world demographic forecast. The campaign feature does not certify a full political-simulator release.
 
 
 ## Household electorate (AOS-031)

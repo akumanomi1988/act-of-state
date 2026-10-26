@@ -46,7 +46,7 @@ begin
  if not exists(select 1 from public.dossiers where id='energy-resilience' and version=1) then
   raise exception 'DOSSIER_LOOKUP_FAILED'; end if;
  if not exists(select 1 from public.dossiers where id='water-security' and version=1) or
-    (select count(*) from public.dossier_options where dossier_id='water-security' and dossier_version=1)<>3 then
+    (select count(*) from public.dossier_options where dossier_id='water-security' and dossier_version=1)<>5 then
   raise exception 'SECOND_EDITORIAL_DOSSIER_MISSING'; end if;
  if public.get_game_day()<>(now() at time zone 'UTC')::date then
   raise exception 'SERVER_DAY_MISMATCH'; end if;

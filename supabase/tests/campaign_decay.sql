@@ -137,6 +137,15 @@ update public.match_campaign_events
  set week_start=week_start-7
  where match_id=(select match_id from pg_temp.campaign_decay_fixture)
  and user_id='58000000-0000-4000-8000-000000000001';
+-- The synthetic calendar jump also advances the financing entitlement and
+-- moves its receipt into the original week. This entire fixture ROLLBACKs.
+update public.match_campaign_spending
+ set week_start=week_start-7
+ where match_id=(select match_id from pg_temp.campaign_decay_fixture)
+ and user_id='58000000-0000-4000-8000-000000000001';
+update public.matches
+ set started_at=started_at-interval '14 days'
+ where id=(select match_id from pg_temp.campaign_decay_fixture);
 set local role authenticated;
 select set_config('request.jwt.claim.sub','58000000-0000-4000-8000-000000000001',true);
 do $$

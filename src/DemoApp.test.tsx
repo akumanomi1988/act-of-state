@@ -1,10 +1,47 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import DemoApp from './DemoApp'
-import { DEMO_STORAGE_KEY } from './demo/demoEngine'
+import { DEMO_STORAGE_KEY, DEMO_CASES } from './demo/demoEngine'
+import {demoCasesFor} from './demo/demoEnglish'
 
 beforeEach(() => window.localStorage.clear())
 afterEach(() => { cleanup(); window.localStorage.clear() })
+
+describe('English guest demo: complete independent playable journey',()=>{
+  it('translates all twelve choices without changing IDs or simulated outcomes',()=>{
+    const cases=demoCasesFor('en')
+    expect(cases).toHaveLength(4)
+    for(let i=0;i<cases.length;i++){
+      expect(cases[i].id).toBe(DEMO_CASES[i].id)
+      expect(cases[i].choices).toHaveLength(3)
+      expect(cases[i].title).not.toBe(DEMO_CASES[i].title)
+      cases[i].choices.forEach((choice,j)=>{
+        expect(choice.id).toBe(DEMO_CASES[i].choices[j].id)
+        expect(choice.effects).toEqual(DEMO_CASES[i].choices[j].effects)
+        expect(choice.title).not.toBe(DEMO_CASES[i].choices[j].title)
+      })
+    }
+  })
+  it('signs a decision in English and preserves the same game on switching locale',()=>{
+    const original=window.location.href
+    window.history.replaceState({},'','/demo?lang=en')
+    try{
+      render(<DemoApp/>)
+      expect(screen.getByRole('heading',{name:'Govern before signing up.'})).toBeInTheDocument()
+      expect(screen.getByRole('button',{name:'Review practice choice'})).toBeDisabled()
+      fireEvent.click(screen.getByRole('radio',{name:/Direct assistance to families/}))
+      fireEvent.click(screen.getByRole('button',{name:'Review practice choice'}))
+      expect(screen.getByRole('region',{name:'Training confirmation'})).toHaveTextContent('-1.200 M€')
+      fireEvent.click(screen.getByRole('button',{name:'Apply practice choice'}))
+      expect(screen.getByText('1 / 4 dossiers')).toBeInTheDocument()
+      expect(screen.getByRole('heading',{name:'Direct assistance to families'})).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button',{name:'Español'}))
+      expect(screen.getByText('1 / 4 expedientes')).toBeInTheDocument()
+      expect(screen.getByRole('heading',{name:'Ayuda directa a familias'})).toBeInTheDocument()
+      expect(new URLSearchParams(window.location.search).get('lang')).toBe('es')
+    } finally {window.history.replaceState({},'',original)}
+  })
+})
 
 describe('guest sandbox complete gameplay', () => {
   it('offers playable onboarding without credentials and discloses isolation', () => {

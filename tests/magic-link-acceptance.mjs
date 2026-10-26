@@ -146,6 +146,18 @@ try {
   check(guestMatches.some(item=>item.id===matchId && item.seat_no===2),
     'Invitation did not persist second participant')
 
+  // The previously magic-link-only account chooses a password while
+  // genuinely authenticated: it is the SAME identity and seat.
+  const guestPassword='Safe-Recovery-'+runId+'!'
+  await guest.getByText('Configurar contraseña de acceso').click()
+  await guest.getByLabel('Nueva contraseña').fill(guestPassword)
+  await guest.getByLabel('Repite la contraseña').fill(guestPassword)
+  await guest.getByRole('button',{name:'Guardar contraseña'}).click()
+  await guest.getByText(/Contraseña guardada/).waitFor({timeout:12000})
+  const afterSetup=await accountFromBrowser(guest)
+  check(afterSetup.user.id===second.identity.user.id,
+    'Password enrollment created a different user instead of preserving the seat')
+
   // Existing user returns after closing/reloading the browser tab.
   await guest.reload({waitUntil:'networkidle'})
   await guest.getByRole('heading',{name:testName}).waitFor()
@@ -185,6 +197,34 @@ try {
   await guest.getByRole('button',{name:'Recibir enlace de acceso'}).waitFor()
   check(await guest.getByRole('heading',{name:testName}).count()===0,
     'Private match leaked after browser sign-out')
+
+  // Password login MUST recover the same protected match WITHOUT receiving
+  // another Mailpit OTP. Account, match and party seat cannot be duplicated.
+  let newOtps=0
+  guest.on('request', request=>{
+    if(request.url().includes('/auth/v1/otp'))newOtps++
+  })
+  await guest.getByLabel('Correo para contraseña').fill(guestEmail)
+  await guest.getByLabel('Contraseña',{exact:true}).fill(guestPassword)
+  await guest.getByRole('button',{name:'Entrar con contraseña'}).click()
+  await guest.getByRole('heading',{name:testName}).waitFor({timeout:15000})
+  const back=await accountFromBrowser(guest)
+  check(back.user.id===second.identity.user.id,
+    'Password sign-in did not restore the original GoTrue UID')
+  check(newOtps===0,'Password sign-in unexpectedly requested an email link')
+  const {data:restoredMatches,error:restoredError}=await back.actor.rpc('list_my_matches')
+  if(restoredError)throw restoredError
+  check(restoredMatches.some(item=>item.id===matchId && item.seat_no===2),
+    'Password sign-in lost parliamentary match and seat')
+  await guest.reload({waitUntil:'networkidle'})
+  await guest.getByRole('heading',{name:testName}).waitFor({timeout:15000})
+  check(newOtps===0,'Browser reload unexpectedly requested another email')
+  console.log('AOS_PASSWORD_LOGIN_PASS',JSON.stringify({
+    identicalExistingUser:true,persistentMatch:true,emailRequestsAfterSetup:0,
+    browserReload:true,provider:'local-GoTrue',externalSMTP:false
+  }))
+  await guest.getByRole('button',{name:'Cerrar sesión'}).click()
+  await guest.getByRole('button',{name:'Recibir enlace de acceso'}).waitFor()
   const axe=readFileSync('node_modules/axe-core/axe.min.js','utf8')
   for(const [page,label] of [[host,'host'],[guest,'signed-out-guest']]) {
     await page.addScriptTag({content:axe})

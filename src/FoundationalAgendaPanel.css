@@ -20,3 +20,15 @@
 .foundation-filters button:hover:not(.active){border-color:var(--gold)}
 .foundation-filters button:focus-visible,.foundation-next:focus-visible{outline:3px solid var(--gold-strong);outline-offset:3px}
 @media(max-width:760px){.foundation-overview{padding:16px}.foundation-filters button{flex:1 1 auto}.foundation-balance span{font-size:9px}.foundation-balance strong{font-size:13px}}
+
+/* AOS-050: four-chapter permanent reform campaign, distinct from live news. */
+.reform-campaign-overview{border:1px solid #748779;background:linear-gradient(155deg,#23342d,#162423);padding:18px;margin:0 0 29px;min-width:0}
+.reform-campaign-overview .foundation-heading strong{color:#ffdfa2}
+.reform-chapter-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.reform-chapter{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;border:1px solid #748779;background:#10201d;color:#f5f4e9;text-align:left;padding:13px;cursor:pointer}
+.reform-chapter:hover{border-color:#ffdfa2;background:#21352b}
+.reform-chapter>span{font:600 13px 'IBM Plex Sans',Arial,sans-serif;line-height:1.4}
+.reform-chapter>strong{font:600 19px 'IBM Plex Mono',monospace;color:#ffdfa2}
+.reform-chapter>small{font:400 11px 'IBM Plex Sans',Arial,sans-serif;color:#d3e8dd;line-height:1.5}
+.reform-chapter:focus-visible{outline:3px solid #ffdfa2;outline-offset:3px}
+@media(max-width:560px){.reform-campaign-overview{padding:15px}.reform-chapter-grid{grid-template-columns:minmax(0,1fr)}}

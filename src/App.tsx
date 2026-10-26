@@ -1,5 +1,8 @@
 import PlayerOnboarding from './PlayerOnboarding'
+import { PasswordSignIn, AccountPasswordPanel } from './PasswordAccess'
 import FoundationalAgendaPanel from './FoundationalAgendaPanel'
+import PolicyPortfolioPanel from './PolicyPortfolioPanel'
+import DiplomacyPanel from './DiplomacyPanel'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, fetchWorld, friendlyError, startGovernment, submitDecision } from './lib/game'
@@ -264,7 +267,10 @@ export default function App() {
           <section className="login-panel" aria-labelledby="access-title">
             <div className="eyebrow">ACCESO A LA SALA DE GOBIERNO</div>
             <h2 id="access-title">Tu mandato comienza aquí.</h2>
-            <p>Recibirás un enlace de acceso seguro por correo electrónico.</p>
+            <p>Si ya has establecido una contraseña, puedes iniciar sesión sin esperar un correo.</p>
+            <PasswordSignIn email={email} onEmailChange={setEmail} onError={setError}
+              redirectTo={window.location.origin} disabled={pending} />
+            <p>¿Es tu primera visita o aún no has configurado contraseña? Solicita un enlace de acceso una sola vez y configúrala dentro de tu cuenta.</p>
             <form onSubmit={event => void onLogin(event)}>
               <label htmlFor="email">Correo electrónico</label>
               <input id="email" type="email" autoComplete="email" required value={email}
@@ -286,6 +292,7 @@ export default function App() {
       ) : (
         <>
           <PlayerOnboarding world={world} />
+          <AccountPasswordPanel />
           <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
           <FiscalPanel key={world.government.id} governmentId={world.government.id} />
           <main className="government-layout">
@@ -324,8 +331,16 @@ export default function App() {
                     {number(world.calendar.weeklyTreasuryDeltaM)} M€</strong>
                 </div>}
               </section>
+              <DiplomacyPanel key={world.government.id+':'+user!.id}
+                identity={user!.id} governmentId={world.government.id}
+                dossiers={world.dossiers} events={world.events}
+                mode="solo" onSelect={selectDossier} />
               <FoundationalAgendaPanel world={world}
                 selectedKey={dossier ? dossierKey(dossier) : null}
+                onSelect={selectDossier} />
+              <PolicyPortfolioPanel key={world.government.id} mode="solo"
+                dossiers={world.dossiers} options={world.options} events={world.events}
+                gameDay={world.gameDay} treasury={world.government.treasury_m_eur}
                 onSelect={selectDossier} />
             </aside>
             <section className="main-panel" aria-label="Expediente político">
