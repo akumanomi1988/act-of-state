@@ -60,6 +60,7 @@ export default function App() {
     const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
       if (!alive) return
       if (event === 'PASSWORD_RECOVERY') setRecovering(true)
+      if (event === 'SIGNED_OUT') setRecovering(false)
       if (event !== 'INITIAL_SESSION') authRevision += 1
       acceptUser(session?.user ?? null)
       setAuthReady(true)
@@ -228,6 +229,7 @@ export default function App() {
           {user && <button type="button" className="text-button" onClick={() => void signOut()} disabled={pending}>Cerrar sesión</button>}
         </div>
       </header>
+      {user && <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />}
 
       {!client ? (
         <main className="entry-content"><div className="eyebrow">CONFIGURACIÓN REQUERIDA</div>
@@ -263,7 +265,6 @@ export default function App() {
         <>
           <PlayerOnboarding world={world} />
           <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
-          <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />
           <FiscalPanel key={world.government.id} governmentId={world.government.id} />
           <main className="government-layout">
             <aside className="side-panel">
