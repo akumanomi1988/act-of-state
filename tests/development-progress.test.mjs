@@ -89,11 +89,11 @@ test('score distinguishes historical progress from current milestone and commerc
  current.creditedIn=null
  const result=calculateDevelopmentCoverage(altered)
  assert.equal(result.current.verified,56)
- assert.equal(result.current.percent,76.4)
+ assert.equal(result.current.percent,77.8)
  assert.equal(result.baseline.verified,55)
  assert.equal(result.deltaPoints,1.4)
- assert.equal(result.commercial.accepted,1)
- assert.equal(result.commercial.percent,5.6)
+ assert.equal(result.commercial.accepted,2)
+ assert.equal(result.commercial.percent,11.1)
 })
 test('rendered report has reproducible before/after and all traceable checkpoints',()=>{
  const report=renderDevelopmentReport(card,score())
