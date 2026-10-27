@@ -552,7 +552,7 @@ export default function EditorialApp() {
           <div><strong>Persistencia</strong><p>Revisión {snapshot?.revision ?? 0}. {dirty ? 'Hay cambios sin guardar.' :
             snapshot ? 'Borrador sincronizado.' : 'Sin guardar todavía.'}</p></div></div>
         <div className="editorial-check"><span>03</span>
-          <div><strong>Separación de funciones</strong><p>Solo un publicador puede ejecutar la transacción final.</p></div></div>
+          <div><strong>Separación de funciones</strong><p>Solo un publicador distinto del autor de la revisión vigente puede certificar y publicar la agenda.</p></div></div>
         <div className="editorial-check"><span>04</span>
           <div><strong>Fuentes</strong><p>Se exige referencia HTTPS y fecha publicada no futura. La verificación factual corresponde a la redacción.</p></div></div>
         <div className="editorial-actions">
@@ -560,8 +560,13 @@ export default function EditorialApp() {
             {pending ? 'Procesando…' : 'Guardar borrador'}
           </button>
           {role === 'publisher' && !isPublished && <button className="editorial-publish"
-            disabled={pending || dirty || !complete || reviewedCount!==SLOTS || !snapshot}
+            disabled={pending || dirty || !complete || reviewedCount!==SLOTS ||
+              !snapshot || authoredByCurrentUser}
             onClick={() => setReviewing(true)}>Revisar publicación</button>}
+          {role==='publisher' && !isPublished && authoredByCurrentUser &&
+            <p role="status" className="editorial-small">
+              Publicación bloqueada: otra cuenta autorizada debe verificar y
+              publicar el borrador que has redactado.</p>}
           {role==='publisher' && !isPublished && reviewedCount!==SLOTS &&
             <p className="editorial-small">Publicación bloqueada:
               faltan {SLOTS-reviewedCount} revisiones explícitas.</p>}
@@ -569,7 +574,7 @@ export default function EditorialApp() {
             <strong>Publicación irreversible</strong>
             <p>Se aprobarán exactamente diez expedientes para la semana del {week}. No se pueden editar tras publicar.</p>
             <button onClick={() => void onPublish()} disabled={pending || dirty ||
-              !complete || reviewedCount!==SLOTS}>
+              !complete || reviewedCount!==SLOTS || authoredByCurrentUser}>
               Confirmar y publicar
             </button>
             <button className="text-button" onClick={() => setReviewing(false)}

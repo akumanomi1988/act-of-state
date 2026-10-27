@@ -236,6 +236,26 @@ describe('editorial workbench', () => {
     expect(mocks.publishEditorialWeek).not.toHaveBeenCalled()
   })
 
+  it('disables final publication even if an old self-authored slate has ten attestations',async()=>{
+    const draft=completeDraft()
+    mocks.fetchEditorialRole.mockResolvedValue('publisher')
+    mocks.fetchEditorialWeek.mockResolvedValue({
+      ...snapshot(draft,7),updated_by:user.id
+    })
+    mocks.fetchEditorialReviews.mockResolvedValue(draft.map(d=>({
+      dossier_id:d.id,reviewed_by:user.id,reviewed_at:new Date().toISOString()
+    })))
+    render(<EditorialApp/>)
+    await waitFor(()=>expect(screen.getByRole('progressbar',{
+      name:'Expedientes preparados'
+    })).toHaveAttribute('aria-valuenow','10'))
+    await waitFor(()=>expect(screen.getByRole('button',{
+      name:'Revisar publicación'
+    })).toBeDisabled())
+    expect(screen.getByText(/otra cuenta autorizada debe verificar/)).toBeInTheDocument()
+    expect(mocks.publishEditorialWeek).not.toHaveBeenCalled()
+  })
+
   it('publishes a persisted complete revision, then locks the forms', async () => {
     const draft = completeDraft()
     mocks.fetchEditorialRole.mockResolvedValue('publisher')

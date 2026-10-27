@@ -78,8 +78,13 @@ merge to `main` is authorized by routine development work.
       releases and privilege-isolated reader identity.
 - [x] Add same-author denial plus different-person acceptance to transactional
       publication tests; update real local GoTrue inter-account flow and UI.
-- [ ] Confirm all exact-commit CI runs. Staffed fact-checking against actual
-      independent news citations remains an external acceptance gate.
+- [x] PostgreSQL #40563951804 PASS, Quality #40563951681 PASS,
+      isolated GoTrue #40563951715 PASS at 138429dc.
+- [x] Surface the same independence rule in the final confirmation control,
+      including the case of ten historically saved self-attestations.
+- [ ] Reverify the final UI guard commit in all exact-commit CI workflows.
+      Staffed fact-checking against actual independent news citations remains
+      an external acceptance gate.
 
 ## Remaining original-product acceptance gates
 
