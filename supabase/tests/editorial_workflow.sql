@@ -239,8 +239,7 @@ begin
    '10000000-0000-4000-8000-000000000082',true);
  perform public.review_editorial_slot(third_monday,author_draft.revision,
    material->0->>'id',true);
- if (select count(*) from public.editorial_slot_reviews
-   where week_start=third_monday and revision=2)<>1
+ if jsonb_array_length(public.get_editorial_review_state(third_monday))<>1
  then raise exception 'SEPARATE_PUBLISHER_REVIEW_NOT_RECORDED';end if;
 end $$;
 
