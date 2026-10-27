@@ -2,7 +2,7 @@
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
 **Latest implementation increment:** AOS-053 strategic mandate observatory and long-run economic regression, tested in isolated development branch; last published main is AOS-049.
-**Development coverage:** **56/72 = 77.8%** on AOS-053, compared with **54/72 = 75.0%** on AOS-052 (**+2.8 percentage points**). Based on four evidenced binary implementation milestones in each of the original 18 MVP areas; recalculated from [the scorecard](DEVELOPMENT_PROGRESS.md), not commit counts.
+**Primary weighted engineering completion:** **65.9% (850/1290)**, versus **60.6% (782/1290)** in AOS-052. The original evidence coverage remains **56/72 = 77.8%** versus **54/72 = 75.0%**, for historic comparability. Weights and independent proofs are reproducible from [the scorecard](DEVELOPMENT_PROGRESS.md), not file or commit counts.
 **Strict commercial acceptance:** **2/18 = 11.1%**, unchanged; hosted/human acceptance gates are separate and cannot be credited from local CI alone.
 This technical-coverage indicator is a measure of explicitly defined scope, not an estimate of remaining engineering hours. Historical iteration evidence below is retained and may describe superseded blockers.
 

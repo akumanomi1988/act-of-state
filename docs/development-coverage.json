@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "title": "ACT OF STATE — Implementation Coverage",
-  "measurement": "Four independently evidenced, binary implementation milestones for each of the 18 original MVP requirements. Equal area weight, no partial credit within a milestone. Never confuse this technical implementation measure with full commercial acceptance.",
+  "measurement": "Primary: complexity-weighted, acceptance-aware engineering completion. Secondary: unchanged equal-checkpoint coverage. Each of the 18 original MVP requirements has a documented complexity multiplier; ordinal checkpoint acceptance stages weigh 1, 2, 3, 4. Only independently evidenced binary checkpoints receive any points. Commercial acceptance remains separate.",
   "baseMilestone": "AOS-052",
   "currentMilestone": "AOS-053",
   "evidenceRuns": {
@@ -49,7 +49,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 6,
+      "complexityRationale": "Persistence and password identity across authenticated user journeys"
     },
     {
       "id": "MVP-F002",
@@ -83,7 +85,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 9,
+      "complexityRationale": "Foundational content, authored reforms and reviewed weekly editorial operations"
     },
     {
       "id": "MVP-F003",
@@ -117,7 +121,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 9,
+      "complexityRationale": "Authoritative transactions, audit history, retries and cross-account acceptance"
     },
     {
       "id": "MVP-F004",
@@ -151,7 +157,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 9,
+      "complexityRationale": "Population cohorts, six districts and calibrated daily reactions"
     },
     {
       "id": "MVP-F005",
@@ -185,7 +193,9 @@
           "proof": "src/lib/mandateObservatory.ts",
           "creditedIn": "AOS-053"
         }
-      ]
+      ],
+      "complexityWeight": 10,
+      "complexityRationale": "Integrated fiscal engine, economic state, daily impact and long-run diagnostics"
     },
     {
       "id": "MVP-F006",
@@ -219,7 +229,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 8,
+      "complexityRationale": "UTC scheduling, deadlines, recovery and real elapsed calendar operation"
     },
     {
       "id": "MVP-F007",
@@ -253,7 +265,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 10,
+      "complexityRationale": "District election certification, campaigning, cabinet succession and balance"
     },
     {
       "id": "MVP-F008",
@@ -287,7 +301,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 12,
+      "complexityRationale": "Ten-party asynchronous membership, legislation, voting and human week"
     },
     {
       "id": "MVP-T001",
@@ -321,7 +337,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 6,
+      "complexityRationale": "Transactional versioning, immutable persistence and disaster recovery"
     },
     {
       "id": "MVP-T002",
@@ -355,7 +373,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 7,
+      "complexityRationale": "Identity isolation, credential lifecycle, transport and independent security audit"
     },
     {
       "id": "MVP-T003",
@@ -389,7 +409,9 @@
           "proof": "supabase/tests/historical_decision.sql",
           "creditedIn": "AOS-052"
         }
-      ]
+      ],
+      "complexityWeight": 5,
+      "complexityRationale": "Deterministic simulation, compatibility and archival invariants"
     },
     {
       "id": "MVP-T004",
@@ -423,7 +445,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 6,
+      "complexityRationale": "Concurrent decisions, race conditions, idempotency and hosted abuse envelope"
     },
     {
       "id": "MVP-T005",
@@ -457,7 +481,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 5,
+      "complexityRationale": "Build gates, independent database and end-to-end coverage"
     },
     {
       "id": "MVP-T006",
@@ -491,7 +517,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 7,
+      "complexityRationale": "Scheduled operations, release parity, SLOs and disaster readiness"
     },
     {
       "id": "MVP-V001",
@@ -525,7 +553,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 4,
+      "complexityRationale": "Visual language, unique assets and external art approval"
     },
     {
       "id": "MVP-V002",
@@ -559,7 +589,9 @@
           "proof": "src/MandateObservatory.tsx",
           "creditedIn": "AOS-053"
         }
-      ]
+      ],
+      "complexityWeight": 7,
+      "complexityRationale": "Core solo/multiplayer experience and joined retrospective dashboards"
     },
     {
       "id": "MVP-V003",
@@ -593,7 +625,9 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 5,
+      "complexityRationale": "Responsive access, assistive technology and keyboard-only acceptance"
     },
     {
       "id": "MVP-V004",
@@ -627,7 +661,15 @@
           "proof": null,
           "creditedIn": null
         }
-      ]
+      ],
+      "complexityWeight": 4,
+      "complexityRationale": "Cross-device design consistency, regression evidence and external visual review"
     }
+  ],
+  "stageWeights": [
+    1,
+    2,
+    3,
+    4
   ]
 }

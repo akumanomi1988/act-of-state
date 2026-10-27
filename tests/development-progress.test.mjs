@@ -16,6 +16,13 @@ test('18 original requirements have 72 evidence-traced immutable checkpoint IDs'
  assert.equal(result.current.total,72)
  assert.equal(result.current.verified,56)
  assert.equal(result.current.percent,77.8)
+ assert.equal(card.schemaVersion,2)
+ assert.deepEqual(card.stageWeights,[1,2,3,4])
+ assert.deepEqual(result.weighted,{
+  baseline:{points:782,totalPoints:1290,percent:60.6},
+  current:{points:850,totalPoints:1290,percent:65.9},
+  deltaPoints:5.3
+ })
  assert.equal(result.baseline.verified,54)
  assert.equal(result.baseline.percent,75)
  assert.equal(result.deltaPoints,2.8)
@@ -27,6 +34,17 @@ test('18 original requirements have 72 evidence-traced immutable checkpoint IDs'
  assert.equal(result.grouped.V.verified,12)
  assert.ok(result.finished.includes('MVP-F005.4'))
  assert.ok(result.finished.includes('MVP-V002.4'))
+})
+test('complexity weights cannot be silently falsified or re-baselined',()=>{
+ for(const mutate of [
+  c=>{c.stageWeights=[1,2,3,0]},
+  c=>{c.requirements[0].complexityWeight=0},
+  c=>{c.requirements[0].complexityWeight++},
+  c=>{c.requirements[0].complexityRationale='short'}
+ ]) {
+  const altered=clone();mutate(altered)
+  assert.throws(()=>calculateDevelopmentCoverage(altered),/COVERAGE_(SCHEMA|REQUIREMENT|WEIGHT_TOTAL)_/)
+ }
 })
 test('no points without code evidence, and duplicate requirements are rejected',()=>{
  const missing=clone()
@@ -67,6 +85,9 @@ test('rendered report has reproducible before/after and all traceable checkpoint
  assert.match(report,/77\.8% \(56\/72\)/)
  assert.match(report,/\+2\.8 pp/)
  assert.match(report,/11\.1%/)
+ assert.match(report,/65\.9%/)
+ assert.match(report,/Complexity-weighted engineering completion/)
+ assert.equal((report.match(/\n\| MVP-/g)||[]).length,18)
  assert.match(report,/MVP-F005/)
  assert.match(report,/MVP-V002/)
  assert.equal((report.match(/\n### MVP-/g)||[]).length,18)

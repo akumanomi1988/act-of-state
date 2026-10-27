@@ -9,7 +9,8 @@ merge to `main` is authorized by routine development work.
 - AOS-053 HEAD before this increment: `89960e4ac12838e2448aa0c03076501adb712f39`.
 - Existing green checks for that SHA: Quality 40300708247,
   PostgreSQL 40300707983, local real Auth 40300708167.
-- Implementation coverage: 56/72 explicit checkpoints (77.8%).
+- Complexity-weighted engineering completion (primary): 65.9% (850/1290) according to a documented original-scope rubric.
+- Implementation evidence coverage (secondary): 56/72 explicit checkpoints (77.8%).
 - Strict commercial acceptance: 2/18 original requirements (11.1%).
 - The two figures are **not equivalent**. Do not advance either without
   corresponding executable/operational evidence.

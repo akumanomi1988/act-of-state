@@ -1,22 +1,25 @@
 # ACT OF STATE — Verifiable implementation coverage
 
-> Metric: **56/72 verified checkpoints (77.8%)** on AOS-053. Commercial acceptance is a different figure: **2/18 (11.1%)**.
+> Primary weighted engineering completion: **65.9%**. Equal-checkpoint implementation coverage: **56/72 (77.8%)** on AOS-053. Strict commercial acceptance: **2/18 (11.1%)**.
 
 ## Before / after
 
 | Metric | AOS-052 | AOS-053 | Delta |
 | --- | ---: | ---: | ---: |
-| Implemented & evidenced | 75.0% (54/72) | 77.8% (56/72) | +2.8 pp |
+| Complexity-weighted engineering completion | 60.6% (782/1290) | 65.9% (850/1290) | +5.3 pp |
+| Equal-checkpoint implemented & evidenced | 75.0% (54/72) | 77.8% (56/72) | +2.8 pp |
 | Full commercial acceptance | 11.1% (2/18) | 11.1% (2/18) | 0.0 pp |
 
 ## Rules and boundaries
 
 - Scope is the **18 original MVP requirements** (F001–F008, T001–T006, V001–V004).
 - Every requirement has **four fixed, individually named, binary technical delivery checkpoints**.
-- Each checkpoint weighs exactly **1/72** of implementation coverage. No points for partial work, lines of code, plans or commits without linked evidence.
+- Primary completion multiplies documented original-area complexity by checkpoint acceptance effort (1, 2, 3, 4), with **no partial credit**.
+- Equal-checkpoint coverage keeps exactly **1/72** per proof as a backward-compatible secondary metric; do not mix it with weighted completion.
 - A verified checkpoint requires an existing tracked code/test/specification file plus reviewed engineering evidence. Existence of a file alone is insufficient; CI independently validates executable artifacts.
 - Pending checkpoints do not count. In particular, hosted operations, real reviewed news, ten human participants and human visual approval are not silently assumed.
-- This is a **traceable coverage indicator for the currently enumerated product scope**, not a calibrated estimate of remaining engineering hours, a user-experience quality score or proof of a commercially finished game.
+- Weights are a documented planning rubric, **not measured engineering hours**; 100% requires all 72 independently accepted checkpoints.
+- Neither indicator proves a commercially finished game or replaces external/human product sign-off.
 - Current branch AOS-053 is not automatically deployed. The AOS-050 production schema/authentication transition and release remain separate.
 - Future milestones should retain the checkpoint IDs, credit new achievements to their milestone and replace prior entries only with an explicit change explanation.
 
@@ -165,3 +168,35 @@
 - Independent regression: `node --test tests/development-progress.test.mjs`.
 - Baseline: AOS-052; new checkpoints in AOS-053 are explicitly labeled in the scorecard.
 - Current CI receipts: https://github.com/akumanomi1988/act-of-state/actions/runs/40293220246 · https://github.com/akumanomi1988/act-of-state/actions/runs/40293220248 · https://github.com/akumanomi1988/act-of-state/actions/runs/40293220228.
+
+## Complexity-weighted engineering completion
+
+- **Primary weighted progress:** 850/1290 = **65.9%**.
+- Earlier AOS-052 baseline: 782/1290 = 60.6%; AOS-053 genuine delta: +5.3 percentage points.
+- Every area has a stable complexity multiplier (4–12) and a written rationale below; stages 1–4 earn **1 / 2 / 3 / 4 effort units** respectively once evidence is verified.
+- Stage 1 covers the core foundation, stage 2 feature behavior, stage 3 cross-system integration, and stage 4 full operational/external acceptance. The original checkpoint descriptions are authoritative.
+- An unverified stage contributes zero. The rubric is an explicit comparative planning judgement, not logged work hours, a performance benchmark or an independently audited cost model.
+- Equal-checkpoint historical coverage stays 56/72 = 77.8% for comparison; strict commercial signoff remains 2/18. Changing weights alone does not credit any new requirement.
+
+| Original requirement | Complexity multiplier | Verified weighted points | Total weighted points | Completion | Rationale |
+| --- | ---: | ---: | ---: | ---: | --- |
+| MVP-F001 | 6 | 36 | 60 | 60.0% | Persistence and password identity across authenticated user journeys |
+| MVP-F002 | 9 | 54 | 90 | 60.0% | Foundational content, authored reforms and reviewed weekly editorial operations |
+| MVP-F003 | 9 | 54 | 90 | 60.0% | Authoritative transactions, audit history, retries and cross-account acceptance |
+| MVP-F004 | 9 | 54 | 90 | 60.0% | Population cohorts, six districts and calibrated daily reactions |
+| MVP-F005 | 10 | 100 | 100 | 100.0% | Integrated fiscal engine, economic state, daily impact and long-run diagnostics |
+| MVP-F006 | 8 | 48 | 80 | 60.0% | UTC scheduling, deadlines, recovery and real elapsed calendar operation |
+| MVP-F007 | 10 | 60 | 100 | 60.0% | District election certification, campaigning, cabinet succession and balance |
+| MVP-F008 | 12 | 72 | 120 | 60.0% | Ten-party asynchronous membership, legislation, voting and human week |
+| MVP-T001 | 6 | 36 | 60 | 60.0% | Transactional versioning, immutable persistence and disaster recovery |
+| MVP-T002 | 7 | 42 | 70 | 60.0% | Identity isolation, credential lifecycle, transport and independent security audit |
+| MVP-T003 | 5 | 50 | 50 | 100.0% | Deterministic simulation, compatibility and archival invariants |
+| MVP-T004 | 6 | 36 | 60 | 60.0% | Concurrent decisions, race conditions, idempotency and hosted abuse envelope |
+| MVP-T005 | 5 | 30 | 50 | 60.0% | Build gates, independent database and end-to-end coverage |
+| MVP-T006 | 7 | 42 | 70 | 60.0% | Scheduled operations, release parity, SLOs and disaster readiness |
+| MVP-V001 | 4 | 12 | 40 | 30.0% | Visual language, unique assets and external art approval |
+| MVP-V002 | 7 | 70 | 70 | 100.0% | Core solo/multiplayer experience and joined retrospective dashboards |
+| MVP-V003 | 5 | 30 | 50 | 60.0% | Responsive access, assistive technology and keyboard-only acceptance |
+| MVP-V004 | 4 | 24 | 40 | 60.0% | Cross-device design consistency, regression evidence and external visual review |
+
+Weights are kept in `docs/development-coverage.json`, checked by CI, and must be explicitly re-baselined if the approved product scope changes.

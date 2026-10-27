@@ -7,8 +7,10 @@
 > [Password Access](docs/PASSWORD_ACCESS.md) and
 > [No Vercel Autodeploy](docs/NO_VERCEL_AUTODEPLOY.md).
 
-**Development progress (evidence-based): 77.8% implemented** (56/72 explicitly
-defined milestones), compared with 75.0% (54/72) before AOS-053, or +2.8 pp.
+**Engineering completion (complexity weighted): 65.9%** (850/1290 rubric points), up from
+60.6% (782/1290) at the AOS-052 baseline. Historical equal-checkpoint
+coverage remains **77.8% (56/72)** for comparison. The weighting prioritizes
+complex original systems and operational acceptance, not commit or file counts.
 **Commercial acceptance: 11.1%** (2/18 complete product gates). These
 measures are deliberately separate and do not claim that the latest development
 branch has been published. [Auditable scorecard and method](docs/DEVELOPMENT_PROGRESS.md).

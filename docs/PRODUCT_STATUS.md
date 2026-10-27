@@ -7,11 +7,14 @@ The game is browser-based, free to play, with no paid competitive advantages.
 
 | Score | AOS-052 (before) | AOS-053 (current) | Change |
 | --- | ---: | ---: | ---: |
-| **Implemented & evidenced** | **54/72 = 75.0%** | **56/72 = 77.8%** | **+2.8 percentage points** |
+| **Complexity-weighted engineering completion** | **60.6% (782/1290)** | **65.9% (850/1290)** | **+5.3 pp** |
+| Equal-checkpoint evidence coverage | 54/72 = 75.0% | 56/72 = 77.8% | +2.8 pp |
 | Full commercial acceptance | 2/18 = 11.1% | 2/18 = 11.1% | +0.0 pp |
 
-The **development percentage** counts four concrete binary deliverables under
-each of the 18 original MVP requirements (72 equally weighted checkpoints).
+The **primary weighted completion percentage** assigns each of the 18 original
+requirements a published complexity multiplier and weights its four accepted
+checkpoints 1/2/3/4 by delivery/operational burden. The earlier 72-point
+unweighted measure remains visible for continuity, not as the primary score.
 Every credited deliverable has an evidence path in
 [the reproducible coverage matrix](DEVELOPMENT_PROGRESS.md). It deliberately
 does not award points for unfinished features or mere code volume. New AOS-053
