@@ -154,6 +154,9 @@ export function validateMatchWorld(raw:unknown,matchId:string):MatchWorld {
      !isNonNegative(raw.government.treasury_m_eur)||
      !isScore(raw.government.approval)||!isScore(raw.government.trust))
     return fail()
+  // Capture stable narrowed references before iterating callback closures.
+  const ownerMe=raw.me as Record<string,unknown>
+  const governmentId=(raw.government as Record<string,unknown>).id
   const players=raw.players as unknown[]
   const ids=new Set<string>(),seats=new Set<number>()
   for(const player of players){
@@ -164,10 +167,10 @@ export function validateMatchWorld(raw:unknown,matchId:string):MatchWorld {
        ids.has(player.user_id)||seats.has(player.seat_no))return fail()
     ids.add(player.user_id);seats.add(player.seat_no)
   }
-  const me=players.find(p=>obj(p)&&p.user_id===raw.me.user_id) as Record<string,unknown>|undefined
-  if(!me||me.seat_no!==raw.me.seat_no||me.party_name!==raw.me.party_name||
+  const me=players.find(p=>obj(p)&&p.user_id===ownerMe.user_id) as Record<string,unknown>|undefined
+  if(!me||me.seat_no!==ownerMe.seat_no||me.party_name!==ownerMe.party_name||
      !ids.has(String(raw.match.host_user_id)))return fail()
-  if(raw.cohorts.some(c=>!obj(c)||c.government_id!==raw.government.id||
+  if(raw.cohorts.some(c=>!obj(c)||c.government_id!==governmentId||
      !nonempty(c.code)||!isScore(c.support)||!isScore(c.trust)||
      !isCount(c.population_weight,100)))return fail()
   const dossiers=new Set<string>()
@@ -186,7 +189,7 @@ export function validateMatchWorld(raw:unknown,matchId:string):MatchWorld {
     if(optionIds.has(key))return fail()
     optionIds.add(key)
   }
-  if(raw.events.some(e=>!obj(e)||e.government_id!==raw.government.id||
+  if(raw.events.some(e=>!obj(e)||e.government_id!==governmentId||
        !nonempty(e.id)||!nonempty(e.dossier_id)))return fail()
   if(raw.stances.some(s=>!obj(s)||s.match_id!==matchId||
        !ids.has(String(s.user_id))||!nonempty(s.dossier_id)||
