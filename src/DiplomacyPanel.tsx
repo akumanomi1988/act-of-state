@@ -39,7 +39,7 @@ export default function DiplomacyPanel({
     })
     return ()=>{alive=false}
   },[governmentId,identity,eventFingerprint,revision])
-  const signedIds=useMemo(()=>new Set(events.map(e=>e.dossier_id)),[events])
+  const signedIds=useMemo(()=>new Set(events.map(e=>e.dossier_id+':'+e.dossier_version)),[events])
   return <section className="diplomacy-panel" aria-label="Diplomacia y relaciones internacionales">
     <div className="diplomacy-heading">
       <div><p className="eyebrow">POLÍTICA EXTERIOR · ESTADO VERIFICADO</p>
@@ -56,7 +56,7 @@ export default function DiplomacyPanel({
         {zones.map((zone,i)=>{
           const bloc=state.blocs[i]
           const dossier=dossiers.find(d=>d.id===zone.dossier && d.version===1)
-          const signed=signedIds.has(zone.dossier)
+          const signed=signedIds.has(zone.dossier+':1')
           return <div className="diplomacy-bloc" key={zone.id}>
             <h3>{zone.label}</h3>
             <div className="diplomacy-value"><strong>{bloc.relation}/100</strong><span>Relación bilateral</span></div>

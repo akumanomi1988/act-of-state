@@ -101,4 +101,34 @@ describe('read-only weekly mission command UI',()=>{
     expect(screen.getByText('PLAZO CERRADO')).toBeInTheDocument()
     expect(screen.getByRole('button',{name:/Ley de prueba editorial/})).toBeDisabled()
   })
+  it('keeps an English political action blocked until server facts are current',async()=>{
+    const w=fixture(),choose=vi.fn()
+    mocks.calendar.mockResolvedValue({...cal,gameDay:'2026-10-28'})
+    render(<WeeklyMissionControl world={w} userId={guest} language="en"
+      onSelect={choose}/>)
+    expect(await screen.findByRole('heading',{name:'Legislative operations'})).toBeInTheDocument()
+    expect(await screen.findByText(/The political day has changed/)).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:/Ley de prueba editorial/})).toBeDisabled()
+    expect(choose).not.toHaveBeenCalled()
+  })
+  it('shows the server-verified English vote action without pretending to enact a law',async()=>{
+    mocks.parliament.mockResolvedValue({
+      ...parliament,bills:[{id:'bill1',match_id:'match',dossier_id:'weekly-1',
+        dossier_version:1,option_id:'act',proposed_by:host,status:'open',
+        rule_version:'parliament-mandates-v2',created_at:'2026-10-27',
+        closes_at:'2026-10-30',closed_at:null}]
+    })
+    const choose=vi.fn()
+    render(<WeeklyMissionControl world={fixture()} userId={guest}
+      language="en" onSelect={choose}/>)
+    await screen.findByText('YOUR VOTE NEEDED')
+    expect(screen.getByLabelText('Weekly legislative progress')).toHaveTextContent('ENACTED LAWS0 / 1')
+    expect(screen.getByText('Original dossier title (Spanish)')).toBeInTheDocument()
+    const item=screen.getByRole('button',{name:/Ley de prueba editorial.*YOUR VOTE NEEDED/})
+    expect(item).toBeEnabled()
+    fireEvent.click(item)
+    expect(choose).toHaveBeenCalledWith('weekly-1')
+    expect(mocks.parliament).toHaveBeenCalledTimes(1)
+  })
+
 })

@@ -74,6 +74,29 @@
 - This is an implementation increment, not a completed whole-game
   translation or externally verified email deliverability.
 
+## AOS-063 — Bilingual parliamentary weekly action path (development branch)
+
+- English/Spanish presentation is propagated from logged-in accounts into the
+  server-derived weekly mission, parliamentary policy agenda, seat-weighted
+  voting, bill submission, immutable result and first-player onboarding.
+- Authorized voting and signing still use the existing Supabase RPCs, verified
+  parliamentary state and server time; localized labels never infer approval.
+- English UI preserves original Spanish authored dossier titles: live reporting
+  is not silently translated or certified by the application.
+- Tests cover English actions, role isolation, stale calendar blocking, vote
+  reconciliation and versioned initial-state guidance.
+
+## AOS-064 — Versioned policy-archive reconciliation and diplomacy navigation
+
+- Corrected case-ID-only signed/stance matching in multiplayer agenda, solo
+  agenda, onboarding and foreign diplomacy. All now reconcile exact dossier
+  ID and version, matching the existing weekly command engine.
+- Added missing Diplomacy filter to the parliamentary dossier agenda; Europe,
+  Asia and US treaty navigation now uses the same authorized selection route.
+- Regression: an old signature, stance or treaty cannot mark a later version
+  enacted. Old events remain immutable historical records.
+- No database authority changes, migrations or live deployments.
+
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.

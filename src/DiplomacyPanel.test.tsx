@@ -71,5 +71,16 @@ describe('international diplomacy in cabinet and Parliament',()=>{
     await screen.findAllByText('50/100')
     await waitFor(()=>expect(mocks.fetchDiplomacy).toHaveBeenCalledTimes(2))
   })
+  it('does not claim version-one treaties signed by an unrelated later version',async()=>{
+    mocks.fetchDiplomacy.mockResolvedValue(state)
+    render(<DiplomacyPanel governmentId={governmentId} identity="user-1"
+      dossiers={dossiers} events={[{
+        id:'old-act',dossier_id:'diplomacy-europe',dossier_version:2
+      }] as never} mode="solo" onSelect={vi.fn()} />)
+    await screen.findAllByText('Índice comercial:',{exact:false})
+    expect(screen.getAllByRole('button',{name:'Negociar expediente'})).toHaveLength(3)
+    expect(screen.queryByRole('button',{name:'Consultar acuerdo firmado'})).toBeNull()
+  })
+
 })
 

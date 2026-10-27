@@ -2,7 +2,7 @@ import type { Dossier } from './types'
 import type { MatchWorld } from './multiplayer'
 import { chapterOf, reformChapter, CHAPTERS } from './nationalProgramme'
 
-export type MatchAgendaFilter = 'all' | 'weekly' | 'foundation' | 'reforms' | 'society' | 'economy' | 'institutions' | 'resilience' | 'action' | 'signed'
+export type MatchAgendaFilter = 'all' | 'weekly' | 'foundation' | 'reforms' | 'society' | 'economy' | 'institutions' | 'resilience' | 'diplomacy' | 'action' | 'signed'
 export type MatchDossierStatus = 'signed' | 'stance-recorded' | 'pending' | 'unavailable'
 
 export interface MatchAgendaItem {
@@ -33,12 +33,12 @@ export function isCurrentDossier(dossier: Dossier, serverDay: string): boolean {
  * only the validated get_parliament_state RPC can grant one.
  */
 export function buildMatchAgenda(world: MatchWorld, userId: string): MatchAgendaSnapshot {
-  const decisions = new Set(world.events.map(event => event.dossier_id))
+  const decisions = new Set(world.events.map(event => event.dossier_id+':'+event.dossier_version))
   const myStances = new Set(world.stances.filter(stance => stance.user_id === userId)
-    .map(stance => stance.dossier_id))
+    .map(stance => stance.dossier_id+':'+stance.dossier_version))
   const items = world.dossiers.map((dossier, index) => {
-    const signed = decisions.has(dossier.id)
-    const hasStance = myStances.has(dossier.id)
+    const signed = decisions.has(dossier.id+':'+dossier.version)
+    const hasStance = myStances.has(dossier.id+':'+dossier.version)
     const available = isCurrentDossier(dossier, world.gameDay)
     return {
       dossier, signed, hasStance, available, index,
@@ -79,7 +79,7 @@ export function visibleMatchDossiers(
     if (filter === 'foundation') return chapterOf(item.dossier) === 'founding'
     if (filter === 'reforms') return reformChapter(item.dossier)
     if (filter === 'society' || filter === 'economy' ||
-        filter === 'institutions' || filter === 'resilience')
+        filter === 'institutions' || filter === 'resilience' || filter === 'diplomacy')
       return chapterOf(item.dossier) === filter
     if (filter === 'signed') return item.signed
     if (filter === 'action') return item.available && !item.signed &&

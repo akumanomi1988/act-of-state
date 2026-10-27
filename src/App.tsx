@@ -305,7 +305,7 @@ export default function App() {
         </main>
       ) : (
         <>
-          <PlayerOnboarding world={world} />
+          <PlayerOnboarding world={world} language={language} />
           <AccountPasswordPanel language={language} />
           <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
           <FiscalPanel key={world.government.id} governmentId={world.government.id} />

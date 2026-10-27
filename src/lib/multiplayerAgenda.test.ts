@@ -121,4 +121,33 @@ describe('real match political action board', () => {
       .not.toContain('jobs')
   })
 
+  it('includes foreign diplomacy treaties in a dedicated national agenda filter',()=>{
+    const w=makeWorld()
+    w.dossiers.push({...intro('diplomacy-europe'),programme_chapter:'diplomacy',
+      programme_order:1,title:'European treaty'})
+    const snapshot=buildMatchAgenda(w,opponentId)
+    expect(snapshot.reforms.total).toBe(1)
+    expect(visibleMatchDossiers(snapshot,'diplomacy').map(x=>x.dossier.id))
+      .toEqual(['diplomacy-europe'])
+    expect(visibleMatchDossiers(snapshot,'foundation').map(x=>x.dossier.id))
+      .not.toContain('diplomacy-europe')
+    expect(visibleMatchDossiers(snapshot,'reforms').map(x=>x.dossier.id))
+      .toContain('diplomacy-europe')
+  })
+
+  it('does not mark version two as signed or positioned because version one was approved',()=>{
+    const w=makeWorld()
+    w.dossiers=[{...intro('versioned'),version:2,programme_chapter:'society'}]
+    w.events=[signed('versioned')]
+    w.stances=[stance(opponentId,'versioned')]
+    const snapshot=buildMatchAgenda(w,opponentId)
+    expect(snapshot.items).toHaveLength(1)
+    expect(snapshot.items[0]).toMatchObject({
+      signed:false,hasStance:false,status:'pending'
+    })
+    expect(snapshot.next?.dossier.version).toBe(2)
+    expect(visibleMatchDossiers(snapshot,'signed')).toHaveLength(0)
+    expect(visibleMatchDossiers(snapshot,'action')).toHaveLength(1)
+  })
+
 })

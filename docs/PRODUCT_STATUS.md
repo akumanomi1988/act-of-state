@@ -96,3 +96,16 @@ presentation. Authentication still uses the same Supabase Auth provider,
 unchanged account identity and invite callback; no migration or custom
 password backend was introduced. The authenticated policy experience
 is not yet fully translated, which remains an explicit backlog item.
+
+
+## AOS-063 / AOS-064 — English parliamentary action and version-safe decisions
+
+The Assembly presents its weekly action centre and binding vote in English,
+while the backend remains the sole authority for deadline, seat weights, vote
+acceptance and government signatures. Original Spanish authored dossiers
+are expressly labeled as untranslated in English mode.
+
+The legislative dossier agenda now includes a Diplomacy chapter filter.
+Solo and multiplayer agenda, onboarding and diplomacy compare signed policy
+IDs AND versions, preventing earlier acts from hiding an actionable revised
+dossier. Production and database migrations were not changed.

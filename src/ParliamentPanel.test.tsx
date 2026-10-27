@@ -121,4 +121,29 @@ describe('binding parliamentary workflow', () => {
     expect(screen.queryByText('Voto registrado y escrutinio actualizado.')).not.toBeInTheDocument()
   })
 
+  it('casts a real parliamentary ballot from English UI only once after authoritative reconciliation',async()=>{
+    mocks.fetchParliamentState
+      .mockResolvedValueOnce(state('open'))
+      .mockResolvedValueOnce({...state('open'),votes:[{
+        id:'vote-1',bill_id:billId,user_id:guest,choice:'yes',seat_weight:10,
+        created_at:'2026-10-23T13:00:00Z'
+      }]})
+    mocks.castParliamentVote.mockResolvedValue({id:'vote-1'})
+    render(<ParliamentPanel {...base} host={false} userId={guest} language="en" />)
+    await screen.findByText('OPEN VOTE')
+    expect(screen.getByRole('region',{name:'Parliamentary vote'})).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'In favor'}))
+    await waitFor(()=>expect(mocks.castParliamentVote).toHaveBeenCalledWith(billId,'yes'))
+    await screen.findByText(/Your vote is recorded: In favor/)
+    expect(screen.queryByRole('button',{name:'In favor'})).not.toBeInTheDocument()
+    expect(mocks.proposeParliamentBill).not.toHaveBeenCalled()
+  })
+  it('cannot propose or sign on behalf of a non-cabinet party in English',async()=>{
+    mocks.fetchParliamentState.mockResolvedValue(state())
+    render(<ParliamentPanel {...base} host={false} userId={guest} language="en" />)
+    await screen.findByText('Awaiting a government proposal.')
+    expect(screen.queryByRole('button',{name:'Submit selected policy for a vote'})).toBeNull()
+    expect(mocks.proposeParliamentBill).not.toHaveBeenCalled()
+  })
+
 })

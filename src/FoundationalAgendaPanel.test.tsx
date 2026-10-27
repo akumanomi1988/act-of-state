@@ -179,4 +179,18 @@ describe('official founding programme and source-of-truth agenda', () => {
     expect(screen.getAllByRole('button',{name:/FIRMADO/})).toHaveLength(2)
   })
 
+  it('keeps a newly published version pending when only the old version is signed',()=>{
+    const v2={...intro('energy-resilience'),version:2,title:'Updated energy'}
+    const onSelect=vi.fn()
+    render(<FoundationalAgendaPanel
+      world={world([decision('energy-resilience',12000,11700)],[v2])}
+      selectedKey={null} onSelect={onSelect}/>)
+    expect(screen.getByRole('button',{name:/Updated energy/})).toHaveTextContent('PENDIENTE')
+    fireEvent.click(screen.getByRole('button',{name:'Firmados'}))
+    expect(screen.queryByRole('button',{name:/Updated energy/})).toBeNull()
+    fireEvent.click(screen.getByRole('button',{name:'Pendientes'}))
+    fireEvent.click(screen.getByRole('button',{name:/Updated energy/}))
+    expect(onSelect).toHaveBeenCalledWith(v2)
+  })
+
 })

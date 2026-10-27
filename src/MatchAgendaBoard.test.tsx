@@ -111,4 +111,48 @@ describe('role-centric multiplayer political agenda',()=>{
     expect(screen.getByRole('button',{name:/Medida news/})).toBeInTheDocument()
   })
 
+  it('renders an actionable English role-scoped agenda without altering signed decisions',()=>{
+    const world=makeWorld(),choose=vi.fn()
+    render(<MatchAgendaBoard world={world} userId={guest}
+      selectedDossierId={null} onSelect={choose} language="en"/>)
+    const panel=screen.getByRole('region',{name:'Assembly decision centre'})
+    expect(within(panel).getByRole('heading',{name:'Political council'})).toBeInTheDocument()
+    expect(within(panel).getByText('Opposition party')).toBeInTheDocument()
+    expect(within(panel).getByText('POLITICAL WEEK')).toBeInTheDocument()
+    expect(within(panel).getByRole('button',{name:'This week'})).toBeInTheDocument()
+    fireEvent.click(within(panel).getByRole('button',{name:'This week'}))
+    const original=within(panel).getByRole('button',{name:/Medida news/})
+    expect(original).toHaveTextContent('Original editorial title (Spanish)')
+    expect(original).toHaveTextContent('PENDING')
+    fireEvent.click(original)
+    expect(choose).toHaveBeenCalledWith('news')
+    expect(world.events).toHaveLength(0)
+    expect(world.stances).toHaveLength(0)
+  })
+  it('does not replace unpublished editorials with fiction in English',()=>{
+    const world=makeWorld()
+    world.dossiers=world.dossiers.filter(d=>d.release_kind!=='weekly')
+    render(<MatchAgendaBoard world={world} userId={guest}
+      selectedDossierId={null} language="en" onSelect={vi.fn()} />)
+    expect(screen.getByText(/No weekly editorial slate is approved/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'This week'}))
+    expect(screen.getByText(/No items match this filter/)).toBeInTheDocument()
+  })
+
+  it('offers diplomatic treaty filtering in both languages, without inventing an enactment',()=>{
+    const w=makeWorld()
+    w.dossiers.push({...base('diplomacy-europe'),programme_chapter:'diplomacy',
+      programme_order:1,title:'European treaty'})
+    const action=vi.fn()
+    render(<MatchAgendaBoard world={w} userId={guest} language="en"
+      selectedDossierId={null} onSelect={action}/>)
+    fireEvent.click(screen.getByRole('button',{name:'Diplomacy'}))
+    const treaty=screen.getByRole('button',{name:/European treaty/})
+    expect(treaty).toHaveTextContent('PENDING')
+    expect(screen.queryByRole('button',{name:/Medida news/})).toBeNull()
+    fireEvent.click(treaty)
+    expect(action).toHaveBeenCalledWith('diplomacy-europe')
+    expect(w.events).toHaveLength(0)
+  })
+
 })

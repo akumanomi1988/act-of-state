@@ -451,7 +451,7 @@ export default function MultiplayerApp() {
           <h2>Convoca tu primera asamblea.</h2>
           <p className="muted">Crea una partida o usa un código de invitación. Cada cuenta representará un partido distinto.</p>
         </div> : <>
-          <PlayerOnboarding world={world} />
+          <PlayerOnboarding world={world} language={language} />
           <div className="match-heading">
             <div><p className="eyebrow">PARTIDA {world.match.status === 'lobby' ? 'EN PREPARACIÓN' : 'ACTIVA'}</p>
               <h1>{world.match.title}</h1><p className="muted">Día de juego {world.gameDay} · {world.government.country_name}</p></div>
@@ -573,7 +573,7 @@ export default function MultiplayerApp() {
             {!host && <p role="status">Esperando la convocatoria del partido de gobierno.</p>}
           </div> : <div className="match-politics" id="match-dossiers">
             <WeeklyMissionControl key={world.match.id+':'+user!.id}
-              world={world} userId={user!.id}
+              world={world} userId={user!.id} language={language}
               onSelect={id => {
                 setSelectedDossierId(id)
                 setSelectedOptionId('')
@@ -600,7 +600,7 @@ export default function MultiplayerApp() {
                 setMandateOptionId(null)
               }} />
             <MatchAgendaBoard key={world.match.id} world={world} userId={user!.id}
-              selectedDossierId={dossier?.id ?? null}
+              selectedDossierId={dossier?.id ?? null} language={language}
               onSelect={id => {
                 setSelectedDossierId(id)
                 setSelectedOptionId('')
@@ -625,7 +625,7 @@ export default function MultiplayerApp() {
               <ParliamentPanel key={world.match.id + ':' + dossier.id}
                 matchId={world.match.id} dossierId={dossier.id}
                 dossierVersion={dossier.version} options={options}
-                selectedOptionId={selectedOptionId} userId={user!.id}
+                selectedOptionId={selectedOptionId} userId={user!.id} language={language}
                 players={world.players} host={host} decided={!!cabinetEvent}
                 onMandateChange={setMandateOptionId} />
               {myStance ? <p className="match-recorded" role="status">

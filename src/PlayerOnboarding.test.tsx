@@ -65,11 +65,34 @@ it('tracks founding and 18 nationally signed reforms independently',()=>{
  }))
  const world={
    dossiers:[...founding,...reforms],
-   events:[{dossier_id:'founding-0'},{dossier_id:'reform-0'}],
+   events:[{dossier_id:'founding-0',dossier_version:1},{dossier_id:'reform-0',dossier_version:1}],
    calendar:{weeklyTotal:0}
  } as unknown as GovernmentWorld
  render(<PlayerOnboarding world={world}/>)
  expect(screen.getByText(/Programa fundacional: 1 de 10/)).toHaveTextContent('○')
  expect(screen.getByText(/Programa nacional de reformas: 1 de 18/)).toHaveTextContent('○')
  expect(screen.queryByText(/Programa fundacional: 1 de 28/)).not.toBeInTheDocument()
+})
+
+it('keeps saved political milestones truthful when using the English guide',()=>{
+ const world={
+  dossiers:[{id:'founding-1',version:1,release_kind:'intro',programme_chapter:'founding'}],
+  events:[],calendar:{weeklyTotal:0}
+ } as unknown as GovernmentWorld
+ render(<PlayerOnboarding world={world} language="en" />)
+ expect(screen.getByRole('region',{name:'Player first steps'})).toBeInTheDocument()
+ expect(screen.getByText(/Founding programme: 0 of 1 decisions/)).toHaveTextContent('○')
+ expect(screen.getByText(/Weekly agenda is awaiting editorial publication/)).toHaveTextContent('○')
+ expect(screen.getByRole('link',{name:'Read the full guide'})).toHaveAttribute('href','/guide?lang=en')
+ expect(screen.getAllByRole('link',{name:'How it works'}).length).toBeGreaterThan(0)
+})
+
+it('never counts an archived previous version as a currently signed reform',()=>{
+ const world={
+  dossiers:[{id:'reform-1',version:2,release_kind:'intro',programme_chapter:'society'}],
+  events:[{dossier_id:'reform-1',dossier_version:1}],calendar:{weeklyTotal:0}
+ } as unknown as GovernmentWorld
+ render(<PlayerOnboarding world={world} language="en"/>)
+ expect(screen.getByText(/National reform programme: 0 of 1 decisions/)).toHaveTextContent('○')
+ expect(screen.getByText(/Sign your first decision/)).toHaveTextContent('✓')
 })

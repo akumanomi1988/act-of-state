@@ -69,9 +69,9 @@ export default function FoundationalAgendaPanel({ world, selectedKey, onSelect }
   const reformSigned = reformChapters.reduce((sum,item)=>sum+item.signed,0)
   const reformNext = reformChapters.find(item=>item.next)?.next??null
   const signedIds = useMemo(() =>
-    new Set(world.events.map(event => event.dossier_id)), [world.events])
+    new Set(world.events.map(event => event.dossier_id+':'+event.dossier_version)), [world.events])
   const visible = useMemo(() => world.dossiers.filter(item => {
-    const done = signedIds.has(item.id)
+    const done = signedIds.has(item.id+':'+item.version)
     if (filter === 'foundational') return chapterOf(item) === 'founding'
     if (filter === 'reforms') return reformChapter(item)
     if (filter === 'society' || filter === 'economy' ||
@@ -159,7 +159,7 @@ export default function FoundationalAgendaPanel({ world, selectedKey, onSelect }
     </div>
     <div className="dossier-list">
       {visible.map(item => {
-        const done = signedIds.has(item.id)
+        const done = signedIds.has(item.id+':'+item.version)
         const usable = isAvailable(item, world.gameDay)
         return <button type="button"
           className={'dossier-item ' + (selectedKey === dossierKey(item) ? 'selected' : '')}
