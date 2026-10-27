@@ -62,13 +62,16 @@ export function buildMandateReport(input: MandateInputs): MandateReport {
   const { fiscal, living, opinion, election, userId, days } = input
   const dates = [fiscal?.serverDay, living?.serverDay, opinion?.serverDay,
     election?.serverDay].filter((v): v is string => !!v)
-  if (!dates.length || dates.some(day => !/^\d{4}-\d{2}-\d{2}$/.test(day)))
+  if (!dates.length || dates.some(value => !/^\d{4}-\d{2}-\d{2}$/.test(value) ||
+    !Number.isFinite(utc(value)) || iso(utc(value)) !== value))
     throw new Error('MANDATE_NO_SERVER_DATE')
-  // Do not merge historical snapshots across distinct server days: the UI
-  // can report an explicit refresh error rather than imply atomic reads.
-  const day = dates.reduce((a, b) => a > b ? a : b)
-  if (dates.some(d => Math.abs(utc(day) - utc(d)) > 86400000))
+  // A difference of even one UTC day crosses a settlement boundary: never
+  // label asynchronous snapshots as one consistent official observation.
+  const day = dates[0]
+  if (dates.some(value => value !== day))
     throw new Error('MANDATE_SOURCE_DAY_MISMATCH')
+  if (fiscal && living && fiscal.governmentId !== living.governmentId)
+    throw new Error('MANDATE_GOVERNMENT_MISMATCH')
   const fromDay = iso(utc(day) - (days - 1) * 86400000)
   let fiscalReport: MandateReport['fiscal'] = null
   if (fiscal) {

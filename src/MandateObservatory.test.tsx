@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import MandateObservatory from './MandateObservatory'
 
 const mocks=vi.hoisted(()=>({
@@ -38,7 +38,7 @@ beforeEach(()=>{
   mocks.election.mockResolvedValue({serverDay:'2026-10-26',
     history:[{certified_on:'2026-10-25',winner_user_id:who}]})
 })
-afterEach(cleanup)
+afterEach(()=>{cleanup();vi.restoreAllMocks()})
 
 describe('strategic mandate observatory UI and account isolation',()=>{
   it('does not fetch while collapsed; opens actual fiscal, social and stress diagnostics',async()=>{
@@ -69,6 +69,32 @@ describe('strategic mandate observatory UI and account isolation',()=>{
     expect(within(panel).getByText('-5 puntos',{exact:false})).toBeInTheDocument()
     expect(within(panel).getByText(/Elecciones certificadas en el periodo/)).toHaveTextContent('1')
     expect(mocks.opinion).toHaveBeenCalledWith(match,30)
+  })
+  it('keeps the newest polling read when an older request finishes late',async()=>{
+    let poll: (()=>void)|undefined
+    vi.spyOn(window,'setInterval').mockImplementation(callback=>{
+      poll=callback as ()=>void
+      return 1
+    })
+    let resolveOld!: (value: unknown)=>void
+    mocks.living.mockImplementationOnce(()=>new Promise(resolve=>{resolveOld=resolve}))
+    mocks.living.mockResolvedValueOnce({
+      governmentId:gov,serverDay:'2026-10-26',days:30,
+      expectedDays:3,recordedDays:2,
+      history:[record('2026-10-24',45),record('2026-10-26',65)]
+    })
+    render(<MandateObservatory governmentId={gov} identity={who}/>)
+    fireEvent.click(screen.getByRole('button',{name:'Analizar mandato'}))
+    await waitFor(()=>expect(mocks.living).toHaveBeenCalledTimes(1))
+    await act(async()=>{poll?.()})
+    expect(await screen.findByText('65 / 100')).toBeInTheDocument()
+    await act(async()=>{resolveOld({
+      governmentId:gov,serverDay:'2026-10-26',days:30,
+      expectedDays:3,recordedDays:2,
+      history:[record('2026-10-24',45),record('2026-10-26',12)]
+    })})
+    expect(screen.getByText('65 / 100')).toBeInTheDocument()
+    expect(screen.queryByText('12 / 100')).not.toBeInTheDocument()
   })
   it('retains readable partial evidence when an upstream read fails',async()=>{
     mocks.fiscal.mockRejectedValue(new Error('FISCAL_FORBIDDEN'))

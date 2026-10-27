@@ -6,6 +6,12 @@ ACT OF STATE uses one real UTC day per game day. This observatory supplies
 authenticated cabinet and opposition members with 7/30/90-day retrospective
 evidence without a second policy engine, fake calendar days or mutable acts.
 
+The observatory rejects sources whose server UTC dates differ, even by one day,
+or where fiscal and social records refer to different governments. The UI asks
+for a fresh read rather than silently compare non-atomic settlements. Polling
+reads are ordered by invocation so a late stale response cannot replace newer
+evidence; expanded panels still refresh every 60 seconds.
+
 The observatory works in solo and active shared nations. Only the explicit
 Analyze mandate action requests the existing member-authorized fiscal,
 living conditions, election and opinion-history RPCs. Closed panels make no

@@ -108,9 +108,17 @@ describe('90-day mandate observatory — immutable and server-owned inputs', () 
     expect(report.society?.missing).toBe(6)
     expect(report.society?.change).toBeNull()
   })
-  it('prevents unrelated server days from being silently compared', () => {
-    expect(()=>buildMandateReport({fiscal,living:{...history,serverDay:'2026-10-23'},
-      opinion:null,election:null,days:30})).toThrow('MANDATE_SOURCE_DAY_MISMATCH')
+  it('rejects even adjacent UTC days and invalid calendar dates', () => {
+    for (const serverDay of ['2026-10-23', '2026-10-25']) {
+      expect(()=>buildMandateReport({fiscal,living:{...history,serverDay},
+        opinion:null,election:null,days:30})).toThrow('MANDATE_SOURCE_DAY_MISMATCH')
+    }
+    expect(()=>buildMandateReport({fiscal:{...fiscal,serverDay:'2026-02-30'},
+      living:null,opinion:null,election:null,days:30})).toThrow('MANDATE_NO_SERVER_DATE')
+  })
+  it('never merges fiscal and social evidence from different governments', () => {
+    expect(()=>buildMandateReport({fiscal,living:{...history,governmentId:otherId},
+      opinion:null,election:null,days:30})).toThrow('MANDATE_GOVERNMENT_MISMATCH')
   })
   it('returns partial evidence without inventing unavailable datasets or forecasts', () => {
     const result=buildMandateReport({fiscal,living:null,opinion:null,election:null,days:30})

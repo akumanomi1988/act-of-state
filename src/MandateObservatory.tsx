@@ -42,15 +42,19 @@ export default function MandateObservatory({ governmentId, identity, matchId }: 
   useEffect(() => {
     if (!expanded) return
     let active = true
+    let latestRequest = 0
     setStored(null); setBusy(true)
     async function load() {
+      // Interval reads can overlap slow provider responses. Only the newest
+      // request may update the screen, even if an older request ends last.
+      const requestId = ++latestRequest
       const [fiscal, living, opinion, election] = await Promise.allSettled([
         fetchFiscalState(governmentId),
         fetchLivingConditions(governmentId, days),
         matchId ? fetchOpinionHistory(matchId, days) : Promise.resolve(null),
         matchId ? fetchElectionState(matchId) : Promise.resolve(null)
       ])
-      if (!active) return
+      if (!active || requestId !== latestRequest) return
       const errors: string[] = []
       if (fiscal.status === 'rejected') errors.push('No se pudieron recuperar las actas fiscales.')
       if (living.status === 'rejected') errors.push('No se pudieron recuperar las actas de bienestar.')
@@ -68,7 +72,7 @@ export default function MandateObservatory({ governmentId, identity, matchId }: 
     }
     void load()
     const interval = window.setInterval(() => void load(), 60000)
-    return () => { active = false; window.clearInterval(interval) }
+    return () => { active = false; latestRequest++; window.clearInterval(interval) }
   }, [governmentId, identity, matchId, days, refresh, expanded, key])
 
   const data = stored?.key === key ? stored : null
