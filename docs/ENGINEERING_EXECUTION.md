@@ -33,6 +33,18 @@ merge to `main` is authorized by routine development work.
 - [ ] Validate the final new SHA with Quality, PostgreSQL and local real Auth;
       preserve immutable event/seat acceptance invariants.
 
+## Current engineering increment — election and accountability isolation (2026-10-27)
+
+- [x] Reject invalid certified election acts, district/party seat divergence,
+      forged dates and cross-match electoral history at the API boundary.
+- [x] Reject inconsistent legislative Friday reports, duplicate parties or
+      dossiers and future/backdated political acts.
+- [x] Order election polling and action reconciliation by route generation and
+      request revision so a superseded response never overwrites a new party.
+- [x] Include independently executable contract and React race regressions.
+- [ ] Verify the new commit via Quality, PostgreSQL integrity and isolated
+      GoTrue/PostgREST; no live nation, mail or production deployment.
+
 ## Remaining original-product acceptance gates
 
 The pending technical evidence is in `docs/development-coverage.json`.

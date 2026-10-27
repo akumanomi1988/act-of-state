@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   certifyMatchElection, fetchElectionState, setPartyManifesto,
   type ElectionState
@@ -21,23 +21,39 @@ export default function ElectionPanel({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  // Route switches and overlapping polling must never surface an old match's
+  // electoral evidence, and stale action readbacks cannot replace new polls.
+  const scopeVersion = useRef(0)
+  const readVersion = useRef(0)
+  const busyRef = useRef(false)
 
   useEffect(() => {
     let alive = true
+    const scope = ++scopeVersion.current
+    ++readVersion.current
     setState(null)
     setPolicy(null)
     setError('')
+    setNotice('')
+    busyRef.current=false
+    setBusy(false)
     const refresh = async () => {
+      if(busyRef.current)return
+      const version=++readVersion.current
       try {
         const next = await fetchElectionState(matchId)
-        if (alive) { setState(next); setError('') }
+        if (alive && scope===scopeVersion.current && version===readVersion.current) {
+          setState(next); setError('')
+        }
       } catch (reason) {
-        if (alive) setError(matchError(reason))
+        if (alive && scope===scopeVersion.current && version===readVersion.current)
+          setError(matchError(reason))
       }
     }
     void refresh()
     const interval = window.setInterval(() => { void refresh() }, 15000)
-    return () => { alive = false; window.clearInterval(interval) }
+    return () => { alive = false; ++scopeVersion.current; ++readVersion.current
+      window.clearInterval(interval) }
   }, [matchId, userId])
 
   const me = state?.projection.parties.find(p => p.userId === userId)
@@ -48,13 +64,19 @@ export default function ElectionPanel({
   const winner = latest?.parties_snapshot.find(p => p.userId === latest.winner_user_id)
 
   async function run(action: () => Promise<unknown>, success: string, certified = false) {
-    if (busy) return
+    if (busyRef.current) return
+    busyRef.current=true
+    const scope=scopeVersion.current
+    ++readVersion.current
     setBusy(true); setError(''); setNotice('')
     let failure: unknown = null
     try { await action() } catch (reason) { failure = reason }
+    if(scope!==scopeVersion.current)return
     try {
       // Read the authoritative state before claiming that a change succeeded.
+      const version=++readVersion.current
       const fresh = await fetchElectionState(matchId)
+      if(scope!==scopeVersion.current || version!==readVersion.current)return
       setState(fresh)
       if (failure) setError(matchError(failure))
       else {
@@ -63,8 +85,11 @@ export default function ElectionPanel({
         if (certified) onElectionCertified()
       }
     } catch (reason) {
-      setError('No se pudo reconciliar el resultado: ' + matchError(reason))
-    } finally { setBusy(false) }
+      if(scope===scopeVersion.current)
+        setError('No se pudo reconciliar el resultado: ' + matchError(reason))
+    } finally {
+      if(scope===scopeVersion.current){busyRef.current=false;setBusy(false)}
+    }
   }
 
   return <section className="match-panel election-panel" aria-label="Elecciones nacionales">

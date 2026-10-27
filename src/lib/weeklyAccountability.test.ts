@@ -1,5 +1,5 @@
 import {describe,it,expect,vi,beforeEach} from 'vitest'
-import {fetchWeeklyAccountability} from './weeklyAccountability'
+import {fetchWeeklyAccountability,validateWeeklyAccountability} from './weeklyAccountability'
 const mocked=vi.hoisted(()=>({rpc:vi.fn()}))
 vi.mock('./game',()=>({requireClient:()=>({rpc:mocked.rpc})}))
 const id='80000000-0000-4000-8000-000000000009'
@@ -45,6 +45,28 @@ describe('official weekly legislature report client',()=>{
   ]},error:null})
   await expect(fetchWeeklyAccountability(id)).rejects.toThrow('MATCH_WEEKLY_HISTORY_INVALID')
   expect(mocked.rpc).toHaveBeenCalledTimes(2)
+ })
+ it('rejects forged weeks, impossible clocks, collisions and out-of-range acts',()=>{
+  const good={serverDay:'2026-10-24',weeks:[week()]}
+  const base=week()
+  const incorrect=[
+    {...good,serverDay:'2026-02-30'},
+    {...good,weeks:[{...base,friday:'2026-10-24'}]},
+    {...good,weeks:[{...base,weekStart:'2026-10-20'}]},
+    {...good,weeks:[{...base,fridayAct:null}]},
+    {...good,weeks:[{...base,parties:[base.parties[0],base.parties[0]]}]},
+    {...good,weeks:[{...base,dossiers:[base.dossiers[0],base.dossiers[0]]}]},
+    {...good,weeks:[{...base,fridayAct:{...base.fridayAct,trust_at_friday:101}}]},
+    {...good,weeks:[{...base,fridayAct:{...base.fridayAct,decisions_resolved:11}}]},
+    {...good,weeks:[{...base,dossiers:[{...base.dossiers[0],decision:{
+      ...base.dossiers[0].decision,decidedOn:'2026-10-25'}}]}]},
+    {...good,weeks:[{...base,dossiers:[{...base.dossiers[0],bill:{
+      ...base.dossiers[0].bill,yesVotes:9,noVotes:8}}]}]},
+    {...good,weeks:[{...base,elections:[{...base.elections[0],certifiedOn:'2026-11-02'}]}]},
+    {...good,weeks:[base,base]}
+  ]
+  for(const response of incorrect)
+    expect(()=>validateWeeklyAccountability(response,8)).toThrow('MATCH_WEEKLY_HISTORY_INVALID')
  })
  it('rejects nonbounded queries before the network and reports authorization errors',async()=>{
   await expect(fetchWeeklyAccountability(id,50)).rejects.toThrow('MATCH_WEEK_RANGE_INVALID')
