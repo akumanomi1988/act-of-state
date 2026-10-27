@@ -109,3 +109,12 @@ The legislative dossier agenda now includes a Diplomacy chapter filter.
 Solo and multiplayer agenda, onboarding and diplomacy compare signed policy
 IDs AND versions, preventing earlier acts from hiding an actionable revised
 dossier. Production and database migrations were not changed.
+
+
+## AOS-065 — Stable cross-day editorial acceptance tests
+
+A test-only fixture remapping is now scoped to JSON dossier IDs rather than
+globally changing dates in serialized JSON. This prevents editorial source
+timestamps from being corrupted on Tuesday UTC or another day when the sample
+date overlaps the weekly publication key. No live publisher validation,
+production database, migration or scheduled content has changed.

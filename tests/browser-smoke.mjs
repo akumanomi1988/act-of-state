@@ -943,7 +943,8 @@ try {
       context:'Escenario ficticio permanente',category:'Energía',release_kind:'intro',
       available_from:null,available_until:null
     }
-    for(const role of [{index:0,width:1440},{index:4,width:390}]) {
+    for(const role of [{index:0,width:1440,language:'es'},{index:4,width:390,language:'es'},
+      {index:9,width:390,language:'en'}]) {
       const context=await browser.newContext({
         viewport:{width:role.width,height:900}
       })
@@ -969,7 +970,26 @@ try {
       ]
       await routeApi(page,state)
       await injectUser(page,state)
-      await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
+      await page.goto(BASE+'/multiplayer'+(role.language==='en'?'?lang=en':''),{waitUntil:'networkidle'})
+      if(role.language==='en') {
+        const board=page.getByRole('region',{name:'Assembly decision centre'})
+        const mission=page.getByRole('region',{name:'Legislative operations centre'})
+        await board.getByRole('heading',{name:'Political council'}).waitFor()
+        await mission.getByRole('heading',{name:'Legislative operations'}).waitFor()
+        await mission.getByText('YOUR VOTE NEEDED').waitFor()
+        await mission.getByRole('button',{name:/Open next item/}).click()
+        await page.getByRole('region',{name:'Parliamentary vote'})
+          .getByRole('heading',{name:'Assembly mandate'}).waitFor()
+        await page.getByRole('button',{name:'In favor'}).waitFor()
+        await board.getByRole('button',{name:'Diplomacy'}).click()
+        await board.getByText(/No items match this filter/).waitFor()
+        assert.equal(await page.locator('.match-seat.occupied').count(),10)
+        await checkMobileOverflow(page,'English ten-party command board')
+        await checkA11y(page,'English ten-party command board')
+        await page.screenshot({path:OUT+'/multi-command-english-390.png',fullPage:true})
+        await context.close()
+        continue
+      }
       const board=page.getByRole('region',{name:'Centro de decisiones de la asamblea'})
       await board.getByRole('heading',{name:'Consejo político'}).waitFor()
       const campaign=page.getByRole('region',{name:'Campaña electoral'})

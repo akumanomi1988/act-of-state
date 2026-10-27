@@ -3,7 +3,7 @@
 Project: ACT OF STATE
 Repo: akumanomi1988/act-of-state
 Branch: aos/050-national-reforms-campaign
-Latest technical changes: AOS-063 parliamentary weekly actions in English; AOS-064 version-safe signed/stance reconciliation and diplomacy agenda filter. Check branch HEAD and latest CI for exact revision.
+Latest technical changes: AOS-063 English parliamentary weekly actions; AOS-064 version-safe signed/stance reconciliation; AOS-065 calendar-stable editorial test fixture. Check branch HEAD and latest CI for exact revision.
 Production: no deployment and no hosted Supabase migration authorized.
 Original total weight: 100, formally accepted weight: 23.
 Functional engineering subledger total: 62, evidenced: 45, outstanding: 17.

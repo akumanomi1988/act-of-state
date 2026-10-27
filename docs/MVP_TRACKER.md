@@ -97,6 +97,22 @@
   enacted. Old events remain immutable historical records.
 - No database authority changes, migrations or live deployments.
 
+## AOS-065 — Calendar-stable editorial SQL regression suite
+
+- Removed unsafe global text replacement of a week date inside serialized
+  editorial JSON during a negative publication test. A Tuesday UTC execution
+  could replace the Monday portion of a legitimate article publication
+  timestamp and turn the source artificially future-dated. The test then
+  failed with the wrong error before reaching its intended invalid fiscal
+  parameter assertion.
+- The isolated fixture now remaps only each dossier ID to the subsequent week
+  and checks that its source publication timestamps remain unchanged. Test
+  payloads still require ten distinct, individually reviewed options, a
+  rejected out-of-range treasury delta and full transaction rollback.
+- This fixes time-dependent false failures without weakening or bypassing any
+  production editorial validation. Full PostgreSQL acceptance must re-run on
+  the final SHA and is NOT counted until CI PASS.
+
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.

@@ -171,7 +171,22 @@ declare f record; second_monday date; broken jsonb;
 begin
  select * into f from pg_temp.editorial_fixture;
  second_monday:=f.monday+7;
- broken:=replace(f.full_draft::text,f.monday::text,second_monday::text)::jsonb;
+ -- Change only the dossier identity, NEVER arbitrary JSON text: source
+ -- timestamps can include this Monday, especially on Tuesday. Replacing
+ -- all occurrences made this fixture create future-dated source metadata.
+ select jsonb_agg(jsonb_set(d.value,'{id}',
+   to_jsonb(replace(d.value->>'id',f.monday::text,second_monday::text)))
+   order by d.ordinality)
+ into broken from jsonb_array_elements(f.full_draft)
+   with ordinality as d(value,ordinality);
+ if (select count(*) from jsonb_array_elements(broken) d
+     where d.value->>'id' like 'weekly-'||second_monday::text||'-%')<>10 or
+    (select count(*) from jsonb_array_elements(broken) d
+      join lateral jsonb_array_elements(f.full_draft)
+        with ordinality old(value,ordinality) on
+          d.value->>'source_url'=old.value->>'source_url'
+      where d.value->'source_published_at'<>old.value->'source_published_at')<>0
+ then raise exception 'EDITORIAL_TEST_ID_REMAP_CHANGED_SOURCE_METADATA'; end if;
  broken:=jsonb_set(broken,'{9,options,1,treasury_delta_m_eur}','999999'::jsonb);
  saved:=public.save_editorial_week(second_monday,0,broken);
  perform public.review_editorial_slot(second_monday,saved.revision,
