@@ -54,7 +54,7 @@ function createServerState(userId=ua,governmentId=govId) {
     },
     get fiscal() {
       return {
-        governmentId,serverDay:'2026-10-23',currentWeek:'2026-10-19',
+        governmentId,serverDay:'2026-10-24',currentWeek:'2026-10-19',
         canEdit:true,canRevise:!this.policy.revised_this_week,
         policy:this.policy,projectedRevenueM:this.policy.tax_rate*95,
         projectedSpendingM:this.policy.health*24+this.policy.education*20+
