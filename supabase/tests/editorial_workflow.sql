@@ -167,7 +167,12 @@ begin
  begin
   perform public.publish_editorial_week(second_monday,saved.revision);
  exception when sqlstate 'P0001' then
-  blocked:=sqlerrm='EDITORIAL_INVALID_OPTION_PARAMETERS'; end;
+  -- Failure diagnostics are essential: an unrelated gate must not be
+  -- mistaken for validation of the deliberately malformed option.
+  if sqlerrm<>'EDITORIAL_INVALID_OPTION_PARAMETERS' then
+    raise exception 'EDITORIAL_UNEXPECTED_REJECTION: %',sqlerrm;
+  end if;
+  blocked:=true; end;
  if not blocked then raise exception 'INVALID_EDITORIAL_PARAMETERS_PUBLISHED'; end if;
  if exists(select 1 from public.weekly_releases where week_start=second_monday) or
     exists(select 1 from public.dossiers where available_from=second_monday) or
