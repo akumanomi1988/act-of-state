@@ -123,10 +123,10 @@ begin
  update pg_temp.demographic_fixture set legacy_snapshot=(
    select jsonb_agg(to_jsonb(h) order by household_no)
    from public.synthetic_households h where h.government_id=gid);
-end $;
+end $$;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','65000000-0000-4000-8000-000000000001',true);
-do $
+do $$
 declare gid uuid:=(select government_id from pg_temp.demographic_fixture);
  profile jsonb;
 begin
@@ -136,9 +136,9 @@ begin
  perform public.start_government();
  if public.get_population_profile(gid)<>profile
  then raise exception 'LEGACY_PROFILE_CHANGED_ON_LOGIN';end if;
-end $;
+end $$;
 reset role;
-do $
+do $$
 declare gid uuid:=(select government_id from pg_temp.demographic_fixture);
  original jsonb:=(select legacy_snapshot from pg_temp.demographic_fixture);
  existing integer;
@@ -149,5 +149,5 @@ begin
   original<>(select jsonb_agg(to_jsonb(h) order by household_no)
     from public.synthetic_households h where h.government_id=gid)
  then raise exception 'LEGACY_HOUSEHOLD_RESEEDED';end if;
-end $;
+end $$;
 rollback;
