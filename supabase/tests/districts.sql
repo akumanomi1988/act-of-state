@@ -18,7 +18,7 @@ begin
  if m.government_id<>g.id then raise exception 'HOST_GOVERNMENT_MISMATCH'; end if;
  profile:=public.get_population_profile(g.id);
  if (profile->>'households')::integer<>300
-    or (profile->>'sampleResidents')::integer<>900
+    or (profile->>'sampleResidents')::integer<>747
     or jsonb_array_length(profile->'districts')<>6 then
    raise exception 'DISTRICT_PROFILE_INVALID'; end if;
  if (select sum((x->>'households')::integer) from
@@ -26,7 +26,7 @@ begin
      where x->>'dimension'='district')<>300
     or (select sum((x->>'residents')::integer) from
      jsonb_array_elements(profile->'segments') x
-     where x->>'dimension'='district')<>900
+     where x->>'dimension'='district')<>747
     or (select sum((x->>'seats')::integer) from
      jsonb_array_elements(profile->'districts') x)<>100 then
    raise exception 'DISTRICT_POPULATION_MASS_NOT_CONSERVED'; end if;
@@ -83,7 +83,7 @@ begin
  if (select sum((d->>'households')::integer)
     from jsonb_array_elements(districts) d)<>300 or
    (select sum((d->>'residents')::integer)
-    from jsonb_array_elements(districts) d)<>900 then
+    from jsonb_array_elements(districts) d)<>747 then
    raise exception 'DISTRICT_ELECTORATE_MASS_INVALID'; end if;
  profile:=public.get_population_profile(f.government_id);
  if (select (d->>'households')::integer from jsonb_array_elements(districts) d

@@ -18,7 +18,7 @@ export interface PopulationDistrict {
 }
 
 export interface PopulationProfile {
-  modelVersion: 'households-v1' | 'households-v2'
+  modelVersion: 'households-v1' | 'households-v2' | 'households-v3'
   households: number
   sampleResidents: number
   districts?: PopulationDistrict[]
@@ -28,7 +28,7 @@ export interface PopulationProfile {
 export function validatePopulationProfile(value: unknown): value is PopulationProfile {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const profile = value as Partial<PopulationProfile>
-  return ['households-v1','households-v2'].includes(String(profile.modelVersion))
+  return ['households-v1','households-v2','households-v3'].includes(String(profile.modelVersion))
     && profile.households === 300
     && Number.isInteger(profile.sampleResidents)
     && profile.sampleResidents! > 0

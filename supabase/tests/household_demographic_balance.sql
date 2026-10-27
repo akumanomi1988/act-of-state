@@ -22,28 +22,28 @@ begin
  m:=public.create_match('Demographic Balance Verification','Civic Forum');
  insert into pg_temp.demographic_fixture values(g.id,m.id,m.invite_code);
  profile:=public.get_population_profile(g.id);
- if profile->>'modelVersion'<>'households-v2' or
+ if profile->>'modelVersion'<>'households-v3' or
     (profile->>'households')::integer<>300 or
-    (profile->>'sampleResidents')::integer<>900 then
-   raise exception 'DEMOGRAPHIC_V2_PROFILE_NOT_VERSIONED';end if;
+    (profile->>'sampleResidents')::integer<>747 then
+   raise exception 'DEMOGRAPHIC_V3_PROFILE_NOT_VERSIONED';end if;
 end $$;
 reset role;
 -- The original v1 correlated age and income perfectly in several cells.
--- V2 exact marginal counts: age 90/150/60, income 90/150/60.
+-- V3 calibrated adult-proxy age 62/161/77, income-relative 60/180/60.
 do $$
 declare gid uuid:=(select government_id from pg_temp.demographic_fixture);
  n integer; max_deviation numeric; actual integer; expected numeric;
  a text; i text; min_coverage integer;
 begin
  if (select count(*) from public.synthetic_households
-      where government_id=gid and model_version='households-v2')<>300
- then raise exception 'HOUSEHOLDS_V2_INCOMPLETE';end if;
+      where government_id=gid and model_version='households-v3')<>300
+ then raise exception 'HOUSEHOLDS_V3_INCOMPLETE';end if;
  for a in select unnest(array['young','working','senior']) loop
    for i in select unnest(array['low','middle','high']) loop
      select count(*) into actual from public.synthetic_households
       where government_id=gid and age_band=a and income_band=i;
-     expected:=(case a when 'young' then 90 when 'working' then 150 else 60 end)*
-        (case i when 'low' then 90 when 'middle' then 150 else 60 end)/300.0;
+     expected:=(case a when 'young' then 62 when 'working' then 161 else 77 end)*
+        (case i when 'low' then 60 when 'middle' then 180 else 60 end)/300.0;
      if actual=0 or abs(actual-expected)>3 then
        raise exception 'HOUSEHOLD_CROSSTAB_BIAS age=% income=% actual=% expected=%',
          a,i,actual,expected;
@@ -53,15 +53,26 @@ begin
  for a in select unnest(array['young','working','senior']) loop
    select count(*) into n from public.synthetic_households
     where government_id=gid and age_band=a;
-   if n<>(case a when 'young' then 90 when 'working' then 150 else 60 end)
+   if n<>(case a when 'young' then 62 when 'working' then 161 else 77 end)
      then raise exception 'HOUSEHOLD_AGE_MARGINAL_CHANGED %',a;end if;
  end loop;
  for i in select unnest(array['low','middle','high']) loop
    select count(*) into n from public.synthetic_households
     where government_id=gid and income_band=i;
-   if n<>(case i when 'low' then 90 when 'middle' then 150 else 60 end)
+   if n<>(case i when 'low' then 60 when 'middle' then 180 else 60 end)
      then raise exception 'HOUSEHOLD_INCOME_MARGINAL_CHANGED %',i;end if;
  end loop;
+ for i in select unnest(array['1','2','3','4','5']) loop
+   select count(*) into n from public.synthetic_households
+    where government_id=gid and residents=i::integer;
+   if n<>(case i when '1' then 85 when '2' then 87 when '3' then 60
+     when '4' then 32 else 36 end) then
+     raise exception 'INE2026_HOUSEHOLD_SIZE_MISMATCH: % %',i,n;
+   end if;
+ end loop;
+ select count(*) into n from public.synthetic_households
+  where government_id=gid and settlement='urban';
+ if n<>241 then raise exception 'INE2025_MUNICIPAL_PROXY_MISMATCH: %',n;end if;
  select count(*) into n from public.synthetic_households
    where government_id=gid and
    (district_code is null or residents not between 1 and 5 or
@@ -88,7 +99,7 @@ begin
       where government_id=gid and cohort_code='households')<>195
  then raise exception 'HOUSEHOLD_SYNTHETIC_COHORT_MARGIN_CHANGED';end if;
  if (select sum(residents) from public.synthetic_households
-      where government_id=gid)<>900
+      where government_id=gid)<>747
  then raise exception 'DEMOGRAPHIC_RESIDENT_MASS_DRIFT';end if;
  if has_table_privilege('authenticated','public.synthetic_households','UPDATE') or
     has_table_privilege('anon','public.synthetic_households','SELECT') or
@@ -115,7 +126,7 @@ begin
    (select sum((x->>'seats')::integer)
     from jsonb_array_elements(p->'districts') d
     cross join lateral jsonb_array_elements(d->'parties') x)<>100
- then raise exception 'DEMOGRAPHIC_V2_ELECTION_APPORTIONMENT_FAILED';end if;
+ then raise exception 'DEMOGRAPHIC_V3_ELECTION_APPORTIONMENT_FAILED';end if;
 end $$;
 
 -- Mimic an installed v1 world: no login or retry is allowed to rewrite it.

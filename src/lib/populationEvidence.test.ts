@@ -6,9 +6,10 @@ describe('versioned population evidence',()=>{
   it('accepts v1 legacy and v2 synthetic demographic models',()=>{
     expect(validatePopulationProfile(legacy)).toBe(true)
     expect(validatePopulationProfile({...legacy,modelVersion:'households-v2'})).toBe(true)
+    expect(validatePopulationProfile({...legacy,modelVersion:'households-v3',sampleResidents:747})).toBe(true)
   })
   it('rejects unreviewed future demographic models and wrong totals',()=>{
-    expect(validatePopulationProfile({...legacy,modelVersion:'households-v3'})).toBe(false)
+    expect(validatePopulationProfile({...legacy,modelVersion:'households-v4'})).toBe(false)
     expect(validatePopulationProfile({...legacy,households:299})).toBe(false)
   })
 })
