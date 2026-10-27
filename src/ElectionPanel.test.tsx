@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ElectionPanel from './ElectionPanel'
 import type { ElectionState } from './lib/elections'
@@ -128,8 +128,8 @@ describe('national election experience', () => {
     rerender(<ElectionPanel matchId="new-match-id" userId={userId}
       active onElectionCertified={onElectionCertified}/>)
     expect(await screen.findByText(/60.00% · 60 escaños/)).toBeInTheDocument()
-    oldResolve(state())
-    await waitFor(()=>expect(screen.queryByText(/55.00% · 55 escaños/)).toBeNull())
+    await act(async()=>{oldResolve(state())})
+    expect(screen.queryByText(/55.00% · 55 escaños/)).toBeNull()
     expect(screen.getByText(/60.00% · 60 escaños/)).toBeInTheDocument()
   })
 

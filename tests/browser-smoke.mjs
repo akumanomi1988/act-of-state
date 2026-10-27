@@ -182,7 +182,7 @@ async function routeApi(page,state,{emailLimit=false}={}) {
         const second='80000000-0000-4000-8000-000000000099'
         return json({
           projection:{modelVersion:'electoral-districts-v1',householdSampleSize:300,
-            cohorts:[],
+            cohorts:[{code:'workers',weight:100,idealPolicy:50,support:50,trust:50}],
             districts:[
               ['capital','Distrito Capital',25],
               ['industrial','Corredor Industrial',20],
@@ -190,8 +190,10 @@ async function routeApi(page,state,{emailLimit=false}={}) {
               ['agrarian','Llanuras Agrarias',15],
               ['highland','Territorios de Montaña',12],
               ['frontier','Frontera Interior',10]
-            ].map(([code,label,seats])=>{
-              const first=Math.ceil(seats*0.54)
+            ].map(([code,label,seats],index)=>{
+              // Each district must reconcile with the national 54/46 mandate,
+              // rather than independently ceil to an inconsistent 57/43.
+              const first=[14,11,10,8,6,5][index]
               return {code,label,seats,households:30,residents:90,
                 parties:[
                   {userId:state.user.id,partyName:'Gobierno compartido',
@@ -607,7 +609,12 @@ try {
     await observatory.getByRole('radio',{name:'7 días'}).check()
     await observatory.getByText('2 / 7').waitFor()
     await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
-    await page.getByText(/No se ha publicado ninguna agenda editorial/).waitFor()
+    await page.getByText(/No se ha publicado ninguna agenda editorial/).waitFor({timeout:10000})
+      .catch(async error=>{
+        const panel=await page.locator('.weekly-accountability').innerText()
+          .catch(()=>'<weekly panel unavailable>')
+        throw new Error('WEEKLY_HISTORY_READ: '+panel+'; '+String(error))
+      })
     await page.getByRole('combobox',{name:'Semana política'}).selectOption('2026-10-12')
     await page.getByText('Plan político archivado').waitFor()
     assert.equal(await page.getByRole('link',{

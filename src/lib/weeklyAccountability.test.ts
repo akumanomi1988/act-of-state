@@ -68,6 +68,27 @@ describe('official weekly legislature report client',()=>{
   for(const response of incorrect)
     expect(()=>validateWeeklyAccountability(response,8)).toThrow('MATCH_WEEKLY_HISTORY_INVALID')
  })
+ it('accepts the exact browser legacy/current two-week archival shape',()=>{
+  const previous=week()
+  const recent={
+   weekStart:'2026-10-19',friday:'2026-10-23',
+   status:'awaiting-settlement',published:false,dossiers:[],
+   parties:[{seatNo:1,partyName:'New Government',positions:0,votes:0}],
+   fridayAct:null,elections:[]
+  }
+  const archived={
+    ...previous,weekStart:'2026-10-12',friday:'2026-10-16',
+    dossiers:[{...previous.dossiers[0],decision:{
+      ...previous.dossiers[0].decision,decidedOn:'2026-10-14'
+    },bill:{...previous.dossiers[0].bill,closesAt:'2026-10-16T12:00:00Z'}}],
+    fridayAct:{...previous.fridayAct,week_start:'2026-10-12'},
+    elections:[{...previous.elections[0],certifiedOn:'2026-10-16'}]
+  }
+  const history=validateWeeklyAccountability({
+    serverDay:'2026-10-24',weeks:[recent,archived]
+  },8)
+  expect(history.weeks.map(w=>w.status)).toEqual(['awaiting-settlement','closed'])
+ })
  it('rejects nonbounded queries before the network and reports authorization errors',async()=>{
   await expect(fetchWeeklyAccountability(id,50)).rejects.toThrow('MATCH_WEEK_RANGE_INVALID')
   expect(mocked.rpc).not.toHaveBeenCalled()
