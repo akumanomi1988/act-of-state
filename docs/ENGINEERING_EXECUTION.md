@@ -54,6 +54,20 @@ merge to `main` is authorized by routine development work.
 - [x] Add direct client-contract regressions for mismatched identities and acts.
 - [ ] Confirm final Quality, isolated GoTrue and PostgreSQL results for this SHA.
 
+## AOS-054 — versioned synthetic demographic balance correction
+
+- [x] Diagnose v1 joint age/income structural bias (three empty cells).
+- [x] Define v2 independent full-cycle demographic rank permutations;
+      preserve 300 family identities, synthetic cohort/district mass, and
+      election seat invariants.
+- [x] Migrate only **future** seeds; v1 households and signed historical
+      election results remain untouched and identifiable.
+- [x] Add rollback-only PostgreSQL contingency, backward-compatibility
+      and electoral test matrix, plus client contract tests.
+- [ ] Verify the **exact** final GitHub commit against all three CI
+      workflows and record receipts. Do not credit F004.4 from synthetic
+      validation alone: empirical balance review remains outstanding.
+
 ## Remaining original-product acceptance gates
 
 The pending technical evidence is in `docs/development-coverage.json`.

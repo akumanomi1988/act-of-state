@@ -9,6 +9,35 @@
 - Electoral model electoral-households-v1 scores parties individually for each household against preference, incumbent trust/support and campaign influence, and weights normalized vote shares by simulated residents. The 100-seat D'Hondt allocation and deterministic tie-break remain unchanged.
 - Historic elections retain their previous model version and stored snapshots. New certificates include household model version and household sample size.
 
+## AOS-054 synthetic demographic coupling correction
+
+The original 300-agent `households-v1` seed used `n % 10` for age and
+`(7*n) % 10` for income. These share the same 10-step cycle. This caused
+**three structurally empty age × income cells**, including all high-income
+young and all low/high-income seniors (not a realistic diversity assumption).
+
+Newly created governments now receive **`households-v2`** household rows:
+- Age rank `(37*n+11) % 300`: 90 young / 150 working / 60 senior.
+- Income rank `(71*n+29) % 300`: 90 low / 150 middle / 60 high.
+- Both are full-cycle permutations, with 300 stable households and 900
+  resident weights. The nine age/income cells are populated, within three
+  simulated households of each independent-marginal expectation.
+- The stable district map (25/20/18/15/12/10 seats), founding 65/35 cohorts,
+  household policy response, historical fiscal effects and election D'Hondt
+  coefficients are **unchanged**.
+- Existing v1 households are **not migrated or reseeded**. A government
+  started before this migration keeps its v1 household snapshot; login remains
+  idempotent. Authorized population profiles now advertise the stored
+  household model version, and the UI understands both.
+- The new rollback-only SQL acceptance covers demographic cross-tabs, all
+  marginal totals, territorial coverage, election seats, access control
+  and historical v1 reuse without rewriting signed acts.
+
+**This is synthetic structural debiasing, not empirical population calibration.**
+The age and income margins remain fictional game-design inputs, not sampled
+real-world census demographics. The original F004.4 empirical calibration
+acceptance and F007.4 human campaign playtest gates remain open.
+
 ## Authorization
 
 - Raw synthetic households are stored under RLS with no direct browser role table privileges.

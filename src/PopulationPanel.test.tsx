@@ -47,6 +47,12 @@ describe('synthetic population readout', () => {
     expect(screen.getByText(/25 escaños territoriales/)).toBeInTheDocument()
   })
 
+  it('renders v2 profiles without suggesting observed national demographics',async()=>{
+    mocked.fetch.mockResolvedValueOnce({...sample,modelVersion:'households-v2'})
+    render(<PopulationPanel governmentId="new-nation" identity="new-user"/>)
+    expect(await screen.findByText(/300/)).toBeInTheDocument()
+    expect(screen.getByText(/No representan a ciudadanos reales/)).toBeInTheDocument()
+  })
   it('clears data on an identity or government switch before loading the new profile', async () => {
     const { rerender } = render(<PopulationPanel governmentId="g1" identity="u1" />)
     await screen.findByText(/900/)

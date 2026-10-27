@@ -22,7 +22,7 @@ declare
 begin
  g:=public.start_government();
  profile:=public.get_population_profile(g.id);
- if profile->>'modelVersion'<>'households-v1'
+ if profile->>'modelVersion'<>'households-v2'
     or (profile->>'households')::integer<>300
     or (profile->>'sampleResidents')::integer<300 then
    raise exception 'HOUSEHOLDS_NOT_SEEDED: %',profile; end if;
