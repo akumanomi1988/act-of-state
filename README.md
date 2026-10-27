@@ -1,5 +1,7 @@
 <div align="center">
 
+![ACT OF STATE — Every decision shapes a nation](docs/assets/readme/hero.svg)
+
 # ACT OF STATE
 
 ### Every decision shapes a nation.
@@ -77,6 +79,12 @@ Inspect fiscal and social outcomes, household living conditions, historical poli
 The [guest training sandbox](https://act-of-state.vercel.app/demo) offers **four fictional dossiers and twelve alternatives**, local deterministic consequences, review-before-sign decisions, and browser-only progress. No account or backend is required.
 
 **Visual evidence:** Authentic product screenshots have not been added here because a trustworthy browser capture was not available in this execution environment. No conceptual mockups are presented as real gameplay.
+
+## Repository pulse
+
+[![GitHub stars](https://img.shields.io/github/stars/akumanomi1988/act-of-state?style=flat-square&label=Stars)](https://github.com/akumanomi1988/act-of-state/stargazers) [![GitHub forks](https://img.shields.io/github/forks/akumanomi1988/act-of-state?style=flat-square&label=Forks)](https://github.com/akumanomi1988/act-of-state/forks) [![Last commit](https://img.shields.io/github/last-commit/akumanomi1988/act-of-state?style=flat-square&label=Last%20commit)](https://github.com/akumanomi1988/act-of-state/commits/main)
+
+These counters are provided by GitHub-backed badge services; if the service is unavailable, the underlying repository links remain usable.
 
 ## Game systems
 
