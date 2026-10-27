@@ -105,9 +105,10 @@ function isWeek(value:unknown,serverDay:string):value is WeeklyReport{
      a.treasury_at_friday_m_eur<0||!isScore(a.approval_at_friday)||
      !isScore(a.trust_at_friday))return false
  }
+ const weekStart=value.weekStart as string
  return value.elections.every(e=>record(e)&&
-   isUtcDay(e.certifiedOn)&&e.certifiedOn>=value.weekStart&&
-   e.certifiedOn<=serverDay&&daySpan(value.weekStart,e.certifiedOn)<=7&&
+   isUtcDay(e.certifiedOn)&&e.certifiedOn>=weekStart&&
+   e.certifiedOn<=serverDay&&daySpan(weekStart,e.certifiedOn)<=7&&
    isCount(e.electionNo,1000000)&&e.electionNo>0&&str(e.winnerParty))
 }
 export function validateWeeklyAccountability(
