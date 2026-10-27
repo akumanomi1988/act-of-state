@@ -53,6 +53,21 @@ describe('synthetic population readout', () => {
     expect(await screen.findByText(/300/)).toBeInTheDocument()
     expect(screen.getByText(/No representan a ciudadanos reales/)).toBeInTheDocument()
   })
+  it('presents official municipal-size proxies without calling them actual cities',async()=>{
+    mocked.fetch.mockResolvedValueOnce({...sample,
+      modelVersion:'households-v3',sampleResidents:747,segments:[
+        ...sample.segments,
+        {dimension:'settlement',code:'urban',households:241,residents:603,support:50,trust:50},
+        {dimension:'settlement',code:'rural',households:59,residents:144,support:50,trust:50}
+      ]})
+    render(<PopulationPanel governmentId="calibrated" identity="tester"/>)
+    await screen.findByText(/747/)
+    fireEvent.click(screen.getByRole('button',{name:'Explorar población'}))
+    fireEvent.click(screen.getByRole('button',{name:'Entorno'}))
+    expect(screen.getByRole('heading',{name:'Municipios de 10.000 habitantes o más'})).toBeInTheDocument()
+    expect(screen.getByRole('heading',{name:'Municipios de menos de 10.000 habitantes'})).toBeInTheDocument()
+  })
+
   it('clears data on an identity or government switch before loading the new profile', async () => {
     const { rerender } = render(<PopulationPanel governmentId="g1" identity="u1" />)
     await screen.findByText(/900/)

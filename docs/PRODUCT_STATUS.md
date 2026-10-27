@@ -1,15 +1,15 @@
 # ACT OF STATE — Current product inventory
 
-Updated 2026-10-26. AOS-053 adds long-run mandate analytics to the CI-verified AOS-052 branch; this development build is not yet released. Implementation is distinguished from final acceptance.
+Updated 2026-10-27. AOS-057 adds calibrated synthetic demographic profiles to the CI-verified AOS-053 branch; this development build is not yet released. Implementation is distinguished from final acceptance.
 The game is browser-based, free to play, with no paid competitive advantages.
 
 ## Measured development coverage (the game actually implemented)
 
-| Score | AOS-052 (before) | AOS-053 (current) | Change |
+| Score | AOS-053 (before) | AOS-057 (current) | Change |
 | --- | ---: | ---: | ---: |
-| **Complexity-weighted engineering completion** | **60.6% (782/1290)** | **65.9% (850/1290)** | **+5.3 pp** |
-| Equal-checkpoint evidence coverage | 54/72 = 75.0% | 56/72 = 77.8% | +2.8 pp |
-| Audited full commercial acceptance | 1/18 = 5.6% | 1/18 = 5.6% | +0.0 pp |
+| **Complexity-weighted engineering completion** | **65.9% (850/1290)** | **68.7% (886/1290)** | **+2.8 pp** |
+| Equal-checkpoint evidence coverage | 56/72 = 77.8% | 57/72 = 79.2% | +1.4 pp |
+| Audited full commercial acceptance | 1/18 = 5.6% | 2/18 = 11.1% | +5.5 pp |
 
 The **primary weighted completion percentage** assigns each of the 18 original
 requirements a published complexity multiplier and weights its four accepted
@@ -21,7 +21,7 @@ does not award points for unfinished features or mere code volume. New AOS-053
 points are cross-system mandate analytics and 12-week economy diagnostics
 (F005.4) and the integrated political strategy dashboard (V002.4).
 
-**5.6% (1/18)** is the separate, strict commercial acceptance indicator: it requires
+**11.1% (2/18)** is the separate, strict commercial acceptance indicator: it requires
 hosted operations, real newsroom publication and external/human signoff where
 the original product contract demands them. Neither figure is a measured
 estimate of remaining engineering hours. This score covers the isolated
@@ -32,7 +32,7 @@ estimate of remaining engineering hours. This score covers the isolated
 | Access | Password-first Auth, explicit registration, one-time legacy email link, password recovery/change, session recovery and isolation (AOS-050 feature branch) | CI acceptance, production password/SMTP settings, real hosted signup and human multi-account acceptance |
 | Player onboarding | Public /guide manual, contextual solo/multiplayer steps from server state, recovery guidance | Observe first-time human players; adjust based on usability evidence |
 | Solo government | Persistent nation, 10 founding decisions + 18 additional authored reform dilemmas (development branch), server-authoritative outcomes and archived acts | Integrated CI and hosted real-Auth acceptance, product balancing |
-| Population | 300 persistent synthetic households, age/income/settlement and six districts | Demographic balancing; no empirical demographic claims |
+| Population | 300 households, INE-source demographic proxies for new games, legacy v1/v2 preservation and six districts | Political behaviors remain fictional; F007.4 human election testing is separate |
 | Daily society | Economic security, services, welfare, bounded political feedback, immutable daily records | Multi-day operational observation and gameplay balancing |
 | Fiscal engine | Treasury, debt, GDP index, inflation, unemployment, budget revisions, immutable weekly acts and isolated 12-week bankruptcy/issuance regression (AOS-053) | Empirical economic calibration, hosted 90-day observation and extreme-policy balancing |
 | Weekly dossiers | Ten-slot newsroom, source discovery, draft revision control, manual review and atomic publication | Actual reviewed news for every operational week; staff operation |
@@ -73,7 +73,7 @@ Guidance derives completion from the current authorized world. Reading a guide
 never marks a political action complete or executes a mutation. No new backend
 privilege, persistent browser identity store or external dependency is added.
 
-Strict full-requirement acceptance is 1/18. The prior 2/18 tally included
+Strict full-requirement acceptance is 2/18, now including audited F004.4 population archetype calibration. The prior 2/18 tally included
 transactional persistence despite an unverified hosted restore checkpoint;
 it was reclassified on 2026-10-27, not lost functionality. The separately measured
 implementation coverage is 56/72 = 77.8% on AOS-053, versus 54/72 = 75.0%

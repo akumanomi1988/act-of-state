@@ -1,17 +1,17 @@
 # ACT OF STATE
 
-> **Development branch AOS-053 (not released):** merges password-first Auth and a 28-case
+> **Development branch AOS-057 (not released):** merges password-first Auth and a 28-case
 > permanent fictional national programme (10 founding + 18 reforms, 84 policy
 > alternatives), across solo and parliamentary play. The newsroom is separate;
 > releases are operator-gated. See [National Reform Programme](docs/NATIONAL_REFORM_PROGRAMME.md),
 > [Password Access](docs/PASSWORD_ACCESS.md) and
 > [No Vercel Autodeploy](docs/NO_VERCEL_AUTODEPLOY.md).
 
-**Engineering completion (complexity weighted): 65.9%** (850/1290 rubric points), up from
-60.6% (782/1290) at the AOS-052 baseline. Historical equal-checkpoint
-coverage remains **77.8% (56/72)** for comparison. The weighting prioritizes
+**Engineering completion (complexity weighted): 68.7%** (886/1290 rubric points), up from
+65.9% (850/1290) at the AOS-053 baseline. Historical equal-checkpoint
+coverage is **79.2% (57/72)** for comparison. The weighting prioritizes
 complex original systems and operational acceptance, not commit or file counts.
-**Audited commercial acceptance: 5.6%** (1/18 complete product gates;
+**Audited commercial acceptance: 11.1%** (2/18 complete product gates;
 the earlier 2/18 erroneously included an outstanding hosted restore). These
 measures are deliberately separate and do not claim that the latest development
 branch has been published. [Auditable scorecard and method](docs/DEVELOPMENT_PROGRESS.md).

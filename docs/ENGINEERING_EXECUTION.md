@@ -86,6 +86,17 @@ merge to `main` is authorized by routine development work.
       Staffed fact-checking against actual independent news citations remains
       an external acceptance gate.
 
+## AOS-057 — F004.4 empirical archetype gate completed
+
+- [x] INE household-size, 2025 adult-age and municipality-size proxies
+      calibrated into deterministic `households-v3` new-government seeds.
+- [x] Historic v1/v2 agents remain immutable; income and political response
+      remain explicitly fictional, without false polling claims.
+- [x] Independent Node numerical oracle, real PostgreSQL, 100-seat district
+      checks, RLS isolation and documented counterfactual balance review.
+- [x] Exactly F004.4 credited; 57/72 (79.2%), weighted 886/1290
+      (68.7%), commercial 2/18 (11.1%) pending exact final-commit CI.
+
 ## Remaining original-product acceptance gates
 
 The pending technical evidence is in `docs/development-coverage.json`.

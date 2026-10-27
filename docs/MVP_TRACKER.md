@@ -1,10 +1,25 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-053 strategic mandate observatory and long-run economic regression, tested in isolated development branch; last published main is AOS-049.
-**Primary weighted engineering completion:** **65.9% (850/1290)**, versus **60.6% (782/1290)** in AOS-052. The original evidence coverage remains **56/72 = 77.8%** versus **54/72 = 75.0%**, for historic comparability. Weights and independent proofs are reproducible from [the scorecard](DEVELOPMENT_PROGRESS.md), not file or commit counts.
-**Strict commercial acceptance (corrected 2026-10-27):** **1/18 = 5.6%**. The former 2/18 tally incorrectly credited MVP-T001 even though its hosted backup restoration checkpoint remains pending. This is a scorecard correction, not a loss of functionality.
+**Latest implementation increment:** AOS-057 empirical household archetype calibration, validated in the development branch; last published main remains AOS-049.
+**Primary weighted engineering completion:** **68.7% (886/1290)**, versus **65.9% (850/1290)** in AOS-053. The original evidence coverage is **57/72 = 79.2%** versus **56/72 = 77.8%**, for historic comparability. Weights and independent proofs are reproducible from [the scorecard](DEVELOPMENT_PROGRESS.md), not file or commit counts.
+**Strict commercial acceptance (updated 2026-10-27):** **2/18 = 11.1%** (T003 + F004). The former 2/18 tally incorrectly credited MVP-T001 even though its hosted backup restoration checkpoint remains pending. This is a scorecard correction, not a loss of functionality.
 This technical-coverage indicator is a measure of explicitly defined scope, not an estimate of remaining engineering hours. Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-057 — MVP-F004.4 acceptance completed (2026-10-27)
+
+- INE 2026 household-size projections and 2025 age/municipality reference
+  data inform new versioned `households-v3` archetypes: 300 families and
+  747 weighted residents (2.49 per household). Older worlds are unchanged.
+- [Calibration and balance review](POPULATION_CALIBRATION_REVIEW.md)
+  records official source URLs, proxy limitations, nine age/income cells,
+  six district/100-seat invariants and polarized/five-party stress scenarios.
+- Separate numerical Node oracle, PostgreSQL with rollback, and full
+  authenticated CI verify the implementation. Political persuasion still
+  uses fictional game parameters, not real opinion-poll measurements.
+- The original **MVP-F004.4 checkpoint is verified**, moving F004 to 4/4
+  and strict complete requirements to **2/18**. F007.4 (human 90-day
+  electoral balance) remains OPEN. No hosted deployment was executed.
 
 ## AOS-056 — Acceptance integrity and dynamic completion (2026-10-27)
 

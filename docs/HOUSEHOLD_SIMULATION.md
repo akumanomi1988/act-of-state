@@ -44,6 +44,19 @@ The age and income margins remain fictional game-design inputs, not sampled
 real-world census demographics. The original F004.4 empirical calibration
 acceptance and F007.4 human campaign playtest gates remain open.
 
+## AOS-057 INE-source population archetype calibration
+
+Newly created governments use `households-v3`: exactly 300 synthetic
+households, 747 weighted residents (2.49 per household), with size mix
+derived from INE 2026 data and explicit 2025 adult-age and municipality-size
+proxies. Income buckets remain relative quintile game categories. Existing
+v1/v2 worlds, election results and historical acts are not recalibrated.
+
+Read the [independent quantitative population and electoral balance
+review](POPULATION_CALIBRATION_REVIEW.md) for original sources, ranking
+methodology, measurable stability criteria and remaining non-empirical
+political response coefficients.
+
 ## Authorization
 
 - Raw synthetic households are stored under RLS with no direct browser role table privileges.
