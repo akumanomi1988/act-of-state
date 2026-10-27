@@ -208,7 +208,7 @@ end $$;
 -- An authorized publisher can save, but CANNOT self-attest or publish the
 -- resulting revision. This test never creates real published source material.
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000082',true);
-do $
+do $$
 declare f record; third_monday date; material jsonb; author_draft public.editorial_weeks%rowtype;
  blocked boolean:=false; publish_blocked boolean:=false;
 begin
@@ -242,7 +242,7 @@ begin
  if (select count(*) from public.editorial_slot_reviews
    where week_start=third_monday and revision=2)<>1
  then raise exception 'SEPARATE_PUBLISHER_REVIEW_NOT_RECORDED';end if;
-end $;
+end $$;
 
 -- Published data is visible only through the existing server embargo and game policy.
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000083',true);
