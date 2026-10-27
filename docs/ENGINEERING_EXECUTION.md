@@ -22,8 +22,13 @@ merge to `main` is authorized by routine development work.
 - [x] Reject invalid calendar days and cross-government fiscal/welfare joins.
 - [x] Ignore superseded overlapping background reads in the mandate UI.
 - [x] Add pure aggregate and React regression cases.
-- [ ] Verify this exact new commit with GitHub Quality workflow, including
-      TypeScript, Vitest and browser smoke. No production resources required.
+- [x] Prior observatory concurrency/date increment verified at `ed3cb8f`:
+      Quality #40470913528, PostgreSQL #40470913572, local real Auth #40470913546.
+- [ ] Current evidence-boundary increment: reject malformed fiscal and polling
+      responses (cross-government acts, impossible dates, negative seats,
+      invalid reconciliation metrics, time-window violations).
+- [ ] Validate the final new SHA with Quality, PostgreSQL and local real Auth;
+      preserve immutable event/seat acceptance invariants.
 
 ## Remaining original-product acceptance gates
 

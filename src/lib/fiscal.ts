@@ -1,4 +1,5 @@
 import { requireClient } from './game'
+import { daySpan, isCount, isNonNegative, isScore, isTimestamp, isUtcDay } from './serverEvidence'
 
 export type FiscalSector = 'health' | 'education' | 'infrastructure' | 'security'
 export const FISCAL_SECTORS: readonly { id: FiscalSector; label: string }[] = [
@@ -58,35 +59,60 @@ export interface FiscalState {
   history: FiscalAct[]
 }
 
-function isFiniteNonNegative(value: unknown): value is number {
-  return typeof value === 'number' && Number.isFinite(value) && value >= 0
-}
+/**
+ * Validate the complete fiscal evidence envelope before displaying balances or
+ * joining it to societal/election history. RLS remains the authorization layer;
+ * these checks catch malformed, stale/cross-government RPC projections.
+ */
 export function validateFiscalState(raw: unknown, governmentId: string): FiscalState {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw))
-    throw new Error('FISCAL_INVALID_RESPONSE')
+  const fail = (): never => { throw new Error('FISCAL_INVALID_RESPONSE') }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return fail()
   const state = raw as Partial<FiscalState>
   const policy = state.policy
   const indicators = state.indicators
   if (state.governmentId !== governmentId ||
-    typeof state.serverDay !== 'string' || typeof state.currentWeek !== 'string' ||
+    !isUtcDay(state.serverDay) || !isUtcDay(state.currentWeek) ||
+    state.currentWeek > state.serverDay ||
+    new Date(state.currentWeek + 'T00:00:00Z').getUTCDay() !== 1 ||
+    daySpan(state.currentWeek, state.serverDay) > 7 ||
     typeof state.canRevise !== 'boolean' || typeof state.canEdit !== 'boolean' ||
-    !policy || !indicators || !Array.isArray(state.history) ||
-    !FISCAL_SECTORS.every(s => Number.isInteger(policy[s.id]) &&
-      policy[s.id] >= 10 && policy[s.id] <= 60) ||
-    FISCAL_SECTORS.reduce((sum,sector) => sum+policy[sector.id],0) !== 100 ||
-    !Number.isInteger(policy.tax_rate) || policy.tax_rate < 10 || policy.tax_rate > 45 ||
-    !isFiniteNonNegative(state.projectedRevenueM) ||
-    !isFiniteNonNegative(state.projectedSpendingM) ||
-    !isFiniteNonNegative(indicators.treasuryM) ||
-    !isFiniteNonNegative(indicators.debtM) ||
-    !isFiniteNonNegative(indicators.gdpIndex) ||
-    !isFiniteNonNegative(indicators.unemploymentBp) ||
-    !isFiniteNonNegative(indicators.inflationBp) ||
-    !state.history.every(entry =>
-      typeof entry.week_start === 'string' &&
-      Number.isFinite(entry.balance_m_eur) &&
-      isFiniteNonNegative(entry.treasury_after_m_eur))) {
-    throw new Error('FISCAL_INVALID_RESPONSE')
+    !policy || typeof policy !== 'object' || policy.government_id !== governmentId ||
+    typeof policy.revised_this_week !== 'boolean' ||
+    !isUtcDay(policy.revision_week) || !isTimestamp(policy.updated_at) ||
+    !indicators || typeof indicators !== 'object' ||
+    !Array.isArray(state.history) || state.history.length > 12 ||
+    !FISCAL_SECTORS.every(s => isCount(policy[s.id], 60) &&
+      policy[s.id] >= 10) ||
+    FISCAL_SECTORS.reduce((sum, sector) => sum + policy[sector.id], 0) !== 100 ||
+    !isCount(policy.tax_rate, 45) || policy.tax_rate < 10 ||
+    !isNonNegative(state.projectedRevenueM) ||
+    !isNonNegative(state.projectedSpendingM) ||
+    !isNonNegative(indicators.treasuryM) ||
+    !isNonNegative(indicators.debtM) ||
+    !isNonNegative(indicators.gdpIndex) ||
+    !isNonNegative(indicators.unemploymentBp) ||
+    !isNonNegative(indicators.inflationBp) ||
+    !isScore(indicators.approval) || !isScore(indicators.trust)) return fail()
+
+  // SQL get_fiscal_state returns newest-first immutable weekly acts, max 12.
+  let previousWeek: string | null = null
+  for (const act of state.history) {
+    if (!act || act.government_id !== governmentId ||
+      !isUtcDay(act.week_start) || act.week_start > state.serverDay ||
+      new Date(act.week_start + 'T00:00:00Z').getUTCDay() !== 1 ||
+      (previousWeek !== null && act.week_start >= previousWeek) ||
+      !isTimestamp(act.settled_at) || act.engine_version !== 'national-fiscal-v1' ||
+      !act.policy_snapshot || typeof act.policy_snapshot !== 'object' ||
+      Array.isArray(act.policy_snapshot) ||
+      !isNonNegative(act.revenue_m_eur) || !isNonNegative(act.spending_m_eur) ||
+      typeof act.balance_m_eur !== 'number' || !Number.isFinite(act.balance_m_eur) ||
+      Math.abs(act.revenue_m_eur - act.spending_m_eur - act.balance_m_eur) > 0.011 ||
+      !isNonNegative(act.debt_issued_m_eur) || !isNonNegative(act.debt_repaid_m_eur) ||
+      !isNonNegative(act.treasury_after_m_eur) || !isNonNegative(act.debt_after_m_eur) ||
+      !isNonNegative(act.gdp_index_after) ||
+      !isNonNegative(act.unemployment_bp_after) ||
+      !isNonNegative(act.inflation_bp_after)) return fail()
+    previousWeek = act.week_start
   }
   return state as FiscalState
 }
