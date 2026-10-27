@@ -14,22 +14,22 @@ test('18 original requirements have 72 evidence-traced immutable checkpoint IDs'
  const result=score()
  assert.equal(card.requirements.length,18)
  assert.equal(result.current.total,72)
- assert.equal(result.current.verified,56)
- assert.equal(result.current.percent,77.8)
+ assert.equal(result.current.verified,57)
+ assert.equal(result.current.percent,79.2)
  assert.equal(card.schemaVersion,2)
  assert.deepEqual(card.stageWeights,[1,2,3,4])
  assert.deepEqual(result.weighted,{
-  baseline:{points:782,totalPoints:1290,percent:60.6},
-  current:{points:850,totalPoints:1290,percent:65.9},
-  deltaPoints:5.3
+  baseline:{points:850,totalPoints:1290,percent:65.9},
+  current:{points:886,totalPoints:1290,percent:68.7},
+  deltaPoints:2.8
  })
- assert.equal(result.baseline.verified,54)
- assert.equal(result.baseline.percent,75)
- assert.equal(result.deltaPoints,2.8)
- assert.equal(result.commercial.accepted,1)
- assert.equal(result.commercial.percent,5.6)
+ assert.equal(result.baseline.verified,56)
+ assert.equal(result.baseline.percent,77.8)
+ assert.equal(result.deltaPoints,1.4)
+ assert.equal(result.commercial.accepted,2)
+ assert.equal(result.commercial.percent,11.1)
  assert.deepEqual(Object.keys(result.grouped).sort(),['F','T','V'])
- assert.equal(result.grouped.F.verified,25)
+ assert.equal(result.grouped.F.verified,26)
  assert.equal(result.grouped.T.verified,19)
  assert.equal(result.grouped.V.verified,12)
  assert.ok(result.finished.includes('MVP-F005.4'))
@@ -88,20 +88,20 @@ test('score distinguishes historical progress from current milestone and commerc
  current.proof=null
  current.creditedIn=null
  const result=calculateDevelopmentCoverage(altered)
- assert.equal(result.current.verified,55)
+ assert.equal(result.current.verified,56)
  assert.equal(result.current.percent,76.4)
- assert.equal(result.baseline.verified,54)
+ assert.equal(result.baseline.verified,55)
  assert.equal(result.deltaPoints,1.4)
  assert.equal(result.commercial.accepted,1)
  assert.equal(result.commercial.percent,5.6)
 })
 test('rendered report has reproducible before/after and all traceable checkpoints',()=>{
  const report=renderDevelopmentReport(card,score())
- assert.match(report,/75\.0% \(54\/72\)/)
+ assert.match(report,/79\.2% \(57\/72\)/)
  assert.match(report,/77\.8% \(56\/72\)/)
- assert.match(report,/\+2\.8 pp/)
- assert.match(report,/5\.6%/)
- assert.match(report,/65\.9%/)
+ assert.match(report,/\+1\.4 pp/)
+ assert.match(report,/11\.1%/)
+ assert.match(report,/68\.7%/)
  assert.match(report,/Complexity-weighted engineering completion/)
  assert.equal((report.match(/\n\| MVP-/g)||[]).length,18)
  assert.match(report,/MVP-F005/)
