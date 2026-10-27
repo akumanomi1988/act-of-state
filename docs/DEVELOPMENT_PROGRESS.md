@@ -1,14 +1,14 @@
 # ACT OF STATE — Verifiable implementation coverage
 
-> Primary weighted engineering completion: **65.9%**. Equal-checkpoint implementation coverage: **56/72 (77.8%)** on AOS-053. Strict commercial acceptance: **1/18 (5.6%)**.
+> Primary weighted engineering completion: **68.7%**. Equal-checkpoint implementation coverage: **57/72 (79.2%)** on AOS-057. Strict commercial acceptance: **2/18 (11.1%)**.
 
 ## Before / after
 
-| Metric | AOS-052 | AOS-053 | Delta |
+| Metric | AOS-053 | AOS-057 | Delta |
 | --- | ---: | ---: | ---: |
-| Complexity-weighted engineering completion | 60.6% (782/1290) | 65.9% (850/1290) | +5.3 pp |
-| Equal-checkpoint implemented & evidenced | 75.0% (54/72) | 77.8% (56/72) | +2.8 pp |
-| Full commercial acceptance | 5.6% (1/18) | 5.6% (1/18) | 0.0 pp |
+| Complexity-weighted engineering completion | 65.9% (850/1290) | 68.7% (886/1290) | +2.8 pp |
+| Equal-checkpoint implemented & evidenced | 77.8% (56/72) | 79.2% (57/72) | +1.4 pp |
+| Full commercial acceptance | 11.1% (2/18) | 11.1% (2/18) | 0.0 pp |
 
 ## Rules and boundaries
 
@@ -21,14 +21,14 @@
 - A commercial requirement is eligible for explicit acceptance only when **all four** of its own stages are verified. Historical 2/18 claims with an open restore gate were invalid and have been reclassified.
 - Weights are a documented planning rubric, **not measured engineering hours**; 100% requires all 72 independently accepted checkpoints.
 - Neither indicator proves a commercially finished game or replaces external/human product sign-off.
-- Current branch AOS-053 is not automatically deployed. The AOS-050 production schema/authentication transition and release remain separate.
+- Current branch AOS-057 is not automatically deployed. The AOS-050 production schema/authentication transition and release remain separate.
 - Future milestones should retain the checkpoint IDs, credit new achievements to their milestone and replace prior entries only with an explicit change explanation.
 
 ## Capability coverage by original requirement
 
 | Original area | Completed / defined | Percent |
 | --- | ---: | ---: |
-| Gameplay & simulation | 25/32 | 78.1% |
+| Gameplay & simulation | 26/32 | 81.3% |
 | Engineering & reliability | 19/24 | 79.2% |
 | Visuals & interface | 12/16 | 75.0% |
 
@@ -55,12 +55,12 @@
 - [x] Real-auth cabinet signature, archived result and reload acceptance — file: `tests/real-auth-acceptance.mjs` (AOS-052)
 - [ ] Hosted production browser decision journey with independent identities — pending
 
-### MVP-F004 — Synthetic households and cohorts (3/4)
+### MVP-F004 — Synthetic households and cohorts (4/4)
 
 - [x] Three hundred generated synthetic households — file: `supabase/migrations/20261024104835_aos_031_synthetic_households.sql` (AOS-052)
 - [x] Six constituencies and resident-weighted party support — file: `supabase/migrations/20261024132435_aos_034_constituency_elections.sql` (AOS-052)
 - [x] Daily welfare feedback by household and income segment — file: `supabase/migrations/20261024201821_aos_040_daily_living_conditions.sql` (AOS-052)
-- [ ] Empirically calibrated population archetypes with documented balance review — pending
+- [x] Empirically calibrated population archetypes with documented balance review — file: `docs/POPULATION_CALIBRATION_REVIEW.md` (AOS-057)
 
 ### MVP-F005 — National state and economy (4/4)
 
@@ -167,24 +167,24 @@
 - Regenerate: `node scripts/development-progress.mjs --write`.
 - CI drift check: `node scripts/development-progress.mjs --check`.
 - Independent regression: `node --test tests/development-progress.test.mjs`.
-- Baseline: AOS-052; new checkpoints in AOS-053 are explicitly labeled in the scorecard.
-- Current CI receipts: https://github.com/akumanomi1988/act-of-state/actions/runs/40293220246 · https://github.com/akumanomi1988/act-of-state/actions/runs/40293220248 · https://github.com/akumanomi1988/act-of-state/actions/runs/40293220228.
+- Baseline: AOS-053; new checkpoints in AOS-057 are explicitly labeled in the scorecard.
+- Current CI receipts: https://github.com/akumanomi1988/act-of-state/actions/runs/40575365630 · https://github.com/akumanomi1988/act-of-state/actions/runs/40575365619 · https://github.com/akumanomi1988/act-of-state/actions/runs/40575365479.
 
 ## Complexity-weighted engineering completion
 
-- **Primary weighted progress:** 850/1290 = **65.9%**.
-- Earlier AOS-052 baseline: 782/1290 = 60.6%; AOS-053 genuine delta: +5.3 percentage points.
+- **Primary weighted progress:** 886/1290 = **68.7%**.
+- Earlier AOS-053 baseline: 850/1290 = 65.9%; AOS-057 genuine delta: +2.8 percentage points.
 - Every area has a stable complexity multiplier (4–12) and a written rationale below; stages 1–4 earn **1 / 2 / 3 / 4 effort units** respectively once evidence is verified.
 - Stage 1 covers the core foundation, stage 2 feature behavior, stage 3 cross-system integration, and stage 4 full operational/external acceptance. The original checkpoint descriptions are authoritative.
 - An unverified stage contributes zero. The rubric is an explicit comparative planning judgement, not logged work hours, a performance benchmark or an independently audited cost model.
-- Equal-checkpoint historical coverage stays 56/72 = 77.8% for comparison; strict commercial signoff remains 1/18. Changing weights alone does not credit any new requirement.
+- Equal-checkpoint historical coverage stays 57/72 = 79.2% for comparison; strict commercial signoff remains 2/18. Changing weights alone does not credit any new requirement.
 
 | Original requirement | Complexity multiplier | Verified weighted points | Total weighted points | Completion | Rationale |
 | --- | ---: | ---: | ---: | ---: | --- |
 | MVP-F001 | 6 | 36 | 60 | 60.0% | Persistence and password identity across authenticated user journeys |
 | MVP-F002 | 9 | 54 | 90 | 60.0% | Foundational content, authored reforms and reviewed weekly editorial operations |
 | MVP-F003 | 9 | 54 | 90 | 60.0% | Authoritative transactions, audit history, retries and cross-account acceptance |
-| MVP-F004 | 9 | 54 | 90 | 60.0% | Population cohorts, six districts and calibrated daily reactions |
+| MVP-F004 | 9 | 90 | 90 | 100.0% | Population cohorts, six districts and calibrated daily reactions |
 | MVP-F005 | 10 | 100 | 100 | 100.0% | Integrated fiscal engine, economic state, daily impact and long-run diagnostics |
 | MVP-F006 | 8 | 48 | 80 | 60.0% | UTC scheduling, deadlines, recovery and real elapsed calendar operation |
 | MVP-F007 | 10 | 60 | 100 | 60.0% | District election certification, campaigning, cabinet succession and balance |
