@@ -2,16 +2,17 @@
   "schemaVersion": 2,
   "title": "ACT OF STATE — Implementation Coverage",
   "measurement": "Primary: complexity-weighted, acceptance-aware engineering completion. Secondary: unchanged equal-checkpoint coverage. Each of the 18 original MVP requirements has a documented complexity multiplier; ordinal checkpoint acceptance stages weigh 1, 2, 3, 4. Only independently evidenced binary checkpoints receive any points. Commercial acceptance remains separate.",
-  "baseMilestone": "AOS-052",
-  "currentMilestone": "AOS-053",
+  "baseMilestone": "AOS-053",
+  "currentMilestone": "AOS-057",
   "evidenceRuns": {
-    "quality": "https://github.com/akumanomi1988/act-of-state/actions/runs/40293220246",
-    "database": "https://github.com/akumanomi1988/act-of-state/actions/runs/40293220248",
-    "realAuth": "https://github.com/akumanomi1988/act-of-state/actions/runs/40293220228"
+    "quality": "https://github.com/akumanomi1988/act-of-state/actions/runs/40575365630",
+    "database": "https://github.com/akumanomi1988/act-of-state/actions/runs/40575365619",
+    "realAuth": "https://github.com/akumanomi1988/act-of-state/actions/runs/40575365479"
   },
   "commercialAcceptance": {
     "complete": [
-      "MVP-T003"
+      "MVP-T003",
+      "MVP-F004"
     ],
     "total": 18,
     "reviewRule": "Only full 4/4 verified requirements are eligible for explicit commercial acceptance; operational, hosted or human checkpoints must not be waived."
@@ -153,9 +154,9 @@
         {
           "key": "MVP-F004.4",
           "description": "Empirically calibrated population archetypes with documented balance review",
-          "state": "pending",
-          "proof": null,
-          "creditedIn": null
+          "state": "verified",
+          "proof": "docs/POPULATION_CALIBRATION_REVIEW.md",
+          "creditedIn": "AOS-057"
         }
       ],
       "complexityWeight": 9,
