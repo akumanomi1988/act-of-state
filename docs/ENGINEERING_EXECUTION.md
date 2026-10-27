@@ -45,6 +45,15 @@ merge to `main` is authorized by routine development work.
 - [ ] Verify the new commit via Quality, PostgreSQL integrity and isolated
       GoTrue/PostgREST; no live nation, mail or production deployment.
 
+## Current engineering increment — scoped shared-nation snapshots (2026-10-27)
+
+- [x] Verify multiplayer government ID, authenticated participant membership,
+      host identity, unique seats, dossier-option relations and immutable event scopes.
+- [x] Preserve archived historical stances while rejecting foreign-match users.
+- [x] Verify UTC calendar week, Friday closure and noncontradictory official counts.
+- [x] Add direct client-contract regressions for mismatched identities and acts.
+- [ ] Confirm final Quality, isolated GoTrue and PostgreSQL results for this SHA.
+
 ## Remaining original-product acceptance gates
 
 The pending technical evidence is in `docs/development-coverage.json`.

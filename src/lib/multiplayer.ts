@@ -1,4 +1,5 @@
 import { requireClient } from './game'
+import {daySpan,isCount,isNonNegative,isScore,isTimestamp,isUtcDay} from './serverEvidence'
 import type { DecisionEvent, Dossier, DossierOption, Government, PopulationCohort } from './types'
 
 export interface MatchSummary {
@@ -128,34 +129,110 @@ export async function recordMatchStance(
   })
 }
 
+const obj=(value:unknown):value is Record<string,unknown> =>
+  value!==null&&typeof value==='object'&&!Array.isArray(value)
+const nonempty=(value:unknown):value is string =>
+  typeof value==='string'&&value.trim().length>0
+
+/**
+ * The get_match_world RPC is server-authorized, but browser navigation and
+ * identity transitions must also fail closed for cross-match/mixed snapshots.
+ * Historical stances/events can reference archived dossiers; do not constrain
+ * them to the current (availability-filtered) dossier list.
+ */
+export function validateMatchWorld(raw:unknown,matchId:string):MatchWorld {
+  const fail=():never=>{throw new Error('MATCH_INVALID_RESPONSE')}
+  if(!obj(raw)||!obj(raw.match)||!obj(raw.me)||!obj(raw.government)||
+     raw.match.id!==matchId||raw.match.government_id!==raw.government.id||
+     !nonempty(raw.match.host_user_id)||!['lobby','active'].includes(String(raw.match.status))||
+     !isUtcDay(raw.gameDay)||!Array.isArray(raw.players)||
+     raw.players.length<1||raw.players.length>10||
+     !Array.isArray(raw.cohorts)||!Array.isArray(raw.dossiers)||
+     !Array.isArray(raw.options)||!Array.isArray(raw.events)||
+     !Array.isArray(raw.stances)||raw.me.match_id!==matchId||
+     !nonempty(raw.me.user_id)||!isCount(raw.me.seat_no,10)||
+     !isNonNegative(raw.government.treasury_m_eur)||
+     !isScore(raw.government.approval)||!isScore(raw.government.trust))
+    return fail()
+  const players=raw.players as unknown[]
+  const ids=new Set<string>(),seats=new Set<number>()
+  for(const player of players){
+    if(!obj(player)||player.match_id!==matchId||!nonempty(player.user_id)||
+       !nonempty(player.party_name)||!isCount(player.seat_no,10)||player.seat_no<1||
+       !isCount(player.mandate_seats,100)||!isCount(player.manifesto_policy,100)||
+       typeof player.is_ready!=='boolean'||!isTimestamp(player.joined_at)||
+       ids.has(player.user_id)||seats.has(player.seat_no))return fail()
+    ids.add(player.user_id);seats.add(player.seat_no)
+  }
+  const me=players.find(p=>obj(p)&&p.user_id===raw.me.user_id) as Record<string,unknown>|undefined
+  if(!me||me.seat_no!==raw.me.seat_no||me.party_name!==raw.me.party_name||
+     !ids.has(String(raw.match.host_user_id)))return fail()
+  if(raw.cohorts.some(c=>!obj(c)||c.government_id!==raw.government.id||
+     !nonempty(c.code)||!isScore(c.support)||!isScore(c.trust)||
+     !isCount(c.population_weight,100)))return fail()
+  const dossiers=new Set<string>()
+  for(const d of raw.dossiers) {
+    if(!obj(d)||!nonempty(d.id)||!isCount(d.version,100000)||d.version<1||
+       !nonempty(d.title)||!['intro','weekly'].includes(String(d.release_kind)))return fail()
+    const k=d.id+':'+d.version
+    if(dossiers.has(k))return fail()
+    dossiers.add(k)
+  }
+  const optionIds=new Set<string>()
+  for(const option of raw.options) {
+    if(!obj(option)||!nonempty(option.id)||!nonempty(option.dossier_id)||
+       !isCount(option.dossier_version,100000)||!dossiers.has(option.dossier_id+':'+option.dossier_version))return fail()
+    const key=option.dossier_id+':'+option.dossier_version+':'+option.id
+    if(optionIds.has(key))return fail()
+    optionIds.add(key)
+  }
+  if(raw.events.some(e=>!obj(e)||e.government_id!==raw.government.id||
+       !nonempty(e.id)||!nonempty(e.dossier_id)))return fail()
+  if(raw.stances.some(s=>!obj(s)||s.match_id!==matchId||
+       !ids.has(String(s.user_id))||!nonempty(s.dossier_id)||
+       !nonempty(s.option_id)))return fail()
+  return raw as unknown as MatchWorld
+}
+
 export async function fetchMatchWorld(matchId: string): Promise<MatchWorld> {
-  const value = await rpc<unknown>('get_match_world', { p_match_id: matchId })
-  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('MATCH_INVALID_RESPONSE')
-  const world = value as Partial<MatchWorld>
-  if (world.match?.id !== matchId || !world.me ||
-    !Array.isArray(world.players) || !Array.isArray(world.cohorts) ||
-    !Array.isArray(world.dossiers) || !Array.isArray(world.options) ||
-    !Array.isArray(world.events) || !Array.isArray(world.stances) ||
-    !world.government || typeof world.gameDay !== 'string')
-    throw new Error('MATCH_INVALID_RESPONSE')
-  return world as MatchWorld
+  return validateMatchWorld(await rpc<unknown>('get_match_world',{
+    p_match_id:matchId
+  }),matchId)
+}
+
+/** Calendar settlement and signed Friday acts remain server-owned evidence. */
+export function validateMatchCalendar(raw:unknown,matchId:string):MatchCalendar {
+  const fail=():never=>{throw new Error('CALENDAR_INVALID_RESPONSE')}
+  if(!obj(raw)||!isUtcDay(raw.gameDay)||!isUtcDay(raw.monday)||
+     !isUtcDay(raw.friday)||
+     new Date(raw.monday+'T00:00:00Z').getUTCDay()!==1||
+     daySpan(raw.monday,raw.friday)!==5||
+     raw.monday>raw.gameDay||daySpan(raw.monday,raw.gameDay)>7||
+     typeof raw.fridayReached!=='boolean'||
+     raw.fridayReached!==(raw.gameDay>=raw.friday)||
+     typeof raw.weeklyPublished!=='boolean'||
+     !isCount(raw.weeklyTotal,10)||!isCount(raw.weeklyResolved,10)||
+     raw.weeklyResolved>raw.weeklyTotal||
+     (!raw.weeklyPublished&&(raw.weeklyTotal!==0||raw.weeklyResolved!==0)))return fail()
+  if(raw.latestFriday!==null){
+    const act=raw.latestFriday
+    if(!obj(act)||act.match_id!==matchId||!isUtcDay(act.week_start)||
+      act.week_start>raw.gameDay||
+      new Date(act.week_start+'T00:00:00Z').getUTCDay()!==1||
+      !isTimestamp(act.closed_at)||act.engine_version!=='friday-ledger-v1'||
+      !isCount(act.dossiers_published,10)||!isCount(act.decisions_resolved,10)||
+      act.decisions_resolved>act.dossiers_published||
+      typeof act.treasury_delta_m_eur!=='number'||!Number.isFinite(act.treasury_delta_m_eur)||
+      !isNonNegative(act.treasury_at_friday_m_eur)||
+      !isScore(act.approval_at_friday)||!isScore(act.trust_at_friday))return fail()
+  }
+  return raw as unknown as MatchCalendar
 }
 
 export async function fetchMatchCalendar(matchId: string): Promise<MatchCalendar> {
-  const value = await rpc<unknown>('get_match_calendar', { p_match_id: matchId })
-  if (!value || typeof value !== 'object' || Array.isArray(value))
-    throw new Error('CALENDAR_INVALID_RESPONSE')
-  const calendar = value as Partial<MatchCalendar>
-  if (typeof calendar.gameDay !== 'string' || typeof calendar.monday !== 'string' ||
-    typeof calendar.friday !== 'string' || typeof calendar.fridayReached !== 'boolean' ||
-    typeof calendar.weeklyPublished !== 'boolean' ||
-    typeof calendar.weeklyTotal !== 'number' ||
-    typeof calendar.weeklyResolved !== 'number' ||
-    (calendar.latestFriday != null &&
-      (typeof calendar.latestFriday.week_start !== 'string' ||
-        typeof calendar.latestFriday.treasury_delta_m_eur !== 'number')))
-    throw new Error('CALENDAR_INVALID_RESPONSE')
-  return calendar as MatchCalendar
+  return validateMatchCalendar(await rpc<unknown>('get_match_calendar',{
+    p_match_id:matchId
+  }),matchId)
 }
 
 const messages: Record<string, string> = {
