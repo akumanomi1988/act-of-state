@@ -1,6 +1,6 @@
 # ACT OF STATE — Verifiable implementation coverage
 
-> Primary weighted engineering completion: **65.9%**. Equal-checkpoint implementation coverage: **56/72 (77.8%)** on AOS-053. Strict commercial acceptance: **2/18 (11.1%)**.
+> Primary weighted engineering completion: **65.9%**. Equal-checkpoint implementation coverage: **56/72 (77.8%)** on AOS-053. Strict commercial acceptance: **1/18 (5.6%)**.
 
 ## Before / after
 
@@ -8,7 +8,7 @@
 | --- | ---: | ---: | ---: |
 | Complexity-weighted engineering completion | 60.6% (782/1290) | 65.9% (850/1290) | +5.3 pp |
 | Equal-checkpoint implemented & evidenced | 75.0% (54/72) | 77.8% (56/72) | +2.8 pp |
-| Full commercial acceptance | 11.1% (2/18) | 11.1% (2/18) | 0.0 pp |
+| Full commercial acceptance | 5.6% (1/18) | 5.6% (1/18) | 0.0 pp |
 
 ## Rules and boundaries
 
@@ -18,6 +18,7 @@
 - Equal-checkpoint coverage keeps exactly **1/72** per proof as a backward-compatible secondary metric; do not mix it with weighted completion.
 - A verified checkpoint requires an existing tracked code/test/specification file plus reviewed engineering evidence. Existence of a file alone is insufficient; CI independently validates executable artifacts.
 - Pending checkpoints do not count. In particular, hosted operations, real reviewed news, ten human participants and human visual approval are not silently assumed.
+- A commercial requirement is eligible for explicit acceptance only when **all four** of its own stages are verified. Historical 2/18 claims with an open restore gate were invalid and have been reclassified.
 - Weights are a documented planning rubric, **not measured engineering hours**; 100% requires all 72 independently accepted checkpoints.
 - Neither indicator proves a commercially finished game or replaces external/human product sign-off.
 - Current branch AOS-053 is not automatically deployed. The AOS-050 production schema/authentication transition and release remain separate.
@@ -176,7 +177,7 @@
 - Every area has a stable complexity multiplier (4–12) and a written rationale below; stages 1–4 earn **1 / 2 / 3 / 4 effort units** respectively once evidence is verified.
 - Stage 1 covers the core foundation, stage 2 feature behavior, stage 3 cross-system integration, and stage 4 full operational/external acceptance. The original checkpoint descriptions are authoritative.
 - An unverified stage contributes zero. The rubric is an explicit comparative planning judgement, not logged work hours, a performance benchmark or an independently audited cost model.
-- Equal-checkpoint historical coverage stays 56/72 = 77.8% for comparison; strict commercial signoff remains 2/18. Changing weights alone does not credit any new requirement.
+- Equal-checkpoint historical coverage stays 56/72 = 77.8% for comparison; strict commercial signoff remains 1/18. Changing weights alone does not credit any new requirement.
 
 | Original requirement | Complexity multiplier | Verified weighted points | Total weighted points | Completion | Rationale |
 | --- | ---: | ---: | ---: | ---: | --- |

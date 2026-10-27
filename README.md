@@ -11,7 +11,8 @@
 60.6% (782/1290) at the AOS-052 baseline. Historical equal-checkpoint
 coverage remains **77.8% (56/72)** for comparison. The weighting prioritizes
 complex original systems and operational acceptance, not commit or file counts.
-**Commercial acceptance: 11.1%** (2/18 complete product gates). These
+**Audited commercial acceptance: 5.6%** (1/18 complete product gates;
+the earlier 2/18 erroneously included an outstanding hosted restore). These
 measures are deliberately separate and do not claim that the latest development
 branch has been published. [Auditable scorecard and method](docs/DEVELOPMENT_PROGRESS.md).
 

@@ -8,6 +8,9 @@ const expectedIds = [
   ...Array.from({length:6},(_,i)=>'MVP-T'+String(i+1).padStart(3,'0')),
   ...Array.from({length:4},(_,i)=>'MVP-V'+String(i+1).padStart(3,'0'))
 ]
+// Approved requirement multipliers. Changes require an explicit new score
+// baseline, not merely moving points among requirements to inflate progress.
+const approvedWeights = [6,9,9,9,10,8,10,12,6,7,5,6,5,7,4,7,5,4]
 const pct = (numerator, denominator) => Math.round(numerator*1000/denominator)/10
 const close = (text) => text.replace(/\r\n/g,'\n')
 
@@ -33,7 +36,7 @@ export function calculateDevelopmentCoverage(card,{proofExists}={
         !Array.isArray(requirement.checkpoints) ||
         requirement.checkpoints.length !== 4 ||
         !Number.isInteger(requirement.complexityWeight) ||
-        requirement.complexityWeight < 1 || requirement.complexityWeight > 12 ||
+        requirement.complexityWeight !== approvedWeights[expectedIds.indexOf(requirement.id)] ||
         typeof requirement.complexityRationale !== 'string' ||
         requirement.complexityRationale.length < 20 || requirement.complexityRationale.length > 180)
       throw Error('COVERAGE_REQUIREMENT_INVALID')
@@ -74,10 +77,16 @@ export function calculateDevelopmentCoverage(card,{proofExists}={
   if(observed.size !== expectedIds.length)
     throw Error('COVERAGE_REQUIREMENTS_MISSING')
   const accepted=card.commercialAcceptance.complete
-  if(!Array.isArray(accepted) || accepted.length !== 2 ||
+  if(!Array.isArray(accepted) ||
+     typeof card.commercialAcceptance.reviewRule !== 'string' ||
      new Set(accepted).size !== accepted.length ||
      accepted.some(id=>!observed.has(id)))
     throw Error('COVERAGE_COMMERCIAL_SCHEMA_INVALID')
+  // A 3/4 technical area cannot be represented as fully commercially
+  // accepted while its own hosted or human gate is explicitly pending.
+  if(accepted.some(id=>!card.requirements.find(item=>item.id===id)
+    .checkpoints.every(point=>point.state==='verified')))
+    throw Error('COVERAGE_COMMERCIAL_REQUIREMENT_INCOMPLETE')
   const total=card.requirements.length*4
   return {
     baseline:{verified:baseline,total,percent:pct(baseline,total)},
@@ -133,6 +142,7 @@ export function renderDevelopmentReport(card,score) {
   '- Equal-checkpoint coverage keeps exactly **1/72** per proof as a backward-compatible secondary metric; do not mix it with weighted completion.',
   '- A verified checkpoint requires an existing tracked code/test/specification file plus reviewed engineering evidence. Existence of a file alone is insufficient; CI independently validates executable artifacts.',
   '- Pending checkpoints do not count. In particular, hosted operations, real reviewed news, ten human participants and human visual approval are not silently assumed.',
+  '- A commercial requirement is eligible for explicit acceptance only when **all four** of its own stages are verified. Historical 2/18 claims with an open restore gate were invalid and have been reclassified.',
   '- Weights are a documented planning rubric, **not measured engineering hours**; 100% requires all 72 independently accepted checkpoints.', 
   '- Neither indicator proves a commercially finished game or replaces external/human product sign-off.',
   '- Current branch AOS-053 is not automatically deployed. The AOS-050 production schema/authentication transition and release remain separate.',

@@ -9,7 +9,7 @@ The game is browser-based, free to play, with no paid competitive advantages.
 | --- | ---: | ---: | ---: |
 | **Complexity-weighted engineering completion** | **60.6% (782/1290)** | **65.9% (850/1290)** | **+5.3 pp** |
 | Equal-checkpoint evidence coverage | 54/72 = 75.0% | 56/72 = 77.8% | +2.8 pp |
-| Full commercial acceptance | 2/18 = 11.1% | 2/18 = 11.1% | +0.0 pp |
+| Audited full commercial acceptance | 1/18 = 5.6% | 1/18 = 5.6% | +0.0 pp |
 
 The **primary weighted completion percentage** assigns each of the 18 original
 requirements a published complexity multiplier and weights its four accepted
@@ -21,7 +21,7 @@ does not award points for unfinished features or mere code volume. New AOS-053
 points are cross-system mandate analytics and 12-week economy diagnostics
 (F005.4) and the integrated political strategy dashboard (V002.4).
 
-**11.1%** is the separate, strict commercial acceptance indicator: it requires
+**5.6% (1/18)** is the separate, strict commercial acceptance indicator: it requires
 hosted operations, real newsroom publication and external/human signoff where
 the original product contract demands them. Neither figure is a measured
 estimate of remaining engineering hours. This score covers the isolated
@@ -73,6 +73,8 @@ Guidance derives completion from the current authorized world. Reading a guide
 never marks a political action complete or executes a mutation. No new backend
 privilege, persistent browser identity store or external dependency is added.
 
-Strict full-requirement acceptance remains 2/18. The separately measured
+Strict full-requirement acceptance is 1/18. The prior 2/18 tally included
+transactional persistence despite an unverified hosted restore checkpoint;
+it was reclassified on 2026-10-27, not lost functionality. The separately measured
 implementation coverage is 56/72 = 77.8% on AOS-053, versus 54/72 = 75.0%
 on AOS-052; see [the audited model](DEVELOPMENT_PROGRESS.md).

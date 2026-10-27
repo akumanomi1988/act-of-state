@@ -11,7 +11,9 @@ merge to `main` is authorized by routine development work.
   PostgreSQL 40300707983, local real Auth 40300708167.
 - Complexity-weighted engineering completion (primary): 65.9% (850/1290) according to a documented original-scope rubric.
 - Implementation evidence coverage (secondary): 56/72 explicit checkpoints (77.8%).
-- Strict commercial acceptance: 2/18 original requirements (11.1%).
+- Audited full commercial acceptance: 1/18 original requirements (5.6%).
+  The earlier 2/18 figure incorrectly credited T001 despite its open hosted
+  backup restore checkpoint; no implemented functionality was removed.
 - The two figures are **not equivalent**. Do not advance either without
   corresponding executable/operational evidence.
 - Release remains behind the development branch; changes here do not imply

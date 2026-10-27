@@ -3,8 +3,21 @@
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
 **Latest implementation increment:** AOS-053 strategic mandate observatory and long-run economic regression, tested in isolated development branch; last published main is AOS-049.
 **Primary weighted engineering completion:** **65.9% (850/1290)**, versus **60.6% (782/1290)** in AOS-052. The original evidence coverage remains **56/72 = 77.8%** versus **54/72 = 75.0%**, for historic comparability. Weights and independent proofs are reproducible from [the scorecard](DEVELOPMENT_PROGRESS.md), not file or commit counts.
-**Strict commercial acceptance:** **2/18 = 11.1%**, unchanged; hosted/human acceptance gates are separate and cannot be credited from local CI alone.
+**Strict commercial acceptance (corrected 2026-10-27):** **1/18 = 5.6%**. The former 2/18 tally incorrectly credited MVP-T001 even though its hosted backup restoration checkpoint remains pending. This is a scorecard correction, not a loss of functionality.
 This technical-coverage indicator is a measure of explicitly defined scope, not an estimate of remaining engineering hours. Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-056 — Acceptance integrity and dynamic completion (2026-10-27)
+
+- Fixed the commercial scorecard to require 4/4 verified checkpoints for every
+  accepted original requirement. MVP-T001 lacks the provider-hosted restoration
+  gate; it cannot be reported as fully complete. Previous 2/18=11.1% entries
+  below are dated historical claims, **superseded** by audited 1/18=5.6%.
+- Removed the hardcoded exact-two-accepted restriction so future completed
+  requirements can increment from 0 to 18 without altering calculation code.
+- Locked the 18 documented complexity multipliers by stable requirement ID.
+  Equal-total weight swapping is rejected as an unreviewed rubric revision.
+- Added regression cases for ineligible acceptance, valid future acceptance,
+  empty baseline and adversarial weighting. No gameplay or production changes.
 
 ## AOS-054 — Evidence-based development progress metric (2026-10-26)
 

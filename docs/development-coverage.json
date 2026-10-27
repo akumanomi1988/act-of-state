@@ -11,10 +11,10 @@
   },
   "commercialAcceptance": {
     "complete": [
-      "MVP-T001",
       "MVP-T003"
     ],
-    "total": 18
+    "total": 18,
+    "reviewRule": "Only full 4/4 verified requirements are eligible for explicit commercial acceptance; operational, hosted or human checkpoints must not be waived."
   },
   "requirements": [
     {

@@ -26,8 +26,8 @@ test('18 original requirements have 72 evidence-traced immutable checkpoint IDs'
  assert.equal(result.baseline.verified,54)
  assert.equal(result.baseline.percent,75)
  assert.equal(result.deltaPoints,2.8)
- assert.equal(result.commercial.accepted,2)
- assert.equal(result.commercial.percent,11.1)
+ assert.equal(result.commercial.accepted,1)
+ assert.equal(result.commercial.percent,5.6)
  assert.deepEqual(Object.keys(result.grouped).sort(),['F','T','V'])
  assert.equal(result.grouped.F.verified,25)
  assert.equal(result.grouped.T.verified,19)
@@ -35,11 +35,26 @@ test('18 original requirements have 72 evidence-traced immutable checkpoint IDs'
  assert.ok(result.finished.includes('MVP-F005.4'))
  assert.ok(result.finished.includes('MVP-V002.4'))
 })
+test('full commercial acceptance cannot credit a requirement with an open checkpoint',()=>{
+ const altered=clone()
+ altered.commercialAcceptance.complete=['MVP-T001','MVP-T003']
+ assert.throws(()=>calculateDevelopmentCoverage(altered),
+  /COVERAGE_COMMERCIAL_REQUIREMENT_INCOMPLETE/)
+ const future=clone()
+ future.commercialAcceptance.complete=['MVP-T003','MVP-F005']
+ const upgraded=calculateDevelopmentCoverage(future)
+ assert.equal(upgraded.commercial.accepted,2)
+ assert.equal(upgraded.commercial.percent,11.1)
+ const empty=clone()
+ empty.commercialAcceptance.complete=[]
+ assert.equal(calculateDevelopmentCoverage(empty).commercial.accepted,0)
+})
 test('complexity weights cannot be silently falsified or re-baselined',()=>{
  for(const mutate of [
   c=>{c.stageWeights=[1,2,3,0]},
   c=>{c.requirements[0].complexityWeight=0},
   c=>{c.requirements[0].complexityWeight++},
+  c=>{c.requirements[0].complexityWeight=9;c.requirements[1].complexityWeight=6},
   c=>{c.requirements[0].complexityRationale='short'}
  ]) {
   const altered=clone();mutate(altered)
@@ -84,7 +99,7 @@ test('rendered report has reproducible before/after and all traceable checkpoint
  assert.match(report,/75\.0% \(54\/72\)/)
  assert.match(report,/77\.8% \(56\/72\)/)
  assert.match(report,/\+2\.8 pp/)
- assert.match(report,/11\.1%/)
+ assert.match(report,/5\.6%/)
  assert.match(report,/65\.9%/)
  assert.match(report,/Complexity-weighted engineering completion/)
  assert.equal((report.match(/\n\| MVP-/g)||[]).length,18)
