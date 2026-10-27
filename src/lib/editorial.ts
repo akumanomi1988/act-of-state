@@ -30,6 +30,7 @@ export interface EditorialWeek {
   draft: EditorialDossier[]
   updated_at: string
   published_at: string | null
+  updated_by?: string | null
 }
 
 export function nextMondayUtc(): string {
@@ -90,7 +91,7 @@ export async function fetchEditorialRole(userId: string): Promise<EditorialRole 
 
 export async function fetchEditorialWeek(week: string): Promise<EditorialWeek | null> {
   const { data, error } = await requireClient().from('editorial_weeks')
-    .select('week_start,revision,status,draft,updated_at,published_at')
+    .select('week_start,revision,status,draft,updated_at,published_at,updated_by')
     .eq('week_start', week).maybeSingle()
   if (error) throw error
   if (!data) return null
@@ -130,6 +131,8 @@ const messages: Record<string, string> = {
   EDITORIAL_FORBIDDEN: 'Esta cuenta no tiene permisos editoriales.',
   EDITORIAL_REQUIRES_TEN_REVIEWS: 'Se requieren diez revisiones editoriales vigentes.',
   EDITORIAL_REVIEW_INCOMPLETE: 'La ficha debe estar completa y guardada para su revisión.',
+  EDITORIAL_INDEPENDENT_REVIEW_REQUIRED: 'No puedes aprobar una agenda redactada por tu propia cuenta. Debe revisarla otra persona autorizada.',
+  EDITORIAL_INDEPENDENT_PUBLISHER_REQUIRED: 'La publicación requiere una cuenta distinta de quien guardó esta revisión editorial.',
   EDITORIAL_STAFF_FORBIDDEN: 'Solo un publicador puede administrar el equipo editorial.',
   EDITORIAL_LAST_PUBLISHER: 'No puedes retirar el último publicador.',
   EDITORIAL_STAFF_ACCOUNT_UNAVAILABLE: 'La cuenta indicada no existe o no ha confirmado el correo.',

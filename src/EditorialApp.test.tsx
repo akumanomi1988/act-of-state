@@ -220,6 +220,22 @@ describe('editorial workbench', () => {
     expect(mocks.publishEditorialWeek).not.toHaveBeenCalled()
   })
 
+  it('does not permit a publisher to approve their own saved revision',async()=>{
+    const draft=completeDraft()
+    mocks.fetchEditorialRole.mockResolvedValue('publisher')
+    mocks.fetchEditorialWeek.mockResolvedValue({
+      ...snapshot(draft,4),updated_by:user.id
+    })
+    render(<EditorialApp />)
+    await screen.findByText('Ficha de decisión')
+    expect(screen.getByText(/no puedes aprobar tu propio borrador/)).toBeInTheDocument()
+    expect(screen.getByRole('button',{
+      name:'Aprobar expediente tras contrastar la fuente'
+    })).toBeDisabled()
+    expect(mocks.reviewEditorialSlot).not.toHaveBeenCalled()
+    expect(mocks.publishEditorialWeek).not.toHaveBeenCalled()
+  })
+
   it('publishes a persisted complete revision, then locks the forms', async () => {
     const draft = completeDraft()
     mocks.fetchEditorialRole.mockResolvedValue('publisher')

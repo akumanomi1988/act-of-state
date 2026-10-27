@@ -70,6 +70,17 @@ merge to `main` is authorized by routine development work.
       workflows and record receipts. Do not credit F004.4 from synthetic
       validation alone: empirical balance review remains outstanding.
 
+## AOS-055 — independent editorial sign-off integrity (2026-10-27)
+
+- [x] Fail-closed SQL review/publish authorization when the latest revision
+      was saved by the same person attempting to certify or publish it.
+- [x] Preserve optimistic revision invalidation, immutable prior weekly
+      releases and privilege-isolated reader identity.
+- [x] Add same-author denial plus different-person acceptance to transactional
+      publication tests; update real local GoTrue inter-account flow and UI.
+- [ ] Confirm all exact-commit CI runs. Staffed fact-checking against actual
+      independent news citations remains an external acceptance gate.
+
 ## Remaining original-product acceptance gates
 
 The pending technical evidence is in `docs/development-coverage.json`.

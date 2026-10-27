@@ -142,6 +142,8 @@ export default function EditorialApp() {
   const complete = readyCount === SLOTS && uniqueSourceCount === SLOTS
   const reviewedCount = reviews.filter(r=>draft.some(d=>d.id===r.dossier_id)).length
   const selectedReviewed=reviews.some(r=>r.dossier_id===dossier.id)
+  const authoredByCurrentUser=!!snapshot?.updated_by &&
+    snapshot.updated_by===user?.id
   const isPublished = snapshot?.status === 'published'
   const canEdit = !!role && !isPublished && !loading && !pending && !sourcingBusy
 
@@ -238,7 +240,8 @@ export default function EditorialApp() {
   }
 
   async function onReviewSlot() {
-    if (!snapshot || role!=='publisher' || dirty || pending || !editorialReady(dossier)) return
+    if (!snapshot || role!=='publisher' || dirty || pending ||
+      authoredByCurrentUser || !editorialReady(dossier)) return
     const currentUser=user?.id
     const slot=dossier.id
     const targetWeek=week
@@ -283,7 +286,8 @@ export default function EditorialApp() {
   }
 
   async function onPublish() {
-    if (role !== 'publisher' || !reviewing || dirty || !complete || reviewedCount!==SLOTS || !snapshot ||
+    if (role !== 'publisher' || authoredByCurrentUser || !reviewing ||
+      dirty || !complete || reviewedCount!==SLOTS || !snapshot ||
       isPublished || pending || !user) return
     const owner = user.id
     const targetWeek = week
@@ -438,11 +442,15 @@ export default function EditorialApp() {
           <p>Abre y contrasta la noticia original, comprueba que el contexto
             describa un escenario hipotético correcto y verifica costes,
             orientación y efectos de todas las alternativas.</p>
+          {authoredByCurrentUser && <p role="status">
+            La revisión y publicación de esta versión requieren otra cuenta
+            autorizada: no puedes aprobar tu propio borrador.</p>}
           {/^https:\/\/[^\s]+$/.test(dossier.source_url) &&
             <p><a href={dossier.source_url} target="_blank"
               rel="noopener noreferrer">Abrir fuente original para contrastar</a></p>}
           <button type="button" onClick={()=>void onReviewSlot()}
-            disabled={pending || dirty || !snapshot || !editorialReady(dossier)}>
+            disabled={pending || dirty || !snapshot || authoredByCurrentUser ||
+              !editorialReady(dossier)}>
             {selectedReviewed ? 'Retirar validación del expediente' :
               'Aprobar expediente tras contrastar la fuente'}
           </button>

@@ -97,8 +97,14 @@ begin
  select * into f from pg_temp.editorial_fixture;
  -- Reject a ten-dossier slate with one repeated source without creating
  -- any releases or dossiers, then recover with the independently sourced set.
+ -- The editor authors the next revision; a DIFFERENT publisher must
+ -- individually attest all ten citations before publication.
+ perform pg_catalog.set_config('request.jwt.claim.sub',
+   '10000000-0000-4000-8000-000000000081',true);
  saved:=public.save_editorial_week(f.monday,1,
    jsonb_set(f.full_draft,'{9,source_url}',f.full_draft->0->'source_url'));
+ perform pg_catalog.set_config('request.jwt.claim.sub',
+   '10000000-0000-4000-8000-000000000082',true);
  -- The publisher must affirm each source on the saved revision.
  perform public.review_editorial_slot(f.monday,saved.revision,
    d.value->>'id',true) from jsonb_array_elements(saved.draft) d;
@@ -109,7 +115,11 @@ begin
  if not blocked then raise exception 'EDITORIAL_DUPLICATE_SOURCE_ACCEPTED'; end if;
  if exists(select 1 from public.weekly_releases where week_start=f.monday) then
    raise exception 'EDITORIAL_DUPLICATE_SOURCE_PARTIALLY_PUBLISHED'; end if;
+ perform pg_catalog.set_config('request.jwt.claim.sub',
+   '10000000-0000-4000-8000-000000000081',true);
  saved:=public.save_editorial_week(f.monday,2,f.full_draft);
+ perform pg_catalog.set_config('request.jwt.claim.sub',
+   '10000000-0000-4000-8000-000000000082',true);
  if saved.revision<>3 or jsonb_array_length(saved.draft)<>10 then
   raise exception 'EDITORIAL_COMPLETED_DRAFT_NOT_SAVED'; end if;
  -- Approvals on revision 2 must not authorize revision 3.
@@ -172,7 +182,11 @@ begin
    raise exception 'EDITORIAL_TEST_SOURCE_DATE_MUTATED';
  end if;
  broken:=jsonb_set(broken,'{9,options,1,treasury_delta_m_eur}','999999'::jsonb);
+ perform pg_catalog.set_config('request.jwt.claim.sub',
+   '10000000-0000-4000-8000-000000000081',true);
  saved:=public.save_editorial_week(second_monday,0,broken);
+ perform pg_catalog.set_config('request.jwt.claim.sub',
+   '10000000-0000-4000-8000-000000000082',true);
  perform public.review_editorial_slot(second_monday,saved.revision,
    d.value->>'id',true) from jsonb_array_elements(saved.draft) d;
  begin
@@ -190,6 +204,45 @@ begin
     (select status from public.editorial_weeks where week_start=second_monday)<>'draft' then
   raise exception 'EDITORIAL_ATOMIC_ROLLBACK_FAILED'; end if;
 end $$;
+
+-- An authorized publisher can save, but CANNOT self-attest or publish the
+-- resulting revision. This test never creates real published source material.
+select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000082',true);
+do $
+declare f record; third_monday date; material jsonb; author_draft public.editorial_weeks%rowtype;
+ blocked boolean:=false; publish_blocked boolean:=false;
+begin
+ select * into f from pg_temp.editorial_fixture;
+ third_monday:=f.monday+14;
+ select jsonb_agg(jsonb_set(d.value,'{id}',to_jsonb(replace(
+    d.value->>'id',f.monday::text,third_monday::text))) order by d.ordinality)
+ into material from jsonb_array_elements(f.full_draft) with ordinality d(value,ordinality);
+ author_draft:=public.save_editorial_week(third_monday,0,material);
+ begin
+   perform public.review_editorial_slot(third_monday,author_draft.revision,
+     material->0->>'id',true);
+ exception when sqlstate 'P0001' then
+   blocked:=sqlerrm='EDITORIAL_INDEPENDENT_REVIEW_REQUIRED';end;
+ if not blocked then raise exception 'SAME_EDITOR_APPROVED_OWN_SOURCE';end if;
+ begin perform public.publish_editorial_week(third_monday,author_draft.revision);
+ exception when sqlstate 'P0001' then
+   publish_blocked:=sqlerrm='EDITORIAL_INDEPENDENT_PUBLISHER_REQUIRED';end;
+ if not publish_blocked then raise exception 'SELF_AUTHOR_PUBLISHED_OWN_SLATE';end if;
+ if exists(select 1 from public.weekly_releases where week_start=third_monday)
+ then raise exception 'SELF_AUTHOR_RELEASE_VISIBLE';end if;
+ -- Another legitimate editor saves the next version. The original publisher
+ -- can now attest the changed revision, but one review is not enough to publish.
+ perform pg_catalog.set_config('request.jwt.claim.sub',
+   '10000000-0000-4000-8000-000000000081',true);
+ author_draft:=public.save_editorial_week(third_monday,1,material);
+ perform pg_catalog.set_config('request.jwt.claim.sub',
+   '10000000-0000-4000-8000-000000000082',true);
+ perform public.review_editorial_slot(third_monday,author_draft.revision,
+   material->0->>'id',true);
+ if (select count(*) from public.editorial_slot_reviews
+   where week_start=third_monday and revision=2)<>1
+ then raise exception 'SEPARATE_PUBLISHER_REVIEW_NOT_RECORDED';end if;
+end $;
 
 -- Published data is visible only through the existing server embargo and game policy.
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000083',true);

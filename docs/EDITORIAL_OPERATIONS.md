@@ -47,10 +47,15 @@ confirmed accounts, per-change audit and a serialized last-publisher guard.
 4. Human editors check every original citation, political issue, option
    description and numerical effects. Save a ten-dossier draft under the
    optimistic revision protocol.
-5. A publisher opens and independently checks the original news citation
+5. A **different authenticated account** with publisher role opens and
+   independently checks the original news citation
    for each of ten dossiers, then explicitly approves each dossier.
    Every review records the publisher UUID, saved revision and timestamp.
    Any resave invalidates all ten reviews, including the unedited slots.
+   PostgreSQL refuses a review or publication when the current revision's
+   saved-by user equals the reviewer/publisher. The editor and final publisher
+   must be distinct; the interface disables self-approval and explains why.
+   Previously recorded self-reviews cannot authorize a new publication.
 6. PostgreSQL requires ten distinct, complete, approved current-revision
    dossiers and sources. Publisher confirmation atomically materializes the
    ten dossiers, their policy options, weekly approval and immutable history.
