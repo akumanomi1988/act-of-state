@@ -159,7 +159,18 @@ declare f record; second_monday date; broken jsonb;
 begin
  select * into f from pg_temp.editorial_fixture;
  second_monday:=f.monday+7;
- broken:=replace(f.full_draft::text,f.monday::text,second_monday::text)::jsonb;
+ -- Change dossier IDs only. Global text replacement also changes the
+ -- source_published_at timestamp whenever yesterday was Monday, making
+ -- the fixture time-dependent and hiding the invalid-option assertion.
+ select jsonb_agg(
+   jsonb_set(d.value,'{id}',
+     to_jsonb(replace(d.value->>'id',f.monday::text,second_monday::text)))
+   order by d.ordinality
+ ) into broken
+ from jsonb_array_elements(f.full_draft) with ordinality d(value,ordinality);
+ if broken->0->>'source_published_at' <> f.full_draft->0->>'source_published_at' then
+   raise exception 'EDITORIAL_TEST_SOURCE_DATE_MUTATED';
+ end if;
  broken:=jsonb_set(broken,'{9,options,1,treasury_delta_m_eur}','999999'::jsonb);
  saved:=public.save_editorial_week(second_monday,0,broken);
  perform public.review_editorial_slot(second_monday,saved.revision,

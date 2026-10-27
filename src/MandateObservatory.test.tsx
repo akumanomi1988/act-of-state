@@ -73,10 +73,10 @@ describe('strategic mandate observatory UI and account isolation',()=>{
   it('keeps the newest polling read when an older request finishes late',async()=>{
     let poll: (()=>void)|undefined
     const originalSetInterval = window.setInterval.bind(window)
-    vi.spyOn(window,'setInterval').mockImplementation(callback=>{
+    vi.spyOn(window,'setInterval').mockImplementation(((callback: TimerHandler)=>{
       poll=callback as ()=>void
       return originalSetInterval(callback, 60000)
-    })
+    }) as typeof window.setInterval)
     let resolveOld!: (value: unknown)=>void
     mocks.living.mockImplementationOnce(()=>new Promise(resolve=>{resolveOld=resolve}))
     mocks.living.mockResolvedValueOnce({
