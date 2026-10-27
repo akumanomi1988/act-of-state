@@ -72,6 +72,21 @@ begin
    from public.synthetic_households where government_id=gid
    group by district_code) d;
  if min_coverage<3 then raise exception 'HOUSEHOLD_AGE_GAP_IN_DISTRICT';end if;
+ -- Political cohorts must be represented in EACH district, rather than
+ -- entirely segregated by the (n-1)%100 territorial mapping as in v1.
+ if exists (
+   select 1 from (
+     select district_code,count(*) as families,
+       count(*) filter(where cohort_code='households') as households_cohort,
+       count(distinct cohort_code) as distinct_cohorts
+     from public.synthetic_households
+     where government_id=gid group by district_code
+   ) d where distinct_cohorts<>2 or
+      abs(households_cohort-families*0.65)>3
+ ) then raise exception 'HOUSEHOLD_COHORT_DISTRICT_STRUCTURAL_SEGREGATION';end if;
+ if (select count(*) from public.synthetic_households
+      where government_id=gid and cohort_code='households')<>195
+ then raise exception 'HOUSEHOLD_SYNTHETIC_COHORT_MARGIN_CHANGED';end if;
  if (select sum(residents) from public.synthetic_households
       where government_id=gid)<>900
  then raise exception 'DEMOGRAPHIC_RESIDENT_MASS_DRIFT';end if;
@@ -110,6 +125,8 @@ declare gid uuid:=(select government_id from pg_temp.demographic_fixture);
 begin
  update public.synthetic_households h set
    model_version='households-v1',
+   cohort_code=case when (h.household_no-1)%100<65 then 'households'
+     else 'industry' end,
    age_band=case when h.household_no%10<3 then 'young'
     when h.household_no%10<8 then 'working' else 'senior' end,
    income_band=case when (h.household_no*7)%10<3 then 'low'

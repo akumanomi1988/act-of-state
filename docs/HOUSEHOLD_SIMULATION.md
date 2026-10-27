@@ -22,6 +22,12 @@ Newly created governments now receive **`households-v2`** household rows:
 - Both are full-cycle permutations, with 300 stable households and 900
   resident weights. The nine age/income cells are populated, within three
   simulated households of each independent-marginal expectation.
+- Political cohort rank `((n-1)*29+7)%100` also breaks the original
+  accidental coupling with the territorial district index `(n-1)%100`.
+  All six districts now contain both cohorts while preserving exact national
+  195/105 family membership and 65/35 game-design weight. A per-district
+  deviation check enforces a maximum of three household agents from its
+  synthetic 65% expectation.
 - The stable district map (25/20/18/15/12/10 seats), founding 65/35 cohorts,
   household policy response, historical fiscal effects and election D'Hondt
   coefficients are **unchanged**.

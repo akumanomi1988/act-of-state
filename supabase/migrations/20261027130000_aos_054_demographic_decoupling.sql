@@ -12,8 +12,11 @@ alter table public.synthetic_households
 
 -- Independent full-cycle permutations (gcd(37,300)=gcd(71,300)=1)
 -- guarantee stable exact margins, while every age/income cell is populated.
--- District allocation, cohort weights, resident counts, sensitivity,
--- campaign effects and D'Hondt authority remain unchanged.
+-- District allocation and GLOBAL cohort weights are unchanged, but a new
+-- coprime rank for cohort assignment separates political groups from geography.
+-- This prevents purely structural single-cohort constituencies and preserves
+-- exact 65/35 synthetic weights. Resident counts, sensitivity, campaign
+-- effects and D'Hondt authority remain unchanged.
 create or replace function game_internal.seed_synthetic_households(p_government uuid)
 returns integer language plpgsql security definer set search_path='' as $$
 declare v_rows integer;
@@ -45,8 +48,8 @@ begin
        when (n-1)%100<90 then 'highland'
        else 'frontier' end as district_code
    from generate_series(1,300) n
-   join cohorts c on ((n-1)%100)<c.ceiling
-     and ((n-1)%100)>=c.ceiling-c.population_weight
+   join cohorts c on ((n-1)*29+7)%100<c.ceiling
+     and ((n-1)*29+7)%100>=c.ceiling-c.population_weight
  )
  insert into public.synthetic_households(
    government_id,household_no,cohort_code,residents,age_band,

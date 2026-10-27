@@ -57,9 +57,11 @@ merge to `main` is authorized by routine development work.
 ## AOS-054 — versioned synthetic demographic balance correction
 
 - [x] Diagnose v1 joint age/income structural bias (three empty cells).
-- [x] Define v2 independent full-cycle demographic rank permutations;
-      preserve 300 family identities, synthetic cohort/district mass, and
-      election seat invariants.
+- [x] Define v2 independent full-cycle demographic rank permutations and
+      decoupled district/political-cohort allocation; preserve 300 family
+      identities, synthetic cohort/district mass, and election seat invariants.
+- [x] Detect and prevent structurally single-cohort districts in new worlds,
+      with all six territories containing both synthetic political cohorts.
 - [x] Migrate only **future** seeds; v1 households and signed historical
       election results remain untouched and identifiable.
 - [x] Add rollback-only PostgreSQL contingency, backward-compatibility
