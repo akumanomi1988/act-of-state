@@ -11,7 +11,7 @@ values
  ('65000000-0000-4000-8000-000000000002',
  '00000000-0000-0000-0000-000000000000','authenticated','authenticated',
  'balance-2@example.invalid','',now(),now(),now());
-create temporary table demographic_fixture(government_id uuid,match_id uuid,invite_code text);
+create temporary table demographic_fixture(government_id uuid,match_id uuid,invite_code text,legacy_snapshot jsonb);
 grant select,insert,update on pg_temp.demographic_fixture to authenticated;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','65000000-0000-4000-8000-000000000001',true);
@@ -118,25 +118,36 @@ begin
  if (select count(*) from public.synthetic_households
    where government_id=gid and model_version='households-v1')<>300
  then raise exception 'LEGACY_MODEL_SIMULATION_MISSING';end if;
-end $$;
+ -- Raw households are PRIVATE. Capture the privileged snapshot here,
+ -- and do not read the table from the simulated authenticated role.
+ update pg_temp.demographic_fixture set legacy_snapshot=(
+   select jsonb_agg(to_jsonb(h) order by household_no)
+   from public.synthetic_households h where h.government_id=gid);
+end $;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','65000000-0000-4000-8000-000000000001',true);
-do $$
+do $
 declare gid uuid:=(select government_id from pg_temp.demographic_fixture);
- original jsonb; profile jsonb; existing integer;
+ profile jsonb;
 begin
  profile:=public.get_population_profile(gid);
  if profile->>'modelVersion'<>'households-v1'
  then raise exception 'LEGACY_PROFILE_NOT_PRESERVED';end if;
- select jsonb_agg(to_jsonb(h) order by household_no) into original
- from public.synthetic_households h where h.government_id=gid;
  perform public.start_government();
+ if public.get_population_profile(gid)<>profile
+ then raise exception 'LEGACY_PROFILE_CHANGED_ON_LOGIN';end if;
+end $;
+reset role;
+do $
+declare gid uuid:=(select government_id from pg_temp.demographic_fixture);
+ original jsonb:=(select legacy_snapshot from pg_temp.demographic_fixture);
+ existing integer;
+begin
  select count(*) into existing from public.synthetic_households h
    where h.government_id=gid;
- if existing<>300 or
+ if existing<>300 or original is null or
   original<>(select jsonb_agg(to_jsonb(h) order by household_no)
     from public.synthetic_households h where h.government_id=gid)
  then raise exception 'LEGACY_HOUSEHOLD_RESEEDED';end if;
-end $$;
-reset role;
+end $;
 rollback;
