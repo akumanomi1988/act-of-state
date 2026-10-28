@@ -1,5 +1,5 @@
 import {beforeEach,describe,expect,it,vi} from 'vitest'
-import {certifyMatchElection,fetchElectionState,validateElectionState} from './elections'
+import {certifyMatchElection,fetchElectionState,validateElectionState,fetchStrategyPreview,validateStrategyPreview} from './elections'
 const mocks=vi.hoisted(()=>({rpc:vi.fn()}))
 vi.mock('./game',()=>({requireClient:()=>({rpc:mocks.rpc})}))
 const match='40000000-0000-4000-8000-000000000001'
@@ -63,5 +63,44 @@ describe('electoral authority and historical certificate boundary',()=>{
   await expect(certifyMatchElection(match)).rejects.toThrow('ELECTION_INVALID_RESPONSE')
   mocks.rpc.mockResolvedValueOnce({data:null,error:{message:'MATCH_FORBIDDEN'}})
   await expect(fetchElectionState(match)).rejects.toEqual({message:'MATCH_FORBIDDEN'})
+ })
+})
+
+describe('read-only electoral strategy response contract',()=>{
+ const scenario={
+  modelVersion:'electoral-strategy-v1',matchId:match,playerId:a,
+  proposedPolicy:50,serverDay:'2026-10-24',committed:false,
+  current:projection,hypothetical:projection
+ }
+ it('accepts exact-scope same-district snapshots and calls only preview RPC',async()=>{
+  mocks.rpc.mockResolvedValueOnce({data:scenario,error:null})
+  const result=await fetchStrategyPreview(match,a,50)
+  expect(result.committed).toBe(false)
+  expect(mocks.rpc).toHaveBeenCalledWith('preview_election_strategy',{
+    p_match_id:match,p_policy:50
+  })
+  expect(result.current.parties.reduce((n,p)=>n+p.seats,0)).toBe(100)
+ })
+ it('rejects forged users, positive committed flags and inconsistent rival programmes',()=>{
+  const bad=[
+   {...scenario,playerId:b},
+   {...scenario,matchId:'foreign'},
+   {...scenario,committed:true},
+   {...scenario,proposedPolicy:75},
+   {...scenario,serverDay:'2026-02-31'},
+   {...scenario,current:{...projection,parties:[{...parties[0],seats:53},parties[1]]}},
+   {...scenario,hypothetical:{...projection,parties:[
+     parties[0],{...parties[1],manifestoPolicy:40}]}},
+   {...scenario,hypothetical:{...projection,districts:[
+     {...districts[0],residents:9999},...districts.slice(1)]}}
+  ]
+  for(const s of bad)
+   expect(()=>validateStrategyPreview(s,match,a,50)).toThrow('ELECTION_STRATEGY_INVALID_RESPONSE')
+ })
+ it('blocks impossible values before any server request',async()=>{
+  await expect(fetchStrategyPreview(match,a,101)).rejects.toThrow('ELECTION_INVALID_POLICY')
+  await expect(fetchStrategyPreview(match,a,-1)).rejects.toThrow('ELECTION_INVALID_POLICY')
+  await expect(fetchStrategyPreview(match,a,23.5)).rejects.toThrow('ELECTION_INVALID_POLICY')
+  expect(mocks.rpc).not.toHaveBeenCalled()
  })
 })
