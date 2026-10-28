@@ -12,6 +12,8 @@ import FiscalPanel from './FiscalPanel'
 import MandateObservatory from './MandateObservatory'
 import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
 import PopulationPanel from './PopulationPanel'
+import MobileDetailNavigation from './MobileDetailNavigation'
+import { useMobileViewport } from './lib/useMobileViewport'
 import LivingConditionsPanel from './LivingConditionsPanel'
 
 function dossierKey(d: Dossier): string {
@@ -35,6 +37,8 @@ export default function App() {
   const [optionId, setOptionId] = useState('')
   const [reviewingDecision, setReviewingDecision] = useState(false)
   const [mobileSection, setMobileSection] = useState<'decide' | 'agenda' | 'status'>('decide')
+  const [statusDetail, setStatusDetail] = useState<'overview' | 'economy' | 'people' | 'history'>('overview')
+  const mobile = useMobileViewport()
   const [pending, setPending] = useState(false)
   const [needsReconciliation, setNeedsReconciliation] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -272,15 +276,25 @@ export default function App() {
           </>}
         </main>
       ) : (
-        <div className="solo-workspace" data-mobile-screen={mobileSection}>
+        <div className="solo-workspace" data-mobile-screen={mobileSection} data-mobile-detail={statusDetail}>
           <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
           <nav className="mobile-focus-nav" aria-label="Navegación del gobierno">
             {([['decide','Decidir'],['agenda','Expedientes'],['status','Mi país']] as const).map(([id,label])=>
               <button key={id} type="button" aria-current={mobileSection===id?'page':undefined}
                 onClick={()=>navigateMobile(id)}>{label}</button>)}
           </nav>
-          <div className="solo-instructions"><PlayerOnboarding world={world} /></div>
-          <div className="solo-fiscal-extra"><FiscalPanel key={world.government.id} governmentId={world.government.id} /></div>
+          {mobileSection === 'status' ? <MobileDetailNavigation
+            label="Apartados de Mi país" value={statusDetail} onChange={setStatusDetail}
+            tabs={[{id:'overview',label:'Resumen'},{id:'economy',label:'Economía'},
+              {id:'people',label:'Población'},{id:'history',label:'Historial'}]} /> : null}
+          <div className="solo-instructions">
+            {(!mobile || (mobileSection==='status' && statusDetail==='overview'))
+              ? <PlayerOnboarding world={world} /> : null}
+          </div>
+          <div className="solo-fiscal-extra">
+            {(!mobile || (mobileSection==='status' && statusDetail==='economy'))
+              ? <FiscalPanel key={world.government.id} governmentId={world.government.id} /> : null}
+          </div>
           <main className="government-layout">
             <aside className="side-panel">
               <div className="eyebrow">01 / DESPACHO</div>
@@ -322,6 +336,12 @@ export default function App() {
                 onSelect={selectDossier} />
             </aside>
             <section className="main-panel" aria-label="Expediente político">
+              <div className="mobile-task-cue" role="status">
+                {historicalEvent ? 'Consulta de una decisión ya firmada.' :
+                  decision ? 'Expediente resuelto. Puedes consultar su impacto o cambiar de expediente.' :
+                  dossier ? 'Tu siguiente paso: elige una medida y revisa sus consecuencias antes de firmar.' :
+                  'No hay expedientes disponibles en este momento.'}
+              </div>
               <button type="button" className="mobile-switch-panel" onClick={()=>navigateMobile('agenda')}>
                 Cambiar expediente
               </button>
@@ -430,13 +450,17 @@ export default function App() {
             </aside>
           </main>
           <div className="solo-deep-insights">
-            <LivingConditionsPanel governmentId={world.government.id} identity={user?.id ?? ''} />
-            <MandateObservatory governmentId={world.government.id} identity={user?.id ?? ''} />
-            <PopulationPanel key={world.government.id + ':' + (user?.id ?? '')}
-              governmentId={world.government.id} identity={user?.id ?? ''} />
-            <DecisionAnalyticsPanel key={world.government.id}
-              events={world.events} gameDay={world.gameDay}
-              countryName={world.government.country_name} />
+            {(!mobile || (mobileSection==='status' && statusDetail==='people')) ? <>
+              <LivingConditionsPanel governmentId={world.government.id} identity={user?.id ?? ''} />
+              <PopulationPanel key={world.government.id + ':' + (user?.id ?? '')}
+                governmentId={world.government.id} identity={user?.id ?? ''} />
+            </> : null}
+            {(!mobile || (mobileSection==='status' && statusDetail==='history')) ? <>
+              <MandateObservatory governmentId={world.government.id} identity={user?.id ?? ''} />
+              <DecisionAnalyticsPanel key={world.government.id}
+                events={world.events} gameDay={world.gameDay}
+                countryName={world.government.country_name} />
+            </> : null}
           </div>
         </div>
       )}
