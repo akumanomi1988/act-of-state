@@ -1,4 +1,6 @@
 import PlayerOnboarding from './PlayerOnboarding'
+import MobileDetailNavigation from './MobileDetailNavigation'
+import { useMobileViewport } from './lib/useMobileViewport'
 import AuthGateway from './AuthGateway'
 import AccountSecurity from './AccountSecurity'
 import MatchAgendaBoard from './MatchAgendaBoard'
@@ -43,6 +45,9 @@ export default function MultiplayerApp() {
   const [matches, setMatches] = useState<MatchSummary[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [mobileSection, setMobileSection] = useState<'decide' | 'activity' | 'elections' | 'status' | 'matches'>('decide')
+  const [statusDetail,setStatusDetail]=useState<'overview'|'economy'|'people'|'history'>('overview')
+  const [activityDetail,setActivityDetail]=useState<'inbox'|'parties'|'institution'>('inbox')
+  const mobile=useMobileViewport()
   const [world, setWorld] = useState<MatchWorld | null>(null)
   const [selectedDossierId, setSelectedDossierId] = useState<string | null>(null)
   const [selectedOptionId, setSelectedOptionId] = useState('')
@@ -200,6 +205,7 @@ export default function MultiplayerApp() {
     await mutate(async () => {
       const match = await createMatch(title.trim(), hostParty.trim())
       setActiveId(match.id)
+      navigateMobile('decide')
     }, 'Partida creada. Comparte el código con hasta nueve partidos.')
   }
 
@@ -209,6 +215,7 @@ export default function MultiplayerApp() {
     await mutate(async () => {
       const seat = await joinMatch(inviteCode.trim(), joiningParty.trim())
       setActiveId(seat.match_id)
+      navigateMobile('decide')
     }, 'Te has unido a la partida. Tu partido tiene plaza persistente.')
   }
 
@@ -359,7 +366,8 @@ export default function MultiplayerApp() {
             aria-current={mobileSection===id?'page':undefined}
             onClick={()=>navigateMobile(id)}>{label}</button>)}
       </nav>
-      <main className="match-layout" data-mobile-screen={mobileSection}>
+      <main className="match-layout" data-mobile-screen={mobileSection}
+        data-mobile-detail={statusDetail} data-mobile-activity={activityDetail}>
       <aside className="match-sidebar">
         <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />
         <p className="eyebrow">CENTRO DE PARTIDAS</p><h1>Tu asamblea</h1>
@@ -400,6 +408,7 @@ export default function MultiplayerApp() {
               const id = await joinPublicLobby(matchId, partyName)
               if (ownerRef.current !== owner) return
               setActiveId(id)
+              navigateMobile('decide')
               setNotice('Te has incorporado a una partida pública.')
               setReload(value => value + 1)
             } catch (reason) {
@@ -427,29 +436,50 @@ export default function MultiplayerApp() {
           <p className="muted">Crea una partida o usa un código de invitación. Cada cuenta representará un partido distinto.</p>
           <button type="button" className="primary-button" onClick={()=>navigateMobile('matches')}>Crear o unirme a una partida</button>
         </div> : <>
-          <div className="match-mobile-status"><PlayerOnboarding world={world} /></div>
+          <div className="match-mobile-status match-status-overview">
+            {(!mobile || (mobileSection==='status' && statusDetail==='overview'))
+              ? <PlayerOnboarding world={world} /> : null}
+          </div>
           <div className="match-heading">
             <div><p className="eyebrow">PARTIDA {world.match.status === 'lobby' ? 'EN PREPARACIÓN' : 'ACTIVA'}</p>
               <h1>{world.match.title}</h1><p className="muted">Día de juego {world.gameDay} · {world.government.country_name}</p></div>
             <button className="text-button" onClick={() => setReload(value => value + 1)}
               disabled={pending}>Actualizar estado</button>
           </div>
-          <div className="match-mobile-status">
+          {mobileSection==='status' ? <MobileDetailNavigation
+            label="Apartados de Mi país" value={statusDetail} onChange={setStatusDetail}
+            tabs={[{id:'overview',label:'Resumen'},{id:'economy',label:'Economía'},
+              {id:'people',label:'Población'},{id:'history',label:'Historial'}]} /> : null}
+          {mobileSection==='activity' ? <MobileDetailNavigation
+            label="Apartados de la asamblea" value={activityDetail} onChange={setActivityDetail}
+            tabs={[{id:'inbox',label:'Avisos'},{id:'parties',label:'Partidos'},
+              {id:'institution',label:'Instituciones'}]} /> : null}
+          <div className="match-mobile-status match-status-overview">
           <div className="match-metrics">
             <div><span>TESORO PÚBLICO</span><strong>{number(world.government.treasury_m_eur)} M€</strong></div>
             <div><span>APROBACIÓN</span><strong>{world.government.approval}%</strong></div>
             <div><span>CONFIANZA</span><strong>{world.government.trust}%</strong></div>
             <div><span>PARTIDOS</span><strong>{world.players.length} / 10</strong></div>
           </div>
-          <FiscalPanel key={world.government.id+':'+world.match.host_user_id}
-            governmentId={world.government.id} compact />
-          {world.match.status === 'active' && <LivingConditionsPanel
-            governmentId={world.government.id} identity={user.id} />}
-          {world.match.status === 'active' && <MandateObservatory
-            key={world.match.id+':'+user.id} governmentId={world.government.id}
-            identity={user.id} matchId={world.match.id} />}
+          </div>
+          <div className="match-mobile-status match-status-economy">
+            {(!mobile || (mobileSection==='status' && statusDetail==='economy')) ?
+              <FiscalPanel key={world.government.id+':'+world.match.host_user_id}
+                governmentId={world.government.id} compact /> : null}
+          </div>
+          <div className="match-mobile-status match-status-people">
+            {(!mobile || (mobileSection==='status' && statusDetail==='people')) &&
+              world.match.status==='active' ?
+              <LivingConditionsPanel governmentId={world.government.id} identity={user.id}/> : null}
+          </div>
+          <div className="match-mobile-status match-status-history">
+            {(!mobile || (mobileSection==='status' && statusDetail==='history')) &&
+              world.match.status==='active' ?
+              <MandateObservatory key={world.match.id+':'+user.id}
+                governmentId={world.government.id} identity={user.id} matchId={world.match.id} /> : null}
           </div>
           <div className="match-mobile-activity">
+          <div className="match-activity-parties">
           <div className="match-invite">
             <div><span>INVITACIÓN A LA ASAMBLEA</span>
               <code>{world.match.invite_code}</code>
@@ -477,6 +507,9 @@ export default function MultiplayerApp() {
               {world.match.is_public ? 'Hacer privada' : 'Publicar partida'}
             </button>
           </div>}
+          </div>
+          <div className="match-activity-inbox">
+          {(!mobile || (mobileSection==='activity' && activityDetail==='inbox')) ?
           <ActionInboxPanel key={world.match.id} matchId={world.match.id}
             onNavigate={(section:InboxSection,dossierId:string|null)=>{
               if(dossierId){
@@ -490,7 +523,9 @@ export default function MultiplayerApp() {
                 // The selected dossier is recomputed from the shared world.
                 window.location.hash='match-dossiers'
               }
-            }}/>
+            }}/> : null}
+          </div>
+          <div className="match-activity-parties">
           <div className="match-seats" aria-label="Partidos de la asamblea">
             {Array.from({ length: 10 }, (_, i) => {
               const player = world.players.find(item => item.seat_no === i + 1)
@@ -504,19 +539,26 @@ export default function MultiplayerApp() {
               </div>
             })}
           </div>
-          {world.match.status === 'active' && <>
+          </div>
+          <div className="match-activity-institution">
+          {(!mobile || (mobileSection==='activity' && activityDetail==='institution')) &&
+            world.match.status === 'active' ? <>
             <MatchCalendarPanel matchId={world.match.id} />
             <div id="match-history"><WeeklyAccountabilityPanel matchId={world.match.id} /></div>
-          </>}
-          <div id="match-governance"><GovernancePanel matchId={world.match.id} userId={user!.id}
-            active={world.match.status === 'active'} players={world.players}
-            onGovernmentChanged={() => setReload(value => value + 1)} /></div>
+          </> : null}
+          {(!mobile || (mobileSection==='activity' && activityDetail==='institution')) ?
+            <div id="match-governance"><GovernancePanel matchId={world.match.id} userId={user!.id}
+              active={world.match.status === 'active'} players={world.players}
+              onGovernmentChanged={() => setReload(value => value + 1)} /></div> : null}
           </div>
-          <div className="match-mobile-status">
-          <PopulationPanel key={world.government.id + ':' + user!.id}
-            governmentId={world.government.id} identity={user!.id} />
+          </div>
+          <div className="match-mobile-status match-status-people">
+            {(!mobile || (mobileSection==='status' && statusDetail==='people')) ?
+              <PopulationPanel key={world.government.id + ':' + user!.id}
+                governmentId={world.government.id} identity={user!.id} /> : null}
           </div>
           <div className="match-mobile-elections">
+          {(!mobile || mobileSection==='elections') ? <>
           <div id="match-campaign"><CampaignPanel key={world.match.id + ':' + user!.id}
             matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'}
@@ -524,8 +566,14 @@ export default function MultiplayerApp() {
           <div id="match-election"><ElectionPanel matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'}
             onElectionCertified={() => setReload(value => value + 1)} /></div>
+          </> : null}
           </div>
           <div className="match-mobile-decide">
+          {mobile && <div className="mobile-task-cue" role="status">
+            {world.match.status==='lobby' ? 'Prepara tu partido y espera el inicio de la legislatura.' :
+              myStance ? 'Tu posición está registrada. Revisa las votaciones y próximas decisiones.' :
+                'Tu siguiente paso: consulta el expediente y fija la posición de tu partido.'}
+          </div>}
           {world.match.status === 'lobby' ? <div className="match-waiting" id="match-lobby">
             <h2>Convocatoria abierta</h2>
             <p>La partida comienza con al menos dos partidos. Las plazas se bloquean
@@ -636,8 +684,9 @@ export default function MultiplayerApp() {
                 </>}
               </div>}
             </div> : <p className="muted">No hay expedientes disponibles hoy.</p>}
-            <div className="match-feed">
-              <h3>Actividad de la asamblea</h3>
+            <details className="match-feed" open={!mobile}>
+              <summary>Actividad de la asamblea · {world.events.length + world.stances.length} registros</summary>
+              <h3>Actividad reciente</h3>
               {world.stances.length === 0 && world.events.length === 0 && <p className="muted">Todavía no hay posiciones ni decisiones firmadas.</p>}
               {world.stances.map(stance => <div key={stance.user_id+stance.dossier_id}>
                 <span>PARTIDO</span><strong>{world.players.find(p => p.user_id === stance.user_id)?.party_name}</strong>
@@ -650,13 +699,14 @@ export default function MultiplayerApp() {
                 <p>{event.option_title_snapshot} · tesoro {number(event.state_after.treasury_m_eur)} M€
                   · confianza {event.state_after.trust}%</p>
               </div>)}
-            </div>
+            </details>
           </div>}
           </div>
-          <div className="match-mobile-status">
-          <DecisionAnalyticsPanel key={world.government.id + ':' + world.match.id}
-            events={world.events} gameDay={world.gameDay}
-            countryName={world.government.country_name} />
+          <div className="match-mobile-status match-status-history">
+            {(!mobile || (mobileSection==='status' && statusDetail==='history')) ?
+              <DecisionAnalyticsPanel key={world.government.id + ':' + world.match.id}
+                events={world.events} gameDay={world.gameDay}
+                countryName={world.government.country_name} /> : null}
           </div>
         </>}
         {notice && <p className="editorial-success" role="status">{notice}</p>}
