@@ -2,7 +2,7 @@ import PlayerOnboarding from './PlayerOnboarding'
 import AuthGateway from './AuthGateway'
 import AccountSecurity from './AccountSecurity'
 import FoundationalAgendaPanel from './FoundationalAgendaPanel'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Activity, useEffect, useMemo, useRef, useState } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, fetchWorld, friendlyError, startGovernment, submitDecision } from './lib/game'
 import { number } from './lib/format'
@@ -299,8 +299,9 @@ export default function App() {
               ? <PlayerOnboarding world={world} /> : null}
           </div>
           <div className="solo-fiscal-extra">
-            {(!mobile || (mobileSection==='status' && statusDetail==='economy'))
-              ? <FiscalPanel key={world.government.id} governmentId={world.government.id} /> : null}
+            <Activity mode={!mobile || (mobileSection==='status' && statusDetail==='economy') ? 'visible' : 'hidden'}>
+              <FiscalPanel key={world.government.id} governmentId={world.government.id} />
+            </Activity>
           </div>
           <main className="government-layout">
             <aside className="side-panel">
@@ -457,17 +458,17 @@ export default function App() {
             </aside>
           </main>
           <div className="solo-deep-insights">
-            {(!mobile || (mobileSection==='status' && statusDetail==='people')) ? <>
+            <Activity mode={!mobile || (mobileSection==='status' && statusDetail==='people') ? 'visible' : 'hidden'}>
               <LivingConditionsPanel governmentId={world.government.id} identity={user?.id ?? ''} />
               <PopulationPanel key={world.government.id + ':' + (user?.id ?? '')}
                 governmentId={world.government.id} identity={user?.id ?? ''} />
-            </> : null}
-            {(!mobile || (mobileSection==='status' && statusDetail==='history')) ? <>
+            </Activity>
+            <Activity mode={!mobile || (mobileSection==='status' && statusDetail==='history') ? 'visible' : 'hidden'}>
               <MandateObservatory governmentId={world.government.id} identity={user?.id ?? ''} />
               <DecisionAnalyticsPanel key={world.government.id}
                 events={world.events} gameDay={world.gameDay}
                 countryName={world.government.country_name} />
-            </> : null}
+            </Activity>
           </div>
         </div>
       )}
