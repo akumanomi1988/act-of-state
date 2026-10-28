@@ -150,6 +150,7 @@ afterEach(cleanup)
 
 describe('ten-party multiplayer assembly', () => {
   it('isolates multiplayer mobile tasks without changing the authoritative world',async()=>{
+    mocks.listMyMatches.mockResolvedValue(currentSummary('active',2))
     mocks.fetchMatchWorld.mockResolvedValue(world('active',2))
     render(<MultiplayerApp/>)
     const nav=await screen.findByRole('navigation',{name:'Navegación de la asamblea'})

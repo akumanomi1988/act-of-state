@@ -100,7 +100,7 @@ describe('browser decision flow with controlled Supabase adapter', () => {
   it('starts directly with decisions and keeps agenda and country one tap away',async()=>{
     mocks.fetchWorld.mockResolvedValue(initial)
     render(<App/>)
-    await screen.findByText('Plan de resiliencia energética')
+    await screen.findByRole('heading',{name:'Plan de resiliencia energética'})
     const nav=screen.getByRole('navigation',{name:'Navegación del gobierno'})
     expect(nav.getAttribute('class')).toContain('mobile-focus-nav')
     expect(nav.querySelector('[aria-current="page"]')).toHaveTextContent('Decidir')
