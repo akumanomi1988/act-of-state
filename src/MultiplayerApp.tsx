@@ -6,7 +6,7 @@ import AccountSecurity from './AccountSecurity'
 import MatchAgendaBoard from './MatchAgendaBoard'
 import WeeklyMissionControl from './WeeklyMissionControl'
 import { buildMatchAgenda } from './lib/multiplayerAgenda'
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { Activity, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, friendlyError, submitDecision } from './lib/game'
 import { number } from './lib/format'
@@ -470,20 +470,23 @@ export default function MultiplayerApp() {
           </div>
           </div>
           <div className="match-mobile-status match-status-economy">
-            {(!mobile || (mobileSection==='status' && statusDetail==='economy')) ?
+            <Activity mode={!mobile || (mobileSection==='status' && statusDetail==='economy') ? 'visible' : 'hidden'}>
               <FiscalPanel key={world.government.id+':'+world.match.host_user_id}
-                governmentId={world.government.id} compact /> : null}
+                governmentId={world.government.id} compact />
+            </Activity>
           </div>
           <div className="match-mobile-status match-status-people">
-            {(!mobile || (mobileSection==='status' && statusDetail==='people')) &&
-              world.match.status==='active' ?
-              <LivingConditionsPanel governmentId={world.government.id} identity={user.id}/> : null}
+            <Activity mode={!mobile || (mobileSection==='status' && statusDetail==='people') ? 'visible' : 'hidden'}>
+              {world.match.status==='active' ?
+                <LivingConditionsPanel governmentId={world.government.id} identity={user.id}/> : null}
+            </Activity>
           </div>
           <div className="match-mobile-status match-status-history">
-            {(!mobile || (mobileSection==='status' && statusDetail==='history')) &&
-              world.match.status==='active' ?
-              <MandateObservatory key={world.match.id+':'+user.id}
-                governmentId={world.government.id} identity={user.id} matchId={world.match.id} /> : null}
+            <Activity mode={!mobile || (mobileSection==='status' && statusDetail==='history') ? 'visible' : 'hidden'}>
+              {world.match.status==='active' ?
+                <MandateObservatory key={world.match.id+':'+user.id}
+                  governmentId={world.government.id} identity={user.id} matchId={world.match.id} /> : null}
+            </Activity>
           </div>
           <div className="match-mobile-activity">
           <div className="match-activity-parties">
@@ -516,7 +519,7 @@ export default function MultiplayerApp() {
           </div>}
           </div>
           <div className="match-activity-inbox">
-          {(!mobile || (mobileSection==='activity' && activityDetail==='inbox')) ?
+          <Activity mode={!mobile || (mobileSection==='activity' && activityDetail==='inbox') ? 'visible' : 'hidden'}>
           <ActionInboxPanel key={world.match.id} matchId={world.match.id}
             onNavigate={(section:InboxSection,dossierId:string|null)=>{
               if(dossierId){
@@ -530,7 +533,8 @@ export default function MultiplayerApp() {
                 // The selected dossier is recomputed from the shared world.
                 window.location.hash='match-dossiers'
               }
-            }}/> : null}
+            }}/>
+          </Activity>
           </div>
           <div className="match-activity-parties">
           <div className="match-seats" aria-label="Partidos de la asamblea">
@@ -548,24 +552,25 @@ export default function MultiplayerApp() {
           </div>
           </div>
           <div className="match-activity-institution">
-          {(!mobile || (mobileSection==='activity' && activityDetail==='institution')) &&
-            world.match.status === 'active' ? <>
-            <MatchCalendarPanel matchId={world.match.id} />
-            <div id="match-history"><WeeklyAccountabilityPanel matchId={world.match.id} /></div>
-          </> : null}
-          {(!mobile || (mobileSection==='activity' && activityDetail==='institution')) ?
+          <Activity mode={!mobile || (mobileSection==='activity' && activityDetail==='institution') ? 'visible' : 'hidden'}>
+            {world.match.status === 'active' ? <>
+              <MatchCalendarPanel matchId={world.match.id} />
+              <div id="match-history"><WeeklyAccountabilityPanel matchId={world.match.id} /></div>
+            </> : null}
             <div id="match-governance"><GovernancePanel matchId={world.match.id} userId={user!.id}
               active={world.match.status === 'active'} players={world.players}
-              onGovernmentChanged={() => setReload(value => value + 1)} /></div> : null}
+              onGovernmentChanged={() => setReload(value => value + 1)} /></div>
+          </Activity>
           </div>
           </div>
           <div className="match-mobile-status match-status-people">
-            {(!mobile || (mobileSection==='status' && statusDetail==='people')) ?
+            <Activity mode={!mobile || (mobileSection==='status' && statusDetail==='people') ? 'visible' : 'hidden'}>
               <PopulationPanel key={world.government.id + ':' + user!.id}
-                governmentId={world.government.id} identity={user!.id} /> : null}
+                governmentId={world.government.id} identity={user!.id} />
+            </Activity>
           </div>
           <div className="match-mobile-elections">
-          {(!mobile || mobileSection==='elections') ? <>
+          <Activity mode={!mobile || mobileSection==='elections' ? 'visible' : 'hidden'}>
           <div id="match-campaign"><CampaignPanel key={world.match.id + ':' + user!.id}
             matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'}
@@ -573,7 +578,7 @@ export default function MultiplayerApp() {
           <div id="match-election"><ElectionPanel matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'}
             onElectionCertified={() => setReload(value => value + 1)} /></div>
-          </> : null}
+          </Activity>
           </div>
           <div className="match-mobile-decide">
           {mobile && <div className="mobile-task-cue" role="status">
@@ -710,10 +715,11 @@ export default function MultiplayerApp() {
           </div>}
           </div>
           <div className="match-mobile-status match-status-history">
-            {(!mobile || (mobileSection==='status' && statusDetail==='history')) ?
+            <Activity mode={!mobile || (mobileSection==='status' && statusDetail==='history') ? 'visible' : 'hidden'}>
               <DecisionAnalyticsPanel key={world.government.id + ':' + world.match.id}
                 events={world.events} gameDay={world.gameDay}
-                countryName={world.government.country_name} /> : null}
+                countryName={world.government.country_name} />
+            </Activity>
           </div>
         </>}
         {notice && <p className="editorial-success" role="status">{notice}</p>}
