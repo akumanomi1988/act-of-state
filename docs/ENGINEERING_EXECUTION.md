@@ -97,6 +97,19 @@ merge to `main` is authorized by routine development work.
 - [x] Exactly F004.4 credited; 57/72 (79.2%), weighted 886/1290
       (68.7%), commercial 2/18 (11.1%) pending exact final-commit CI.
 
+## AOS-058 — Interactive electoral strategy laboratory (2026-10-28)
+
+- [x] Reuse the single authoritative 300-household and six-district
+      D'Hondt calculator for both actual and hypothetical party programmes.
+- [x] Introduce protected read-only PostgREST endpoint with membership,
+      model bounds, server cutoff and no privileged calculator access.
+- [x] Add six-district before/after programme UX and fail-closed client
+      response contracts, including race-proof route/identity switches.
+- [x] Add rollback PostgreSQL, UI, adversarial API and real-GoTrue
+      acceptance; full exact-SHA CI validation is required.
+- [ ] Human 90-day campaign balance and hosted operations are external;
+      this feature does not count as F007.4 or inflate progress.
+
 ## Remaining original-product acceptance gates
 
 The pending technical evidence is in `docs/development-coverage.json`.

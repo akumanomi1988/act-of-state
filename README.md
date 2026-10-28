@@ -22,6 +22,12 @@ Reproduce with `npm run progress`, validate the committed report with
 `docs/development-coverage.json`; neither lines of code nor iterations
 themselves award progress.
 
+**New development-branch gameplay (AOS-058):** A read-only
+[Electoral Strategy Laboratory](docs/STRATEGY_LAB.md) lets a party
+compare national and six-district hypothetical election projections
+before publishing its programme. Membership and electoral deadlines
+are enforced in PostgreSQL; previews do not alter saved state.
+
 **Every decision shapes a nation.**
 
 Free-to-play, browser-based, persistent political simulation. This codebase is independent from Moncloa-AI.

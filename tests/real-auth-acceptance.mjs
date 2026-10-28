@@ -131,6 +131,36 @@ const affectedParty=forecast.projection.parties.find(p=>p.userId===players[9].id
 pass(affectedParty?.campaignInfluenceTotal===campaignAct.influence_after,
   'National election projection discarded time-adjusted campaign influence')
 
+// AOS-058: same server-owned electorate under REAL GoTrue JWTs, with
+// a hypothetical *personal* programme. No signed act or rival mutation.
+const whatIf=await rpc(host,'preview_election_strategy',{
+  p_match_id:match.id,p_policy:25
+})
+pass(whatIf.modelVersion==='electoral-strategy-v1' &&
+  whatIf.playerId===host.id && whatIf.matchId===match.id &&
+  whatIf.proposedPolicy===25 && whatIf.committed===false,
+  'Strategy preview did not preserve authenticated player scope')
+pass(whatIf.current.modelVersion==='electoral-districts-v2' &&
+  JSON.stringify(whatIf.current)===JSON.stringify(forecast.projection),
+  'What-if baseline disagrees with the committed live election')
+pass(whatIf.hypothetical.parties.reduce((n,p)=>n+p.seats,0)===100 &&
+  whatIf.hypothetical.districts.length===6 &&
+  whatIf.hypothetical.districts.reduce((n,d)=>n+d.parties.reduce((s,p)=>s+p.seats,0),0)===100,
+  'Hypothetical district seat mass was not conserved')
+pass(whatIf.hypothetical.parties.find(p=>p.userId===host.id)?.manifestoPolicy===25 &&
+  whatIf.hypothetical.parties.filter(p=>p.userId!==host.id).every(p=>
+    p.manifestoPolicy===forecast.projection.parties.find(x=>x.userId===p.userId)?.manifestoPolicy),
+  'Strategy endpoint changed a rival manifesto or failed to override caller')
+await rejectedRpc(outsider,'preview_election_strategy',{
+  p_match_id:match.id,p_policy:25
+},/MATCH_FORBIDDEN/)
+await rejectedRpc(host,'preview_election_strategy',{
+  p_match_id:match.id,p_policy:101
+},/STRATEGY_INVALID_POLICY/)
+const sameElection=await rpc(host,'get_election_state',{p_match_id:match.id})
+pass(JSON.stringify(sameElection.projection)===JSON.stringify(forecast.projection),
+  'Read-only preview changed the real election state')
+
 const dossierId='energy-resilience'
 const optionId='household-support'
 const votes=await Promise.allSettled(players.map(actor=>

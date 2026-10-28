@@ -25,6 +25,17 @@ For each cohort c and party p:
 
 The immutable election act records the model version, cohort state, programs, vote shares, seat counts, incumbent, winner, due date and certification date.
 
+## AOS-058 read-only Electoral Strategy Laboratory
+
+An active party can simulate its own proposed programme (0–100) before
+the electoral freeze, and compare estimated national seats and all six
+districts with the committed state. This preview does **not** edit
+the manifesto, launch a campaign or certify an election. Both results
+come from the same private SQL calculation, with only the requesting
+party's policy value overridden in a SELECT. Member isolation, authority,
+deadline and no-write verification are covered in
+[the Strategy Lab design and QA record](STRATEGY_LAB.md).
+
 ## Security and transfer of power
 
 All election calculations run in PostgreSQL. Authenticated clients cannot directly read or write the election table. Match-scoped RPCs authorize access.

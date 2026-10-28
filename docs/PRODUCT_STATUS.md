@@ -40,7 +40,7 @@ estimate of remaining engineering hours. This score covers the isolated
 | Multiplayer | Up to ten parties, private invitations/public discovery, lobby withdrawal and readiness | Ten actual accounts and a human playtest |
 | Party positions | Immutable member positions and political affinity | Balance feedback from actual players |
 | Parliament | Weighted votes, proposal windows, binding approval before cabinet execution; permanent reform agenda supported | Full human government/opposition flow |
-| Elections | Household electorate, six constituencies, 100 D'Hondt seats, immutable certification, cabinet succession | Electoral and campaign balance; human acceptance |
+| Elections | Household electorate, six constituencies, 100 D'Hondt seats, immutable certification, cabinet succession and read-only member-authorized manifesto what-if comparisons | Electoral and campaign balance; human acceptance |
 | Campaigns | Weekly party interventions, targeting, caps, pre-election closure, server-owned 2pt/7-day decay and renewed support | Multi-week campaign-voter balance review, empirical coefficients, player feedback |
 | Governance | Consensual coalitions and constructive confidence votes | Human coalition/transition acceptance |
 | History | Decision analytics, weekly accountability, daily polls and welfare history, plus 7/30/90-day strategic observatory with observed gaps and guarded fiscal stress (AOS-053 branch) | Human validation of strategic indicators and long-running storage/traffic observation |

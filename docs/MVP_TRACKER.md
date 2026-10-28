@@ -6,6 +6,21 @@
 **Strict commercial acceptance (updated 2026-10-27):** **2/18 = 11.1%** (T003 + F004). The former 2/18 tally incorrectly credited MVP-T001 even though its hosted backup restoration checkpoint remains pending. This is a scorecard correction, not a loss of functionality.
 This technical-coverage indicator is a measure of explicitly defined scope, not an estimate of remaining engineering hours. Historical iteration evidence below is retained and may describe superseded blockers.
 
+## AOS-058 — Electoral strategy laboratory (2026-10-28)
+
+- Players can now perform an **authoritative, non-persistent** what-if
+  calculation of their own electoral programme, with national vote/seat
+  differences and all six constituency results.
+- The SQL election projection was factored into a shared server-owned
+  function; saved calculations, daily polls and certified election acts
+  still use the identical formula without any override.
+- Read-only RPC restricts previews to active members before the
+  campaign freeze. SQL + GoTrue + TypeScript/React regression suites
+  test seat conservation, isolation, zero mutation and stale responses.
+- [Strategy Lab documentation](STRATEGY_LAB.md). This is an added
+  gameplay capability, **not a completed original F007.4 human-playtest
+  checkpoint**; the original progress percentages remain unchanged.
+
 ## AOS-057 — MVP-F004.4 acceptance completed (2026-10-27)
 
 - INE 2026 household-size projections and 2025 age/municipality reference
