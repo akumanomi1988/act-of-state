@@ -59,6 +59,11 @@ export default function MultiplayerApp() {
   const ownerRef = useRef<string | null>(null)
   const requestRef = useRef(0)
 
+  function navigateMobile(section:'decide'|'activity'|'elections'|'status'|'matches'){
+    setMobileSection(section)
+    if(window.innerWidth<=760)window.scrollTo(0,0)
+  }
+
   function acceptUser(next: User | null) {
     const id = next?.id ?? null
     if (ownerRef.current !== id) {
@@ -352,7 +357,7 @@ export default function MultiplayerApp() {
         {([['decide','Jugar'],['activity','Asamblea'],['elections','Elecciones'],['status','Mi país'],['matches','Partidas']] as const).map(([id,label])=>
           <button type="button" key={id}
             aria-current={mobileSection===id?'page':undefined}
-            onClick={()=>setMobileSection(id)}>{label}</button>)}
+            onClick={()=>navigateMobile(id)}>{label}</button>)}
       </nav>
       <main className="match-layout" data-mobile-screen={mobileSection}>
       <aside className="match-sidebar">
@@ -409,7 +414,7 @@ export default function MultiplayerApp() {
           {matches.length ? matches.map(item => <button key={item.id}
             className={'match-list-item ' + (item.id === activeId ? 'selected' : '')}
             disabled={pending}
-            onClick={() => {setActiveId(item.id);setMobileSection('decide')}}>
+            onClick={() => {setActiveId(item.id);navigateMobile('decide')}}>
             <strong>{item.title}</strong><span>{item.party_name} · {item.player_count}/10 · {item.status}</span>
           </button>) : <p className="muted">No perteneces a ninguna partida todavía.</p>}
         </nav>
@@ -420,7 +425,7 @@ export default function MultiplayerApp() {
         : !world ? <div className="match-empty"><p className="eyebrow">SIN PARTIDA SELECCIONADA</p>
           <h2>Convoca tu primera asamblea.</h2>
           <p className="muted">Crea una partida o usa un código de invitación. Cada cuenta representará un partido distinto.</p>
-          <button type="button" className="primary-button" onClick={()=>setMobileSection('matches')}>Crear o unirme a una partida</button>
+          <button type="button" className="primary-button" onClick={()=>navigateMobile('matches')}>Crear o unirme a una partida</button>
         </div> : <>
           <div className="match-mobile-status"><PlayerOnboarding world={world} /></div>
           <div className="match-heading">

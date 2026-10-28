@@ -201,8 +201,13 @@ export default function App() {
     }
   }
 
+  function navigateMobile(section:'decide'|'agenda'|'status'){
+    setMobileSection(section)
+    if(window.innerWidth<=760)window.scrollTo(0,0)
+  }
+
   function selectDossier(d: Dossier) {
-    setMobileSection('decide')
+    navigateMobile('decide')
     setSelectedKey(dossierKey(d))
     setSelectedEventId(null)
     setOptionId('')
@@ -211,7 +216,7 @@ export default function App() {
   }
 
   function selectHistory(eventId: string) {
-    setMobileSection('decide')
+    navigateMobile('decide')
     setSelectedEventId(eventId)
     setReviewingDecision(false)
     setError('')
@@ -272,7 +277,7 @@ export default function App() {
           <nav className="mobile-focus-nav" aria-label="Navegación del gobierno">
             {([['decide','Decidir'],['agenda','Expedientes'],['status','Mi país']] as const).map(([id,label])=>
               <button key={id} type="button" aria-current={mobileSection===id?'page':undefined}
-                onClick={()=>setMobileSection(id)}>{label}</button>)}
+                onClick={()=>navigateMobile(id)}>{label}</button>)}
           </nav>
           <div className="solo-instructions"><PlayerOnboarding world={world} /></div>
           <div className="solo-fiscal-extra"><FiscalPanel key={world.government.id} governmentId={world.government.id} /></div>
@@ -317,7 +322,7 @@ export default function App() {
                 onSelect={selectDossier} />
             </aside>
             <section className="main-panel" aria-label="Expediente político">
-              <button type="button" className="mobile-switch-panel" onClick={()=>setMobileSection('agenda')}>
+              <button type="button" className="mobile-switch-panel" onClick={()=>navigateMobile('agenda')}>
                 Cambiar expediente
               </button>
               {needsReconciliation && <div className="fictitious-notice" role="status">
