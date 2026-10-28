@@ -1,0 +1,134 @@
+/*
+ * AOS-059 — Mobile task-first navigation.
+ * Preserve the existing institutional palette and desktop surfaces.
+ * On narrow screens the user views ONE functional area at a time.
+ * The source components stay mounted; no game state is duplicated.
+ */
+.mobile-focus-nav,.mobile-switch-panel{display:none}
+.solo-workspace{display:flex;flex:1;flex-direction:column;min-width:0}
+.solo-workspace>.government-layout{flex:1}
+@media(max-width:760px){
+  :root{scroll-padding-top:66px}
+  body{overflow-x:hidden}
+  .app-shell{min-width:0}
+  .masthead{gap:9px;padding:12px 14px;min-height:60px}
+  .brand-symbol{width:32px;height:32px;min-width:32px;font-size:12px}
+  .wordmark{font-size:16px}
+  .brand-caption{font-size:7px;letter-spacing:.05em}
+  .brand-group{gap:8px}
+  .header-end{gap:7px;font-size:10px}
+  .header-end a[href="/guide"],.header-end a[href="/status"],
+  .header-end a[href="/demo"],.header-end a[href="/editorial"]{display:none}
+  .header-end .online-dot{display:none}
+  .header-end .text-button{padding:8px;font-size:10px}
+  .session-strip{padding:10px 14px;gap:6px;font-size:9px}
+  .session-strip span:first-child{display:none}
+  .mobile-focus-nav{
+    position:sticky;top:0;z-index:22;display:flex;gap:5px;
+    overflow-x:auto;overscroll-behavior-x:contain;
+    padding:8px max(12px,env(safe-area-inset-left)) 9px;
+    background:#12191bf5;border-block:1px solid var(--line);
+    box-shadow:0 6px 18px #0005;
+    scrollbar-width:thin;
+  }
+  .mobile-focus-nav button{
+    flex:1 0 auto;white-space:nowrap;min-width:0;min-height:44px;
+    border:1px solid #465150;border-radius:3px;
+    background:var(--panel);color:var(--text);
+    font-size:12px;font-weight:600;padding:10px 12px;
+  }
+  .mobile-focus-nav button[aria-current="page"]{
+    border-color:var(--gold);background:#39372d;color:var(--gold-strong);
+    box-shadow:inset 0 -2px 0 var(--gold);
+  }
+  .mobile-focus-nav button:focus-visible,.mobile-switch-panel:focus-visible{
+    outline:3px solid var(--gold-strong);outline-offset:2px;
+  }
+  .mobile-switch-panel{
+    display:inline-flex;align-items:center;min-height:44px;
+    margin-bottom:14px;padding:10px 14px;
+    color:var(--gold-strong);background:transparent;border:1px solid var(--gold);
+  }
+  .solo-workspace .government-layout{display:block}
+  .solo-workspace .side-panel,.solo-workspace .main-panel,
+  .solo-workspace .metrics-panel{min-height:0;padding:17px 15px 24px}
+  .solo-workspace .side-panel h1{font-size:27px;margin:8px 0}
+  .solo-workspace .main-panel h2{font-size:clamp(25px,6vw,34px);margin:8px 0 16px}
+  .solo-workspace .day-card{margin:14px 0;padding:12px}
+  .solo-workspace .weekly-card{margin:14px 0;padding:14px}
+  .solo-workspace .main-panel .choice-card{padding:14px}
+  .solo-workspace .main-panel .decide{min-height:48px}
+  .solo-workspace .main-panel .dossier-context{font-size:14px;line-height:1.65}
+  .solo-workspace[data-mobile-screen="decide"] .side-panel,
+  .solo-workspace[data-mobile-screen="decide"] .metrics-panel,
+  .solo-workspace[data-mobile-screen="agenda"] .main-panel,
+  .solo-workspace[data-mobile-screen="agenda"] .metrics-panel,
+  .solo-workspace[data-mobile-screen="status"] .main-panel,
+  .solo-workspace[data-mobile-screen="status"] .side-panel,
+  .solo-workspace:not([data-mobile-screen="status"]) .solo-fiscal-extra,
+  .solo-workspace:not([data-mobile-screen="status"]) .solo-deep-insights,
+  .solo-workspace:not([data-mobile-screen="status"]) .solo-instructions{
+    display:none;
+  }
+  .solo-workspace[data-mobile-screen="status"] .mobile-switch-panel,
+  .solo-workspace[data-mobile-screen="agenda"] .mobile-switch-panel{display:none}
+  .solo-workspace .metrics-panel{border-top:none}
+  .solo-workspace .solo-deep-insights>*{margin-inline:0;max-width:100%}
+  .match-layout{display:block}
+  .match-sidebar,.match-main{min-width:0;padding:14px 15px 24px}
+  .match-main{background:transparent}
+  .match-layout[data-mobile-screen="matches"] .match-main,
+  .match-layout:not([data-mobile-screen="matches"]) .match-sidebar,
+  .match-mobile-status,.match-mobile-activity,
+  .match-mobile-elections,.match-mobile-decide{display:none}
+  .match-layout[data-mobile-screen="status"] .match-mobile-status,
+  .match-layout[data-mobile-screen="activity"] .match-mobile-activity,
+  .match-layout[data-mobile-screen="elections"] .match-mobile-elections,
+  .match-layout[data-mobile-screen="decide"] .match-mobile-decide{display:block}
+  .match-sidebar{border:none}
+  .match-sidebar h1{font-size:27px;margin:6px 0 15px}
+  .match-heading{display:flex;flex-direction:row;align-items:center;
+    flex-wrap:wrap;margin:0 0 14px}
+  .match-heading>div{flex:1 1 200px}
+  .match-heading h1{font-size:clamp(24px,6vw,30px);margin:4px 0}
+  .match-heading .text-button{min-height:44px}
+  .match-empty{padding:28px 0 20px}
+  .match-metrics{grid-template-columns:repeat(2,minmax(0,1fr));margin:15px 0}
+  .match-metrics>div{padding:13px}
+  .match-invite{margin:10px 0 15px}
+  .match-seats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .match-seat{min-height:72px;padding:10px}
+  .match-dossier{padding:16px}
+  .match-dossier h3{font-size:24px}
+  .match-dossier>p:not(.eyebrow){font-size:13px;line-height:1.6}
+  .match-politics{padding-top:8px;border-top:0}
+  .match-waiting{padding-top:15px}
+  .match-entry{padding:24px 16px 35px;min-height:auto;justify-content:flex-start}
+  .match-entry h1{font-size:29px}
+  .entry-layout{display:flex;flex-direction:column;gap:18px;padding:14px 14px 30px}
+  .entry-layout .login-panel{order:-1;width:100%;padding:21px 17px}
+  .entry-layout .login-panel h2{font-size:26px;margin:8px 0 20px}
+  .entry-layout .hero-intro{padding:12px 2px;margin:0}
+  .entry-layout .hero-intro h1{font-size:22px;margin:7px 0 9px}
+  .entry-layout .hero-intro p{font-size:12px;line-height:1.55}
+  .entry-layout .hero-intro .caveat{display:none}
+  .entry-layout .hero-intro .primary-button{display:inline-block;padding:11px;font-size:12px}
+  .auth-gateway{gap:11px}
+  .auth-modes{grid-template-columns:1fr 1fr;gap:7px}
+  .auth-modes button{min-height:46px;padding:10px;font-size:12px}
+  .auth-form input{min-height:48px}
+  .auth-alternatives{border-top:1px solid var(--line);padding-top:12px}
+  .auth-alternatives summary{cursor:pointer;color:var(--gold-strong);
+    font-size:12px;line-height:1.6}
+  .auth-alternative-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .auth-alternative-buttons button{min-height:44px;background:transparent;
+    color:var(--text);border:1px solid var(--line);padding:8px 12px;font-size:12px}
+  .footer{padding:14px 16px;font-size:9px;gap:8px}
+}
+@media(min-width:761px){
+  .auth-alternatives{border-top:1px solid var(--line);padding-top:12px}
+  .auth-alternatives summary{color:var(--muted);cursor:pointer;font-size:12px}
+  .auth-alternative-buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .auth-alternative-buttons button{min-height:40px;border:1px solid var(--line);
+    background:transparent;color:var(--text);padding:8px 12px}
+}
