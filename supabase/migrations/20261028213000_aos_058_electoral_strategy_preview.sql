@@ -121,7 +121,7 @@ begin
  return game_internal._strategy_projection_core(p_match_id,null::uuid,null::smallint);
 end $$;
 
-create function public.preview_election_strategy(p_match_id uuid,p_policy smallint)
+create function public.preview_election_strategy(p_match_id uuid,p_policy integer)
 returns jsonb language plpgsql stable security definer set search_path='' as $$
 declare v_user uuid:=auth.uid();
  v_match public.matches%rowtype;
@@ -143,13 +143,13 @@ begin
  if v_due is null or v_day>v_due-7 then
    raise exception 'STRATEGY_CAMPAIGN_CLOSED' using errcode='P0001';end if;
  v_actual:=game_internal._strategy_projection_core(p_match_id,null::uuid,null::smallint);
- v_proposed:=game_internal._strategy_projection_core(p_match_id,v_user,p_policy);
+ v_proposed:=game_internal._strategy_projection_core(p_match_id,v_user,p_policy::smallint);
  return jsonb_build_object(
    'modelVersion','electoral-strategy-v1','matchId',p_match_id,
    'playerId',v_user,'serverDay',v_day::text,'proposedPolicy',p_policy,
    'current',v_actual,'hypothetical',v_proposed,'committed',false);
 end $$;
-revoke all on function public.preview_election_strategy(uuid,smallint)
+revoke all on function public.preview_election_strategy(uuid,integer)
  from public,anon;
-grant execute on function public.preview_election_strategy(uuid,smallint)
+grant execute on function public.preview_election_strategy(uuid,integer)
  to authenticated;

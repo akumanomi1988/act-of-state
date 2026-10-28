@@ -35,7 +35,7 @@ begin
   from jsonb_array_elements(current_state->'parties') x
   where x->>'userId'=auth.uid()::text);
  for original_policy in select unnest(array[0,25,50,75,100]) loop
-  preview:=public.preview_election_strategy(mid,original_policy::smallint);
+  preview:=public.preview_election_strategy(mid,original_policy);
   if preview->>'matchId'<>mid::text or
      preview->>'playerId'<>auth.uid()::text or
      preview->>'modelVersion'<>'electoral-strategy-v1' or
@@ -94,11 +94,11 @@ begin
  or exists(select 1 from public.decision_events d
    where d.government_id=(select government_id from pg_temp.strategy_fixture)) then
   raise exception 'STRATEGY_CREATED_GAME_ACTS';end if;
- if has_function_privilege('anon','public.preview_election_strategy(uuid,smallint)','EXECUTE')
+ if has_function_privilege('anon','public.preview_election_strategy(uuid,integer)','EXECUTE')
  or has_function_privilege('authenticated',
     'game_internal._strategy_projection_core(uuid,uuid,smallint)','EXECUTE')
  or not has_function_privilege('authenticated',
-    'public.preview_election_strategy(uuid,smallint)','EXECUTE') then
+    'public.preview_election_strategy(uuid,integer)','EXECUTE') then
   raise exception 'STRATEGY_API_GRANTS_BROKEN';end if;
 end $read$;
 
