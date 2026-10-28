@@ -17,6 +17,7 @@ export default function AuthGateway({ redirectTo }: { redirectTo: string }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmation, setConfirmation] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [pending, setPending] = useState(false)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
@@ -26,6 +27,7 @@ export default function AuthGateway({ redirectTo }: { redirectTo: string }) {
     setMode(next)
     setPassword('')
     setConfirmation('')
+    setShowPassword(false)
     setError('')
     setNotice('')
   }
@@ -79,13 +81,13 @@ export default function AuthGateway({ redirectTo }: { redirectTo: string }) {
   }
 
   return <div className="auth-gateway">
-    <div className="auth-modes" role="group" aria-label="Método de acceso">
-      {(['login', 'register', 'magic', 'reset'] as const).map(value =>
+    <div className="auth-modes" role="group" aria-label="Acceso principal">
+      {(['login', 'register'] as const).map(value =>
         <button key={value} type="button" aria-pressed={mode === value}
           disabled={pending} onClick={() => choose(value)}>{modeLabels[value]}</button>)}
     </div>
     <p className="auth-explainer">
-      {mode === 'login' ? 'Entra sin esperar un correo en cada sesión.' :
+      {mode === 'login' ? 'Accede con tu correo y contraseña. No se envía ningún correo para entrar.' :
         mode === 'register' ? 'Regístrate con contraseña. Puede ser necesaria una única confirmación del correo.' :
         mode === 'magic' ? 'Para cuentas antiguas sin contraseña. Tras entrar, configúrala desde Seguridad de la cuenta.' :
         'Recibirás un único enlace para recuperar tu contraseña.'}
@@ -97,11 +99,15 @@ export default function AuthGateway({ redirectTo }: { redirectTo: string }) {
         placeholder="tu@correo.es" disabled={pending} />
       {(mode === 'login' || mode === 'register') && <>
         <label htmlFor={id + '-password'}>Contraseña</label>
-        <input id={id + '-password'} type="password" required
+        <input id={id + '-password'} type={showPassword ? 'text' : 'password'} required
           minLength={mode === 'register' ? 12 : undefined} maxLength={128}
           autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
           value={password} onChange={event => setPassword(event.target.value)}
           disabled={pending} />
+        <button className="auth-password-toggle" type="button" disabled={pending}
+          aria-pressed={showPassword} onClick={()=>setShowPassword(visible=>!visible)}>
+          {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+        </button>
       </>}
       {mode === 'register' && <>
         <label htmlFor={id + '-confirm'}>Confirmar contraseña</label>
@@ -115,6 +121,18 @@ export default function AuthGateway({ redirectTo }: { redirectTo: string }) {
           'Enviar enlace' : 'Solicitar recuperación'}
       </button>
     </form>
+    <details className="auth-alternatives">
+      <summary>¿Olvidaste tu contraseña o tienes una cuenta antigua?</summary>
+      <div className="auth-alternative-buttons">
+        {(['reset','magic'] as const).map(value=>
+          <button type="button" key={value} disabled={pending}
+            aria-pressed={mode===value} onClick={()=>choose(value)}>{modeLabels[value]}</button>)}
+        {(mode==='reset'||mode==='magic') &&
+          <button type="button" disabled={pending} onClick={()=>choose('login')}>
+            Volver a contraseña
+          </button>}
+      </div>
+    </details>
     {notice && <p className="auth-notice" role="status">{notice}</p>}
     {error && <p className="auth-error" role="alert">{error}</p>}
   </div>

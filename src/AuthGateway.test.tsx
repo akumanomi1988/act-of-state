@@ -72,6 +72,7 @@ describe('shared account access', () => {
 
   it('keeps link access only as an opt-in recovery path for existing accounts', async () => {
     render(<AuthGateway redirectTo="https://game.example/multiplayer?invite=abc" />)
+    fireEvent.click(screen.getByText('¿Olvidaste tu contraseña o tienes una cuenta antigua?'))
     fireEvent.click(screen.getByRole('button', { name: 'Acceder por correo' }))
     email('legacy@example.com')
     fireEvent.click(screen.getByRole('button', { name: 'Enviar enlace' }))
@@ -87,12 +88,24 @@ describe('shared account access', () => {
 
   it('requests a reset without disclosing whether an account exists', async () => {
     render(<AuthGateway redirectTo="https://game.example/editorial" />)
+    fireEvent.click(screen.getByText('¿Olvidaste tu contraseña o tienes una cuenta antigua?'))
     fireEvent.click(screen.getByRole('button', { name: 'Recuperar contraseña' }))
     email('person@example.com')
     fireEvent.click(screen.getByRole('button', { name: 'Solicitar recuperación' }))
     await waitFor(() => expect(mocks.resetPasswordForEmail).toHaveBeenCalledWith(
       'person@example.com', { redirectTo: 'https://game.example/editorial' }))
     expect(screen.getByRole('status')).toHaveTextContent('Si la cuenta existe')
+  })
+
+  it('keeps legacy email links secondary and can show/hide a password', () => {
+    render(<AuthGateway redirectTo="https://game.example/" />)
+    expect(screen.queryByRole('button',{name:'Acceder por correo'})).not.toBeInTheDocument()
+    const field=screen.getByLabelText('Contraseña')
+    expect(field).toHaveAttribute('type','password')
+    fireEvent.click(screen.getByRole('button',{name:'Mostrar contraseña'}))
+    expect(field).toHaveAttribute('type','text')
+    fireEvent.click(screen.getByRole('button',{name:'Ocultar contraseña'}))
+    expect(field).toHaveAttribute('type','password')
   })
 
   it('shows authentication failures without claiming login succeeded', async () => {

@@ -268,13 +268,13 @@ export default function App() {
         </main>
       ) : (
         <div className="solo-workspace" data-mobile-screen={mobileSection}>
-          <div className="solo-instructions"><PlayerOnboarding world={world} /></div>
           <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
           <nav className="mobile-focus-nav" aria-label="Navegación del gobierno">
             {([['decide','Decidir'],['agenda','Expedientes'],['status','Mi país']] as const).map(([id,label])=>
               <button key={id} type="button" aria-current={mobileSection===id?'page':undefined}
                 onClick={()=>setMobileSection(id)}>{label}</button>)}
           </nav>
+          <div className="solo-instructions"><PlayerOnboarding world={world} /></div>
           <div className="solo-fiscal-extra"><FiscalPanel key={world.government.id} governmentId={world.government.id} /></div>
           <main className="government-layout">
             <aside className="side-panel">
