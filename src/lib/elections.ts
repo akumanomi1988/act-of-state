@@ -165,6 +165,64 @@ export async function fetchElectionState(matchId: string): Promise<ElectionState
   return validateElectionState(data,matchId)
 }
 
+export interface StrategyPreview {
+ modelVersion: 'electoral-strategy-v1'
+ matchId: string
+ playerId: string
+ serverDay: string
+ proposedPolicy: number
+ current: ElectionProjection
+ hypothetical: ElectionProjection
+ committed: false
+}
+
+// A strategy read MUST never authorize the implementation of a new policy.
+// Validate both server projections and the scope/immutable counterfactual rules.
+export function validateStrategyPreview(
+ raw: unknown, matchId: string, userId: string, policy: number
+): StrategyPreview {
+ const fail=():never=>{throw new Error('ELECTION_STRATEGY_INVALID_RESPONSE')}
+ if(!obj(raw) || raw.modelVersion!=='electoral-strategy-v1' ||
+   raw.matchId!==matchId || raw.playerId!==userId ||
+   raw.proposedPolicy!==policy || raw.committed!==false ||
+   !isUtcDay(raw.serverDay) ||
+   !validProjection(raw.current) || !validProjection(raw.hypothetical) ||
+   raw.current.modelVersion!==raw.hypothetical.modelVersion ||
+   raw.current.modelVersion!=='electoral-districts-v2') return fail()
+ const current=raw.current as ElectionProjection
+ const hypothetical=raw.hypothetical as ElectionProjection
+ if(!current.parties.some(p=>p.userId===userId) ||
+   current.parties.length!==hypothetical.parties.length ||
+   JSON.stringify(current.cohorts)!==JSON.stringify(hypothetical.cohorts) ||
+   current.householdSampleSize!==hypothetical.householdSampleSize ||
+   !current.districts || !hypothetical.districts) return fail()
+ for(const party of current.parties){
+   const next=hypothetical.parties.find(p=>p.userId===party.userId)
+   if(!next || next.seatNo!==party.seatNo || next.partyName!==party.partyName ||
+     next.manifestoPolicy!==(party.userId===userId?policy:party.manifestoPolicy) ||
+     next.campaignInfluenceTotal!==party.campaignInfluenceTotal) return fail()
+ }
+ for(const district of current.districts){
+   const next=hypothetical.districts.find(d=>d.code===district.code)
+   if(!next || next.seats!==district.seats ||
+     next.households!==district.households || next.residents!==district.residents ||
+     next.label!==district.label) return fail()
+ }
+ return raw as unknown as StrategyPreview
+}
+
+export async function fetchStrategyPreview(
+ matchId: string, userId: string, policy: number
+): Promise<StrategyPreview> {
+ if(!Number.isInteger(policy)||policy<0||policy>100)
+   throw new Error('ELECTION_INVALID_POLICY')
+ const {data,error}=await requireClient().rpc('preview_election_strategy',{
+   p_match_id:matchId,p_policy:policy
+ })
+ if(error)throw error
+ return validateStrategyPreview(data,matchId,userId,policy)
+}
+
 export async function setPartyManifesto(matchId: string, policy: number): Promise<void> {
   if (!Number.isInteger(policy) || policy < 0 || policy > 100)
     throw new Error('ELECTION_INVALID_POLICY')
