@@ -22,6 +22,12 @@ Reproduce with `npm run progress`, validate the committed report with
 `docs/development-coverage.json`; neither lines of code nor iterations
 themselves award progress.
 
+**Mobile usability update (AOS-059, development only):**
+[Task-first solo/multiplayer navigation](docs/MOBILE_UX_REDESIGN.md)
+shows one area at a time on phones, prioritizes the decision, and
+keeps email/password as the normal login (email links are optional recovery).
+The public hosted release remains unchanged until an approved deployment.
+
 **New development-branch gameplay (AOS-058):** A read-only
 [Electoral Strategy Laboratory](docs/STRATEGY_LAB.md) lets a party
 compare national and six-district hypothetical election projections

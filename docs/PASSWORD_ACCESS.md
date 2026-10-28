@@ -1,10 +1,12 @@
-# AOS-050 — Password-first access (not yet released)
+# AOS-050/AOS-059 — Password-first access (development branch; not yet released)
 
 ## User-facing contract
 
 ACT OF STATE uses one account across solo government, multiplayer assemblies and the
 editorial role-gated console. On all three surfaces, email + password is the primary
-sign-in method. It does not send a login email. Creating an account may require
+sign-in method. It does not send a login email. Mobile and desktop
+login now show only password access and account creation as primary options;
+legacy email links and reset are found under expandable help. Creating an account may require
 **one** email confirmation according to the Supabase Auth provider configuration.
 Existing email-link users sign in once via the optional "Acceder por correo" path
 and set a password from "Seguridad de la cuenta · Contraseña". Email links never
