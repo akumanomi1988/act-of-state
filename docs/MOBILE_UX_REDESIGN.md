@@ -112,11 +112,13 @@ Implemented changes:
 - A reusable, keyboard-accessible nested navigation introduces
   `Resumen / Economía / Población / Historial` in Solo and Multiplayer.
   `Asamblea` now offers `Avisos / Partidos / Instituciones`.
-- Mobile React no longer mounts hidden social, population, fiscal,
-  historical, election and campaign panels until their corresponding
-  view is selected. Switching user or match does not cache data from
-  another user's games; components still use original authorized RPCs.
-  On desktop, all existing panels remain visible.
+- Heavy social, population, fiscal, historical and electoral panels
+  use React 19.2 `Activity`: background effects are disconnected while
+  a view is hidden, but the user's expanded reports and filter state
+  survive switching to another task. Initial hidden views do not issue
+  active data requests. A match or account switch still unmounts the
+  old match-owned subtree, preventing private data from being shared.
+  On desktop the full historical layout remains available.
 - The current task gains a concise, state-derived next-action cue
   without fabricating decision success or certified election results.
 - Multiplayer decision history becomes a disclosure instead of
@@ -127,8 +129,8 @@ Implemented changes:
   bottom navigation, not obscured behind it.
 
 **Skill references applied:** Vercel React Best Practices:
-`bundle-conditional` (only mount data-fetching modules when the player
-needs them), `rerender-derived-state-no-effect` (derive cues directly
+`rendering-activity` (preserve view state without active hidden
+effects), `bundle-conditional` (defer expensive feature work), `rerender-derived-state-no-effect` (derive cues directly
 from authoritative state), `rendering-conditional-render` (explicit
 conditions), and `client-event-listeners` (share one responsive
 subscription hook rather than per-panel listeners). Usability
