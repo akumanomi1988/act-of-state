@@ -5,6 +5,7 @@ import {
 } from './lib/elections'
 import { matchError } from './lib/multiplayer'
 import OpinionHistoryPanel from './OpinionHistoryPanel'
+import ElectionStrategyLab from './ElectionStrategyLab'
 
 interface Props {
   matchId: string
@@ -159,6 +160,11 @@ export default function ElectionPanel({
         </button>
         {!campaignOpen && <p role="status">Campaña cerrada: los programas están congelados.</p>}
       </div>}
+      {me && state.projection.modelVersion==='electoral-districts-v2' && <ElectionStrategyLab
+        matchId={matchId} userId={userId} policy={current} projection={state.projection}
+        serverDay={state.serverDay} active={active} campaignOpen={campaignOpen}
+        blocked={busy}
+      />}
       {active && state.canCertify && <div className="election-certify">
         <p>Ha llegado la fecha electoral. Cualquier partido puede solicitar el
           escrutinio; la base de datos calcula y certifica el resultado una sola vez.</p>
