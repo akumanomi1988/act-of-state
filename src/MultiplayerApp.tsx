@@ -42,6 +42,7 @@ export default function MultiplayerApp() {
   const [joiningParty, setJoiningParty] = useState('')
   const [matches, setMatches] = useState<MatchSummary[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [mobileSection, setMobileSection] = useState<'decide' | 'activity' | 'elections' | 'status' | 'matches'>('decide')
   const [world, setWorld] = useState<MatchWorld | null>(null)
   const [selectedDossierId, setSelectedDossierId] = useState<string | null>(null)
   const [selectedOptionId, setSelectedOptionId] = useState('')
@@ -65,6 +66,7 @@ export default function MultiplayerApp() {
       requestRef.current += 1
       setPending(false)
       setActiveId(null)
+      setMobileSection('decide')
       setWorld(null)
       setMandateOptionId(null)
       setUncertainDossierId(null)
@@ -115,6 +117,7 @@ export default function MultiplayerApp() {
   }, [user?.id, reload])
 
   useEffect(() => {
+    setMobileSection('decide')
     if (!user || !activeId) { setWorld(null); return }
     const owner = user.id
     const id = activeId
@@ -344,7 +347,14 @@ export default function MultiplayerApp() {
         invitationUrl(window.location.origin, inviteCode) : window.location.origin + '/multiplayer'} />
       {error && <p role="alert" className="editorial-alert">{error}</p>}
     </main>
-    : <main className="match-layout">
+    : <>
+      <nav className="mobile-focus-nav" aria-label="Navegación de la asamblea">
+        {([['decide','Jugar'],['activity','Asamblea'],['elections','Elecciones'],['status','Mi país'],['matches','Partidas']] as const).map(([id,label])=>
+          <button type="button" key={id}
+            aria-current={mobileSection===id?'page':undefined}
+            onClick={()=>setMobileSection(id)}>{label}</button>)}
+      </nav>
+      <main className="match-layout" data-mobile-screen={mobileSection}>
       <aside className="match-sidebar">
         <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />
         <p className="eyebrow">CENTRO DE PARTIDAS</p><h1>Tu asamblea</h1>
@@ -399,7 +409,7 @@ export default function MultiplayerApp() {
           {matches.length ? matches.map(item => <button key={item.id}
             className={'match-list-item ' + (item.id === activeId ? 'selected' : '')}
             disabled={pending}
-            onClick={() => setActiveId(item.id)}>
+            onClick={() => {setActiveId(item.id);setMobileSection('decide')}}>
             <strong>{item.title}</strong><span>{item.party_name} · {item.player_count}/10 · {item.status}</span>
           </button>) : <p className="muted">No perteneces a ninguna partida todavía.</p>}
         </nav>
@@ -410,14 +420,16 @@ export default function MultiplayerApp() {
         : !world ? <div className="match-empty"><p className="eyebrow">SIN PARTIDA SELECCIONADA</p>
           <h2>Convoca tu primera asamblea.</h2>
           <p className="muted">Crea una partida o usa un código de invitación. Cada cuenta representará un partido distinto.</p>
+          <button type="button" className="primary-button" onClick={()=>setMobileSection('matches')}>Crear o unirme a una partida</button>
         </div> : <>
-          <PlayerOnboarding world={world} />
+          <div className="match-mobile-status"><PlayerOnboarding world={world} /></div>
           <div className="match-heading">
             <div><p className="eyebrow">PARTIDA {world.match.status === 'lobby' ? 'EN PREPARACIÓN' : 'ACTIVA'}</p>
               <h1>{world.match.title}</h1><p className="muted">Día de juego {world.gameDay} · {world.government.country_name}</p></div>
             <button className="text-button" onClick={() => setReload(value => value + 1)}
               disabled={pending}>Actualizar estado</button>
           </div>
+          <div className="match-mobile-status">
           <div className="match-metrics">
             <div><span>TESORO PÚBLICO</span><strong>{number(world.government.treasury_m_eur)} M€</strong></div>
             <div><span>APROBACIÓN</span><strong>{world.government.approval}%</strong></div>
@@ -431,6 +443,8 @@ export default function MultiplayerApp() {
           {world.match.status === 'active' && <MandateObservatory
             key={world.match.id+':'+user.id} governmentId={world.government.id}
             identity={user.id} matchId={world.match.id} />}
+          </div>
+          <div className="match-mobile-activity">
           <div className="match-invite">
             <div><span>INVITACIÓN A LA ASAMBLEA</span>
               <code>{world.match.invite_code}</code>
@@ -467,6 +481,7 @@ export default function MultiplayerApp() {
                 setMandateOptionId(null)
               }
               if(section==='dossiers'||section==='parliament'){
+                setMobileSection('decide')
                 // The selected dossier is recomputed from the shared world.
                 window.location.hash='match-dossiers'
               }
@@ -491,8 +506,12 @@ export default function MultiplayerApp() {
           <div id="match-governance"><GovernancePanel matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'} players={world.players}
             onGovernmentChanged={() => setReload(value => value + 1)} /></div>
+          </div>
+          <div className="match-mobile-status">
           <PopulationPanel key={world.government.id + ':' + user!.id}
             governmentId={world.government.id} identity={user!.id} />
+          </div>
+          <div className="match-mobile-elections">
           <div id="match-campaign"><CampaignPanel key={world.match.id + ':' + user!.id}
             matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'}
@@ -500,6 +519,8 @@ export default function MultiplayerApp() {
           <div id="match-election"><ElectionPanel matchId={world.match.id} userId={user!.id}
             active={world.match.status === 'active'}
             onElectionCertified={() => setReload(value => value + 1)} /></div>
+          </div>
+          <div className="match-mobile-decide">
           {world.match.status === 'lobby' ? <div className="match-waiting" id="match-lobby">
             <h2>Convocatoria abierta</h2>
             <p>La partida comienza con al menos dos partidos. Las plazas se bloquean
@@ -538,6 +559,7 @@ export default function MultiplayerApp() {
             <WeeklyMissionControl key={world.match.id+':'+user!.id}
               world={world} userId={user!.id}
               onSelect={id => {
+                setMobileSection('decide')
                 setSelectedDossierId(id)
                 setSelectedOptionId('')
                 setReviewCabinet(false)
@@ -625,14 +647,17 @@ export default function MultiplayerApp() {
               </div>)}
             </div>
           </div>}
+          </div>
+          <div className="match-mobile-status">
           <DecisionAnalyticsPanel key={world.government.id + ':' + world.match.id}
             events={world.events} gameDay={world.gameDay}
             countryName={world.government.country_name} />
+          </div>
         </>}
         {notice && <p className="editorial-success" role="status">{notice}</p>}
         {error && <p className="editorial-alert" role="alert">{error}</p>}
       </section>
-    </main>}
+    </main></>}
     <footer className="footer"><span>ACT OF STATE · EVERY DECISION SHAPES A NATION</span>
       <span>10 PARTY CAP · AUTHORITATIVE SHARED STATE</span></footer>
   </div>
