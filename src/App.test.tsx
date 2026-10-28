@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { within, act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DecisionEvent, GovernmentWorld } from './lib/types'
 import App from './App'
@@ -112,13 +112,13 @@ describe('browser decision flow with controlled Supabase adapter', () => {
     expect(root).toHaveAttribute('data-mobile-screen','status')
     const insightNav=screen.getByRole('navigation',{name:'Apartados de Mi país'})
     expect(insightNav).toHaveTextContent('Resumen')
-    fireEvent.click(screen.getByRole('button',{name:'Población'}))
+    fireEvent.click(within(insightNav).getByRole('button',{name:'Población'}))
     expect(root).toHaveAttribute('data-mobile-detail','people')
-    fireEvent.click(screen.getByRole('button',{name:'Economía'}))
+    fireEvent.click(within(insightNav).getByRole('button',{name:'Economía'}))
     expect(root).toHaveAttribute('data-mobile-detail','economy')
-    fireEvent.click(screen.getByRole('button',{name:'Historial'}))
+    fireEvent.click(within(insightNav).getByRole('button',{name:'Historial'}))
     expect(root).toHaveAttribute('data-mobile-detail','history')
-    fireEvent.click(screen.getByRole('button',{name:'Resumen'}))
+    fireEvent.click(within(insightNav).getByRole('button',{name:'Resumen'}))
     expect(root).toHaveAttribute('data-mobile-detail','overview')
     fireEvent.click(screen.getByRole('button',{name:'Decidir'}))
     expect(root).toHaveAttribute('data-mobile-screen','decide')

@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { within, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { MatchWorld } from './lib/multiplayer'
 import MultiplayerApp from './MultiplayerApp'
@@ -163,17 +163,18 @@ describe('ten-party multiplayer assembly', () => {
       expect(workspace).toHaveAttribute('data-mobile-screen',id)
     }
     fireEvent.click(screen.getByRole('button',{name:'Mi país'}))
-    expect(screen.getByRole('navigation',{name:'Apartados de Mi país'})).toHaveTextContent('Economía')
-    fireEvent.click(screen.getByRole('button',{name:'Población'}))
+    const statusNav=screen.getByRole('navigation',{name:'Apartados de Mi país'})
+    expect(statusNav).toHaveTextContent('Economía')
+    fireEvent.click(within(statusNav).getByRole('button',{name:'Población'}))
     expect(workspace).toHaveAttribute('data-mobile-detail','people')
-    fireEvent.click(screen.getByRole('button',{name:'Historial'}))
+    fireEvent.click(within(statusNav).getByRole('button',{name:'Historial'}))
     expect(workspace).toHaveAttribute('data-mobile-detail','history')
     fireEvent.click(screen.getByRole('button',{name:'Asamblea'}))
     const activityNav=screen.getByRole('navigation',{name:'Apartados de la asamblea'})
     expect(activityNav).toHaveTextContent('Avisos')
-    fireEvent.click(screen.getByRole('button',{name:'Partidos'}))
+    fireEvent.click(within(activityNav).getByRole('button',{name:'Partidos'}))
     expect(workspace).toHaveAttribute('data-mobile-activity','parties')
-    fireEvent.click(screen.getByRole('button',{name:'Instituciones'}))
+    fireEvent.click(within(activityNav).getByRole('button',{name:'Instituciones'}))
     expect(workspace).toHaveAttribute('data-mobile-activity','institution')
     expect(mocks.submitDecision).not.toHaveBeenCalled()
   })
