@@ -158,7 +158,7 @@ describe('ten-party multiplayer assembly', () => {
     expect(workspace).toHaveAttribute('data-mobile-screen','decide')
     for(const [label,id] of [['Partidas','matches'],['Asamblea','activity'],
       ['Elecciones','elections'],['Mi país','status'],['Jugar','decide']] as const){
-      fireEvent.click(screen.getByRole('button',{name:label,exact:true}))
+      fireEvent.click(screen.getByRole('button',{name:label}))
       expect(workspace).toHaveAttribute('data-mobile-screen',id)
     }
     expect(mocks.submitDecision).not.toHaveBeenCalled()
