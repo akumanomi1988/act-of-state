@@ -58,3 +58,30 @@
 @media(min-width:761px){
   .mobile-detail-nav,.mobile-task-cue{display:none}
 }
+
+.mobile-help-menu{display:none}
+@media(max-width:760px){
+  .mobile-help-menu{display:block;position:relative}
+  .mobile-help-menu summary{
+    cursor:pointer;list-style:none;min-height:44px;min-width:50px;
+    display:grid;place-items:center;padding:8px;border:1px solid var(--line);
+    color:var(--gold-strong);background:var(--panel);font-size:11px;
+  }
+  .mobile-help-menu summary::-webkit-details-marker{display:none}
+  .mobile-help-menu summary:focus-visible{outline:3px solid var(--gold-strong)}
+  .mobile-help-links{
+    position:absolute;top:calc(100% + 5px);right:0;z-index:80;
+    display:grid;gap:2px;min-width:190px;padding:8px;
+    border:1px solid var(--gold);background:#182124;
+    box-shadow:0 12px 24px #000a;
+  }
+  .mobile-help-links a{
+    display:block!important;min-height:44px;padding:12px;
+    color:var(--text);font-size:12px;text-decoration:none;
+  }
+  .mobile-help-links a:focus-visible{outline:3px solid var(--gold)}
+  .error-toast{
+    left:12px;right:12px;bottom:calc(80px + env(safe-area-inset-bottom,0px));
+    max-width:none;
+  }
+}

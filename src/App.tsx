@@ -238,7 +238,14 @@ export default function App() {
           <span className="brand-symbol" aria-hidden="true">A<span>／</span>S</span>
           <div><div className="wordmark">ACT OF STATE</div><div className="brand-caption">EVERY DECISION SHAPES A NATION.</div></div>
         </div>
-        <div className="header-end"><a className="text-button" href="/guide">Manual del jugador</a><a className="text-button" href="/status">Estado del servicio</a><a className="text-button" href="/demo">Probar sin cuenta</a><span className="online-dot" aria-hidden="true" /> SIMULACIÓN POLÍTICA PERSISTENTE
+        <div className="header-end"><details className="mobile-help-menu">
+          <summary>Ayuda</summary>
+          <div className="mobile-help-links">
+            <a href="/guide">Cómo jugar</a>
+            <a href="/status">Estado del servicio</a>
+            <a href="/demo">Probar sin registrarse</a>
+          </div>
+        </details><a className="text-button" href="/guide">Manual del jugador</a><a className="text-button" href="/status">Estado del servicio</a><a className="text-button" href="/demo">Probar sin cuenta</a><span className="online-dot" aria-hidden="true" /> SIMULACIÓN POLÍTICA PERSISTENTE
           <a href="/multiplayer" className="text-button">Multijugador</a>
           {user && <button type="button" className="text-button" onClick={() => void signOut()} disabled={pending}>Cerrar sesión</button>}
         </div>
