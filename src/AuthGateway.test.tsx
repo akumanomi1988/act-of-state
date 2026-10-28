@@ -99,7 +99,7 @@ describe('shared account access', () => {
 
   it('keeps legacy email links secondary and can show/hide a password', () => {
     render(<AuthGateway redirectTo="https://game.example/" />)
-    expect(screen.queryByRole('button',{name:'Acceder por correo'})).not.toBeInTheDocument()
+    expect(screen.getByText('¿Olvidaste tu contraseña o tienes una cuenta antigua?').closest('details')).not.toHaveAttribute('open')
     const field=screen.getByLabelText('Contraseña')
     expect(field).toHaveAttribute('type','password')
     fireEvent.click(screen.getByRole('button',{name:'Mostrar contraseña'}))

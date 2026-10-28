@@ -624,7 +624,6 @@ try {
     await observatory.getByRole('radio',{name:'7 días'}).check()
     await observatory.getByText('2 / 7').waitFor()
     await focusMobile(page,'Asamblea','Navegación de la asamblea')
-    await focusMobile(page,'Asamblea','Navegación de la asamblea')
     await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
     await page.getByText(/No se ha publicado ninguna agenda editorial/).waitFor({timeout:10000})
       .catch(async error=>{
@@ -647,6 +646,7 @@ try {
     await focusMobile(page,'Elecciones','Navegación de la asamblea')
     await page.getByRole('region',{name:'Observatorio electoral histórico'})
       .getByText('2 / 30').waitFor()
+    await focusMobile(page,'Asamblea','Navegación de la asamblea')
     await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
     await page.getByRole('combobox',{name:'Semana política'}).selectOption('2026-10-12')
     await page.getByText('Plan político archivado').waitFor()
