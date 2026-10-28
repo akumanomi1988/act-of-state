@@ -149,6 +149,21 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('ten-party multiplayer assembly', () => {
+  it('isolates multiplayer mobile tasks without changing the authoritative world',async()=>{
+    mocks.fetchMatchWorld.mockResolvedValue(world('active',2))
+    render(<MultiplayerApp/>)
+    const nav=await screen.findByRole('navigation',{name:'Navegación de la asamblea'})
+    await screen.findByRole('heading',{name:'Legislature of Arcadia'})
+    const workspace=nav.nextElementSibling
+    expect(workspace).toHaveAttribute('data-mobile-screen','decide')
+    for(const [label,id] of [['Partidas','matches'],['Asamblea','activity'],
+      ['Elecciones','elections'],['Mi país','status'],['Jugar','decide']] as const){
+      fireEvent.click(screen.getByRole('button',{name:label,exact:true}))
+      expect(workspace).toHaveAttribute('data-mobile-screen',id)
+    }
+    expect(mocks.submitDecision).not.toHaveBeenCalled()
+  })
+
   it('coordinates ten-party readiness and blocks the host while anyone is pending',async()=>{
     const fixture=world('lobby',3)
     fixture.match.readiness_required=true

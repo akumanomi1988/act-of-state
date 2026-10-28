@@ -97,6 +97,23 @@ function reviewAndSign() {
 }
 
 describe('browser decision flow with controlled Supabase adapter', () => {
+  it('starts directly with decisions and keeps agenda and country one tap away',async()=>{
+    mocks.fetchWorld.mockResolvedValue(initial)
+    render(<App/>)
+    await screen.findByText('Plan de resiliencia energética')
+    const nav=screen.getByRole('navigation',{name:'Navegación del gobierno'})
+    expect(nav.getAttribute('class')).toContain('mobile-focus-nav')
+    expect(nav.querySelector('[aria-current="page"]')).toHaveTextContent('Decidir')
+    const root=nav.closest('.solo-workspace')
+    expect(root).toHaveAttribute('data-mobile-screen','decide')
+    fireEvent.click(screen.getByRole('button',{name:'Expedientes',exact:true}))
+    expect(root).toHaveAttribute('data-mobile-screen','agenda')
+    fireEvent.click(screen.getByRole('button',{name:'Mi país',exact:true}))
+    expect(root).toHaveAttribute('data-mobile-screen','status')
+    fireEvent.click(screen.getByRole('button',{name:'Decidir',exact:true}))
+    expect(root).toHaveAttribute('data-mobile-screen','decide')
+  })
+
   it('requires review before signature and displays only authored fiscal inputs', async () => {
     mocks.fetchWorld.mockResolvedValue(initial)
     render(<App />)

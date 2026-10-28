@@ -97,6 +97,7 @@ async function login(page,email,path='/multiplayer') {
   await page.getByRole('button',{name:'Cerrar sesión'}).waitFor({timeout:15000})
   await page.getByRole('button',{name:'Cerrar sesión'}).click()
   await page.getByRole('button',{name:'Iniciar sesión'}).waitFor({timeout:15000})
+  await page.getByText('¿Olvidaste tu contraseña o tienes una cuenta antigua?').click()
   await page.getByRole('button',{name:'Acceder por correo'}).click()
   await page.getByLabel('Correo electrónico').fill(email)
   await page.getByRole('button',{name:'Enviar enlace'}).click()
@@ -111,6 +112,9 @@ async function login(page,email,path='/multiplayer') {
   // Test actual browser redirect: GoTrue verifies single-use link, and
   // supabase-js must consume its hash and persist a valid session.
   await page.goto(link,{waitUntil:'networkidle'})
+  if((page.viewportSize()?.width??1440)<=760)
+    await page.getByRole('navigation',{name:'Navegación de la asamblea'})
+      .getByRole('button',{name:'Partidas'}).click()
   await page.getByRole('heading',{name:'Tu asamblea'}).waitFor({timeout:15000})
   const identity=await accountFromBrowser(page)
   check(identity.user.email===email,'Magic link authenticated the wrong recipient')

@@ -283,7 +283,9 @@ try {
     await page.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor({timeout:15000})
     const board=page.getByRole('region',{name:'Centro de decisiones de la asamblea'})
     await board.getByRole('heading',{name:'Consejo político'}).waitFor()
+    if(width<=760)await page.getByRole('navigation',{name:'Navegación de la asamblea'}).getByRole('button',{name:'Mi país'}).click()
     await page.getByText('10 / 10').first().waitFor()
+    if(width<=760)await page.getByRole('navigation',{name:'Navegación de la asamblea'}).getByRole('button',{name:'Jugar'}).click()
     if(index===0 || index===5) {
       await board.getByRole('button',{name:'Reformas'}).click()
       await board.getByRole('button',{name:/Pacto de pensiones y generaciones/}).waitFor()
@@ -340,6 +342,8 @@ try {
   await passwordPage.reload({waitUntil:'networkidle'})
   await passwordPage.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor({timeout:15000})
   pass(true,'Password UI restored the shared match after reload')
+  await passwordPage.getByRole('navigation',{name:'Navegación de la asamblea'})
+    .getByRole('button',{name:'Partidas'}).click()
   await passwordPage.getByRole('button',{name:'Seguridad de la cuenta · Contraseña'}).click()
   const rotatedPassword=password+'-rotated'
   await passwordPage.getByLabel('Contraseña nueva (mínimo 12 caracteres)').fill(rotatedPassword)
