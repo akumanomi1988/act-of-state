@@ -511,6 +511,29 @@ try {
     await context.close()
   })
 
+  await run('320px navigation and help stay reachable without horizontal page scrolling',async()=>{
+    const context=await browser.newContext({viewport:{width:320,height:700}})
+    const page=await context.newPage()
+    const state=createServerState()
+    await routeApi(page,state)
+    await injectUser(page,state)
+    await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
+    const nav=page.getByRole('navigation',{name:'Navegación de la asamblea'})
+    await nav.getByRole('button',{name:'Jugar'}).waitFor()
+    const size=await nav.evaluate(element=>({
+      x:element.scrollWidth,w:element.clientWidth,
+      bottom:element.getBoundingClientRect().bottom,height:window.innerHeight
+    }))
+    assert.ok(size.bottom<=size.height+2,'Bottom navigation exceeds phone viewport')
+    assert.ok(size.x<=size.w+2,'Five primary actions require horizontal swipe at 320px')
+    const help=page.locator('.mobile-help-menu')
+    await help.locator('summary').click()
+    assert.equal(await help.getByRole('link',{name:'Cómo jugar'}).isVisible(),true)
+    await checkMobileOverflow(page,'320px task navigation and help')
+    await checkA11y(page,'320px task navigation and help')
+    await context.close()
+  })
+
   await run('Mobile solo opens on decisions and keeps other areas one tap away',async()=>{
     const context=await browser.newContext({viewport:{width:390,height:844}})
     const page=await context.newPage()

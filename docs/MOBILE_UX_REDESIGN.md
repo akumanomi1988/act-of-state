@@ -92,3 +92,51 @@ the hosted Supabase database.
 This UX increment **does not alter the 18-requirement/72-checkpoint score**:
 it is a functional usability improvement with its own verifiable QA, not
 an invented human physical-device acceptance.
+
+
+## AOS-060 — UX skill-driven refinement (2026-10-28)
+
+The second pass targets additional friction discovered in the source:
+the mobile main navigation remained fixed at the **top** (difficult
+to reach with one hand), and **Mi país** still mounted all expensive
+reports in a single long scroll even when none had been requested.
+The multiplayer Assembly similarly combined inbox, roster and legislative
+history in one section.
+
+Implemented changes:
+
+- Primary actions are fixed to a bottom touch bar, with safe-area
+  support and a reserved footer so the final interactive control is not
+  obscured. A 320px Chromium assertion checks the full 5-action bar
+  without sideways scrolling.
+- A reusable, keyboard-accessible nested navigation introduces
+  `Resumen / Economía / Población / Historial` in Solo and Multiplayer.
+  `Asamblea` now offers `Avisos / Partidos / Instituciones`.
+- Mobile React no longer mounts hidden social, population, fiscal,
+  historical, election and campaign panels until their corresponding
+  view is selected. Switching user or match does not cache data from
+  another user's games; components still use original authorized RPCs.
+  On desktop, all existing panels remain visible.
+- The current task gains a concise, state-derived next-action cue
+  without fabricating decision success or certified election results.
+- Multiplayer decision history becomes a disclosure instead of
+  occupying an entire screen by default; the actual signed events
+  remain intact.
+- A mobile `Ayuda` menu restores access to the player guide,
+  status and anonymous demo. Operational errors are raised above the
+  bottom navigation, not obscured behind it.
+
+**Skill references applied:** Vercel React Best Practices:
+`bundle-conditional` (only mount data-fetching modules when the player
+needs them), `rerender-derived-state-no-effect` (derive cues directly
+from authoritative state), `rendering-conditional-render` (explicit
+conditions), and `client-event-listeners` (share one responsive
+subscription hook rather than per-panel listeners). Usability
+principles: progressive disclosure, task continuity, clear feedback,
+48px primary touch targets, and responsive information hierarchy.
+
+**Evidence boundary:** These are code-level improvements with
+Chromium responsive/WCAG checks and simulated multiaccount regression.
+They are **not** a captured human Product Design browser audit, nor
+physical iOS/Android usability signoff. Production remains unchanged;
+the original final mobile human acceptance remains pending.

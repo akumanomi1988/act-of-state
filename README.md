@@ -22,6 +22,11 @@ Reproduce with `npm run progress`, validate the committed report with
 `docs/development-coverage.json`; neither lines of code nor iterations
 themselves award progress.
 
+**Mobile UX follow-up (AOS-060, development only):** Bottom thumb-reachable
+navigation and [on-demand Economy / Population / History views](docs/MOBILE_UX_REDESIGN.md)
+replace the remaining long mobile reports. Multiplayer activity also uses
+short, contextual subviews. No production deployment has been made.
+
 **Mobile usability update (AOS-059, development only):**
 [Task-first solo/multiplayer navigation](docs/MOBILE_UX_REDESIGN.md)
 shows one area at a time on phones, prioritizes the decision, and
