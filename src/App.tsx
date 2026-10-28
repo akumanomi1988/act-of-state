@@ -34,6 +34,7 @@ export default function App() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [optionId, setOptionId] = useState('')
   const [reviewingDecision, setReviewingDecision] = useState(false)
+  const [mobileSection, setMobileSection] = useState<'decide' | 'agenda' | 'status'>('decide')
   const [pending, setPending] = useState(false)
   const [needsReconciliation, setNeedsReconciliation] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -43,6 +44,7 @@ export default function App() {
   const world = user && storedWorld?.government.owner_id === user.id ? storedWorld : null
 
   function acceptUser(nextUser: User | null) {
+    if (authenticatedOwnerRef.current !== (nextUser?.id ?? null)) setMobileSection('decide')
     authenticatedOwnerRef.current = nextUser?.id ?? null
     setUser(nextUser)
   }
@@ -200,6 +202,7 @@ export default function App() {
   }
 
   function selectDossier(d: Dossier) {
+    setMobileSection('decide')
     setSelectedKey(dossierKey(d))
     setSelectedEventId(null)
     setOptionId('')
@@ -208,6 +211,7 @@ export default function App() {
   }
 
   function selectHistory(eventId: string) {
+    setMobileSection('decide')
     setSelectedEventId(eventId)
     setReviewingDecision(false)
     setError('')
@@ -263,10 +267,15 @@ export default function App() {
           </>}
         </main>
       ) : (
-        <>
-          <PlayerOnboarding world={world} />
+        <div className="solo-workspace" data-mobile-screen={mobileSection}>
+          <div className="solo-instructions"><PlayerOnboarding world={world} /></div>
           <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
-          <FiscalPanel key={world.government.id} governmentId={world.government.id} />
+          <nav className="mobile-focus-nav" aria-label="Navegación del gobierno">
+            {([['decide','Decidir'],['agenda','Expedientes'],['status','Mi país']] as const).map(([id,label])=>
+              <button key={id} type="button" aria-current={mobileSection===id?'page':undefined}
+                onClick={()=>setMobileSection(id)}>{label}</button>)}
+          </nav>
+          <div className="solo-fiscal-extra"><FiscalPanel key={world.government.id} governmentId={world.government.id} /></div>
           <main className="government-layout">
             <aside className="side-panel">
               <div className="eyebrow">01 / DESPACHO</div>
@@ -308,6 +317,9 @@ export default function App() {
                 onSelect={selectDossier} />
             </aside>
             <section className="main-panel" aria-label="Expediente político">
+              <button type="button" className="mobile-switch-panel" onClick={()=>setMobileSection('agenda')}>
+                Cambiar expediente
+              </button>
               {needsReconciliation && <div className="fictitious-notice" role="status">
                 El resultado de la última operación está pendiente de confirmar.
                 <button type="button" className="text-button" disabled={pending}
@@ -412,14 +424,16 @@ export default function App() {
                 </li>)}</ol>}
             </aside>
           </main>
-          <LivingConditionsPanel governmentId={world.government.id} identity={user?.id ?? ''} />
-          <MandateObservatory governmentId={world.government.id} identity={user?.id ?? ''} />
-          <PopulationPanel key={world.government.id + ':' + (user?.id ?? '')}
-            governmentId={world.government.id} identity={user?.id ?? ''} />
-          <DecisionAnalyticsPanel key={world.government.id}
-            events={world.events} gameDay={world.gameDay}
-            countryName={world.government.country_name} />
-        </>
+          <div className="solo-deep-insights">
+            <LivingConditionsPanel governmentId={world.government.id} identity={user?.id ?? ''} />
+            <MandateObservatory governmentId={world.government.id} identity={user?.id ?? ''} />
+            <PopulationPanel key={world.government.id + ':' + (user?.id ?? '')}
+              governmentId={world.government.id} identity={user?.id ?? ''} />
+            <DecisionAnalyticsPanel key={world.government.id}
+              events={world.events} gameDay={world.gameDay}
+              countryName={world.government.country_name} />
+          </div>
+        </div>
       )}
       {error && <div className="error-toast" role="alert"><strong>No se pudo completar la operación</strong><p>{error}</p>
         <button type="button" onClick={() => setError('')}>Cerrar aviso</button></div>}
