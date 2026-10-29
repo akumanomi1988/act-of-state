@@ -173,6 +173,9 @@ try {
   await host.getByRole('region',{name:'Expedientes del Parlamento'})
     .waitFor({timeout:15000})
   await guest.reload({waitUntil:'networkidle'})
+  // The player now sees the active dossier first. Open the secondary
+  // agenda explicitly before checking its parliamentary authorizations.
+  await guest.locator('.match-game-agenda summary').click()
   const board=guest.getByRole('region',{name:'Expedientes del Parlamento'})
   await board.waitFor({timeout:15000})
   await board.getByText('Partido de oposición').waitFor()
