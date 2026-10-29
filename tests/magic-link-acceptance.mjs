@@ -115,7 +115,7 @@ async function login(page,email,path='/multiplayer') {
   if((page.viewportSize()?.width??1440)<=760)
     await page.getByRole('navigation',{name:'Navegación de la asamblea'})
       .getByRole('button',{name:'Partidas'}).click()
-  await page.getByRole('heading',{name:'Tu asamblea'}).waitFor({timeout:15000})
+  await page.getByRole('heading',{name:'Sala de partidas'}).waitFor({timeout:15000})
   const identity=await accountFromBrowser(page)
   check(identity.user.email===email,'Magic link authenticated the wrong recipient')
   return {link,identity}
@@ -189,7 +189,7 @@ try {
   await replay.goto(app+'/multiplayer',{waitUntil:'networkidle'})
   await replay.getByRole('button',{name:'Iniciar sesión'})
     .waitFor({timeout:12000})
-  check(await replay.getByRole('heading',{name:'Tu asamblea'}).count()===0,
+  check(await replay.getByRole('heading',{name:'Sala de partidas'}).count()===0,
     'Consumed one-time token authorized a second device')
   await replayContext.close()
 

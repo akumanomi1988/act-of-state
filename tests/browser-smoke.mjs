@@ -1013,7 +1013,7 @@ async function focusDetail(page,label,nav='Apartados de Mi país'){
       await board.getByRole('button',{name:'Esta semana'}).click()
       assert.equal(await board.getByRole('button',{name:/PLAZO SEMANAL/}).count(),1)
       await board.getByRole('button',{name:'Programa inicial'}).click()
-      assert.equal(await board.getByRole('button',{name:/PROGRAMA INICIAL FICTICIO/}).count(),1)
+      assert.equal(await board.getByRole('button',{name:/PROGRAMA INICIAL/}).count(),1)
       await checkMobileOverflow(page,'ten-party command board '+role.width)
       await checkA11y(page,'ten-party command board '+role.width)
       await page.screenshot({path:OUT+'/multi-command-'+role.width+'.png',fullPage:true})
