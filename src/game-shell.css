@@ -77,3 +77,10 @@
 .game-session-context strong{color:var(--gold-strong)}
 .game-mode-card[aria-current="page"] .game-mode-arrow{color:var(--gold-strong)}
 @media(max-width:760px){.match-heading .game-session-context{font-size:11px;line-height:1.5}}
+
+@media(max-width:760px){
+  .match-game-agenda>details[open]{padding-bottom:20px}
+  .match-game-agenda>details>summary:hover{color:var(--gold-strong)}
+  .match-politics>.match-dossier{scroll-margin-top:16px}
+  .auth-form .primary-button{min-height:50px}
+}

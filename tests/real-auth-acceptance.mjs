@@ -281,21 +281,22 @@ try {
     page.on('pageerror',error=>failures.push(error.message))
     await page.goto(APP+'/multiplayer',{waitUntil:'networkidle'})
     await page.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor({timeout:15000})
+    if(width<=760)await page.locator('.match-game-agenda summary').click()
     const board=page.getByRole('region',{name:'Expedientes del Parlamento'})
-    await board.getByRole('heading',{name:'Consejo político'}).waitFor()
+    await board.getByRole('heading',{name:'Expedientes parlamentarios'}).waitFor()
     if(width<=760)await page.getByRole('navigation',{name:'Navegación de la asamblea'}).getByRole('button',{name:'Mi país'}).click()
     await page.getByText('10 / 10').first().waitFor()
     if(width<=760)await page.getByRole('navigation',{name:'Navegación de la asamblea'}).getByRole('button',{name:'Jugar'}).click()
     if(index===0 || index===5) {
       await board.getByRole('button',{name:'Reformas'}).click()
       await board.getByRole('button',{name:/Pacto de pensiones y generaciones/}).waitFor()
-      pass(await board.getByText('REFORMA FICTICIA · SOCIETY').count()>0,
+      pass(await board.getByText('REFORMA · SOCIETY').count()>0,
         'National reform was not distinguished from current news')
     }
     await board.getByRole('button',{name:'Decisiones firmadas'}).click()
     await board.getByRole('button',{name:/Plan de resiliencia energética/}).waitFor()
     if(index===0){
-      await board.getByText('Gobierno ejecutivo').waitFor()
+      await board.getByText('Gobierno',{exact:true}).waitFor()
       await page.getByText('COMPETENCIA DEL GOBIERNO').waitFor()
     }else{
       await board.getByText('Partido de oposición').waitFor()
