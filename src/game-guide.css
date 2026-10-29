@@ -1,0 +1,32 @@
+/* Focused game rules. One visible chapter, with deep-link restoration. */
+.game-guide{max-width:1120px;width:100%;margin:0 auto;padding:40px 24px 60px}
+.game-guide h1{margin:12px 0 18px}
+.game-guide-layout{display:grid;grid-template-columns:minmax(220px,280px) minmax(0,1fr);
+ gap:20px;align-items:start;margin-top:22px}
+.game-guide-index,.game-guide-page{background:var(--panel);border:1px solid var(--line);padding:20px}
+.game-guide-index{position:sticky;top:20px}
+.game-guide-index label{display:block;font-size:12px;color:var(--gold-strong);margin-bottom:11px}
+.game-guide-index select{width:100%;min-height:48px;max-width:100%;background:var(--bg);
+ border:1px solid var(--line);color:var(--text);padding:10px}
+.game-guide-toc{margin-top:19px}
+.game-guide-toc summary{cursor:pointer;padding:10px 0;color:var(--gold-strong);min-height:44px}
+.game-guide-toc ol{margin:6px 0 0;padding:0 0 0 21px;display:grid;gap:8px}
+.game-guide-toc a{font-size:12px;line-height:1.4;text-decoration:none}
+.game-guide-toc a[aria-current]{color:var(--text);font-weight:600;text-decoration:underline}
+.game-guide-page{min-height:280px}
+.game-guide-page section[hidden]{display:none}
+.game-guide-page h2{font-size:clamp(22px,2.8vw,33px);margin:12px 0}
+.game-guide-page p:not(.eyebrow){font-size:15px;line-height:1.8;color:var(--text)}
+.game-guide-next{border-top:1px solid var(--line);margin-top:28px;padding-top:16px;
+ display:flex;justify-content:space-between;align-items:center;gap:12px}
+.game-guide-next span{color:var(--muted);font-size:12px}
+.game-guide-next button,.game-guide-next a{min-height:44px;padding:11px 15px;
+ border:1px solid var(--gold);color:var(--gold-strong);background:transparent;font-size:12px}
+.game-guide-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+@media(max-width:760px){
+ .game-guide{padding:22px 14px 120px}
+ .game-guide-layout{grid-template-columns:1fr;gap:11px}
+ .game-guide-index{position:static;padding:13px}
+ .game-guide-page{padding:18px;min-height:200px}
+ .game-guide-page p:not(.eyebrow){font-size:14px;line-height:1.7}
+}
