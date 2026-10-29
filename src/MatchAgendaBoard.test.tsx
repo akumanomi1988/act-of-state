@@ -31,7 +31,7 @@ describe('role-centric multiplayer political agenda',()=>{
     const world=makeWorld();const onSelect=vi.fn()
     render(<MatchAgendaBoard world={world} userId={guest}
       selectedDossierId="energy" onSelect={onSelect}/>)
-    const section=screen.getByRole('region',{name:'Centro de decisiones de la asamblea'})
+    const section=screen.getByRole('region',{name:'Expedientes del Parlamento'})
     const buttons=within(section).getAllByRole('button',{name:/Medida /})
     expect(buttons.map(b=>b.textContent)).toEqual([
       expect.stringContaining('Medida news'),
@@ -74,7 +74,7 @@ describe('role-centric multiplayer political agenda',()=>{
     render(<MatchAgendaBoard world={world} userId={host}
       selectedDossierId="news" onSelect={vi.fn()}/>)
     expect(screen.getByText('1 / 1 firmados')).toBeInTheDocument()
-    expect(screen.getByText('Gobierno ejecutivo')).toBeInTheDocument()
+    expect(screen.getByText('Gobierno')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button',{name:'Decisiones firmadas'}))
     expect(screen.getByRole('button',{name:/Medida news/})).toHaveTextContent('DECISIÓN FIRMADA')
     expect(screen.queryByRole('button',{name:/Medida energy/})).not.toBeInTheDocument()
@@ -101,7 +101,7 @@ describe('role-centric multiplayer political agenda',()=>{
       selectedDossierId={null} onSelect={navigate}/>)
     expect(screen.getByText('0 / 4 firmados')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button',{name:'Reformas'}))
-    expect(screen.getAllByRole('button',{name:/REFORMA FICTICIA/})).toHaveLength(4)
+    expect(screen.getAllByRole('button',{name:/REFORMA/})).toHaveLength(4)
     fireEvent.click(screen.getByRole('button',{name:'Sociedad'}))
     expect(screen.getByRole('button',{name:/Medida care/})).toBeInTheDocument()
     expect(screen.queryByRole('button',{name:/Medida jobs/})).not.toBeInTheDocument()

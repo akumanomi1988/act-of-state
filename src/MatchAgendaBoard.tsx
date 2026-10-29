@@ -53,14 +53,14 @@ export default function MatchAgendaBoard({ world, userId, selectedDossierId, onS
     open(snapshot.next.dossier.id)
   }
 
-  return <section className="match-agenda-board" aria-label="Centro de decisiones de la asamblea">
+  return <section className="match-agenda-board" aria-label="Expedientes del Parlamento">
     <header className="match-agenda-header">
       <div>
-        <p className="eyebrow">AGENDA COMPARTIDA · ACTAS DEL SERVIDOR</p>
-        <h2>Consejo político</h2>
-        <p className="muted">Tu función: <strong>{snapshot.role === 'cabinet'
-          ? 'Gobierno ejecutivo' : 'Partido de oposición'}</strong>. Las decisiones se ejecutan
-          solo con mandato parlamentario y las posiciones de partido no son leyes.</p>
+        <p className="eyebrow">ORDEN DEL DÍA</p>
+        <h2>Expedientes parlamentarios</h2>
+        <p className="muted">Actúas como <strong>{snapshot.role === 'cabinet'
+          ? 'Gobierno' : 'Partido de oposición'}</strong>. La postura de un partido no aprueba una ley;
+          las medidas del Gobierno requieren una votación favorable.</p>
       </div>
       <div className="match-agenda-milestones">
         <div><span>SEMANA POLÍTICA</span><strong>{summary(snapshot.weekly.total, snapshot.weekly.signed)}</strong>
@@ -91,8 +91,8 @@ export default function MatchAgendaBoard({ world, userId, selectedDossierId, onS
           <span className="match-agenda-kind">
             {dossier.release_kind === 'weekly' ? 'PLAZO SEMANAL' :
               dossier.programme_chapter && dossier.programme_chapter !== 'founding'
-                ? 'REFORMA FICTICIA · ' + dossier.programme_chapter.toUpperCase()
-                : 'PROGRAMA INICIAL FICTICIO'}
+                ? 'REFORMA · ' + dossier.programme_chapter.toUpperCase()
+                : 'PROGRAMA INICIAL'}
           </span>
           <strong>{dossier.title}</strong>
           <small>{statusLabels[status]}{hasStance && signed ? ' · TU POSICIÓN ARCHIVADA' : ''}</small>

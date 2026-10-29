@@ -64,7 +64,7 @@ export default function WeeklyMissionControl({ world, userId, onSelect }: Props)
   // A snapshot from a previous day is no longer a trustworthy action queue.
   const current=mission?.date===world.gameDay
   const actionable=!!mission&&!stale&&current&&!mission.overdue
-  return <section className="weekly-mission" aria-label="Sala de operaciones legislativas">
+  return <section className="weekly-mission" aria-label="Agenda parlamentaria">
     <div className="weekly-mission-top">
       <div>
         <p className="eyebrow">SEMANA PARLAMENTARIA</p>
@@ -88,8 +88,8 @@ export default function WeeklyMissionControl({ world, userId, onSelect }: Props)
         <div><span>MEDIDAS FIRMADAS</span><strong>{mission.signed} / {mission.expected}</strong></div>
       </div>
       {!mission.published?<p role="status" className="weekly-mission-warning">
-        Esta semana no tiene diez expedientes aprobados. El programa ficticio inicial
-        es independiente de las noticias y no se contará como publicación editorial.
+        Aún no se han publicado los diez asuntos de esta semana.
+        Los expedientes iniciales son ficticios y no representan noticias actuales.
       </p>:mission.overdue?<p className="weekly-mission-warning">
         Semana cerrada el {mission.friday} UTC. Consulta el acta certificada en
         Seguimiento de la legislatura.

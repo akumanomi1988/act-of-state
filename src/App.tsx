@@ -243,7 +243,7 @@ export default function App() {
         <div className="header-end">
           <span className="game-session-title">{user ? 'GOBIERNO EN FUNCIONES' : 'PARTIDA INDIVIDUAL'}</span>
           <GameMenu current="solo" />
-          {user && <button type="button" className="text-button" onClick={() => void signOut()} disabled={pending}>Salir de la cuenta</button>}
+          {user && <button type="button" className="text-button" onClick={() => void signOut()} disabled={pending}>Cerrar sesión</button>}
         </div>
       </header>
       {user && <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />}

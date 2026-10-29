@@ -281,7 +281,7 @@ try {
     page.on('pageerror',error=>failures.push(error.message))
     await page.goto(APP+'/multiplayer',{waitUntil:'networkidle'})
     await page.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor({timeout:15000})
-    const board=page.getByRole('region',{name:'Centro de decisiones de la asamblea'})
+    const board=page.getByRole('region',{name:'Expedientes del Parlamento'})
     await board.getByRole('heading',{name:'Consejo político'}).waitFor()
     if(width<=760)await page.getByRole('navigation',{name:'Navegación de la asamblea'}).getByRole('button',{name:'Mi país'}).click()
     await page.getByText('10 / 10').first().waitFor()

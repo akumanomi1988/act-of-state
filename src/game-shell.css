@@ -72,3 +72,8 @@
   .game-match-entry .game-entry-lede{margin-bottom:8px}
   .game-entry-other-modes{margin-top:11px}
 }
+
+.game-session-context{font-size:12px;line-height:1.65;color:var(--muted);margin:5px 0 0}
+.game-session-context strong{color:var(--gold-strong)}
+.game-mode-card[aria-current="page"] .game-mode-arrow{color:var(--gold-strong)}
+@media(max-width:760px){.match-heading .game-session-context{font-size:11px;line-height:1.5}}

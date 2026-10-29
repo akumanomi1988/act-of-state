@@ -244,7 +244,7 @@ export default function MultiplayerApp() {
   async function onStance() {
     if (!world || !dossier || !selectedOption || myStance || !active) return
     await mutate(() => recordMatchStance(world.match.id,dossier.id,dossier.version,
-      selectedOption.id), 'Posición política registrada. El índice de afinidad procede del cálculo del servidor.')
+      selectedOption.id), 'Postura de tu partido registrada.')
   }
 
   /**
@@ -280,7 +280,7 @@ export default function MultiplayerApp() {
         setMandateOptionId(null)
         setUncertainDossierId(null)
         if (signed.option_id === choiceId && signed.dossier_version === dossierVersion) {
-          setNotice('Firma confirmada en el servidor. Los diez partidos comparten el nuevo estado nacional.')
+          setNotice('Decreto firmado. El resultado figura en el acta del Gobierno.')
         } else {
           setError('El servidor registra una opción diferente. No se ha repetido la firma.')
         }
@@ -347,7 +347,7 @@ export default function MultiplayerApp() {
         <span className="game-session-title">{user ? 'PARTIDA PARLAMENTARIA' : 'ACCESO A PARTIDAS'}</span>
         <GameMenu current="parliament" />
         {user && <button type="button" className="text-button" disabled={pending}
-          onClick={() => void onSignOut()}>Salir de la cuenta</button>}
+          onClick={() => void onSignOut()}>Cerrar sesión</button>}
       </div>
     </header>
     <div className="session-strip"><span>ASAMBLEA · HASTA 10 PARTIDOS</span>
@@ -455,7 +455,10 @@ export default function MultiplayerApp() {
           </div>
           <div className="match-heading">
             <div><p className="eyebrow">PARTIDA {world.match.status === 'lobby' ? 'EN PREPARACIÓN' : 'ACTIVA'}</p>
-              <h1>{world.match.title}</h1><p className="muted">Día de juego {world.gameDay} · {world.government.country_name}</p></div>
+              <h1>{world.match.title}</h1>
+              <p className="game-session-context"><strong>{world.me.party_name}</strong> ·
+                {' '}{host ? 'Gobierno' : 'Oposición'} ·
+                {' '}escaño {world.me.seat_no} · {world.government.country_name} · {world.gameDay}</p></div>
             <button className="text-button" onClick={() => setReload(value => value + 1)}
               disabled={pending}>Actualizar estado</button>
           </div>
@@ -650,7 +653,7 @@ export default function MultiplayerApp() {
               </details>
             </div>
             {dossier ? <div className="match-dossier">
-              <p className="eyebrow">{dossier.category} · VERSIÓN {dossier.version}</p>
+              <p className="eyebrow">{dossier.category} · ORDEN DEL DÍA</p>
               <h3>{dossier.title}</h3><p>{dossier.context}</p>
               {dossier.source_url && <a href={dossier.source_url} target="_blank"
                 rel="noopener noreferrer">Fuente: {dossier.source_title}</a>}

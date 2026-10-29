@@ -170,10 +170,10 @@ try {
   await host.reload({waitUntil:'networkidle'})
   await host.getByRole('heading',{name:testName}).waitFor()
   await host.getByRole('button',{name:'Comenzar legislatura'}).click()
-  await host.getByRole('region',{name:'Centro de decisiones de la asamblea'})
+  await host.getByRole('region',{name:'Expedientes del Parlamento'})
     .waitFor({timeout:15000})
   await guest.reload({waitUntil:'networkidle'})
-  const board=guest.getByRole('region',{name:'Centro de decisiones de la asamblea'})
+  const board=guest.getByRole('region',{name:'Expedientes del Parlamento'})
   await board.waitFor({timeout:15000})
   await board.getByText('Partido de oposición').waitFor()
   check(await guest.getByText('COMPETENCIA DEL GOBIERNO').count()===0,
