@@ -48,14 +48,14 @@ export default function ElectionStrategyLab({
  const meBefore=preview?.current.parties.find(p=>p.userId===userId)
  const meAfter=preview?.hypothetical.parties.find(p=>p.userId===userId)
  return <details className="strategy-lab" aria-label="Laboratorio electoral">
-  <summary>Laboratorio de estrategia · comparar antes de publicar</summary>
+  <summary>Proyección electoral · comparar programas</summary>
   <p className="muted">Calcula con el servidor cómo cambiaría la proyección
    de 100 escaños si tu partido adoptase el programa seleccionado.
    No registra una campaña, no cambia tu programa ni concede escaños.</p>
   <p>Programa propuesto: <strong>{policy}/100</strong></p>
   <button type="button" onClick={()=>{void simulate()}}
    disabled={!active||!campaignOpen||blocked||running}>
-   {running?'Simulando…':'Simular reparto electoral'}
+   {running?'Simulando…':'Calcular proyección'}
   </button>
   {!active && <p className="muted">Disponible después de iniciar la partida.</p>}
   {active&&!campaignOpen && <p className="muted">La campaña está congelada: no se admiten nuevos escenarios.</p>}

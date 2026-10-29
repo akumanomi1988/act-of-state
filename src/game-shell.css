@@ -56,3 +56,19 @@
   .match-game-agenda>details:focus-within{outline-color:var(--gold)}
 }
 @media(prefers-reduced-motion:reduce){.game-mode-card{transition:none}}
+
+.game-invite-notice{padding:12px 15px;border-left:3px solid var(--gold);background:#25302e;
+  font-size:13px;line-height:1.6;color:var(--text);max-width:560px}
+.game-match-entry{align-items:flex-start;gap:10px;padding:clamp(25px,5vw,55px) max(18px,7vw)}
+.game-match-entry .auth-gateway{width:100%}
+.game-entry-other-modes{width:100%;max-width:560px;border-top:1px solid var(--line);margin-top:20px;padding-top:12px}
+.game-entry-other-modes>summary{min-height:44px;cursor:pointer;padding:12px 2px;color:var(--gold-strong);font-size:13px}
+.game-entry-other-modes .game-mode-select{max-width:560px}
+@media(max-width:760px){
+  .masthead .game-session-title{display:none}
+  .masthead .header-end{flex-wrap:nowrap;gap:7px}
+  .masthead .header-end>.text-button{padding:10px 7px;min-height:44px;font-size:10px}
+  .game-match-entry{padding:20px 16px 110px}
+  .game-match-entry .game-entry-lede{margin-bottom:8px}
+  .game-entry-other-modes{margin-top:11px}
+}

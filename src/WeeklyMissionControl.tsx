@@ -49,7 +49,7 @@ export default function WeeklyMissionControl({ world, userId, onSelect }: Props)
       } catch(reason) {
         if(!alive||id!==revision)return
         setStale(true)
-        setError('No se pudo sincronizar el estado parlamentario: '+matchError(reason))
+        setError('No se pudo consultar el Parlamento: '+matchError(reason))
       } finally {
         if(alive&&id===revision)setPending(false)
       }
@@ -67,10 +67,10 @@ export default function WeeklyMissionControl({ world, userId, onSelect }: Props)
   return <section className="weekly-mission" aria-label="Sala de operaciones legislativas">
     <div className="weekly-mission-top">
       <div>
-        <p className="eyebrow">MANDATO SEMANAL · INFORMACIÓN VERIFICADA POR EL SERVIDOR</p>
-        <h2>Operaciones legislativas</h2>
-        <p className="muted">El voto, la postura y la firma del Gobierno son actos distintos.
-          Una noticia publicada no implica una ley aprobada.</p>
+        <p className="eyebrow">SEMANA PARLAMENTARIA</p>
+        <h2>Agenda parlamentaria</h2>
+        <p className="muted">Primero se presenta una propuesta; después se vota.
+          Solo el Gobierno puede firmar una medida aprobada.</p>
       </div>
       <button type="button" className="weekly-mission-refresh"
         disabled={pending} onClick={()=>setRefresh(x=>x+1)}>Sincronizar estado</button>
@@ -82,10 +82,10 @@ export default function WeeklyMissionControl({ world, userId, onSelect }: Props)
     </p>}
     {mission&&<div className="weekly-mission-content">
       <div className="weekly-mission-numbers" aria-label="Progreso legislativo semanal">
-        <div><span>EXPEDIENTES EDITORIALES</span><strong>{mission.available} / {mission.expected}</strong></div>
+        <div><span>ASUNTOS PUBLICADOS</span><strong>{mission.available} / {mission.expected}</strong></div>
         <div><span>TUS POSTURAS</span><strong>{mission.stances} / {mission.available}</strong></div>
         <div><span>TUS VOTOS</span><strong>{mission.votes}</strong></div>
-        <div><span>LEYES EJECUTADAS</span><strong>{mission.signed} / {mission.expected}</strong></div>
+        <div><span>MEDIDAS FIRMADAS</span><strong>{mission.signed} / {mission.expected}</strong></div>
       </div>
       {!mission.published?<p role="status" className="weekly-mission-warning">
         Esta semana no tiene diez expedientes aprobados. El programa ficticio inicial

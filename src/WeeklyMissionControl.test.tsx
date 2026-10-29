@@ -76,7 +76,7 @@ describe('read-only weekly mission command UI',()=>{
     render(<WeeklyMissionControl world={fixture()} userId={guest} onSelect={vi.fn()}/>)
     await screen.findByText('TU VOTO PENDIENTE')
     expect(screen.getByLabelText('Progreso legislativo semanal'))
-      .toHaveTextContent('LEYES EJECUTADAS0 / 1')
+      .toHaveTextContent('MEDIDAS FIRMADAS0 / 1')
   })
   it('fails closed on stale calendars and temporarily unavailable parliament',async()=>{
     const select=vi.fn()

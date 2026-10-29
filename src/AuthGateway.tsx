@@ -87,8 +87,8 @@ export default function AuthGateway({ redirectTo }: { redirectTo: string }) {
           disabled={pending} onClick={() => choose(value)}>{modeLabels[value]}</button>)}
     </div>
     <p className="auth-explainer">
-      {mode === 'login' ? 'Accede con tu correo y contraseña. No se envía ningún correo para entrar.' :
-        mode === 'register' ? 'Regístrate con contraseña. Puede ser necesaria una única confirmación del correo.' :
+      {mode === 'login' ? 'Tus partidas están vinculadas a esta cuenta. Entra con tu contraseña.' :
+        mode === 'register' ? 'Crea una cuenta para guardar tus partidas. Puede requerir confirmar el correo una vez.' :
         mode === 'magic' ? 'Para cuentas antiguas sin contraseña. Tras entrar, configúrala desde Seguridad de la cuenta.' :
         'Recibirás un único enlace para recuperar tu contraseña.'}
     </p>
