@@ -84,3 +84,15 @@
   .match-politics>.match-dossier{scroll-margin-top:16px}
   .auth-form .primary-button{min-height:50px}
 }
+
+/* The old masthead media rules hide /guide, /demo and /status links.
+   Restore them INSIDE the player's open game menu, not in the masthead. */
+@media(max-width:760px){
+  .header-end .game-menu-list a[href="/guide"],
+  .header-end .game-menu-list a[href="/demo"],
+  .header-end .game-menu-list a[href="/status"],
+  .header-end .game-menu-list a[href="/"],
+  .header-end .game-menu-list a[href="/multiplayer"]{
+    display:grid!important;min-height:58px;
+  }
+}
