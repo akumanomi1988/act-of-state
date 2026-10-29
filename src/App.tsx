@@ -1,5 +1,7 @@
 import PlayerOnboarding from './PlayerOnboarding'
 import AuthGateway from './AuthGateway'
+import GameMenu from './GameMenu'
+import GameModeSelect from './GameModeSelect'
 import AccountSecurity from './AccountSecurity'
 import FoundationalAgendaPanel from './FoundationalAgendaPanel'
 import { Activity, useEffect, useMemo, useRef, useState } from 'react'
@@ -238,16 +240,10 @@ export default function App() {
           <span className="brand-symbol" aria-hidden="true">A<span>／</span>S</span>
           <div><div className="wordmark">ACT OF STATE</div><div className="brand-caption">EVERY DECISION SHAPES A NATION.</div></div>
         </div>
-        <div className="header-end"><details className="mobile-help-menu">
-          <summary>Ayuda</summary>
-          <div className="mobile-help-links">
-            <a href="/guide">Cómo jugar</a>
-            <a href="/status">Estado del servicio</a>
-            <a href="/demo">Probar sin registrarse</a>
-          </div>
-        </details><a className="text-button" href="/guide">Manual del jugador</a><a className="text-button" href="/status">Estado del servicio</a><a className="text-button" href="/demo">Probar sin cuenta</a><span className="online-dot" aria-hidden="true" /> SIMULACIÓN POLÍTICA PERSISTENTE
-          <a href="/multiplayer" className="text-button">Multijugador</a>
-          {user && <button type="button" className="text-button" onClick={() => void signOut()} disabled={pending}>Cerrar sesión</button>}
+        <div className="header-end">
+          <span className="game-session-title">{user ? 'GOBIERNO EN FUNCIONES' : 'PARTIDA INDIVIDUAL'}</span>
+          <GameMenu current="solo" />
+          {user && <button type="button" className="text-button" onClick={() => void signOut()} disabled={pending}>Salir de la cuenta</button>}
         </div>
       </header>
       {user && <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />}
@@ -261,15 +257,15 @@ export default function App() {
         <main className="entry-content" role="status">Verificando credenciales…</main>
       ) : !user ? (
         <main className="entry-layout">
-          <section className="hero-intro"><div className="eyebrow">EL PESO DEL PODER · INICIO</div>
-            <h1>Gobernar es elegir qué consecuencias asumir.</h1>
-            <p>Una simulación política seria, persistente y gratuita. Las decisiones modifican la economía, la confianza institucional y el apoyo de grupos de población simulados.</p>
-            <p className="caveat">Escenarios editoriales ficticios para la primera iteración.</p>
-            <p><a href="/demo" className="primary-button">Probar cuatro decisiones sin registrarte</a></p>
+          <section className="hero-intro">
+            <div className="game-entry-kicker">ACT OF STATE / MENÚ PRINCIPAL</div>
+            <h1 className="game-entry-title">Elige cómo jugar</h1>
+            <p className="game-entry-lede">Toma decisiones de Gobierno o participa en el Parlamento con otros jugadores. Las partidas guardan sus resultados.</p>
+            <GameModeSelect selected="solo" />
           </section>
           <section className="login-panel" aria-labelledby="access-title">
-            <div className="eyebrow">ACCESO A LA SALA DE GOBIERNO</div>
-            <h2 id="access-title">Tu mandato comienza aquí.</h2>
+            <div className="eyebrow">PARTIDA INDIVIDUAL · ACCESO</div>
+            <h2 id="access-title">Entrar al Gobierno</h2>
             <AuthGateway redirectTo={window.location.origin} />
           </section>
         </main>
@@ -284,7 +280,7 @@ export default function App() {
         </main>
       ) : (
         <div className="solo-workspace" data-mobile-screen={mobileSection} data-mobile-detail={statusDetail}>
-          <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
+          <div className="session-strip"><span>PARTIDA INDIVIDUAL</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
           <nav className="mobile-focus-nav" aria-label="Navegación del gobierno">
             {([['decide','Decidir'],['agenda','Expedientes'],['status','Mi país']] as const).map(([id,label])=>
               <button key={id} type="button" aria-current={mobileSection===id?'page':undefined}
@@ -346,8 +342,8 @@ export default function App() {
             <section className="main-panel" aria-label="Expediente político">
               <div className="mobile-task-cue" role="status">
                 {historicalEvent ? 'Consulta de una decisión ya firmada.' :
-                  decision ? 'Expediente resuelto. Puedes consultar su impacto o cambiar de expediente.' :
-                  dossier ? 'Tu siguiente paso: elige una medida y revisa sus consecuencias antes de firmar.' :
+                  decision ? 'Decreto firmado. Consulta el resultado o abre otro expediente.' :
+                  dossier ? 'Elige una medida. Revísala antes de firmar el decreto.' :
                   'No hay expedientes disponibles en este momento.'}
               </div>
               <button type="button" className="mobile-switch-panel" onClick={()=>navigateMobile('agenda')}>
@@ -369,7 +365,7 @@ export default function App() {
                 </>
               ) : dossier ? (
                 <>
-                  <div className="eyebrow">02 / CONSEJO DE MINISTROS · EXPEDIENTE {dossier.version.toString().padStart(2, '0')}</div>
+                  <div className="eyebrow">CONSEJO DE MINISTROS · EXPEDIENTE {dossier.version.toString().padStart(2, '0')}</div>
                   <h2>{dossier.title}</h2>
                   <div className="rule" />
                   <p className="dossier-context">{dossier.context}</p>

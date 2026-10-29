@@ -2,6 +2,8 @@ import PlayerOnboarding from './PlayerOnboarding'
 import MobileDetailNavigation from './MobileDetailNavigation'
 import { useMobileViewport } from './lib/useMobileViewport'
 import AuthGateway from './AuthGateway'
+import GameMenu from './GameMenu'
+import GameModeSelect from './GameModeSelect'
 import AccountSecurity from './AccountSecurity'
 import MatchAgendaBoard from './MatchAgendaBoard'
 import WeeklyMissionControl from './WeeklyMissionControl'
@@ -339,31 +341,35 @@ export default function MultiplayerApp() {
       <div className="brand-group">
         <div className="brand-symbol" aria-hidden="true">A<span>✦</span>S</div>
         <div><div className="wordmark">ACT OF STATE</div>
-          <div className="brand-caption">MULTIPLAYER NATIONAL ASSEMBLY</div></div>
+          <div className="brand-caption">PARTIDA PARLAMENTARIA</div></div>
       </div>
-      <div className="header-end"><details className="mobile-help-menu">
-          <summary>Ayuda</summary>
-          <div className="mobile-help-links">
-            <a href="/guide">Cómo jugar</a>
-            <a href="/status">Estado del servicio</a>
-            <a href="/demo">Probar sin registrarse</a>
-          </div>
-        </details><a className="text-button" href="/guide">Manual del jugador</a><a className="text-button" href="/status">Estado del servicio</a><a className="text-button" href="/">Gobierno</a>
-        <a className="text-button" href="/editorial">Editorial</a>
-        {user && <button className="text-button" disabled={pending}
-          onClick={() => void onSignOut()}>Cerrar sesión</button>}</div>
+      <div className="header-end">
+        <span className="game-session-title">{user ? 'PARTIDA PARLAMENTARIA' : 'ACCESO A PARTIDAS'}</span>
+        <GameMenu current="parliament" />
+        {user && <button type="button" className="text-button" disabled={pending}
+          onClick={() => void onSignOut()}>Salir de la cuenta</button>}
+      </div>
     </header>
-    <div className="session-strip"><span>PARTIDAS ASÍNCRONAS · HASTA 10 PARTIDOS</span>
-      <span>UN ESTADO NACIONAL COMPARTIDO</span></div>
+    <div className="session-strip"><span>ASAMBLEA · HASTA 10 PARTIDOS</span>
+      <span>DECISIONES Y VOTACIONES GUARDADAS</span></div>
 
     {!authReady ? <main className="match-entry"><p role="status">Comprobando identidad…</p></main>
     : !client ? <main className="match-entry"><h1>Servidor no configurado</h1>
       <p className="muted">Conecta el proyecto ACT OF STATE.</p></main>
-    : !user ? <main className="match-entry">
-      <p className="eyebrow">ASAMBLEA NACIONAL</p><h1>El poder no se ejerce solo.</h1>
-      <p className="muted">Diez partidos, una nación persistente. Inicia sesión para fundar o unirte a una partida.</p>
-      <AuthGateway redirectTo={isInviteCode(inviteCode) ?
-        invitationUrl(window.location.origin, inviteCode) : window.location.origin + '/multiplayer'} />
+    : !user ? <main className="match-entry game-match-entry">
+      <div className="game-entry-kicker">ACT OF STATE / PARTIDA PARLAMENTARIA</div>
+      <h1 className="game-entry-title">Forma tu partido</h1>
+      <p className="game-entry-lede">Entra con tu cuenta para unirte a una asamblea o crear una partida. Los acuerdos, votos y decisiones se guardan.</p>
+      {isInviteCode(inviteCode) && <p className="game-invite-notice" role="status">
+        Invitación recibida. Entra en tu cuenta para ocupar un escaño.</p>}
+      <div className="game-entry-auth">
+        <AuthGateway redirectTo={isInviteCode(inviteCode) ?
+          invitationUrl(window.location.origin, inviteCode) : window.location.origin + '/multiplayer'} />
+      </div>
+      <details className="game-entry-other-modes">
+        <summary>Elegir otro modo de juego</summary>
+        <GameModeSelect selected="parliament" />
+      </details>
       {error && <p role="alert" className="editorial-alert">{error}</p>}
     </main>
     : <>
@@ -377,7 +383,7 @@ export default function MultiplayerApp() {
         data-mobile-detail={statusDetail} data-mobile-activity={activityDetail}>
       <aside className="match-sidebar">
         <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />
-        <p className="eyebrow">CENTRO DE PARTIDAS</p><h1>Tu asamblea</h1>
+        <p className="eyebrow">TUS PARTIDAS</p><h1>Sala de partidas</h1>
         <div className="match-panel">
           <h3>Crear partida</h3>
           <form className="match-form" onSubmit={event => void onCreate(event)}>
@@ -439,9 +445,9 @@ export default function MultiplayerApp() {
       <section className="match-main">
         {loading && !world ? <p role="status">Cargando nación compartida…</p>
         : !world ? <div className="match-empty"><p className="eyebrow">SIN PARTIDA SELECCIONADA</p>
-          <h2>Convoca tu primera asamblea.</h2>
-          <p className="muted">Crea una partida o usa un código de invitación. Cada cuenta representará un partido distinto.</p>
-          <button type="button" className="primary-button" onClick={()=>navigateMobile('matches')}>Crear o unirme a una partida</button>
+          <h2>Elige una partida</h2>
+          <p className="muted">Crea una asamblea o entra con una invitación. Tu cuenta representa un partido en cada partida.</p>
+          <button type="button" className="primary-button" onClick={()=>navigateMobile('matches')}>Ver partidas disponibles</button>
         </div> : <>
           <div className="match-mobile-status match-status-overview">
             {(!mobile || (mobileSection==='status' && statusDetail==='overview'))
@@ -621,6 +627,9 @@ export default function MultiplayerApp() {
                 'La asamblea ha comenzado.')}>Comenzar legislatura</button>}
             {!host && <p role="status">Esperando la convocatoria del partido de gobierno.</p>}
           </div> : <div className="match-politics" id="match-dossiers">
+            <div className="match-game-agenda">
+              <details open={!mobile}>
+                <summary>Calendario y asuntos pendientes</summary>
             <WeeklyMissionControl key={world.match.id+':'+user!.id}
               world={world} userId={user!.id}
               onSelect={id => {
@@ -638,6 +647,8 @@ export default function MultiplayerApp() {
                 setReviewCabinet(false)
                 setMandateOptionId(null)
               }} />
+              </details>
+            </div>
             {dossier ? <div className="match-dossier">
               <p className="eyebrow">{dossier.category} · VERSIÓN {dossier.version}</p>
               <h3>{dossier.title}</h3><p>{dossier.context}</p>
