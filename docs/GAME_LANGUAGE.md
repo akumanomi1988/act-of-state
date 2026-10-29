@@ -77,3 +77,12 @@ starting a government or launching a legislature.
 
 All changes remain on the development branch, not on `main`.
 The original commercial-acceptance score is unchanged.
+
+## Rules layout
+
+The public `/guide` route now opens **one chapter at a time**. A compact
+chapter selector and optional full index replace a 16-section scrolling
+wall. `/guide#first-decision`, `#calendar`, `#parliament` and other
+existing help links still open the exact chapter when revisited or reloaded.
+The default is "Tu primera decisión". No login, game mutation or
+editorial permission is required to read the rules.
