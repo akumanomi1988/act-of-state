@@ -84,7 +84,7 @@ describe('role-centric multiplayer political agenda',()=>{
     const world=makeWorld(); world.dossiers=world.dossiers.filter(x=>x.release_kind==='intro')
     render(<MatchAgendaBoard world={world} userId={guest}
       selectedDossierId={null} onSelect={vi.fn()}/>)
-    expect(screen.getByText(/No hay una agenda semanal aprobada/)).toBeInTheDocument()
+    expect(screen.getByText(/Esta semana no hay nuevos expedientes/)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button',{name:'Esta semana'}))
     expect(screen.getByText(/No existen asuntos para este filtro/)).toBeInTheDocument()
   })

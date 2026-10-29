@@ -690,7 +690,7 @@ export default function MultiplayerApp() {
                   Tesoro: {number(cabinetEvent.state_after.treasury_m_eur)} M€;
                   confianza: {cabinetEvent.state_after.trust}%.</p>
                 : <>
-                  <p>Solo el gobierno firma la decisión nacional, y únicamente después de que la asamblea apruebe esa opción. El mandato se verifica también en la base de datos.</p>
+                  <p>El Gobierno solo puede firmar medidas aprobadas por el Parlamento.</p>
                   {signatureUncertain && <div className="fictitious-notice" role="status">
                     No se ha podido confirmar la firma de este expediente.
                     <button type="button" className="text-button" disabled={pending}

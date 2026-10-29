@@ -22,6 +22,12 @@ Reproduce with `npm run progress`, validate the committed report with
 `docs/development-coverage.json`; neither lines of code nor iterations
 themselves award progress.
 
+**Game UX and language pass (AOS-061, development only):**
+[Player modes, single in-game menu and parliamentary action-first flow](docs/GAME_LANGUAGE.md).
+The game now uses coherent Government/Parliament terminology and keeps
+the real dossier before optional calendars on mobile. Production remains
+unchanged.
+
 **Mobile UX follow-up (AOS-060, development only):** Bottom thumb-reachable
 navigation and [on-demand Economy / Population / History views](docs/MOBILE_UX_REDESIGN.md)
 replace the remaining long mobile reports. Multiplayer activity also uses

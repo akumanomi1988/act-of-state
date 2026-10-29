@@ -142,3 +142,35 @@ Chromium responsive/WCAG checks and simulated multiaccount regression.
 They are **not** a captured human Product Design browser audit, nor
 physical iOS/Android usability signoff. Production remains unchanged;
 the original final mobile human acceptance remains pending.
+
+## AOS-061 — Player-facing game flows and terminology (2026-10-29)
+
+This increment uses a specific **game interaction** rather than a
+marketing site or administrative dashboard:
+
+- A main mode selector exposes only implemented modes:
+  **Individual / Parliamentary / Demo**. It does not pretend that clicking
+  a mode creates, copies, deletes or restarts a save.
+- A unified in-game **Menú** switches safely between modes and opens the
+  rules and status screen. Existing login identity follows the Supabase
+  session; routes do not pass JWTs in query strings.
+- The **login** panel asks for the account email and password. The
+  historic email-link flow remains secondary; it is not promoted as
+  standard game access.
+- On phones the **actual parliamentary dossier and its options** render
+  ahead of the weekly calendar, 10-item agenda and history. Extra matters
+  are in a user-controlled **Calendario y asuntos pendientes** disclosure.
+  Desktop keeps the broader parliamentary overview.
+- The active party's name, Government/Opposition role, seat, country and
+  UTC game day appear immediately beside the match title, instead of
+  showing only an abstract match ID or technical rule version.
+- Plain institutional language replaces generic promotional lines and
+  backend jargon. The player-facing system distinguishes *party position*,
+  *parliamentary vote*, *law approval*, and the *Government's signed
+  measure*. Neither frontend labels nor session navigation change the
+  underlying parliament authorization.
+
+Language is now governed by
+[Game Language and UX Contract](GAME_LANGUAGE.md).
+These improvements do not certify physical-device usability or a
+hosted multiweek human campaign.

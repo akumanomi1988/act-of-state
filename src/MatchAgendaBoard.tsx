@@ -73,8 +73,8 @@ export default function MatchAgendaBoard({ world, userId, selectedDossierId, onS
       </div>
     </header>
     {snapshot.weekly.total === 0 && <p className="match-agenda-advisory" role="status">
-      No hay una agenda semanal aprobada para esta fecha. Los expedientes ficticios del
-      programa permanente no sustituyen noticias verificadas.
+      Esta semana no hay nuevos expedientes. Puedes continuar con el programa inicial;
+      sus casos son ficticios.
     </p>}
     {snapshot.next && <button type="button" className="match-agenda-next"
       onClick={next}>Ir al siguiente asunto pendiente</button>}

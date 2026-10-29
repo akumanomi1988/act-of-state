@@ -296,7 +296,7 @@ describe('ten-party multiplayer assembly', () => {
     await waitFor(() => expect(mocks.submitDecision).toHaveBeenCalledWith(
       governmentId, dossierId, 1, optionId))
     expect(await screen.findByText('10.600 M€')).toBeInTheDocument()
-    expect(screen.getByText(/Los diez partidos comparten el nuevo estado nacional/))
+    expect(screen.getByText(/Decreto firmado. El resultado figura en el acta del Gobierno/))
       .toBeInTheDocument()
   })
   it('blocks a host cabinet signature until Parliament approves the selected option', async () => {
@@ -321,7 +321,7 @@ describe('ten-party multiplayer assembly', () => {
       {name:'Revisar decisión de gobierno'})).toBeEnabled())
     fireEvent.click(screen.getByRole('button',{name:'Revisar decisión de gobierno'}))
     fireEvent.click(screen.getByRole('button',{name:'Firmar y ejecutar'}))
-    expect(await screen.findByText(/Firma confirmada en el servidor/)).toBeInTheDocument()
+    expect(await screen.findByText(/Decreto firmado. El resultado figura en el acta del Gobierno/)).toBeInTheDocument()
     expect(mocks.submitDecision).toHaveBeenCalledTimes(1)
     expect(screen.queryByRole('button',{name:'Firmar y ejecutar'})).not.toBeInTheDocument()
   })
