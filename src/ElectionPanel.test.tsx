@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ElectionPanel from './ElectionPanel'
 import type { ElectionState } from './lib/elections'
@@ -111,6 +111,26 @@ describe('national election experience', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Publicar programa' }))
     await waitFor(() => expect(mocks.setPartyManifesto).toHaveBeenCalledWith(matchId, 70))
     await waitFor(() => expect(mocks.fetchElectionState).toHaveBeenCalledTimes(2))
+  })
+
+  it('does not let a previous match poll overwrite the newly selected electorate',async()=>{
+    let oldResolve!: (value:ElectionState)=>void
+    const oldRead=new Promise<ElectionState>(resolve=>{oldResolve=resolve})
+    const newer={...state(),projection:{...projection,parties:[
+      {...projection.parties[0],voteSharePct:60,seats:60},
+      {...projection.parties[1],voteSharePct:40,seats:40}
+    ]}}
+    mocks.fetchElectionState.mockReset()
+      .mockReturnValueOnce(oldRead).mockResolvedValueOnce(newer)
+    const {rerender}=render(<ElectionPanel matchId={matchId} userId={userId}
+      active onElectionCertified={onElectionCertified}/>)
+    await waitFor(()=>expect(mocks.fetchElectionState).toHaveBeenCalledTimes(1))
+    rerender(<ElectionPanel matchId="new-match-id" userId={userId}
+      active onElectionCertified={onElectionCertified}/>)
+    expect(await screen.findByText(/60.00% · 60 escaños/)).toBeInTheDocument()
+    await act(async()=>{oldResolve(state())})
+    expect(screen.queryByText(/55.00% · 55 escaños/)).toBeNull()
+    expect(screen.getByText(/60.00% · 60 escaños/)).toBeInTheDocument()
   })
 
   it('certifies elections only at maturity and refreshes the national government', async () => {

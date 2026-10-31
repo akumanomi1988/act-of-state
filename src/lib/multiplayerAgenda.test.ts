@@ -96,4 +96,29 @@ describe('real match political action board', () => {
     expect(agenda.weekly).toEqual({total:0,signed:0,stances:0})
     expect(visibleMatchDossiers(agenda,'weekly')).toEqual([])
   })
+  it('treats four permanent reform chapters as non-editorial, role-safe business',()=>{
+    const world=makeWorld()
+    world.dossiers.push(
+      {...intro('welfare'),programme_chapter:'society',programme_order:1},
+      {...intro('jobs'),programme_chapter:'economy',programme_order:1},
+      {...intro('judges'),programme_chapter:'institutions',programme_order:1},
+      {...intro('water'),programme_chapter:'resilience',programme_order:1}
+    )
+    world.events=[signed('welfare')]
+    world.stances=[stance(opponentId,'jobs')]
+    const host=buildMatchAgenda(world,hostId)
+    const opponent=buildMatchAgenda(world,opponentId)
+    expect(host.foundation).toEqual({total:2,signed:0,stances:0})
+    expect(host.reforms).toEqual({total:4,signed:1,stances:0})
+    expect(opponent.reforms).toEqual({total:4,signed:1,stances:1})
+    expect(visibleMatchDossiers(host,'reforms').map(x=>x.dossier.id))
+      .toEqual(['welfare','jobs','judges','water'])
+    expect(visibleMatchDossiers(host,'society').map(x=>x.dossier.id))
+      .toEqual(['welfare'])
+    expect(visibleMatchDossiers(opponent,'action').map(x=>x.dossier.id))
+      .toContain('judges')
+    expect(visibleMatchDossiers(opponent,'action').map(x=>x.dossier.id))
+      .not.toContain('jobs')
+  })
+
 })

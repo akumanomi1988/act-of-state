@@ -20,6 +20,14 @@ const labels: Record<string, string> = {
   highland: 'Territorios de Montaña', frontier: 'Frontera Interior'
 }
 
+function calibratedLabel(code: string, dimension: PopulationDimension, model: string) {
+  if (model === 'households-v3' && dimension === 'settlement') {
+    return code === 'urban' ? 'Municipios de 10.000 habitantes o más' :
+      code === 'rural' ? 'Municipios de menos de 10.000 habitantes' : code
+  }
+  return labels[code] ?? code
+}
+
 export default function PopulationPanel({ governmentId, identity }: Props) {
   const [profile, setProfile] = useState<PopulationProfile | null>(null)
   const [dimension, setDimension] = useState<PopulationDimension>('income')
@@ -75,7 +83,7 @@ export default function PopulationPanel({ governmentId, identity }: Props) {
       <div className="population-segments">
         {rows.map(segment => <article className="population-segment" key={dimension+segment.code}>
           <div className="population-segment-label">
-            <h3>{labels[segment.code] ?? segment.code}</h3>
+            <h3>{calibratedLabel(segment.code,dimension,profile.modelVersion)}</h3>
             <span>{segment.households} hogares · {segment.residents} integrantes
               {dimension === 'district' && profile.districts &&
                 ' · ' + (profile.districts.find(d => d.code === segment.code)?.seats ?? 0) +
@@ -85,7 +93,7 @@ export default function PopulationPanel({ governmentId, identity }: Props) {
             <span>Apoyo político</span><strong>{segment.support}%</strong>
           </div>
           <div className="population-meter" role="progressbar"
-            aria-label={'Apoyo de '+(labels[segment.code] ?? segment.code)}
+            aria-label={'Apoyo de '+(calibratedLabel(segment.code,dimension,profile.modelVersion))}
             aria-valuenow={segment.support} aria-valuemin={0} aria-valuemax={100}>
             <span style={{width:segment.support+'%'}} />
           </div>
@@ -93,7 +101,7 @@ export default function PopulationPanel({ governmentId, identity }: Props) {
             <span>Confianza institucional</span><strong>{segment.trust}%</strong>
           </div>
           <div className="population-meter trust" role="progressbar"
-            aria-label={'Confianza de '+(labels[segment.code] ?? segment.code)}
+            aria-label={'Confianza de '+(calibratedLabel(segment.code,dimension,profile.modelVersion))}
             aria-valuenow={segment.trust} aria-valuemin={0} aria-valuemax={100}>
             <span style={{width:segment.trust+'%'}} />
           </div>

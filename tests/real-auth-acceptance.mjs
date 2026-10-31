@@ -131,6 +131,36 @@ const affectedParty=forecast.projection.parties.find(p=>p.userId===players[9].id
 pass(affectedParty?.campaignInfluenceTotal===campaignAct.influence_after,
   'National election projection discarded time-adjusted campaign influence')
 
+// AOS-058: same server-owned electorate under REAL GoTrue JWTs, with
+// a hypothetical *personal* programme. No signed act or rival mutation.
+const whatIf=await rpc(host,'preview_election_strategy',{
+  p_match_id:match.id,p_policy:25
+})
+pass(whatIf.modelVersion==='electoral-strategy-v1' &&
+  whatIf.playerId===host.id && whatIf.matchId===match.id &&
+  whatIf.proposedPolicy===25 && whatIf.committed===false,
+  'Strategy preview did not preserve authenticated player scope')
+pass(whatIf.current.modelVersion==='electoral-districts-v2' &&
+  JSON.stringify(whatIf.current)===JSON.stringify(forecast.projection),
+  'What-if baseline disagrees with the committed live election')
+pass(whatIf.hypothetical.parties.reduce((n,p)=>n+p.seats,0)===100 &&
+  whatIf.hypothetical.districts.length===6 &&
+  whatIf.hypothetical.districts.reduce((n,d)=>n+d.parties.reduce((s,p)=>s+p.seats,0),0)===100,
+  'Hypothetical district seat mass was not conserved')
+pass(whatIf.hypothetical.parties.find(p=>p.userId===host.id)?.manifestoPolicy===25 &&
+  whatIf.hypothetical.parties.filter(p=>p.userId!==host.id).every(p=>
+    p.manifestoPolicy===forecast.projection.parties.find(x=>x.userId===p.userId)?.manifestoPolicy),
+  'Strategy endpoint changed a rival manifesto or failed to override caller')
+await rejectedRpc(outsider,'preview_election_strategy',{
+  p_match_id:match.id,p_policy:25
+},/MATCH_FORBIDDEN/)
+await rejectedRpc(host,'preview_election_strategy',{
+  p_match_id:match.id,p_policy:101
+},/STRATEGY_INVALID_POLICY/)
+const sameElection=await rpc(host,'get_election_state',{p_match_id:match.id})
+pass(JSON.stringify(sameElection.projection)===JSON.stringify(forecast.projection),
+  'Read-only preview changed the real election state')
+
 const dossierId='energy-resilience'
 const optionId='household-support'
 const votes=await Promise.allSettled(players.map(actor=>
@@ -251,13 +281,22 @@ try {
     page.on('pageerror',error=>failures.push(error.message))
     await page.goto(APP+'/multiplayer',{waitUntil:'networkidle'})
     await page.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor({timeout:15000})
-    const board=page.getByRole('region',{name:'Centro de decisiones de la asamblea'})
-    await board.getByRole('heading',{name:'Consejo político'}).waitFor()
+    if(width<=760)await page.locator('.match-game-agenda summary').click()
+    const board=page.getByRole('region',{name:'Expedientes del Parlamento'})
+    await board.getByRole('heading',{name:'Expedientes parlamentarios'}).waitFor()
+    if(width<=760)await page.getByRole('navigation',{name:'Navegación de la asamblea'}).getByRole('button',{name:'Mi país'}).click()
     await page.getByText('10 / 10').first().waitFor()
+    if(width<=760)await page.getByRole('navigation',{name:'Navegación de la asamblea'}).getByRole('button',{name:'Jugar'}).click()
+    if(index===0 || index===5) {
+      await board.getByRole('button',{name:'Reformas'}).click()
+      await board.getByRole('button',{name:/Pacto de pensiones y generaciones/}).waitFor()
+      pass(await board.getByText('REFORMA · SOCIETY').count()>0,
+        'National reform was not distinguished from current news')
+    }
     await board.getByRole('button',{name:'Decisiones firmadas'}).click()
     await board.getByRole('button',{name:/Plan de resiliencia energética/}).waitFor()
     if(index===0){
-      await board.getByText('Gobierno ejecutivo').waitFor()
+      await board.getByText('Gobierno',{exact:true}).waitFor()
       await page.getByText('COMPETENCIA DEL GOBIERNO').waitFor()
     }else{
       await board.getByText('Partido de oposición').waitFor()
@@ -287,9 +326,120 @@ try {
     pass(failures.length===0,'React browser runtime errors: '+failures.join('; '))
     await context.close()
   }
+
+  // AOS-050: real UI sign-in, password rotation and persistent shared game.
+  // Unlike injected-JWT contexts above, this context begins with no Auth storage.
+  const passwordContext=await browser.newContext({viewport:{width:390,height:900}})
+  const passwordPage=await passwordContext.newPage()
+  const passwordErrors=[]
+  passwordPage.on('pageerror',error=>passwordErrors.push(error.message))
+  await passwordPage.goto(APP+'/multiplayer',{waitUntil:'networkidle'})
+  await passwordPage.getByRole('button',{name:'Iniciar sesión'}).waitFor()
+  await passwordPage.getByLabel('Correo electrónico').fill(host.email)
+  await passwordPage.getByLabel('Contraseña',{exact:true}).fill(password)
+  await passwordPage.getByRole('button',{name:'Iniciar sesión'}).click()
+  await passwordPage.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor({timeout:15000})
+  pass(true,'Password UI established a real GoTrue browser session')
+  await passwordPage.reload({waitUntil:'networkidle'})
+  await passwordPage.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor({timeout:15000})
+  pass(true,'Password UI restored the shared match after reload')
+  await passwordPage.getByRole('navigation',{name:'Navegación de la asamblea'})
+    .getByRole('button',{name:'Partidas'}).click()
+  await passwordPage.getByRole('button',{name:'Seguridad de la cuenta · Contraseña'}).click()
+  const rotatedPassword=password+'-rotated'
+  await passwordPage.getByLabel('Contraseña nueva (mínimo 12 caracteres)').fill(rotatedPassword)
+  await passwordPage.getByLabel('Repetir contraseña nueva').fill(rotatedPassword)
+  await passwordPage.getByRole('button',{name:'Guardar contraseña'}).click()
+  await passwordPage.getByText('Contraseña actualizada. Ya puedes entrar sin solicitar un enlace por correo.')
+    .waitFor({timeout:15000})
+  pass(true,'Authenticated password rotation was confirmed by local GoTrue')
+  await passwordPage.getByRole('button',{name:'Cerrar sesión'}).click()
+  await passwordPage.getByRole('button',{name:'Iniciar sesión'}).waitFor()
+  await passwordPage.getByLabel('Correo electrónico').fill(host.email)
+  await passwordPage.getByLabel('Contraseña',{exact:true}).fill(rotatedPassword)
+  await passwordPage.getByRole('button',{name:'Iniciar sesión'}).click()
+  await passwordPage.getByRole('heading',{name:'AOS-045 Live HTTP Assembly'}).waitFor({timeout:15000})
+  pass(true,'Rotated password re-authenticated the same existing party')
+  pass(passwordErrors.length===0,'Password browser runtime errors: '+passwordErrors.join('; '))
+  await passwordPage.screenshot({path:'test-results/browser/auth-password-390.png',fullPage:true})
+  await passwordContext.close()
 } finally { await browser.close() }
+/**
+ * AOS-050: genuinely authenticated TEN-PARTY parliamentary approval of the
+ * second, newly authored permanent campaign, on the SAME immutable nation.
+ * Existing founding historical act, training policies and real editorial
+ * dossier embargo stay separate. No production users, email or privileged API.
+ */
+const reformId='pension-covenant'
+const reformChoice='retirement-timetable'
+const reformWorld=await rpc(players[2],'get_match_world',{p_match_id:match.id})
+const newReforms=reformWorld.dossiers.filter(d=>d.release_kind==='intro' &&
+  d.programme_chapter && d.programme_chapter!=='founding')
+pass(newReforms.length===18 && new Set(newReforms.map(d=>d.id)).size===18,
+  'Real Supabase catalogue is missing the 18 permanent national reforms')
+pass(reformWorld.dossiers.filter(d=>d.programme_chapter==='founding').length===10 &&
+  reformWorld.options.length===84,
+  'The ten unchanged founding scenarios and 84 alternatives were not visible')
+pass(newReforms.every(d=>d.context.startsWith('Escenario ficticio:') &&
+  d.source_url===null && d.available_from===null),
+  'Permanent fiction was misrepresented as sourced news')
+const reformStances=await Promise.allSettled(players.map(actor=>
+  rpc(actor,'record_match_stance',{p_match_id:match.id,
+    p_dossier_id:reformId,p_dossier_version:1,p_option_id:reformChoice})
+))
+pass(reformStances.every(v=>v.status==='fulfilled'),
+  'All ten real-JWT parties must be able to take a reform policy stance')
+const reformBill=await rpc(host,'propose_parliament_bill',{
+  p_match_id:match.id,p_dossier_id:reformId,p_dossier_version:1,
+  p_option_id:reformChoice
+})
+pass(reformBill.status==='open','Real reform bill proposal was not permitted')
+for(const actor of players.slice(0,4))
+  await rpc(actor,'cast_parliament_vote',{p_bill_id:reformBill.id,p_choice:'no'})
+for(const actor of players.slice(4,10))
+  await rpc(actor,'cast_parliament_vote',{p_bill_id:reformBill.id,p_choice:'yes'})
+const reformParliament=await rpc(players[7],'get_parliament_state',{
+  p_match_id:match.id
+})
+pass(reformParliament.bills.find(x=>x.id===reformBill.id)?.status==='passed' &&
+  reformParliament.votes.filter(v=>v.bill_id===reformBill.id).length===10,
+  'Reform failed to pass an authentic ten-person binding vote')
+const reformAct=await rpc(host,'submit_decision',{
+  p_government_id:govId,p_dossier_id:reformId,
+  p_dossier_version:1,p_option_id:reformChoice
+})
+pass(reformAct.state_before.treasury_m_eur===10600 &&
+  reformAct.state_after.treasury_m_eur===10730 &&
+  reformAct.option_title_snapshot?.length>3,
+  'Versioned economic consequence of the national pension reform was not signed')
+const reformRetry=await rpc(host,'submit_decision',{
+  p_government_id:govId,p_dossier_id:reformId,
+  p_dossier_version:1,p_option_id:reformChoice
+})
+pass(reformRetry.id===reformAct.id,'Reform network retry produced two signed laws')
+await rejectedRpc(host,'submit_decision',{
+  p_government_id:govId,p_dossier_id:reformId,
+  p_dossier_version:1,p_option_id:'basic-pension-floor'
+},/DOSSIER_ALREADY_DECIDED/)
+const reformObserved=await rpc(players[8],'get_match_world',{p_match_id:match.id})
+pass(reformObserved.events.length===2 &&
+  reformObserved.events.some(event=>event.id===decision.id) &&
+  reformObserved.events.some(event=>event.id===reformAct.id) &&
+  reformObserved.government.treasury_m_eur===10730,
+  'Independent opposition identity cannot see both persistent reforms and founding act')
+await rejectedRpc(outsider,'get_match_world',{
+  p_match_id:match.id
+},/MATCH_FORBIDDEN/)
+console.log('AOS_REFORM_PARLIAMENT_PASS',JSON.stringify({
+  permanentCases:28,foundingUnchanged:10,reforms:18,alternatives:84,
+  authenticPlayers:10,signedActs:2,finalTreasuryM:10730,
+  preservedHistoricalAct:true,
+  note:'Local GoTrue verified; no real news or human participant account'
+}))
+
+
 console.log('AOS_LIVE_AUTH_PASS',JSON.stringify({
   signedUp:actors.length,distinctPlayers:10,realHttp:true,
-  fixedSignedActs:1,browserContexts:10,decayV2:true,assertions,
-  note:'Ten authentic HTTP/JWT browser contexts, local GoTrue; no production SMTP or real people'
+  fixedSignedActs:2,browserContexts:11,passwordLogin:true,passwordRotation:true,decayV2:true,permanentCases:28,assertions,
+  note:'Ten injected-JWT browser contexts plus one real password UI journey, local GoTrue; no production SMTP or real people'
 }))

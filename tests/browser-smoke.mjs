@@ -54,7 +54,7 @@ function createServerState(userId=ua,governmentId=govId) {
     },
     get fiscal() {
       return {
-        governmentId,serverDay:'2026-10-23',currentWeek:'2026-10-19',
+        governmentId,serverDay:'2026-10-24',currentWeek:'2026-10-19',
         canEdit:true,canRevise:!this.policy.revised_this_week,
         policy:this.policy,projectedRevenueM:this.policy.tax_rate*95,
         projectedSpendingM:this.policy.health*24+this.policy.education*20+
@@ -182,7 +182,7 @@ async function routeApi(page,state,{emailLimit=false}={}) {
         const second='80000000-0000-4000-8000-000000000099'
         return json({
           projection:{modelVersion:'electoral-districts-v1',householdSampleSize:300,
-            cohorts:[],
+            cohorts:[{code:'workers',weight:100,idealPolicy:50,support:50,trust:50}],
             districts:[
               ['capital','Distrito Capital',25],
               ['industrial','Corredor Industrial',20],
@@ -190,8 +190,10 @@ async function routeApi(page,state,{emailLimit=false}={}) {
               ['agrarian','Llanuras Agrarias',15],
               ['highland','Territorios de Montaña',12],
               ['frontier','Frontera Interior',10]
-            ].map(([code,label,seats])=>{
-              const first=Math.ceil(seats*0.54)
+            ].map(([code,label,seats],index)=>{
+              // Each district must reconcile with the national 54/46 mandate,
+              // rather than independently ceil to an inconsistent 57/43.
+              const first=[14,11,10,8,6,5][index]
               return {code,label,seats,households:30,residents:90,
                 parties:[
                   {userId:state.user.id,partyName:'Gobierno compartido',
@@ -431,6 +433,10 @@ async function run(name,fn) {
     console.error('FAIL '+name,error)
   }
 }
+async function focusMobile(page,section,nav='Navegación del gobierno'){
+  if((page.viewportSize()?.width??1440)<=760)
+    await page.getByRole('navigation',{name:nav}).getByRole('button',{name:section,exact:true}).click()
+}
 try {
   browser=await chromium.launch({...(process.env.AOS_CHROMIUM_CHANNEL==='bundled'?{}:{channel:'chrome'}),headless:true,args:['--no-sandbox']})
 
@@ -440,9 +446,11 @@ try {
     const state=createServerState()
     await routeApi(page,state)
     await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    await page.getByText('¿Olvidaste tu contraseña o tienes una cuenta antigua?').click()
+    await page.getByRole('button',{name:'Acceder por correo'}).click()
     await page.getByLabel('Correo electrónico').fill('browser@example.invalid')
-    await page.getByRole('button',{name:'Enviar enlace de acceso'}).click()
-    try { await page.getByText(/se ha solicitado el enlace de acceso/i).waitFor({timeout:8000}) }
+    await page.getByRole('button',{name:'Enviar enlace'}).click()
+    try { await page.getByText(/Si la cuenta existe, recibirás un enlace de acceso/i).waitFor({timeout:8000}) }
     catch (err) {
       console.error('Browser OTP diagnostics:', JSON.stringify({
         count:state.otpCount,lastOtp:state.lastOtp,
@@ -465,10 +473,12 @@ try {
     const state=createServerState()
     await routeApi(page,state,{emailLimit:true})
     await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    await page.getByText('¿Olvidaste tu contraseña o tienes una cuenta antigua?').click()
+    await page.getByRole('button',{name:'Acceder por correo'}).click()
     await page.getByLabel('Correo electrónico').fill('browser@example.invalid')
-    await page.getByRole('button',{name:'Enviar enlace de acceso'}).click()
+    await page.getByRole('button',{name:'Enviar enlace'}).click()
     await page.getByRole('alert').waitFor()
-    assert.equal(await page.getByText(/se ha solicitado el enlace de acceso/i).count(),0)
+    assert.equal(await page.getByText(/Si la cuenta existe, recibirás un enlace de acceso/i).count(),0)
     assert.equal(state.otpCount,1)
     await context.close()
   })
@@ -501,6 +511,71 @@ try {
     await context.close()
   })
 
+  await run('320px navigation and help stay reachable without horizontal page scrolling',async()=>{
+    const context=await browser.newContext({viewport:{width:320,height:700}})
+    const page=await context.newPage()
+    const state=createServerState()
+    await routeApi(page,state)
+    await injectUser(page,state)
+    await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
+    const nav=page.getByRole('navigation',{name:'Navegación de la asamblea'})
+    await nav.getByRole('button',{name:'Jugar'}).waitFor()
+    const size=await nav.evaluate(element=>({
+      x:element.scrollWidth,w:element.clientWidth,
+      bottom:element.getBoundingClientRect().bottom,height:window.innerHeight
+    }))
+    assert.ok(size.bottom<=size.height+2,'Bottom navigation exceeds phone viewport')
+    assert.ok(size.x<=size.w+2,'Five primary actions require horizontal swipe at 320px')
+    const gameMenu=page.locator('.game-menu')
+    await gameMenu.locator('summary').click()
+    assert.equal(await gameMenu.getByRole('link',{name:/Reglas del juego/}).isVisible(),true)
+    assert.equal(await gameMenu.getByRole('link',{name:/Partida individual/}).isVisible(),true)
+    await checkMobileOverflow(page,'320px task navigation and help')
+    await checkA11y(page,'320px task navigation and help')
+    await context.close()
+  })
+
+  await run('Mobile solo opens on decisions and keeps other areas one tap away',async()=>{
+    const context=await browser.newContext({viewport:{width:390,height:844}})
+    const page=await context.newPage()
+    const state=createServerState()
+    await routeApi(page,state)
+    await injectUser(page,state)
+    await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    const app=page.locator('.solo-workspace')
+    assert.equal(await app.getAttribute('data-mobile-screen'),'decide')
+    assert.equal(await page.locator('.main-panel').isVisible(),true)
+    assert.equal(await page.locator('.side-panel').isVisible(),false)
+    assert.equal(await page.locator('.metrics-panel').isVisible(),false)
+    assert.equal(await page.locator('.solo-deep-insights').isVisible(),false)
+    await focusMobile(page,'Expedientes')
+    assert.equal(await page.locator('.side-panel').isVisible(),true)
+    assert.equal(await page.locator('.main-panel').isVisible(),false)
+    await focusMobile(page,'Mi país')
+    assert.equal(await page.locator('.metrics-panel').isVisible(),true)
+    assert.equal(await page.getByRole('region',{name:'Condiciones de vida de la población'}).count(),0)
+    await focusDetail(page,'Población')
+    await page.getByRole('region',{name:'Condiciones de vida de la población'}).waitFor()
+    assert.equal(await page.locator('.metrics-panel').isVisible(),false)
+    await focusDetail(page,'Resumen')
+    assert.equal(await page.locator('.metrics-panel').isVisible(),true)
+    assert.equal(await page.locator('.main-panel').isVisible(),false)
+    await focusMobile(page,'Decidir')
+    await page.getByRole('radio',{name:/Proteger a los hogares/}).check()
+    await page.getByRole('button',{name:'Revisar decisión'}).click()
+    assert.equal(await page.getByRole('button',{name:'Firmar y ejecutar decisión'}).isVisible(),true)
+    await checkMobileOverflow(page,'mobile single-task government navigation')
+    await checkA11y(page,'mobile single-task government navigation')
+    await page.screenshot({path:OUT+'/mobile-task-first-decisions.png',fullPage:true})
+    await context.close()
+  })
+
+async function focusDetail(page,label,nav='Apartados de Mi país'){
+  if((page.viewportSize()?.width??1440)<=760)
+    await page.getByRole('navigation',{name:nav})
+      .getByRole('button',{name:label,exact:true}).click()
+}
+
   await run('Authenticated regional electorate is accessible and mobile WCAG-safe',async()=>{
     const context=await browser.newContext({viewport:{width:390,height:844}})
     const page=await context.newPage()
@@ -508,6 +583,8 @@ try {
     await routeApi(page,state)
     await injectUser(page,state)
     await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    await focusMobile(page,'Mi país')
+    await focusDetail(page,'Población')
     await page.getByRole('button',{name:'Explorar población'}).click()
     await page.getByRole('button',{name:'Circunscripciones'}).click()
     await page.getByRole('heading',{name:'Distrito Capital'}).waitFor()
@@ -525,19 +602,26 @@ try {
     await routeApi(page,state)
     await injectUser(page,state)
     await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    await focusMobile(page,'Mi país')
+    await focusDetail(page,'Historial')
     const archive=page.getByRole('region',{name:'Archivo estratégico nacional'})
     await archive.getByRole('button',{name:'Explorar impacto'}).waitFor()
     await archive.getByRole('button',{name:'Explorar impacto'}).click()
     await archive.getByRole('status').filter({hasText:'No hay decisiones firmadas'}).waitFor()
+    await focusMobile(page,'Decidir')
     await page.getByRole('radio',{name:/Proteger a los hogares/}).check()
     await page.getByRole('button',{name:'Revisar decisión'}).click()
     await page.getByRole('button',{name:'Firmar y ejecutar decisión'}).click()
+    await focusMobile(page,'Mi país')
+    await focusDetail(page,'Historial')
     await archive.getByRole('button',{name:/Proteger a los hogares/}).waitFor()
     await archive.getByRole('radio',{name:'7 días'}).check()
     await archive.getByRole('heading',{name:'Plan de resiliencia energética'}).waitFor()
     await archive.getByText('-1.400 M€',{exact:true}).first().waitFor()
     assert.equal(state.events.length,1)
     await page.reload({waitUntil:'networkidle'})
+    await focusMobile(page,'Mi país')
+    await focusDetail(page,'Historial')
     const restored=page.getByRole('region',{name:'Archivo estratégico nacional'})
     await restored.getByRole('button',{name:'Explorar impacto'}).click()
     await restored.getByRole('button',{name:/Proteger a los hogares/}).waitFor()
@@ -556,6 +640,8 @@ try {
     await routeApi(page,state)
     await injectUser(page,state)
     await page.goto(BASE+'/',{waitUntil:'networkidle'})
+    await focusMobile(page,'Mi país')
+    await focusDetail(page,'Economía')
     await page.getByRole('heading',{name:'Presupuesto del Estado'}).waitFor()
     await page.getByLabel('Nuevo tipo fiscal').fill('27')
     await page.getByRole('button',{name:'Revisar nueva distribución'}).click()
@@ -565,6 +651,8 @@ try {
     assert.equal(state.policy.security,10)
     assert.equal(state.policy.tax_rate,27)
     await page.reload({waitUntil:'networkidle'})
+    await focusMobile(page,'Mi país')
+    await focusDetail(page,'Economía')
     await page.getByRole('heading',{name:'Presupuesto del Estado'}).waitFor()
     await page.getByText('40 %',{exact:true}).waitFor()
     await checkMobileOverflow(page,'mobile authenticated nation')
@@ -579,7 +667,7 @@ try {
     const state=createServerState()
     await routeApi(page,state)
     await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
-    await page.getByRole('heading',{name:'El poder no se ejerce solo.'}).waitFor()
+    await page.getByRole('heading',{name:'Forma tu partido'}).waitFor()
     await checkMobileOverflow(page,'anonymous multiplayer')
     await checkA11y(page,'anonymous multiplayer')
     await page.screenshot({path:OUT+'/multiplayer-mobile.png',fullPage:true})
@@ -593,19 +681,28 @@ try {
     await routeApi(page,state)
     await injectUser(page,state)
     await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
+    await focusMobile(page,'Asamblea','Navegación de la asamblea')
     const inbox=page.getByRole('region',{name:'Bandeja de actividad política'})
     await inbox.getByText('Planifica la actividad de campaña semanal').waitFor()
     assert.equal(await inbox.getByLabel('Avisos sin leer',{exact:true}).innerText(),'2 sin leer')
     await inbox.getByRole('button',{name:'Marcar leído'}).first().click()
     await page.getByText('1 sin leer',{exact:true}).waitFor()
+    await focusMobile(page,'Elecciones','Navegación de la asamblea')
     const observatory=page.getByRole('region',{name:'Observatorio electoral histórico'})
     await observatory.getByRole('heading',{name:'Observatorio de intención de voto'}).waitFor()
     await observatory.getByText('2 / 30').waitFor()
     await observatory.getByText('+2.00 puntos desde la primera captura del periodo').waitFor()
     await observatory.getByRole('radio',{name:'7 días'}).check()
     await observatory.getByText('2 / 7').waitFor()
+    await focusMobile(page,'Asamblea','Navegación de la asamblea')
+    await focusDetail(page,'Instituciones','Apartados de la asamblea')
     await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
-    await page.getByText(/No se ha publicado ninguna agenda editorial/).waitFor()
+    await page.getByText(/No se ha publicado ninguna agenda editorial/).waitFor({timeout:10000})
+      .catch(async error=>{
+        const panel=await page.locator('.weekly-accountability').innerText()
+          .catch(()=>'<weekly panel unavailable>')
+        throw new Error('WEEKLY_HISTORY_READ: '+panel+'; '+String(error))
+      })
     await page.getByRole('combobox',{name:'Semana política'}).selectOption('2026-10-12')
     await page.getByText('Plan político archivado').waitFor()
     assert.equal(await page.getByRole('link',{
@@ -616,9 +713,13 @@ try {
     await checkA11y(page,'weekly legislature history')
     await page.screenshot({path:OUT+'/weekly-history-mobile.png',fullPage:true})
     await page.reload({waitUntil:'networkidle'})
+    await focusMobile(page,'Asamblea','Navegación de la asamblea')
     await page.getByText('1 sin leer',{exact:true}).waitFor()
+    await focusMobile(page,'Elecciones','Navegación de la asamblea')
     await page.getByRole('region',{name:'Observatorio electoral histórico'})
       .getByText('2 / 30').waitFor()
+    await focusMobile(page,'Asamblea','Navegación de la asamblea')
+    await focusDetail(page,'Instituciones','Apartados de la asamblea')
     await page.getByRole('heading',{name:'Seguimiento de la legislatura'}).waitFor()
     await page.getByRole('combobox',{name:'Semana política'}).selectOption('2026-10-12')
     await page.getByText('Plan político archivado').waitFor()
@@ -631,13 +732,16 @@ try {
     const code='ab12ab12ab12ab12ab12ab12ab12ab12'
     await routeApi(page,state)
     await page.goto(BASE+'/multiplayer?invite='+code,{waitUntil:'networkidle'})
+    await page.getByText('¿Olvidaste tu contraseña o tienes una cuenta antigua?').click()
+    await page.getByRole('button',{name:'Acceder por correo'}).click()
     await page.getByLabel('Correo electrónico').fill('newplayer@example.invalid')
-    await page.getByRole('button',{name:'Recibir enlace de acceso'}).click()
+    await page.getByRole('button',{name:'Enviar enlace'}).click()
     assert.equal(state.otpCount,1)
     assert.equal(new URL(state.lastOtp.url).searchParams.get('redirect_to'),
       BASE+'/multiplayer?invite='+code)
     await injectUser(page,state)
     await page.reload({waitUntil:'networkidle'})
+    await focusMobile(page,'Partidas','Navegación de la asamblea')
     assert.equal(await page.getByRole('textbox',{name:'Código de invitación'}).inputValue(),code)
     await checkMobileOverflow(page,'multiplayer invitation deep link')
     await checkA11y(page,'multiplayer invitation deep link')
@@ -656,6 +760,7 @@ try {
     await routeApi(page,state)
     await injectUser(page,state)
     await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
+    await focusMobile(page,'Partidas','Navegación de la asamblea')
     await page.getByText('Parlamento ciudadano abierto').waitFor()
     await page.getByRole('button',{name:/Parlamento ciudadano abierto/}).click()
     await page.getByRole('textbox',{
@@ -707,6 +812,8 @@ try {
       await routeApi(page,state)
       await injectUser(page,state)
       await page.goto(BASE+'/',{waitUntil:'networkidle'})
+      await focusMobile(page,'Mi país')
+      await focusDetail(page,'Población')
       const panel=page.getByRole('region',{name:'Condiciones de vida de la población'})
       await panel.getByRole('meter',{name:'Bienestar'}).waitFor()
       await panel.getByRole('button',{name:'Explorar balance social'}).click()
@@ -721,17 +828,54 @@ try {
       await checkA11y(page,'daily social '+width)
       await page.screenshot({path:OUT+'/daily-social-'+width+'.png',fullPage:true})
       await page.reload({waitUntil:'networkidle'})
+      await focusMobile(page,'Mi país')
+      await focusDetail(page,'Población')
       await panel.getByRole('meter',{name:'Bienestar'}).waitFor()
       state.livingEmpty=true
       await page.reload({waitUntil:'networkidle'})
+      await focusMobile(page,'Mi país')
+      await focusDetail(page,'Población')
       await panel.getByText(/La primera medición diaria está pendiente/).waitFor()
       state.livingEmpty=false;state.livingError=true
       await page.reload({waitUntil:'networkidle'})
+      await focusMobile(page,'Mi país')
+      await focusDetail(page,'Población')
       await panel.getByRole('alert').waitFor()
       state.livingError=false
       await panel.getByRole('button',{name:'Reintentar balance social'}).click()
       await panel.getByRole('meter',{name:'Bienestar'}).waitFor()
       assert.equal(await panel.getByRole('alert').count(),0)
+      await context.close()
+    }
+  })
+  await run('Mandate observatory: 90-day evidence, fiscal stress, mobile accessibility and fallback',async()=>{
+    for(const width of [390,1440]) {
+      const context=await browser.newContext({viewport:{width,height:900}})
+      const page=await context.newPage()
+      const state=createServerState()
+      await routeApi(page,state)
+      await injectUser(page,state)
+      await page.goto(BASE+'/',{waitUntil:'networkidle'})
+      await focusMobile(page,'Mi país')
+      await focusDetail(page,'Historial')
+      const panel=page.getByRole('region',{name:'Observatorio estratégico del mandato'})
+      await panel.getByRole('button',{name:'Analizar mandato'}).click()
+      await panel.getByRole('heading',{name:'Resistencia presupuestaria'}).waitFor()
+      await panel.getByText('Ingresos un 10 % menores').waitFor()
+      await panel.getByRole('radio',{name:'90 días'}).check()
+      await panel.getByText(/Actas sociales:/).waitFor()
+      await checkMobileOverflow(page,'mandate observatory '+width)
+      await checkA11y(page,'mandate observatory '+width)
+      await page.screenshot({path:OUT+'/mandate-observatory-'+width+'.png',fullPage:true})
+      await page.reload({waitUntil:'networkidle'})
+      await focusMobile(page,'Mi país')
+      await focusDetail(page,'Historial')
+      await panel.getByRole('button',{name:'Analizar mandato'}).click()
+      await panel.getByText('Ingresos un 10 % menores').waitFor()
+      state.livingError=true
+      await panel.getByRole('button',{name:'Actualizar actas'}).click()
+      await panel.getByRole('alert').waitFor()
+      await panel.getByText('No se pudieron recuperar las actas de bienestar.').waitFor()
       await context.close()
     }
   })
@@ -750,20 +894,24 @@ try {
       await routeApi(page,state)
       await injectUser(page,state)
       await page.goto(BASE+'/',{waitUntil:'networkidle'})
+      await focusMobile(page,'Expedientes')
       const agenda=page.getByRole('region',{name:'Programa político y expedientes'})
       await agenda.getByText('0 / 10').waitFor()
       await agenda.getByRole('progressbar',{name:'Decisiones del programa firmadas'}).waitFor()
       await agenda.getByRole('button',{name:'Esta semana'}).click()
       await agenda.getByRole('status').filter({hasText:'No hay expedientes'}).waitFor()
-      await agenda.getByRole('button',{name:'Programa de gobierno'}).click()
+      await agenda.getByRole('button',{name:'Programa inicial'}).click()
       assert.equal(await agenda.getByRole('button',{name:/FICTICIO/}).count(),10)
+      await focusMobile(page,'Decidir')
       await page.getByRole('radio',{name:/Proteger a los hogares/}).check()
       await page.getByRole('button',{name:'Revisar decisión'}).click()
       await page.getByRole('button',{name:'Firmar y ejecutar decisión'}).click()
+      await focusMobile(page,'Expedientes')
       await agenda.getByText('1 / 10').waitFor()
       await agenda.getByLabel('Impactos acumulados de las decisiones fundacionales')
         .getByText('-1.400 M€').waitFor()
       await page.reload({waitUntil:'networkidle'})
+      await focusMobile(page,'Expedientes')
       await page.getByRole('region',{name:'Programa político y expedientes'}).getByText('1 / 10').waitFor()
       const restored=page.getByRole('region',{name:'Programa político y expedientes'})
       await restored.getByRole('button',{name:'Pendientes'}).click()
@@ -824,25 +972,40 @@ try {
       await routeApi(page,state)
       await injectUser(page,state)
       await page.goto(BASE+'/multiplayer',{waitUntil:'networkidle'})
-      const board=page.getByRole('region',{name:'Centro de decisiones de la asamblea'})
-      await board.getByRole('heading',{name:'Consejo político'}).waitFor()
+      await focusMobile(page,'Jugar','Navegación de la asamblea')
+      if(role.width<=760){
+        const dossier=page.locator('.match-dossier')
+        const menu=page.locator('.match-game-agenda')
+        await dossier.waitFor()
+        const first=await dossier.boundingBox(), second=await menu.boundingBox()
+        assert.ok(first && second && first.y<second.y,
+          'Mobile parliament must show a decision before the agenda')
+        await menu.locator('summary').click()
+      }
+      const board=page.getByRole('region',{name:'Expedientes del Parlamento'})
+      await board.getByRole('heading',{name:'Expedientes parlamentarios'}).waitFor()
+      await focusMobile(page,'Elecciones','Navegación de la asamblea')
       const campaign=page.getByRole('region',{name:'Campaña electoral'})
       await campaign.getByText('Influencia efectiva actual:',{exact:false}).first().waitFor()
       await campaign.getByText('Próximo desgaste: 2026-10-31 (UTC)').waitFor()
       await campaign.getByText(/se desgasta dos puntos cada siete días/).waitFor()
-      const mission=page.getByRole('region',{name:'Sala de operaciones legislativas'})
-      await mission.getByRole('heading',{name:'Operaciones legislativas'}).waitFor()
+      await focusMobile(page,'Jugar','Navegación de la asamblea')
+      const mission=page.getByRole('region',{name:'Agenda parlamentaria'})
+      await mission.getByRole('heading',{name:'Agenda parlamentaria'}).waitFor()
       await mission.getByText('TU VOTO PENDIENTE').waitFor()
       assert.match(await mission.getByLabel('Progreso legislativo semanal').innerText(),/1 \/ 1/)
       await mission.getByRole('button',{name:/Abrir siguiente asunto/}).click()
       await page.getByText('Ley semanal verificada de prueba',{exact:true}).first().waitFor()
+      await focusMobile(page,'Asamblea','Navegación de la asamblea')
+      await focusDetail(page,'Partidos','Apartados de la asamblea')
       await page.locator('.match-seat.occupied').filter({hasText:'Partido 10'}).waitFor()
+      await focusMobile(page,'Jugar','Navegación de la asamblea')
       assert.equal(await page.locator('.match-seat.occupied').count(),10)
       assert.equal(await board.getByText('0 / 1 firmados').count(),2)
-      const choices=await board.getByRole('button',{name:/PLAZO SEMANAL|ESCENARIO FICTICIO/}).all()
+      const choices=await board.getByRole('button',{name:/PLAZO SEMANAL|PROGRAMA INICIAL/}).all()
       assert.match(await choices[0].innerText(),/Ley semanal verificada de prueba/)
       if(role.index===0) {
-        await board.getByText('Gobierno ejecutivo').waitFor()
+        await board.getByText('Gobierno',{exact:true}).waitFor()
         await page.getByText('COMPETENCIA DEL GOBIERNO').waitFor()
       } else {
         await board.getByText('Partido de oposición').waitFor()
@@ -851,7 +1014,7 @@ try {
       await board.getByRole('button',{name:'Esta semana'}).click()
       assert.equal(await board.getByRole('button',{name:/PLAZO SEMANAL/}).count(),1)
       await board.getByRole('button',{name:'Programa inicial'}).click()
-      assert.equal(await board.getByRole('button',{name:/ESCENARIO FICTICIO/}).count(),1)
+      assert.equal(await board.getByRole('button',{name:/PROGRAMA INICIAL/}).count(),1)
       await checkMobileOverflow(page,'ten-party command board '+role.width)
       await checkA11y(page,'ten-party command board '+role.width)
       await page.screenshot({path:OUT+'/multi-command-'+role.width+'.png',fullPage:true})
@@ -864,8 +1027,14 @@ try {
     const page=await context.newPage()
     await page.goto(BASE+'/guide',{waitUntil:'networkidle'})
     await page.getByRole('heading',{level:1}).waitFor()
-    await page.getByRole('navigation',{name:'Contenido del manual'}).getByRole('link',{name:'Una semana política',exact:true}).click()
+    await page.getByRole('navigation',{name:'Capítulos de las reglas'})
+      .getByLabel('Elige un capítulo').selectOption('calendar')
     await page.getByRole('heading',{name:'Una semana política',exact:true}).waitFor()
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByRole('heading',{name:'Una semana política',exact:true}).waitFor()
+    await page.getByRole('navigation',{name:'Capítulos de las reglas'})
+      .getByLabel('Elige un capítulo').selectOption('access')
+    await page.getByRole('heading',{name:'Acceso y recuperación'}).waitFor()
     await checkMobileOverflow(page,'public player manual')
     await checkA11y(page,'public player manual')
     await context.close()

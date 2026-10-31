@@ -519,3 +519,34 @@ h1,h2,h3,h4,p{margin-top:0}h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;f
 @media (max-width: 600px) { .living-scores { grid-template-columns: 1fr; } .living-table th, .living-table td { font-size: .75rem; padding: 8px 4px; } }
 
 .guide-content{width:min(880px,100%);margin:0 auto;padding:32px 24px;line-height:1.7}.guide-content section{scroll-margin-top:20px;border-top:1px solid var(--line);padding:20px 0}.guide-content nav a{display:inline-block;padding:6px}.onboarding-panel{padding:20px;margin:20px 0;border:1px solid var(--line);background:var(--panel)}.onboarding-panel ol{display:grid;gap:12px;padding-left:24px}.onboarding-panel li{line-height:1.6}.onboarding-panel h2{margin-top:0}
+
+
+/* AOS-050: shared password-first identity. Editorial, match and solo retain one UI. */
+.auth-gateway{display:grid;gap:14px;max-width:560px}
+.auth-modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.auth-modes button{border:1px solid var(--line);background:#172122;color:var(--text);
+  text-align:left;padding:12px;font:600 12px 'IBM Plex Sans',sans-serif;line-height:1.4;
+  min-height:44px}
+.auth-modes button[aria-pressed="true"]{border-color:var(--gold);background:#34372e;color:var(--gold-strong)}
+.auth-modes button:hover:not(:disabled){border-color:var(--gold-strong)}
+.auth-form{display:grid;gap:10px}
+.auth-form label{color:var(--gold-strong);font:500 12px 'IBM Plex Sans',sans-serif}
+.auth-form input{box-sizing:border-box;width:100%;min-width:0;height:48px;border:1px solid #657370;
+  border-radius:2px;background:#101819;color:var(--text);font:400 14px 'IBM Plex Sans',sans-serif;
+  padding:11px 13px}
+.auth-form input:focus-visible,.auth-modes button:focus-visible,
+.account-security-trigger:focus-visible{outline:3px solid var(--gold-strong);outline-offset:2px}
+.auth-gateway .auth-explainer,.account-security p{line-height:1.65;color:var(--muted);font-size:12px;margin:0}
+.auth-form .primary-button{min-height:48px;margin-top:5px}
+.auth-notice,.auth-error{padding:11px 13px;margin:0;font-size:12px;line-height:1.6}
+.auth-notice{border-left:3px solid #90b9a3;background:#20302c;color:#d8e8dd}
+.auth-error{border-left:3px solid var(--error);background:#3a2424;color:#ffe0d7}
+.account-security{width:min(100% - 44px,760px);margin:18px auto;padding:14px 18px;
+  border:1px solid var(--line);background:#1b2526;display:grid;gap:13px}
+.account-security-trigger{padding:8px 4px;background:transparent;color:var(--gold-strong);
+  border:0;text-align:left;min-height:44px;font:600 12px 'IBM Plex Sans',sans-serif}
+.account-security .auth-form{max-width:420px}
+.account-security .auth-help{font-size:11px}
+.match-sidebar .account-security{width:100%;margin:0 0 18px}
+@media(max-width:470px){.auth-modes{grid-template-columns:1fr 1fr}.auth-modes button{font-size:11px;padding:9px}
+  .account-security{width:calc(100% - 22px);padding:12px}}

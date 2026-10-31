@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { within, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { MatchWorld } from './lib/multiplayer'
 import MultiplayerApp from './MultiplayerApp'
@@ -149,6 +149,36 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('ten-party multiplayer assembly', () => {
+  it('isolates multiplayer mobile tasks without changing the authoritative world',async()=>{
+    mocks.listMyMatches.mockResolvedValue(currentSummary('active',2))
+    mocks.fetchMatchWorld.mockResolvedValue(world('active',2))
+    render(<MultiplayerApp/>)
+    const nav=await screen.findByRole('navigation',{name:'Navegación de la asamblea'})
+    await screen.findByRole('heading',{name:'Legislature of Arcadia'})
+    const workspace=nav.nextElementSibling
+    expect(workspace).toHaveAttribute('data-mobile-screen','decide')
+    for(const [label,id] of [['Partidas','matches'],['Asamblea','activity'],
+      ['Elecciones','elections'],['Mi país','status'],['Jugar','decide']] as const){
+      fireEvent.click(screen.getByRole('button',{name:label}))
+      expect(workspace).toHaveAttribute('data-mobile-screen',id)
+    }
+    fireEvent.click(screen.getByRole('button',{name:'Mi país'}))
+    const statusNav=screen.getByRole('navigation',{name:'Apartados de Mi país'})
+    expect(statusNav).toHaveTextContent('Economía')
+    fireEvent.click(within(statusNav).getByRole('button',{name:'Población'}))
+    expect(workspace).toHaveAttribute('data-mobile-detail','people')
+    fireEvent.click(within(statusNav).getByRole('button',{name:'Historial'}))
+    expect(workspace).toHaveAttribute('data-mobile-detail','history')
+    fireEvent.click(screen.getByRole('button',{name:'Asamblea'}))
+    const activityNav=screen.getByRole('navigation',{name:'Apartados de la asamblea'})
+    expect(activityNav).toHaveTextContent('Avisos')
+    fireEvent.click(within(activityNav).getByRole('button',{name:'Partidos'}))
+    expect(workspace).toHaveAttribute('data-mobile-activity','parties')
+    fireEvent.click(within(activityNav).getByRole('button',{name:'Instituciones'}))
+    expect(workspace).toHaveAttribute('data-mobile-activity','institution')
+    expect(mocks.submitDecision).not.toHaveBeenCalled()
+  })
+
   it('coordinates ten-party readiness and blocks the host while anyone is pending',async()=>{
     const fixture=world('lobby',3)
     fixture.match.readiness_required=true
@@ -266,7 +296,7 @@ describe('ten-party multiplayer assembly', () => {
     await waitFor(() => expect(mocks.submitDecision).toHaveBeenCalledWith(
       governmentId, dossierId, 1, optionId))
     expect(await screen.findByText('10.600 M€')).toBeInTheDocument()
-    expect(screen.getByText(/Los diez partidos comparten el nuevo estado nacional/))
+    expect(screen.getByText(/Decreto firmado. El resultado figura en el acta del Gobierno/))
       .toBeInTheDocument()
   })
   it('blocks a host cabinet signature until Parliament approves the selected option', async () => {
@@ -291,7 +321,7 @@ describe('ten-party multiplayer assembly', () => {
       {name:'Revisar decisión de gobierno'})).toBeEnabled())
     fireEvent.click(screen.getByRole('button',{name:'Revisar decisión de gobierno'}))
     fireEvent.click(screen.getByRole('button',{name:'Firmar y ejecutar'}))
-    expect(await screen.findByText(/Firma confirmada en el servidor/)).toBeInTheDocument()
+    expect(await screen.findByText(/Decreto firmado. El resultado figura en el acta del Gobierno/)).toBeInTheDocument()
     expect(mocks.submitDecision).toHaveBeenCalledTimes(1)
     expect(screen.queryByRole('button',{name:'Firmar y ejecutar'})).not.toBeInTheDocument()
   })

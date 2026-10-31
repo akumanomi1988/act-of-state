@@ -1,5 +1,8 @@
 name: Live Auth acceptance (isolated local stack)
 on:
+  # Isolated development QA; never triggers Vercel publication.
+  push:
+    branches: [feature/aos-053-mandate-observatory]
   pull_request:
     branches: [main]
     paths:
@@ -90,6 +93,7 @@ jobs:
           name: aos-real-auth-screenshots
           path: |
             test-results/browser/auth-real-*.png
+            test-results/browser/auth-password-*.png
             test-results/browser/magic-email-*.png
           if-no-files-found: ignore
           retention-days: 7
