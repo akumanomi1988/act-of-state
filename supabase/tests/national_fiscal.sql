@@ -89,7 +89,7 @@ where government_id in (select gov_id from pg_temp.fiscal_fixture union
                         select other_id from pg_temp.fiscal_fixture)
 on conflict(government_id,effective_week) do nothing;
 -- Assert the fixture is eligible for the preceding week on all seven UTC days.
-do $
+do $$
 begin
   if exists (
     select 1 from public.governments g
@@ -102,7 +102,7 @@ begin
   ) then
     raise exception 'FISCAL_FIXTURE_PREVIOUS_WEEK_INVALID';
   end if;
-end $;
+end $$;
 -- Debt issuance test: one country has no treasury for a deficit.
 update public.governments set treasury_m_eur=0
 where id=(select other_id from pg_temp.fiscal_fixture);
