@@ -6,7 +6,7 @@ import { client, fetchWorld, friendlyError, startGovernment, submitDecision } fr
 import type { GovernmentWorld } from './lib/types'
 import { number, signed } from './lib/format'
 import {
-  INTRO_CASES, MANDATE_SIZE, chooseGuest, clearGuest, committedMandate,
+  INTRO_CASES, ALL_SOLO_CASES, ELECTION_CHECKPOINTS, MANDATE_SIZE, chooseGuest, clearGuest, committedMandate,
   consequences, electionResult, emptyGuest, evaluateGuest, importGuest,
   loadGuest, saveGuest, type GuestProgress, type SimpleChoice,
   type SimpleMetrics
@@ -46,6 +46,7 @@ export default function SimpleSoloApp() {
   const [guest, setGuest] = useState<GuestProgress>(loadGuest)
   const [skipImport, setSkipImport] = useState(false)
   const [screen, setScreen] = useState<Screen>('play')
+  const [acknowledgedCheckpoint, setAcknowledgedCheckpoint] = useState(0)
   const [selected, setSelected] = useState('')
   const [result, setResult] = useState<LastResult | null>(null)
   const [error, setError] = useState('')
@@ -66,6 +67,7 @@ export default function SimpleSoloApp() {
         setResult(null)
         setSkipImport(false)
         setNeedsSync(false)
+        setAcknowledgedCheckpoint(0)
         setScreen('play')
       }
       setUser(next)
@@ -116,7 +118,16 @@ export default function SimpleSoloApp() {
   const mandate = world ? committedMandate(world) : null
   const completed = world ? (mandate?.completed ?? 0) : guest.decisions.length
   const index = world ? (mandate?.nextIndex ?? 0) : guest.decisions.length
-  const scenario = INTRO_CASES[index] ?? null
+  // Checkpoints are acknowledgement screens; later reforms do not require a new account.
+  const stageStart = user
+    ? completed >= 24 && (completed > 24 || acknowledgedCheckpoint >= 24) ? 24
+      : completed >= 12 && (completed > 12 || acknowledgedCheckpoint >= 12) ? 12 : 0
+    : 0
+  const checkpoint = ELECTION_CHECKPOINTS[stageStart === 0 ? 0 : stageStart === 12 ? 1 : 2]
+  const stageTotal = checkpoint - stageStart
+  const stageProgress = Math.max(0, Math.min(stageTotal, completed - stageStart))
+  const reachedElection = completed >= checkpoint
+  const scenario = (user ? ALL_SOLO_CASES : INTRO_CASES)[index] ?? null
   const realDossier = scenario && world
     ? world.dossiers.find(d => d.id === scenario.id && d.version === scenario.version) : null
   const availableChoices: SimpleChoice[] = scenario && world
@@ -133,12 +144,10 @@ export default function SimpleSoloApp() {
         approval: world.government.approval, trust: world.government.trust }
     : guestSnapshot.metrics
   const needsImport = Boolean(user && world && guest.decisions.length > 0 && !skipImport)
-  const finished = completed >= MANDATE_SIZE
   const electionState = world && mandate
-    ? { treasury_m_eur: mandate.finalState.treasury_m_eur,
-        approval: mandate.finalState.approval, trust: mandate.finalState.trust }
+    ? mandate.signed[checkpoint - 1]?.state_after ?? mandate.finalState
     : guestSnapshot.metrics
-  const shownScreen: Screen = screen === 'play' && finished ? 'election' : screen
+  const shownScreen: Screen = screen === 'play' && reachedElection ? 'election' : screen
 
   function changeScreen(next: Screen) {
     setScreen(next)
@@ -282,7 +291,7 @@ export default function SimpleSoloApp() {
     changeScreen('play')
   }
 
-  const resultCase = result ? INTRO_CASES.find(item => item.id === result.caseId) : null
+  const resultCase = result ? ALL_SOLO_CASES.find(item => item.id === result.caseId) : null
   const resultChoice = resultCase?.options.find(item => item.id === result?.optionId)
   const story = resultCase && resultChoice && result
     ? consequences(resultCase, resultChoice, result.before, result.after) : null
@@ -342,12 +351,12 @@ export default function SimpleSoloApp() {
             </div>
             {scenario ? <article className="simple-card simple-dilemma" data-testid="simple-dilemma">
               <div className="simple-progress-line">
-                <span>DECISIÓN {completed + 1} DE {MANDATE_SIZE}</span>
+                <span>DECISIÓN {stageProgress + 1} DE {stageTotal}</span>
                 <span>OBJETIVO: GANAR LAS ELECCIONES</span>
               </div>
               <div className="simple-progress" role="progressbar" aria-label="Progreso del mandato"
-                aria-valuenow={completed} aria-valuemin={0} aria-valuemax={MANDATE_SIZE}>
-                <span style={{ width: (completed / MANDATE_SIZE * 100) + '%' }} />
+                aria-valuenow={stageProgress} aria-valuemin={0} aria-valuemax={stageTotal}>
+                <span style={{ width: (stageProgress / stageTotal * 100) + '%' }} />
               </div>
               <p className="simple-category">{scenario.category}</p>
               <h1>{realDossier?.title ?? scenario.title}</h1>
@@ -399,19 +408,24 @@ export default function SimpleSoloApp() {
               {story.warning && <p className="simple-warning">{story.warning}</p>}
               {result.isGuest && <p className="simple-footnote">Valores orientativos. Al guardarlos en tu cuenta se ejecutará el motor oficial.</p>}
               <button type="button" className="simple-primary" onClick={() => changeScreen('play')}>
-                {completed >= MANDATE_SIZE ? 'Ver las elecciones' : 'Siguiente decisión'}
+                {reachedElection ? 'Ver las elecciones' : 'Siguiente decisión'}
               </button>
             </article>
           </>}
           {shownScreen === 'election' && <>
-            <div className="simple-kicker">FINAL DEL PRIMER MANDATO · {MANDATE_SIZE} DECISIONES</div>
+            <div className="simple-kicker">FINAL DEL MANDATO {Math.floor(stageStart / 12) + 1} · {stageTotal} DECISIONES</div>
             <article className="simple-card simple-election" data-testid="simple-election">
               <div className="simple-election-icon" aria-hidden="true">★</div>
               <h1>{electionResult(electionState).headline}</h1>
               <div className="simple-election-vote">{electionResult(electionState).estimatedVote}%</div>
               <p>Voto estimado a partir de la popularidad, la confianza y las reservas públicas al terminar el mandato.</p>
               <p className="simple-footnote">Resultado ficticio del modo individual, no elección parlamentaria certificada. El objetivo era alcanzar el 50% de apoyo estimado.</p>
-              {user ? <a href="/advanced" className="simple-primary simple-action-link">Continuar gobernando · más decisiones</a> :
+              {user && checkpoint < ALL_SOLO_CASES.length ?
+                <button type="button" className="simple-primary" onClick={() => {
+                  setAcknowledgedCheckpoint(checkpoint)
+                  changeScreen('play')
+                }}>Continuar con el siguiente mandato</button> :
+              user ? <a href="/advanced" className="simple-primary simple-action-link">Ver todas mis estadísticas y campañas</a> :
                 <button type="button" className="simple-primary" onClick={() => changeScreen('access')}>Guardar mi mandato y continuar</button>}
               <button type="button" className="simple-secondary" onClick={() => changeScreen('history')}>Ver mis decisiones</button>
             </article>
@@ -420,7 +434,7 @@ export default function SimpleSoloApp() {
             <div className="simple-kicker">TUS DECISIONES</div>
             <h1>Así has gobernado</h1>
             <div className="simple-history-list">
-              {INTRO_CASES.map((item, i) => {
+              {(user ? ALL_SOLO_CASES : INTRO_CASES).map((item, i) => {
                 const event = world ? mandate?.signed[i] : guestSnapshot.events.find(e => e.caseId === item.id)
                 if (!event) return null
                 const optionId = 'option_id' in event ? event.option_id : event.optionId
