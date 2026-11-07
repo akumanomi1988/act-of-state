@@ -3,7 +3,8 @@ type Entry = { href: string; title: string; detail: string; mode?: GameMode }
 const entries: readonly Entry[] = [
  {href:'/',title:'Partida individual',detail:'Gobierna y firma tus decisiones',mode:'solo'},
  {href:'/multiplayer',title:'Partida parlamentaria',detail:'Hasta diez partidos',mode:'parliament'},
- {href:'/demo',title:'Partida de prueba',detail:'Cuatro decisiones sin cuenta'},
+ {href:'/advanced',title:'Modo avanzado',detail:'Presupuesto, observatorio y todas las reformas'},
+ {href:'/demo',title:'Ensayo antiguo',detail:'Cuatro ejemplos independientes'},
  {href:'/guide',title:'Reglas del juego',detail:'Acciones, votos y plazos'},
  {href:'/status',title:'Estado del servicio',detail:'Disponibilidad y versión'}
 ]
