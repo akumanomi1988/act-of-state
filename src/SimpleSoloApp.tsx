@@ -316,7 +316,7 @@ export default function SimpleSoloApp() {
       </button>
     </header>
     {!authReady ? <main className="simple-card" role="status">Comprobando tu partida…</main> : <>
-      {user && <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />}
+      {user && recovering && <AccountSecurity recovering onRecovered={() => setRecovering(false)} />}
       {user && (loading || !world) ? <main className="simple-card" role="status">
         <h1>{loading ? 'Recuperando tu país…' : 'No se pudo recuperar el Gobierno'}</h1>
         {error && <p role="alert">{error}</p>}
@@ -387,8 +387,8 @@ export default function SimpleSoloApp() {
               {needsSync && <button type="button" className="simple-secondary" onClick={() => setReload(x => x + 1)}>Sincronizar resultado pendiente</button>}
             </article> : <section className="simple-card">
               <h1>No hay más decisiones de este mandato.</h1>
-              <p>Consulta tu balance electoral o continúa en el modo avanzado.</p>
-              <button className="simple-primary" onClick={() => changeScreen('election')} type="button">Ver balance electoral</button>
+              <p>El servidor aún no ofrece el siguiente expediente. Tus decisiones guardadas están intactas. Puedes consultar el modo avanzado o reintentar cuando se publique el contenido.</p>
+              <a className="simple-primary simple-action-link" href="/advanced">Abrir mi gobierno avanzado</a>
             </section>}
           </>}
           {shownScreen === 'result' && story && result && <>
@@ -468,6 +468,7 @@ export default function SimpleSoloApp() {
             <button className="simple-secondary" type="button" onClick={() => changeScreen('play')}>Volver a jugar</button>
             <button className="simple-secondary" type="button" onClick={() => changeScreen('history')}>Historial de decisiones</button>
             {!user && <button className="simple-secondary" type="button" onClick={() => changeScreen('access')}>Guardar partida / Iniciar sesión</button>}
+            {user && !recovering && <AccountSecurity onRecovered={() => setRecovering(false)} />}
             {user && guest.decisions.length > 0 && <button className="simple-secondary" type="button" onClick={() => { setSkipImport(false); changeScreen('play') }}>Importar decisiones de invitado</button>}
             <a href="/multiplayer" className="simple-secondary simple-action-link">Partida parlamentaria · multijugador</a>
             <a href="/advanced" className="simple-secondary simple-action-link">Modo avanzado · presupuesto, estadísticas y reformas</a>
