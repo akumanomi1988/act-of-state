@@ -2,7 +2,7 @@ name: Quality (opt-in)
 on:
   # Isolated development QA; never triggers Vercel publication.
   push:
-    branches: [feature/aos-053-mandate-observatory]
+    branches: [feature/aos-053-mandate-observatory, feat/aos-radical-simple-play-20261107]
   pull_request:
     branches: [main]
   workflow_dispatch:
