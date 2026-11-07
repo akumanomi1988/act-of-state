@@ -12,7 +12,11 @@ vi.mock('./lib/game', () => ({
 }))
 vi.mock('./AccountSecurity', () => ({ default: () => null }))
 vi.mock('./AuthGateway', () => ({ default: () => null }))
-beforeEach(() => { window.localStorage.clear(); vi.restoreAllMocks() })
+beforeEach(() => {
+  window.localStorage.clear()
+  vi.restoreAllMocks()
+  Object.defineProperty(window, 'scrollTo', { configurable: true, value: vi.fn() })
+})
 afterEach(() => { cleanup(); window.localStorage.clear() })
 
 describe('the simplified homepage', () => {
