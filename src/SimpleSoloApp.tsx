@@ -6,7 +6,7 @@ import { client, fetchWorld, friendlyError, startGovernment, submitDecision } fr
 import type { GovernmentWorld } from './lib/types'
 import { number, signed } from './lib/format'
 import {
-  INTRO_CASES, ALL_SOLO_CASES, ELECTION_CHECKPOINTS, MANDATE_SIZE, chooseGuest, clearGuest, committedMandate,
+  INTRO_CASES, ALL_SOLO_CASES, ELECTION_CHECKPOINTS, chooseGuest, clearGuest, committedMandate,
   consequences, electionResult, emptyGuest, evaluateGuest, importGuest,
   loadGuest, saveGuest, type GuestProgress, type SimpleChoice,
   type SimpleMetrics
