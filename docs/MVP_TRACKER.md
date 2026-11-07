@@ -1,10 +1,110 @@
 # ACT OF STATE — MVP Verification Tracker
 
 **Canonical GitHub:** `akumanomi1988/act-of-state`; branch `main`.
-**Latest implementation increment:** AOS-049 verifiable production release, public diagnostics, disaster recovery and ten-party HTTP load — branch CI verified; exact hosted main release pending.
-**Strict product acceptance:** 2/18 fully accepted requirements (11.1%);
-this is an acceptance-gate tally, not a measure of implemented code or effort.
-Historical iteration evidence below is retained and may describe superseded blockers.
+**Latest implementation increment:** AOS-057 empirical household archetype calibration, validated in the development branch; last published main remains AOS-049.
+**Primary weighted engineering completion:** **68.7% (886/1290)**, versus **65.9% (850/1290)** in AOS-053. The original evidence coverage is **57/72 = 79.2%** versus **56/72 = 77.8%**, for historic comparability. Weights and independent proofs are reproducible from [the scorecard](DEVELOPMENT_PROGRESS.md), not file or commit counts.
+**Strict commercial acceptance (updated 2026-10-27):** **2/18 = 11.1%** (T003 + F004). The former 2/18 tally incorrectly credited MVP-T001 even though its hosted backup restoration checkpoint remains pending. This is a scorecard correction, not a loss of functionality.
+This technical-coverage indicator is a measure of explicitly defined scope, not an estimate of remaining engineering hours. Historical iteration evidence below is retained and may describe superseded blockers.
+
+## AOS-058 — Electoral strategy laboratory (2026-10-28)
+
+- Players can now perform an **authoritative, non-persistent** what-if
+  calculation of their own electoral programme, with national vote/seat
+  differences and all six constituency results.
+- The SQL election projection was factored into a shared server-owned
+  function; saved calculations, daily polls and certified election acts
+  still use the identical formula without any override.
+- Read-only RPC restricts previews to active members before the
+  campaign freeze. SQL + GoTrue + TypeScript/React regression suites
+  test seat conservation, isolation, zero mutation and stale responses.
+- [Strategy Lab documentation](STRATEGY_LAB.md). This is an added
+  gameplay capability, **not a completed original F007.4 human-playtest
+  checkpoint**; the original progress percentages remain unchanged.
+
+## AOS-057 — MVP-F004.4 acceptance completed (2026-10-27)
+
+- INE 2026 household-size projections and 2025 age/municipality reference
+  data inform new versioned `households-v3` archetypes: 300 families and
+  747 weighted residents (2.49 per household). Older worlds are unchanged.
+- [Calibration and balance review](POPULATION_CALIBRATION_REVIEW.md)
+  records official source URLs, proxy limitations, nine age/income cells,
+  six district/100-seat invariants and polarized/five-party stress scenarios.
+- Separate numerical Node oracle, PostgreSQL with rollback, and full
+  authenticated CI verify the implementation. Political persuasion still
+  uses fictional game parameters, not real opinion-poll measurements.
+- The original **MVP-F004.4 checkpoint is verified**, moving F004 to 4/4
+  and strict complete requirements to **2/18**. F007.4 (human 90-day
+  electoral balance) remains OPEN. No hosted deployment was executed.
+
+## AOS-056 — Acceptance integrity and dynamic completion (2026-10-27)
+
+- Fixed the commercial scorecard to require 4/4 verified checkpoints for every
+  accepted original requirement. MVP-T001 lacks the provider-hosted restoration
+  gate; it cannot be reported as fully complete. Previous 2/18=11.1% entries
+  below are dated historical claims, **superseded** by audited 1/18=5.6%.
+- Removed the hardcoded exact-two-accepted restriction so future completed
+  requirements can increment from 0 to 18 without altering calculation code.
+- Locked the 18 documented complexity multipliers by stable requirement ID.
+  Equal-total weight swapping is rejected as an unreviewed rubric revision.
+- Added regression cases for ineligible acceptance, valid future acceptance,
+  empty baseline and adversarial weighting. No gameplay or production changes.
+
+## AOS-054 — Evidence-based development progress metric (2026-10-26)
+
+- Replaced the misleading use of the 2/18 commercial acceptance tally as a development percentage.
+- Added `docs/development-coverage.json` with 72 explicit implementation checkpoints across all 18 MVP requirements, including evidence paths and individual verification states.
+- `scripts/development-progress.mjs` computes implementation and acceptance independently, reconstructs the AOS-052 baseline, rejects unsupported credited items and generates `docs/DEVELOPMENT_PROGRESS.md`.
+- Before AOS-053: **54/72 = 75.0%**; after AOS-053: **56/72 = 77.8%**; net **+2.8 pp** for actual new evidence. Acceptance remains **2/18 = 11.1%**.
+- The criteria are binary. An incomplete stage, a code commit without evidence, a synthetic editorial fixture or a local authentication test cannot count as a completed externally required gate. Score does not imply that the project is 77.8% through its calendar schedule.
+- A dedicated Node regression and the quality pipeline detect score/report drift on subsequent branches. No deploy or hosted migration authorized.
+
+## AOS-053 — Strategic Mandate Observatory and 12-week balance regression (development branch)
+
+- Added lazy authenticated 7/30/90-day economic, welfare and electoral analysis
+  to solo and multiplayer, with incomplete-days warnings and member isolation.
+- Added 10% revenue-loss and expenditure-rise budget stress scenarios,
+  explicitly labelled hypothetical and never persisted.
+- Added cross-source retrospective summaries, certified elections versus vote
+  estimates, 12-act fiscal retention caveat, read-error recovery and mobile UI.
+- Added a rollback-only 12-week fiscal transaction, debt exhaustion, duplicate
+  retry, bounded authorized history and second-user access denial matrix.
+- Vitest, Chromium and PostgreSQL workflows must PASS on this SHA before
+  the branch is called technically verified. No deployment, production data
+  migration or account alteration is authorized.
+- **Commercial acceptance still 2/18**; synthetic replay cannot certify real
+  90-day operation or electoral balance.
+
+## AOS-052 — Integrated national reforms + account access (development branch, 2026-10-26)
+
+- Consolidated the 18 authored national reform dossiers (54 outcomes), ten original
+  founding dossiers, unified password-first Auth and legacy recovery without
+  duplicating the user identity or changing existing immutable political acts.
+- Server-authoritative fiscal consequences, cabinet signature, parliamentary
+  votes, territory/elections response, archive, chapter filters and contextual
+  onboarding all use the existing authorisation and save model.
+- Database schema change is **migration on the branch only**; it has not been
+  applied to hosted Supabase. No Vercel release or Git merge authorised.
+- Mandatory validation: unit/oracle/TypeScript/Vite; PostgreSQL 17 migration,
+  unique content and 18-policy transactional replay; signed ten-JWT Parliament,
+  password login/rotation, Mailpit and Chromium mobile/desktop UX.
+- Acceptance requires CI evidence from **this integrated SHA**, not merely
+  two individually green source branches. Strict full-product acceptance
+  remains **2/18** until actual production/human acceptance criteria pass.
+
+## AOS-050 — Password-first identity and legacy access migration (unmerged, 2026-10-26)
+
+- Built a shared password-first Auth entry for solo, multiplayer and editorial
+  routes; direct login sends no email, signup confirms only if configured.
+- Added explicit existing-account magic-link fallback with no silent signup,
+  provider-mediated password reset and authenticated password setup/change.
+- Introduced React Auth regression and disposable GoTrue + Chromium login,
+  password rotation, session reload and persisted party identity acceptance.
+- Existing magic-link/ten-browser QA is adapted to register through the real
+  user interface before testing the optional one-use email link.
+- **Status: implementation on isolated feature branch, CI and human release
+  review pending.** No production Auth settings changed or schema migrated.
+  Hosted password flow/SMTP and manual journey remain unverified. Strict
+  acceptance remains 2/18 until independently confirmed.
 
 ## AOS-049 — Immutable production releases, diagnostic access and durable recovery (2026-10-25)
 

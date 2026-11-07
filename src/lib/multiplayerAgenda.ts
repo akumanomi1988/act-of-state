@@ -1,7 +1,8 @@
 import type { Dossier } from './types'
 import type { MatchWorld } from './multiplayer'
+import { chapterOf, reformChapter, CHAPTERS } from './nationalProgramme'
 
-export type MatchAgendaFilter = 'all' | 'weekly' | 'foundation' | 'action' | 'signed'
+export type MatchAgendaFilter = 'all' | 'weekly' | 'foundation' | 'reforms' | 'society' | 'economy' | 'institutions' | 'resilience' | 'action' | 'signed'
 export type MatchDossierStatus = 'signed' | 'stance-recorded' | 'pending' | 'unavailable'
 
 export interface MatchAgendaItem {
@@ -16,6 +17,7 @@ export interface MatchAgendaSnapshot {
   items: MatchAgendaItem[]
   weekly: { total: number; signed: number; stances: number }
   foundation: { total: number; signed: number; stances: number }
+  reforms: { total: number; signed: number; stances: number }
   next: MatchAgendaItem | null
   role: 'cabinet' | 'opposition'
 }
@@ -44,11 +46,14 @@ export function buildMatchAgenda(world: MatchWorld, userId: string): MatchAgenda
         hasStance ? 'stance-recorded' : 'pending') as MatchDossierStatus
     }
   }).sort((a, b) => {
-    const priority = (x: typeof a) => x.dossier.release_kind === 'weekly' ? 0 : 1
-    return priority(a) - priority(b) || a.index - b.index
+    const priority = (x: typeof a) => x.dossier.release_kind === 'weekly' ? 0 :
+      1+CHAPTERS.findIndex(chapter=>chapter.id===chapterOf(x.dossier))
+    return priority(a) - priority(b) ||
+      (a.dossier.programme_order??99)-(b.dossier.programme_order??99) ||
+      a.index - b.index
   })
-  const count = (kind: Dossier['release_kind']) => {
-    const filtered = items.filter(item => item.dossier.release_kind === kind)
+  const count = (match: (dossier: Dossier) => boolean) => {
+    const filtered = items.filter(item => match(item.dossier))
     return {
       total: filtered.length,
       signed: filtered.filter(item => item.signed).length,
@@ -57,8 +62,9 @@ export function buildMatchAgenda(world: MatchWorld, userId: string): MatchAgenda
   }
   return {
     items: items.map(({ index: _unused, ...item }) => item),
-    weekly: count('weekly'),
-    foundation: count('intro'),
+    weekly: count(d=>d.release_kind==='weekly'),
+    foundation: count(d=>chapterOf(d)==='founding'),
+    reforms: count(reformChapter),
     next: items.find(item => item.available && !item.signed && !item.hasStance) ??
       items.find(item => item.available && !item.signed) ?? null,
     role: world.match.host_user_id === userId ? 'cabinet' : 'opposition'
@@ -70,7 +76,11 @@ export function visibleMatchDossiers(
 ): MatchAgendaItem[] {
   return snapshot.items.filter(item => {
     if (filter === 'weekly') return item.dossier.release_kind === 'weekly'
-    if (filter === 'foundation') return item.dossier.release_kind === 'intro'
+    if (filter === 'foundation') return chapterOf(item.dossier) === 'founding'
+    if (filter === 'reforms') return reformChapter(item.dossier)
+    if (filter === 'society' || filter === 'economy' ||
+        filter === 'institutions' || filter === 'resilience')
+      return chapterOf(item.dossier) === filter
     if (filter === 'signed') return item.signed
     if (filter === 'action') return item.available && !item.signed &&
       (snapshot.role === 'cabinet' || !item.hasStance)

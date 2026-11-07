@@ -31,7 +31,7 @@ describe('role-centric multiplayer political agenda',()=>{
     const world=makeWorld();const onSelect=vi.fn()
     render(<MatchAgendaBoard world={world} userId={guest}
       selectedDossierId="energy" onSelect={onSelect}/>)
-    const section=screen.getByRole('region',{name:'Centro de decisiones de la asamblea'})
+    const section=screen.getByRole('region',{name:'Expedientes del Parlamento'})
     const buttons=within(section).getAllByRole('button',{name:/Medida /})
     expect(buttons.map(b=>b.textContent)).toEqual([
       expect.stringContaining('Medida news'),
@@ -74,7 +74,7 @@ describe('role-centric multiplayer political agenda',()=>{
     render(<MatchAgendaBoard world={world} userId={host}
       selectedDossierId="news" onSelect={vi.fn()}/>)
     expect(screen.getByText('1 / 1 firmados')).toBeInTheDocument()
-    expect(screen.getByText('Gobierno ejecutivo')).toBeInTheDocument()
+    expect(screen.getByText('Gobierno')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button',{name:'Decisiones firmadas'}))
     expect(screen.getByRole('button',{name:/Medida news/})).toHaveTextContent('DECISIÓN FIRMADA')
     expect(screen.queryByRole('button',{name:/Medida energy/})).not.toBeInTheDocument()
@@ -84,8 +84,31 @@ describe('role-centric multiplayer political agenda',()=>{
     const world=makeWorld(); world.dossiers=world.dossiers.filter(x=>x.release_kind==='intro')
     render(<MatchAgendaBoard world={world} userId={guest}
       selectedDossierId={null} onSelect={vi.fn()}/>)
-    expect(screen.getByText(/No hay una agenda semanal aprobada/)).toBeInTheDocument()
+    expect(screen.getByText(/Esta semana no hay nuevos expedientes/)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button',{name:'Esta semana'}))
     expect(screen.getByText(/No existen asuntos para este filtro/)).toBeInTheDocument()
   })
+  it('shows permanent four-chapter reform mandates alongside unchanged founding and weekly acts',()=>{
+    const world=makeWorld()
+    world.dossiers.push(
+      {...base('care'),programme_chapter:'society',programme_order:1},
+      {...base('jobs'),programme_chapter:'economy',programme_order:1},
+      {...base('courts'),programme_chapter:'institutions',programme_order:1},
+      {...base('drought'),programme_chapter:'resilience',programme_order:1}
+    )
+    const navigate=vi.fn()
+    render(<MatchAgendaBoard world={world} userId={guest}
+      selectedDossierId={null} onSelect={navigate}/>)
+    expect(screen.getByText('0 / 4 firmados')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'Reformas'}))
+    expect(screen.getAllByRole('button',{name:/REFORMA/})).toHaveLength(4)
+    fireEvent.click(screen.getByRole('button',{name:'Sociedad'}))
+    expect(screen.getByRole('button',{name:/Medida care/})).toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:/Medida jobs/})).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:/Medida care/}))
+    expect(navigate).toHaveBeenCalledWith('care')
+    fireEvent.click(screen.getByRole('button',{name:'Esta semana'}))
+    expect(screen.getByRole('button',{name:/Medida news/})).toBeInTheDocument()
+  })
+
 })

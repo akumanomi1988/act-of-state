@@ -87,9 +87,21 @@ async function mailbox(email) {
 }
 async function login(page,email,path='/multiplayer') {
   await page.goto(app+path,{waitUntil:'networkidle'})
+  // Legacy link flow no longer silently creates accounts. Register from
+  // the real password UI first, then sign out and request a real email link.
+  await page.getByRole('button',{name:'Crear cuenta'}).click()
   await page.getByLabel('Correo electrónico').fill(email)
-  await page.getByRole('button',{name:'Recibir enlace de acceso'}).click()
-  await page.getByText('Enlace enviado a tu correo.').waitFor({timeout:12000})
+  await page.getByLabel('Contraseña',{exact:true}).fill('AOS-local-passphrase-'+runId)
+  await page.getByLabel('Confirmar contraseña').fill('AOS-local-passphrase-'+runId)
+  await page.getByRole('button',{name:'Registrar cuenta'}).click()
+  await page.getByRole('button',{name:'Cerrar sesión'}).waitFor({timeout:15000})
+  await page.getByRole('button',{name:'Cerrar sesión'}).click()
+  await page.getByRole('button',{name:'Iniciar sesión'}).waitFor({timeout:15000})
+  await page.getByText('¿Olvidaste tu contraseña o tienes una cuenta antigua?').click()
+  await page.getByRole('button',{name:'Acceder por correo'}).click()
+  await page.getByLabel('Correo electrónico').fill(email)
+  await page.getByRole('button',{name:'Enviar enlace'}).click()
+  await page.getByText(/Si la cuenta existe, recibirás un enlace de acceso/).waitFor({timeout:12000})
   const link=await mailbox(email)
   const linkUrl=new URL(link)
   const redirect=linkUrl.searchParams.get('redirect_to') ??
@@ -100,7 +112,10 @@ async function login(page,email,path='/multiplayer') {
   // Test actual browser redirect: GoTrue verifies single-use link, and
   // supabase-js must consume its hash and persist a valid session.
   await page.goto(link,{waitUntil:'networkidle'})
-  await page.getByRole('heading',{name:'Tu asamblea'}).waitFor({timeout:15000})
+  if((page.viewportSize()?.width??1440)<=760)
+    await page.getByRole('navigation',{name:'Navegación de la asamblea'})
+      .getByRole('button',{name:'Partidas'}).click()
+  await page.getByRole('heading',{name:'Sala de partidas'}).waitFor({timeout:15000})
   const identity=await accountFromBrowser(page)
   check(identity.user.email===email,'Magic link authenticated the wrong recipient')
   return {link,identity}
@@ -155,10 +170,13 @@ try {
   await host.reload({waitUntil:'networkidle'})
   await host.getByRole('heading',{name:testName}).waitFor()
   await host.getByRole('button',{name:'Comenzar legislatura'}).click()
-  await host.getByRole('region',{name:'Centro de decisiones de la asamblea'})
+  await host.getByRole('region',{name:'Expedientes del Parlamento'})
     .waitFor({timeout:15000})
   await guest.reload({waitUntil:'networkidle'})
-  const board=guest.getByRole('region',{name:'Centro de decisiones de la asamblea'})
+  // The player now sees the active dossier first. Open the secondary
+  // agenda explicitly before checking its parliamentary authorizations.
+  await guest.locator('.match-game-agenda summary').click()
+  const board=guest.getByRole('region',{name:'Expedientes del Parlamento'})
   await board.waitFor({timeout:15000})
   await board.getByText('Partido de oposición').waitFor()
   check(await guest.getByText('COMPETENCIA DEL GOBIERNO').count()===0,
@@ -172,17 +190,17 @@ try {
   const replay=await replayContext.newPage()
   await replay.goto(second.link,{waitUntil:'networkidle'})
   await replay.goto(app+'/multiplayer',{waitUntil:'networkidle'})
-  await replay.getByRole('button',{name:'Recibir enlace de acceso'})
+  await replay.getByRole('button',{name:'Iniciar sesión'})
     .waitFor({timeout:12000})
-  check(await replay.getByRole('heading',{name:'Tu asamblea'}).count()===0,
+  check(await replay.getByRole('heading',{name:'Sala de partidas'}).count()===0,
     'Consumed one-time token authorized a second device')
   await replayContext.close()
 
   // Logout clears identity and private match UI even after reload.
   await guest.getByRole('button',{name:'Cerrar sesión'}).click()
-  await guest.getByRole('button',{name:'Recibir enlace de acceso'}).waitFor()
+  await guest.getByRole('button',{name:'Iniciar sesión'}).waitFor()
   await guest.reload({waitUntil:'networkidle'})
-  await guest.getByRole('button',{name:'Recibir enlace de acceso'}).waitFor()
+  await guest.getByRole('button',{name:'Iniciar sesión'}).waitFor()
   check(await guest.getByRole('heading',{name:testName}).count()===0,
     'Private match leaked after browser sign-out')
   const axe=readFileSync('node_modules/axe-core/axe.min.js','utf8')

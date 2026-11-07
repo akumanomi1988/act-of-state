@@ -25,6 +25,30 @@ Lead a government, challenge it from Parliament, and navigate the political cons
 
 [Experience](#the-experience) · [Game systems](#game-systems) · [How a week works](#a-week-in-power) · [Architecture](#architecture) · [Getting started](#getting-started) · [Verification](#verification) · [Development status](#development-status)
 
+## Simple-play redesign — development branch only
+
+**New default experience in this branch:** one fictional political dilemma,
+three choices, one server-confirmed result, and an electoral goal. The first
+twelve decisions run without an account; players can explicitly import their
+verified choices after signup. Logged-in players can continue through all
+28 permanent dossiers in the same simplified interface, with checkpoints
+after 12, 24 and 28 decisions.
+
+- **/** — compact mobile-first game.
+- **/advanced** — complete former dashboard, treasury, reports and reforms.
+- **/multiplayer** — full ten-party parliamentary simulation.
+- **/demo** — the previous four-case independent teaching sandbox.
+
+The guest outcome is a local preview and the solo election is a fictional
+calculated score, **not** a certified parliamentary ballot. Authenticated
+decisions continue to use the existing protected PostgreSQL engine.
+
+[Simple gameplay and import safety](docs/SIMPLE_GAMEPLAY.md)
+
+**Release note:** The public Vercel URL still uses an older build; nothing
+about this feature branch implies that it is already deployed or that
+production Supabase has been migrated.
+
 ## The experience
 
 <table>
@@ -35,7 +59,7 @@ Lead a government, challenge it from Parliament, and navigate the political cons
 
 Read dossiers, weigh competing interests, review fiscal and social implications, and sign decisions whose effects are recorded in the simulation.
 
-**Implemented:** a persistent fictional ten-dossier founding programme for authenticated solo governments, with 30 authored choices.
+**Implemented in development:** 28 permanent fictional dossiers and 84 choices for authenticated governments, with 12 cases included in the simple first-mandate flow.
 
 [Government programme →](docs/FOUNDATIONAL_GOVERNMENT_PROGRAMME.md)
 
@@ -76,7 +100,7 @@ Inspect fiscal and social outcomes, household living conditions, historical poli
 
 ### Try before you govern
 
-The [guest training sandbox](https://act-of-state.vercel.app/demo) offers **four fictional dossiers and twelve alternatives**, local deterministic consequences, review-before-sign decisions, and browser-only progress. No account or backend is required.
+The legacy [guest training sandbox](https://act-of-state.vercel.app/demo) offers four fictional dilemmas. In this development branch, the new home screen provides twelve guest-playable cases, optional import on login and an election checkpoint. The public site still serves its earlier deployed build.
 
 **Visual evidence:** Authentic product screenshots have not been added here because a trustworthy browser capture was not available in this execution environment. No conceptual mockups are presented as real gameplay.
 

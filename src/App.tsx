@@ -1,14 +1,21 @@
 import PlayerOnboarding from './PlayerOnboarding'
+import AuthGateway from './AuthGateway'
+import GameMenu from './GameMenu'
+import GameModeSelect from './GameModeSelect'
+import AccountSecurity from './AccountSecurity'
 import FoundationalAgendaPanel from './FoundationalAgendaPanel'
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { Activity, useEffect, useMemo, useRef, useState } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { client, fetchWorld, friendlyError, startGovernment, submitDecision } from './lib/game'
 import { number } from './lib/format'
 import type { Dossier, DossierOption, GovernmentWorld } from './lib/types'
 import Outcome from './components/Outcome'
 import FiscalPanel from './FiscalPanel'
+import MandateObservatory from './MandateObservatory'
 import DecisionAnalyticsPanel from './DecisionAnalyticsPanel'
 import PopulationPanel from './PopulationPanel'
+import MobileDetailNavigation from './MobileDetailNavigation'
+import { useMobileViewport } from './lib/useMobileViewport'
 import LivingConditionsPanel from './LivingConditionsPanel'
 
 function dossierKey(d: Dossier): string {
@@ -23,8 +30,7 @@ function available(d: Dossier, day: string): boolean {
 export default function App() {
   const [user, setUser] = useState<User | null>(null)
   const [authReady, setAuthReady] = useState(false)
-  const [email, setEmail] = useState('')
-  const [mailSent, setMailSent] = useState(false)
+  const [recovering, setRecovering] = useState(false)
   const [storedWorld, setWorld] = useState<GovernmentWorld | null>(null)
   const [bootRevision, setBootRevision] = useState(0)
   const authenticatedOwnerRef = useRef<string | null>(null)
@@ -32,6 +38,9 @@ export default function App() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [optionId, setOptionId] = useState('')
   const [reviewingDecision, setReviewingDecision] = useState(false)
+  const [mobileSection, setMobileSection] = useState<'decide' | 'agenda' | 'status'>('decide')
+  const [statusDetail, setStatusDetail] = useState<'overview' | 'economy' | 'people' | 'history'>('overview')
+  const mobile = useMobileViewport()
   const [pending, setPending] = useState(false)
   const [needsReconciliation, setNeedsReconciliation] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -41,6 +50,7 @@ export default function App() {
   const world = user && storedWorld?.government.owner_id === user.id ? storedWorld : null
 
   function acceptUser(nextUser: User | null) {
+    if (authenticatedOwnerRef.current !== (nextUser?.id ?? null)) setMobileSection('decide')
     authenticatedOwnerRef.current = nextUser?.id ?? null
     setUser(nextUser)
   }
@@ -58,6 +68,8 @@ export default function App() {
     }).catch(() => { if (alive) setAuthReady(true) })
     const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
       if (!alive) return
+      if (event === 'PASSWORD_RECOVERY') setRecovering(true)
+      if (event === 'SIGNED_OUT') setRecovering(false)
       if (event !== 'INITIAL_SESSION') authRevision += 1
       acceptUser(session?.user ?? null)
       setAuthReady(true)
@@ -110,25 +122,6 @@ export default function App() {
     e.dossier_id === dossier?.id) ?? null, [world, dossier])
   const historicalEvent = useMemo(() => world?.events.find(e =>
     e.id === selectedEventId) ?? null, [world, selectedEventId])
-
-  async function onLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!client) return
-    setPending(true)
-    setError('')
-    try {
-      const { error: authError } = await client.auth.signInWithOtp({
-        email: email.trim(),
-        options: { emailRedirectTo: window.location.origin }
-      })
-      if (authError) setError(friendlyError(authError))
-      else setMailSent(true)
-    } catch (reason) {
-      setError(friendlyError(reason))
-    } finally {
-      setPending(false)
-    }
-  }
 
   async function onDecision() {
     if (!world || !dossier || !selectedOption || !reviewingDecision || !user || pending || decision || needsReconciliation) return
@@ -206,7 +199,7 @@ export default function App() {
     try {
       const { error: signOutError } = await client.auth.signOut()
       if (signOutError) setError(friendlyError(signOutError))
-      else { acceptUser(null); setWorld(null); setMailSent(false); setReviewingDecision(false); setNeedsReconciliation(false) }
+      else { acceptUser(null); setWorld(null); setRecovering(false); setReviewingDecision(false); setNeedsReconciliation(false) }
     } catch (reason) {
       setError(friendlyError(reason))
     } finally {
@@ -214,7 +207,13 @@ export default function App() {
     }
   }
 
+  function navigateMobile(section:'decide'|'agenda'|'status'){
+    setMobileSection(section)
+    if(window.innerWidth<=760)window.scrollTo(0,0)
+  }
+
   function selectDossier(d: Dossier) {
+    navigateMobile('decide')
     setSelectedKey(dossierKey(d))
     setSelectedEventId(null)
     setOptionId('')
@@ -223,6 +222,7 @@ export default function App() {
   }
 
   function selectHistory(eventId: string) {
+    navigateMobile('decide')
     setSelectedEventId(eventId)
     setReviewingDecision(false)
     setError('')
@@ -240,11 +240,13 @@ export default function App() {
           <span className="brand-symbol" aria-hidden="true">A<span>／</span>S</span>
           <div><div className="wordmark">ACT OF STATE</div><div className="brand-caption">EVERY DECISION SHAPES A NATION.</div></div>
         </div>
-        <div className="header-end"><a className="text-button" href="/guide">Manual del jugador</a><a className="text-button" href="/status">Estado del servicio</a><a className="text-button" href="/demo">Probar sin cuenta</a><span className="online-dot" aria-hidden="true" /> SIMULACIÓN POLÍTICA PERSISTENTE
-          <a href="/multiplayer" className="text-button">Multijugador</a>
+        <div className="header-end">
+          <span className="game-session-title">{user ? 'GOBIERNO EN FUNCIONES' : 'PARTIDA INDIVIDUAL'}</span>
+          <GameMenu current="solo" />
           {user && <button type="button" className="text-button" onClick={() => void signOut()} disabled={pending}>Cerrar sesión</button>}
         </div>
       </header>
+      {user && <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />}
 
       {!client ? (
         <main className="entry-content"><div className="eyebrow">CONFIGURACIÓN REQUERIDA</div>
@@ -255,23 +257,16 @@ export default function App() {
         <main className="entry-content" role="status">Verificando credenciales…</main>
       ) : !user ? (
         <main className="entry-layout">
-          <section className="hero-intro"><div className="eyebrow">EL PESO DEL PODER · INICIO</div>
-            <h1>Gobernar es elegir qué consecuencias asumir.</h1>
-            <p>Una simulación política seria, persistente y gratuita. Las decisiones modifican la economía, la confianza institucional y el apoyo de grupos de población simulados.</p>
-            <p className="caveat">Escenarios editoriales ficticios para la primera iteración.</p>
-            <p><a href="/demo" className="primary-button">Probar cuatro decisiones sin registrarte</a></p>
+          <section className="hero-intro">
+            <div className="game-entry-kicker">ACT OF STATE / MENÚ PRINCIPAL</div>
+            <h1 className="game-entry-title">Elige cómo jugar</h1>
+            <p className="game-entry-lede">Toma decisiones de Gobierno o participa en el Parlamento con otros jugadores. Las partidas guardan sus resultados.</p>
+            <GameModeSelect selected="solo" />
           </section>
           <section className="login-panel" aria-labelledby="access-title">
-            <div className="eyebrow">ACCESO A LA SALA DE GOBIERNO</div>
-            <h2 id="access-title">Tu mandato comienza aquí.</h2>
-            <p>Recibirás un enlace de acceso seguro por correo electrónico.</p>
-            <form onSubmit={event => void onLogin(event)}>
-              <label htmlFor="email">Correo electrónico</label>
-              <input id="email" type="email" autoComplete="email" required value={email}
-                onChange={event => setEmail(event.target.value)} placeholder="tu@correo.es" />
-              <button className="primary-button" type="submit" disabled={pending}>{pending ? 'Enviando…' : 'Enviar enlace de acceso'}</button>
-            </form>
-            {mailSent && <p className="success" role="status">Comprueba tu correo. Se ha solicitado el enlace de acceso.</p>}
+            <div className="eyebrow">PARTIDA INDIVIDUAL · ACCESO</div>
+            <h2 id="access-title">Entrar al Gobierno</h2>
+            <AuthGateway redirectTo={window.location.origin} />
           </section>
         </main>
       ) : loading || !world ? (
@@ -284,10 +279,26 @@ export default function App() {
           </>}
         </main>
       ) : (
-        <>
-          <PlayerOnboarding world={world} />
-          <div className="session-strip"><span>DESPACHO DEL GOBIERNO</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
-          <FiscalPanel key={world.government.id} governmentId={world.government.id} />
+        <div className="solo-workspace" data-mobile-screen={mobileSection} data-mobile-detail={statusDetail}>
+          <div className="session-strip"><span>PARTIDA INDIVIDUAL</span><span>{world.government.country_name}</span><span>DÍA DE JUEGO · {weekDay}</span></div>
+          <nav className="mobile-focus-nav" aria-label="Navegación del gobierno">
+            {([['decide','Decidir'],['agenda','Expedientes'],['status','Mi país']] as const).map(([id,label])=>
+              <button key={id} type="button" aria-current={mobileSection===id?'page':undefined}
+                onClick={()=>navigateMobile(id)}>{label}</button>)}
+          </nav>
+          {mobileSection === 'status' ? <MobileDetailNavigation
+            label="Apartados de Mi país" value={statusDetail} onChange={setStatusDetail}
+            tabs={[{id:'overview',label:'Resumen'},{id:'economy',label:'Economía'},
+              {id:'people',label:'Población'},{id:'history',label:'Historial'}]} /> : null}
+          <div className="solo-instructions">
+            {(!mobile || (mobileSection==='status' && statusDetail==='overview'))
+              ? <PlayerOnboarding world={world} /> : null}
+          </div>
+          <div className="solo-fiscal-extra">
+            <Activity mode={!mobile || (mobileSection==='status' && statusDetail==='economy') ? 'visible' : 'hidden'}>
+              <FiscalPanel key={world.government.id} governmentId={world.government.id} />
+            </Activity>
+          </div>
           <main className="government-layout">
             <aside className="side-panel">
               <div className="eyebrow">01 / DESPACHO</div>
@@ -329,6 +340,15 @@ export default function App() {
                 onSelect={selectDossier} />
             </aside>
             <section className="main-panel" aria-label="Expediente político">
+              <div className="mobile-task-cue" role="status">
+                {historicalEvent ? 'Consulta de una decisión ya firmada.' :
+                  decision ? 'Decreto firmado. Consulta el resultado o abre otro expediente.' :
+                  dossier ? 'Elige una medida. Revísala antes de firmar el decreto.' :
+                  'No hay expedientes disponibles en este momento.'}
+              </div>
+              <button type="button" className="mobile-switch-panel" onClick={()=>navigateMobile('agenda')}>
+                Cambiar expediente
+              </button>
               {needsReconciliation && <div className="fictitious-notice" role="status">
                 El resultado de la última operación está pendiente de confirmar.
                 <button type="button" className="text-button" disabled={pending}
@@ -345,7 +365,7 @@ export default function App() {
                 </>
               ) : dossier ? (
                 <>
-                  <div className="eyebrow">02 / CONSEJO DE MINISTROS · EXPEDIENTE {dossier.version.toString().padStart(2, '0')}</div>
+                  <div className="eyebrow">CONSEJO DE MINISTROS · EXPEDIENTE {dossier.version.toString().padStart(2, '0')}</div>
                   <h2>{dossier.title}</h2>
                   <div className="rule" />
                   <p className="dossier-context">{dossier.context}</p>
@@ -433,13 +453,20 @@ export default function App() {
                 </li>)}</ol>}
             </aside>
           </main>
-          <LivingConditionsPanel governmentId={world.government.id} identity={user?.id ?? ''} />
-          <PopulationPanel key={world.government.id + ':' + (user?.id ?? '')}
-            governmentId={world.government.id} identity={user?.id ?? ''} />
-          <DecisionAnalyticsPanel key={world.government.id}
-            events={world.events} gameDay={world.gameDay}
-            countryName={world.government.country_name} />
-        </>
+          <div className="solo-deep-insights">
+            <Activity mode={!mobile || (mobileSection==='status' && statusDetail==='people') ? 'visible' : 'hidden'}>
+              <LivingConditionsPanel governmentId={world.government.id} identity={user?.id ?? ''} />
+              <PopulationPanel key={world.government.id + ':' + (user?.id ?? '')}
+                governmentId={world.government.id} identity={user?.id ?? ''} />
+            </Activity>
+            <Activity mode={!mobile || (mobileSection==='status' && statusDetail==='history') ? 'visible' : 'hidden'}>
+              <MandateObservatory governmentId={world.government.id} identity={user?.id ?? ''} />
+              <DecisionAnalyticsPanel key={world.government.id}
+                events={world.events} gameDay={world.gameDay}
+                countryName={world.government.country_name} />
+            </Activity>
+          </div>
+        </div>
       )}
       {error && <div className="error-toast" role="alert"><strong>No se pudo completar la operación</strong><p>{error}</p>
         <button type="button" onClick={() => setError('')}>Cerrar aviso</button></div>}

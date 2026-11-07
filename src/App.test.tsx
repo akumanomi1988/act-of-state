@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { within, act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DecisionEvent, GovernmentWorld } from './lib/types'
 import App from './App'
@@ -97,6 +97,33 @@ function reviewAndSign() {
 }
 
 describe('browser decision flow with controlled Supabase adapter', () => {
+  it('starts directly with decisions and keeps agenda and country one tap away',async()=>{
+    mocks.fetchWorld.mockResolvedValue(initial)
+    render(<App/>)
+    await screen.findByRole('heading',{name:'Plan de resiliencia energética'})
+    const nav=screen.getByRole('navigation',{name:'Navegación del gobierno'})
+    expect(nav.getAttribute('class')).toContain('mobile-focus-nav')
+    expect(nav.querySelector('[aria-current="page"]')).toHaveTextContent('Decidir')
+    const root=nav.closest('.solo-workspace')
+    expect(root).toHaveAttribute('data-mobile-screen','decide')
+    fireEvent.click(screen.getByRole('button',{name:'Expedientes'}))
+    expect(root).toHaveAttribute('data-mobile-screen','agenda')
+    fireEvent.click(screen.getByRole('button',{name:'Mi país'}))
+    expect(root).toHaveAttribute('data-mobile-screen','status')
+    const insightNav=screen.getByRole('navigation',{name:'Apartados de Mi país'})
+    expect(insightNav).toHaveTextContent('Resumen')
+    fireEvent.click(within(insightNav).getByRole('button',{name:'Población'}))
+    expect(root).toHaveAttribute('data-mobile-detail','people')
+    fireEvent.click(within(insightNav).getByRole('button',{name:'Economía'}))
+    expect(root).toHaveAttribute('data-mobile-detail','economy')
+    fireEvent.click(within(insightNav).getByRole('button',{name:'Historial'}))
+    expect(root).toHaveAttribute('data-mobile-detail','history')
+    fireEvent.click(within(insightNav).getByRole('button',{name:'Resumen'}))
+    expect(root).toHaveAttribute('data-mobile-detail','overview')
+    fireEvent.click(screen.getByRole('button',{name:'Decidir'}))
+    expect(root).toHaveAttribute('data-mobile-screen','decide')
+  })
+
   it('requires review before signature and displays only authored fiscal inputs', async () => {
     mocks.fetchWorld.mockResolvedValue(initial)
     render(<App />)

@@ -48,7 +48,7 @@ describe('read-only weekly mission command UI',()=>{
   it('shows exactly server-published agenda and dispatches one role-scoped action',async()=>{
     const select=vi.fn()
     render(<WeeklyMissionControl world={fixture()} userId={guest} onSelect={select}/>)
-    const region=screen.getByRole('region',{name:'Sala de operaciones legislativas'})
+    const region=screen.getByRole('region',{name:'Agenda parlamentaria'})
     await within(region).findByText('Ley de prueba editorial')
     expect(within(region).getByLabelText('Progreso legislativo semanal'))
       .toHaveTextContent('1 / 1')
@@ -62,7 +62,7 @@ describe('read-only weekly mission command UI',()=>{
     const w=fixture();w.dossiers=w.dossiers.map(d=>({...d,release_kind:'intro'}))
     mocks.calendar.mockResolvedValue({...cal,weeklyPublished:false,weeklyTotal:0})
     render(<WeeklyMissionControl world={w} userId={guest} onSelect={vi.fn()}/>)
-    await screen.findByText(/Esta semana no tiene diez expedientes aprobados/)
+    await screen.findByText(/Aún no se han publicado los diez asuntos/)
     expect(screen.queryByRole('button',{name:/Abrir siguiente asunto/}))
       .not.toBeInTheDocument()
   })
@@ -76,7 +76,7 @@ describe('read-only weekly mission command UI',()=>{
     render(<WeeklyMissionControl world={fixture()} userId={guest} onSelect={vi.fn()}/>)
     await screen.findByText('TU VOTO PENDIENTE')
     expect(screen.getByLabelText('Progreso legislativo semanal'))
-      .toHaveTextContent('LEYES EJECUTADAS0 / 1')
+      .toHaveTextContent('MEDIDAS FIRMADAS0 / 1')
   })
   it('fails closed on stale calendars and temporarily unavailable parliament',async()=>{
     const select=vi.fn()

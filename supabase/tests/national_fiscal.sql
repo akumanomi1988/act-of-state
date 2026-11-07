@@ -68,12 +68,15 @@ begin
   g:=public.start_government();
   update pg_temp.fiscal_fixture set other_id=g.id;
 end $$;
--- Simulate an elapsed fiscal week strictly within the rollback fixture.
+-- Use Wednesday of the previous fiscal week for every UTC weekday.
+-- Weekend backfill must include both the previous and current closed Friday;
+-- anchoring the fixture in the current week would fabricate a government that
+-- did not yet exist during the previous fiscal period.
 reset role;
-update public.governments set created_at=now()-interval '10 days'
+update public.governments set created_at=((game_internal.week_start((now() at time zone 'UTC')::date)-5)::timestamp at time zone 'UTC')
 where id in (select gov_id from pg_temp.fiscal_fixture union
              select other_id from pg_temp.fiscal_fixture);
-update public.fiscal_policies set created_at=now()-interval '10 days'
+update public.fiscal_policies set created_at=((game_internal.week_start((now() at time zone 'UTC')::date)-5)::timestamp at time zone 'UTC')
 where government_id in (select gov_id from pg_temp.fiscal_fixture union
                         select other_id from pg_temp.fiscal_fixture);
 insert into public.fiscal_policy_versions(
@@ -85,6 +88,21 @@ from public.fiscal_policies
 where government_id in (select gov_id from pg_temp.fiscal_fixture union
                         select other_id from pg_temp.fiscal_fixture)
 on conflict(government_id,effective_week) do nothing;
+-- Assert the fixture is eligible for the preceding week on all seven UTC days.
+do $$
+begin
+  if exists (
+    select 1 from public.governments g
+    where g.id in (
+      select gov_id from pg_temp.fiscal_fixture
+      union select other_id from pg_temp.fiscal_fixture
+    )
+      and (g.created_at at time zone 'UTC')::date <>
+        game_internal.week_start((now() at time zone 'UTC')::date)-5
+  ) then
+    raise exception 'FISCAL_FIXTURE_PREVIOUS_WEEK_INVALID';
+  end if;
+end $$;
 -- Debt issuance test: one country has no treasury for a deficit.
 update public.governments set treasury_m_eur=0
 where id=(select other_id from pg_temp.fiscal_fixture);

@@ -46,6 +46,35 @@ describe('immutable member-only opinion history',()=>{
    {...history,polls:[history.polls[1],history.polls[0],history.polls[2]]}
   ])expect(()=>validateOpinionHistory(bad,mid)).toThrow('OPINION_HISTORY_INVALID_RESPONSE')
  })
+ it('rejects impossible calendar days, future samples and invalid windows',()=>{
+  for (const bad of [
+    {...history,serverDay:'2026-02-30'},
+    {...history,fromDay:'2026-10-25'},
+    {...history,fromDay:'2026-10-10'},
+    {...history,expectedDays:8},
+    {...history,expectedDays:2},
+    {...history,polls:[p('2026-02-30',52),...history.polls.slice(1)]},
+    {...history,polls:[{...history.polls[0],capturedAt:'2026-10-21T01:00:00Z'},...history.polls.slice(1)]},
+    {...history,polls:[{...history.polls[0],capturedAt:'not-a-date'},...history.polls.slice(1)]}
+  ]) expect(()=>validateOpinionHistory(bad,mid)).toThrow('OPINION_HISTORY_INVALID_RESPONSE')
+ })
+ it('rejects corrupted party, district and poll metadata without coercion',()=>{
+  const first=history.polls[0]
+  const corrupt=[
+    {...first,modelVersion:'random-v99'},
+    {...first,householdSampleSize:-1},
+    {...first,parties:[{...first.parties[0],seats:-20},first.parties[1]]},
+    {...first,parties:[{...first.parties[0],seatNo:11},first.parties[1]]},
+    {...first,parties:[{...first.parties[0],manifestoPolicy:101},first.parties[1]]},
+    {...first,parties:[{...first.parties[0],voteSharePct:NaN},first.parties[1]]},
+    {...first,parties:[first.parties[0],{...first.parties[1],seatNo:1}]},
+    {...first,districts:[{code:'capital',label:'Capital',seats:25,households:50,
+      residents:150,parties:[{userId:mine,partyName:'Civic',voteSharePct:51,seats:26}]}]}
+  ]
+  for(const sample of corrupt)
+    expect(()=>validateOpinionHistory({...history,polls:[sample,...history.polls.slice(1)]},mid))
+      .toThrow('OPINION_HISTORY_INVALID_RESPONSE')
+ })
  it('fails closed for denied RPCs',async()=>{
   mocks.rpc.mockResolvedValue({data:null,error:{message:'MATCH_FORBIDDEN'}})
   await expect(fetchOpinionHistory(mid)).rejects.toEqual({message:'MATCH_FORBIDDEN'})

@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import AuthGateway from './AuthGateway'
+import AccountSecurity from './AccountSecurity'
 import type { User } from '@supabase/supabase-js'
 import { client, friendlyError } from './lib/game'
 import NewsDiscoveryPanel, { type NewsCandidate } from './NewsDiscoveryPanel'
@@ -38,8 +40,7 @@ function positiveInteger(raw: string): number {
 export default function EditorialApp() {
   const [user, setUser] = useState<User | null>(null)
   const [authReady, setAuthReady] = useState(false)
-  const [email, setEmail] = useState('')
-  const [mailSent, setMailSent] = useState(false)
+  const [recovering, setRecovering] = useState(false)
   const [role, setRole] = useState<EditorialRole | null>(null)
   const [reviews,setReviews]=useState<EditorialReview[]>([])
   const [permissionReady, setPermissionReady] = useState(false)
@@ -81,6 +82,8 @@ export default function EditorialApp() {
     }).catch(() => { if (alive) setAuthReady(true) })
     const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
       if (!alive) return
+      if (event === 'PASSWORD_RECOVERY') setRecovering(true)
+      if (event === 'SIGNED_OUT') setRecovering(false)
       if (event !== 'INITIAL_SESSION') authRevision += 1
       acceptUser(session?.user ?? null)
       setAuthReady(true)
@@ -139,6 +142,8 @@ export default function EditorialApp() {
   const complete = readyCount === SLOTS && uniqueSourceCount === SLOTS
   const reviewedCount = reviews.filter(r=>draft.some(d=>d.id===r.dossier_id)).length
   const selectedReviewed=reviews.some(r=>r.dossier_id===dossier.id)
+  const authoredByCurrentUser=!!snapshot?.updated_by &&
+    snapshot.updated_by===user?.id
   const isPublished = snapshot?.status === 'published'
   const canEdit = !!role && !isPublished && !loading && !pending && !sourcingBusy
 
@@ -223,23 +228,6 @@ export default function EditorialApp() {
     updateDossier('options', dossier.options.filter((_, i) => i !== index))
   }
 
-  async function onLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!client) return
-    setPending(true)
-    setError('')
-    try {
-      const { error: authError } = await client.auth.signInWithOtp({
-        email: email.trim(),
-        options: { emailRedirectTo: window.location.origin + '/editorial' }
-      })
-      if (authError) setError(friendlyError(authError))
-      else setMailSent(true)
-    } catch (reason) {
-      setError(friendlyError(reason))
-    } finally { setPending(false) }
-  }
-
   function onPreparePolicyScenarios() {
     if (!canEdit) return
     const result=preparePolicyScenarios(draft)
@@ -252,7 +240,8 @@ export default function EditorialApp() {
   }
 
   async function onReviewSlot() {
-    if (!snapshot || role!=='publisher' || dirty || pending || !editorialReady(dossier)) return
+    if (!snapshot || role!=='publisher' || dirty || pending ||
+      authoredByCurrentUser || !editorialReady(dossier)) return
     const currentUser=user?.id
     const slot=dossier.id
     const targetWeek=week
@@ -297,7 +286,8 @@ export default function EditorialApp() {
   }
 
   async function onPublish() {
-    if (role !== 'publisher' || !reviewing || dirty || !complete || reviewedCount!==SLOTS || !snapshot ||
+    if (role !== 'publisher' || authoredByCurrentUser || !reviewing ||
+      dirty || !complete || reviewedCount!==SLOTS || !snapshot ||
       isPublished || pending || !user) return
     const owner = user.id
     const targetWeek = week
@@ -356,6 +346,8 @@ export default function EditorialApp() {
     <div className="session-strip"><span>AGENDA POLÍTICA · CONTROL EDITORIAL</span>
       <span>PUBLICACIÓN AUTORIZADA · FUENTES VERIFICABLES</span></div>
 
+    {user && <AccountSecurity recovering={recovering} onRecovered={() => setRecovering(false)} />}
+
     {!authReady ? <main className="editorial-state"><p role="status">Comprobando sesión…</p></main>
     : !client ? <main className="editorial-state">
       <h1>Servicio no configurado</h1><p>Falta la conexión segura al servidor.</p>
@@ -364,13 +356,7 @@ export default function EditorialApp() {
       <p className="eyebrow">ACCESO RESTRINGIDO</p>
       <h1>La mesa editorial</h1>
       <p className="muted">Elabora la agenda nacional con trazabilidad de fuentes y aprobación independiente. El acceso requiere una cuenta autorizada.</p>
-      <form onSubmit={event => void onLogin(event)} className="editorial-login">
-        <label htmlFor="editorial-email">Correo electrónico</label>
-        <input id="editorial-email" type="email" value={email}
-          onChange={event => setEmail(event.target.value)} required autoComplete="email" />
-        <button type="submit" disabled={pending}>{pending ? 'Enviando…' : 'Recibir enlace de acceso'}</button>
-      </form>
-      {mailSent && <p role="status">Enlace enviado. Comprueba tu correo electrónico.</p>}
+      <AuthGateway redirectTo={window.location.origin + '/editorial'} />
       {error && <p className="editorial-alert" role="alert">{error}</p>}
     </main>
     : loading || !permissionReady ? <main className="editorial-state">
@@ -456,11 +442,15 @@ export default function EditorialApp() {
           <p>Abre y contrasta la noticia original, comprueba que el contexto
             describa un escenario hipotético correcto y verifica costes,
             orientación y efectos de todas las alternativas.</p>
+          {authoredByCurrentUser && <p role="status">
+            La revisión y publicación de esta versión requieren otra cuenta
+            autorizada: no puedes aprobar tu propio borrador.</p>}
           {/^https:\/\/[^\s]+$/.test(dossier.source_url) &&
             <p><a href={dossier.source_url} target="_blank"
               rel="noopener noreferrer">Abrir fuente original para contrastar</a></p>}
           <button type="button" onClick={()=>void onReviewSlot()}
-            disabled={pending || dirty || !snapshot || !editorialReady(dossier)}>
+            disabled={pending || dirty || !snapshot || authoredByCurrentUser ||
+              !editorialReady(dossier)}>
             {selectedReviewed ? 'Retirar validación del expediente' :
               'Aprobar expediente tras contrastar la fuente'}
           </button>
@@ -562,7 +552,7 @@ export default function EditorialApp() {
           <div><strong>Persistencia</strong><p>Revisión {snapshot?.revision ?? 0}. {dirty ? 'Hay cambios sin guardar.' :
             snapshot ? 'Borrador sincronizado.' : 'Sin guardar todavía.'}</p></div></div>
         <div className="editorial-check"><span>03</span>
-          <div><strong>Separación de funciones</strong><p>Solo un publicador puede ejecutar la transacción final.</p></div></div>
+          <div><strong>Separación de funciones</strong><p>Solo un publicador distinto del autor de la revisión vigente puede certificar y publicar la agenda.</p></div></div>
         <div className="editorial-check"><span>04</span>
           <div><strong>Fuentes</strong><p>Se exige referencia HTTPS y fecha publicada no futura. La verificación factual corresponde a la redacción.</p></div></div>
         <div className="editorial-actions">
@@ -570,8 +560,13 @@ export default function EditorialApp() {
             {pending ? 'Procesando…' : 'Guardar borrador'}
           </button>
           {role === 'publisher' && !isPublished && <button className="editorial-publish"
-            disabled={pending || dirty || !complete || reviewedCount!==SLOTS || !snapshot}
+            disabled={pending || dirty || !complete || reviewedCount!==SLOTS ||
+              !snapshot || authoredByCurrentUser}
             onClick={() => setReviewing(true)}>Revisar publicación</button>}
+          {role==='publisher' && !isPublished && authoredByCurrentUser &&
+            <p role="status" className="editorial-small">
+              Publicación bloqueada: otra cuenta autorizada debe verificar y
+              publicar el borrador que has redactado.</p>}
           {role==='publisher' && !isPublished && reviewedCount!==SLOTS &&
             <p className="editorial-small">Publicación bloqueada:
               faltan {SLOTS-reviewedCount} revisiones explícitas.</p>}
@@ -579,7 +574,7 @@ export default function EditorialApp() {
             <strong>Publicación irreversible</strong>
             <p>Se aprobarán exactamente diez expedientes para la semana del {week}. No se pueden editar tras publicar.</p>
             <button onClick={() => void onPublish()} disabled={pending || dirty ||
-              !complete || reviewedCount!==SLOTS}>
+              !complete || reviewedCount!==SLOTS || authoredByCurrentUser}>
               Confirmar y publicar
             </button>
             <button className="text-button" onClick={() => setReviewing(false)}

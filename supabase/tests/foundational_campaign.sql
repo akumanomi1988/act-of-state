@@ -25,17 +25,17 @@ declare
 begin
  v_government := public.start_government();
  v_world := public.get_government_world(v_government.id);
- if (select count(*) from public.dossiers where release_kind='intro' and version=1)<>10 then
+ if (select count(*) from public.dossiers where release_kind='intro' and programme_chapter='founding' and version=1)<>10 then
   raise exception 'FOUNDATIONAL_DOSSIER_COUNT_INCORRECT'; end if;
  if (select count(*) from public.dossier_options o join public.dossiers d
       on d.id=o.dossier_id and d.version=o.dossier_version
-      where d.release_kind='intro' and d.version=1)<>30 then
+      where d.release_kind='intro' and d.programme_chapter='founding' and d.version=1)<>30 then
   raise exception 'FOUNDATIONAL_OPTIONS_COUNT_INCORRECT'; end if;
- if jsonb_array_length(v_world->'dossiers')<>10 or
-    jsonb_array_length(v_world->'options')<>30 then
+ if jsonb_array_length(v_world->'dossiers')<>28 or
+    jsonb_array_length(v_world->'options')<>84 then
   raise exception 'FOUNDATIONAL_DOSSIERS_NOT_IN_SNAPSHOT'; end if;
  if (select count(distinct category) from public.dossiers
-     where release_kind='intro' and version=1)<>10 then
+     where release_kind='intro' and programme_chapter='founding' and version=1)<>10 then
   raise exception 'FOUNDATIONAL_POLICY_COVERAGE_INCOMPLETE'; end if;
  -- Policy costs are bounded by the original 12,000 M€ treasury even when
  -- every most-expensive alternative is signed in one session.
@@ -47,7 +47,7 @@ begin
    where dossier_id=d.id and dossier_version=d.version
    order by treasury_delta_m_eur,id limit 1
   ) o
-  where d.release_kind='intro' and d.version=1 order by d.id
+  where d.release_kind='intro' and d.programme_chapter='founding' and d.version=1 order by d.id
  loop
   v_before := (select treasury_m_eur from public.governments
                where id=v_government.id);
