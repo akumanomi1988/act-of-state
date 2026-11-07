@@ -458,6 +458,587 @@ export const INTRO_CASES: readonly SimpleCase[] = [
   }
 ]
 
+/** Remaining authored reforms; logged-in players stay on the same simple screen. */
+export const CONTINUATION_CASES: readonly SimpleCase[] = [
+  {
+    "id": "care-economy",
+    "version": 1,
+    "title": "Cuidados y envejecimiento digno",
+    "context": "Miles de familias ficticias combinan trabajo con cuidados a mayores dependientes y personas con discapacidad. Las zonas rurales disponen de menos servicios y una intervención mal diseñada puede aumentar desigualdades territoriales.",
+    "category": "Protección social",
+    "options": [
+      {
+        "id": "public-home-care",
+        "title": "Financiar cuidados a domicilio",
+        "description": "Crear una red pública comarcal de apoyo domiciliario y descanso para familiares cuidadores.",
+        "treasuryDelta": -390,
+        "policyTarget": 25,
+        "responseIntensity": 30,
+        "trustBaseDelta": 4
+      },
+      {
+        "id": "cooperative-care",
+        "title": "Apoyar cooperativas de cuidados",
+        "description": "Abrir programas de acreditación y cofinanciar cooperativas locales con evaluación de resultados.",
+        "treasuryDelta": -160,
+        "policyTarget": 75,
+        "responseIntensity": 23,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "care-service-audit",
+        "title": "Auditar prestaciones actuales",
+        "description": "Revisar duplicidades y concentrar ayudas existentes sin comprometer nueva inversión estructural.",
+        "treasuryDelta": 115,
+        "policyTarget": 50,
+        "responseIntensity": 13,
+        "trustBaseDelta": -2
+      }
+    ]
+  },
+  {
+    "id": "public-safety-pact",
+    "version": 1,
+    "title": "Seguridad y confianza cívica",
+    "context": "Una serie de incidentes ficticios reabre el debate sobre seguridad en estaciones, barrios y zonas de ocio. El temor ciudadano convive con la necesidad de respetar derechos y controlar el uso de datos públicos.",
+    "category": "Seguridad",
+    "options": [
+      {
+        "id": "neighborhood-mediation",
+        "title": "Prevención y mediación de barrio",
+        "description": "Ampliar mediadores, equipos de proximidad y protección de víctimas con supervisión civil.",
+        "treasuryDelta": -380,
+        "policyTarget": 25,
+        "responseIntensity": 29,
+        "trustBaseDelta": 3
+      },
+      {
+        "id": "smart-policing",
+        "title": "Modernizar la respuesta policial",
+        "description": "Renovar comunicación y coordinación operativa con controles explícitos de privacidad y auditoría.",
+        "treasuryDelta": -220,
+        "policyTarget": 75,
+        "responseIntensity": 25,
+        "trustBaseDelta": 0
+      },
+      {
+        "id": "targeted-patrols",
+        "title": "Redistribuir patrullas",
+        "description": "Reordenar los recursos existentes hacia las zonas con mayor demanda sin crear nuevos programas.",
+        "treasuryDelta": 90,
+        "policyTarget": 50,
+        "responseIntensity": 13,
+        "trustBaseDelta": -2
+      }
+    ]
+  },
+  {
+    "id": "cultural-belonging",
+    "version": 1,
+    "title": "Cultura, bibliotecas y cohesión",
+    "context": "Los pequeños municipios ficticios pierden espacios culturales mientras los centros metropolitanos concentran programación y financiación. El Gobierno debe ponderar cohesión territorial, economía creativa y necesidades básicas.",
+    "category": "Cultura",
+    "options": [
+      {
+        "id": "community-culture",
+        "title": "Financiar cultura de proximidad",
+        "description": "Abrir bibliotecas multifunción y circuitos culturales de bajo coste en municipios con escasa oferta.",
+        "treasuryDelta": -270,
+        "policyTarget": 25,
+        "responseIntensity": 25,
+        "trustBaseDelta": 3
+      },
+      {
+        "id": "creative-industry",
+        "title": "Incentivar industrias creativas",
+        "description": "Apoyar proyectos culturales exportables, producción local y formación tecnológica para creadores.",
+        "treasuryDelta": -145,
+        "policyTarget": 75,
+        "responseIntensity": 21,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "heritage-maintenance",
+        "title": "Priorizar conservación",
+        "description": "Concentrar los recursos en mantenimiento del patrimonio existente y suspender nuevas convocatorias.",
+        "treasuryDelta": 80,
+        "policyTarget": 50,
+        "responseIntensity": 11,
+        "trustBaseDelta": -2
+      }
+    ]
+  },
+  {
+    "id": "tax-compliance",
+    "version": 1,
+    "title": "Fraude fiscal y contrato social",
+    "context": "Las cuentas ficticias de Arcadia muestran diferencias persistentes entre el esfuerzo de hogares y empresas. La confianza en la recaudación depende tanto de su eficacia como de la previsibilidad para quienes cumplen.",
+    "category": "Economía",
+    "options": [
+      {
+        "id": "tax-inspection-access",
+        "title": "Reforzar la inspección justa",
+        "description": "Ampliar equipos de asistencia e inspección para pequeñas y grandes obligaciones, priorizando garantías y trazabilidad.",
+        "treasuryDelta": -300,
+        "policyTarget": 25,
+        "responseIntensity": 27,
+        "trustBaseDelta": 4
+      },
+      {
+        "id": "risk-based-audit",
+        "title": "Digitalizar controles tributarios",
+        "description": "Modernizar cruces de datos con revisión humana y servicios digitales de cumplimiento para empresas.",
+        "treasuryDelta": -160,
+        "policyTarget": 75,
+        "responseIntensity": 26,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "temporary-regularization",
+        "title": "Regularización extraordinaria",
+        "description": "Aprobar un esquema temporal de regularización para aumentar ingresos inmediatos con un riesgo reputacional.",
+        "treasuryDelta": 230,
+        "policyTarget": 50,
+        "responseIntensity": 15,
+        "trustBaseDelta": -4
+      }
+    ]
+  },
+  {
+    "id": "industrial-reconversion",
+    "version": 1,
+    "title": "Reconversión de la industria regional",
+    "context": "Varias fábricas ficticias pierden pedidos por cambios tecnológicos y costes energéticos; decenas de comarcas dependen de ellas. El gabinete debe repartir los recursos entre empleo, modernización y estabilidad del tesoro.",
+    "category": "Industria",
+    "options": [
+      {
+        "id": "worker-transition-fund",
+        "title": "Fondo de transición laboral",
+        "description": "Financiar formación, garantías de empleo y apoyo temporal a trabajadores de sectores en reconversión.",
+        "treasuryDelta": -540,
+        "policyTarget": 25,
+        "responseIntensity": 32,
+        "trustBaseDelta": 4
+      },
+      {
+        "id": "productive-investment",
+        "title": "Acelerar inversión productiva",
+        "description": "Cofinanciar maquinaria, eficiencia energética e innovación en consorcios empresariales regionales.",
+        "treasuryDelta": -310,
+        "policyTarget": 75,
+        "responseIntensity": 30,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "orderly-adjustment",
+        "title": "Ajuste industrial limitado",
+        "description": "Priorizar la solvencia fiscal y la asistencia administrativa sin rescates sectoriales generalizados.",
+        "treasuryDelta": 160,
+        "policyTarget": 50,
+        "responseIntensity": 11,
+        "trustBaseDelta": -4
+      }
+    ]
+  },
+  {
+    "id": "local-enterprise",
+    "version": 1,
+    "title": "Pequeñas empresas y territorio",
+    "context": "Los pequeños negocios ficticios informan de baja productividad, escaso crédito e incertidumbre regulatoria. La actividad comarcal depende de decisiones que no generen privilegios injustificados.",
+    "category": "Empleo",
+    "options": [
+      {
+        "id": "microcredit-guarantees",
+        "title": "Garantías para negocios locales",
+        "description": "Abrir microcréditos públicos condicionados a empleo estable y rendición de cuentas.",
+        "treasuryDelta": -440,
+        "policyTarget": 25,
+        "responseIntensity": 28,
+        "trustBaseDelta": 3
+      },
+      {
+        "id": "digital-business-hubs",
+        "title": "Centros de modernización empresarial",
+        "description": "Financiar asesoramiento digital y redes compartidas de exportación para pymes.",
+        "treasuryDelta": -230,
+        "policyTarget": 75,
+        "responseIntensity": 26,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "licensing-simplification",
+        "title": "Simplificar licencias",
+        "description": "Reducir cargas administrativas y reservar el gasto para otras prioridades sin subvenciones nuevas.",
+        "treasuryDelta": 170,
+        "policyTarget": 50,
+        "responseIntensity": 14,
+        "trustBaseDelta": -2
+      }
+    ]
+  },
+  {
+    "id": "debt-credibility",
+    "version": 1,
+    "title": "Credibilidad de la deuda pública",
+    "context": "Tras varias decisiones de gasto ficticias, Arcadia debe negociar sus próximas necesidades de financiación. Un ajuste abrupto puede dañar servicios; una expansión indiscriminada limita los presupuestos futuros.",
+    "category": "Finanzas públicas",
+    "options": [
+      {
+        "id": "social-debt-plan",
+        "title": "Pacto fiscal con garantías sociales",
+        "description": "Crear un programa plurianual de reducción gradual del déficit con protección de servicios básicos.",
+        "treasuryDelta": -260,
+        "policyTarget": 25,
+        "responseIntensity": 26,
+        "trustBaseDelta": 3
+      },
+      {
+        "id": "growth-debt-plan",
+        "title": "Consolidación basada en crecimiento",
+        "description": "Invertir en gestión de deuda y apoyo productivo con metas de transparencia trimestral.",
+        "treasuryDelta": -140,
+        "policyTarget": 75,
+        "responseIntensity": 22,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "immediate-spending-freeze",
+        "title": "Congelación presupuestaria",
+        "description": "Posponer programas de gasto no comprometidos para recuperar reservas con coste de aceptación ciudadana.",
+        "treasuryDelta": 290,
+        "policyTarget": 50,
+        "responseIntensity": 12,
+        "trustBaseDelta": -4
+      }
+    ]
+  },
+  {
+    "id": "circular-industry",
+    "version": 1,
+    "title": "Recursos y economía circular",
+    "context": "El consumo ficticio de materiales importados hace vulnerables a las fábricas nacionales. Municipios y empresas quieren reciclar, pero difieren sobre quién debe asumir los costes de adaptación.",
+    "category": "Industria",
+    "options": [
+      {
+        "id": "municipal-reuse",
+        "title": "Crear redes municipales de reutilización",
+        "description": "Invertir en separación, reparación y centros comarcales de recuperación de materiales.",
+        "treasuryDelta": -380,
+        "policyTarget": 25,
+        "responseIntensity": 27,
+        "trustBaseDelta": 3
+      },
+      {
+        "id": "recycling-incentives",
+        "title": "Incentivar cadenas circulares",
+        "description": "Cofinanciar tecnología y acuerdos de recogida industrial con objetivos medibles.",
+        "treasuryDelta": -210,
+        "policyTarget": 75,
+        "responseIntensity": 26,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "voluntary-standards",
+        "title": "Normas voluntarias sin subvención",
+        "description": "Promover estándares de información y compras públicas prudentes sin inversiones estructurales.",
+        "treasuryDelta": 110,
+        "policyTarget": 50,
+        "responseIntensity": 12,
+        "trustBaseDelta": -2
+      }
+    ]
+  },
+  {
+    "id": "judicial-delay",
+    "version": 1,
+    "title": "Justicia ante los retrasos",
+    "context": "En la Arcadia ficticia aumentan los procedimientos sin resolver y ciudadanos y empresas pierden confianza en los tiempos judiciales. La independencia de los tribunales debe mantenerse al decidir cómo asignar recursos.",
+    "category": "Justicia",
+    "options": [
+      {
+        "id": "regional-justice-support",
+        "title": "Reforzar juzgados comarcales",
+        "description": "Financiar personal de apoyo, digitalización accesible y salas locales de mediación judicial.",
+        "treasuryDelta": -330,
+        "policyTarget": 25,
+        "responseIntensity": 27,
+        "trustBaseDelta": 4
+      },
+      {
+        "id": "procedural-modernization",
+        "title": "Modernizar los procedimientos",
+        "description": "Actualizar gestión procesal y formación de personal con revisión independiente de resultados.",
+        "treasuryDelta": -150,
+        "policyTarget": 75,
+        "responseIntensity": 25,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "judicial-workload-review",
+        "title": "Revisar cargas sin inversión nueva",
+        "description": "Redistribuir expedientes y priorizar procedimientos urgentes antes de aumentar plantilla.",
+        "treasuryDelta": 100,
+        "policyTarget": 50,
+        "responseIntensity": 13,
+        "trustBaseDelta": -3
+      }
+    ]
+  },
+  {
+    "id": "regional-autonomy",
+    "version": 1,
+    "title": "Competencias de las regiones",
+    "context": "Las regiones ficticias reclaman adaptar servicios a su población, mientras otras temen disparidades de financiación. El Gobierno debe preservar derechos comunes sin ignorar las diferencias territoriales.",
+    "category": "Instituciones",
+    "options": [
+      {
+        "id": "territorial-equalization",
+        "title": "Fondo territorial de igualdad",
+        "description": "Financiar servicios esenciales en distritos rurales y mecanismos auditables de reparto.",
+        "treasuryDelta": -390,
+        "policyTarget": 25,
+        "responseIntensity": 29,
+        "trustBaseDelta": 3
+      },
+      {
+        "id": "regional-performance",
+        "title": "Acuerdos de gestión territorial",
+        "description": "Delegar proyectos con objetivos, información pública y evaluaciones compartidas por los distritos.",
+        "treasuryDelta": -220,
+        "policyTarget": 75,
+        "responseIntensity": 26,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "central-competences",
+        "title": "Mantener el marco central",
+        "description": "Aplazar nuevas transferencias para proteger la estabilidad presupuestaria y jurídica.",
+        "treasuryDelta": 120,
+        "policyTarget": 50,
+        "responseIntensity": 13,
+        "trustBaseDelta": -3
+      }
+    ]
+  },
+  {
+    "id": "integrity-procurement",
+    "version": 1,
+    "title": "Contratos públicos y transparencia",
+    "context": "Un informe ficticio descubre retrasos y adjudicaciones poco comparables en infraestructuras. La ciudadanía pide transparencia, pero los municipios pequeños carecen de personal especializado.",
+    "category": "Instituciones",
+    "options": [
+      {
+        "id": "open-contracting",
+        "title": "Contratación pública abierta",
+        "description": "Publicar expedientes normalizados y financiar supervisión independiente de contratos y conflictos de interés.",
+        "treasuryDelta": -260,
+        "policyTarget": 25,
+        "responseIntensity": 30,
+        "trustBaseDelta": 4
+      },
+      {
+        "id": "shared-procurement",
+        "title": "Plataforma de compra compartida",
+        "description": "Centralizar herramientas de licitación y asistencia jurídica con trazabilidad y recursos de reclamación.",
+        "treasuryDelta": -130,
+        "policyTarget": 75,
+        "responseIntensity": 26,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "basic-procurement-audit",
+        "title": "Auditoría de expedientes existentes",
+        "description": "Revisar una muestra de contratos sin asumir nuevas competencias o infraestructuras de control.",
+        "treasuryDelta": 90,
+        "policyTarget": 50,
+        "responseIntensity": 12,
+        "trustBaseDelta": -3
+      }
+    ]
+  },
+  {
+    "id": "participatory-councils",
+    "version": 1,
+    "title": "Participación ciudadana sostenida",
+    "context": "En la nación ficticia la participación pública disminuye entre elecciones y los partidos discuten quién debe fijar prioridades. Se necesitan canales de debate útiles sin sustituir instituciones representativas.",
+    "category": "Democracia",
+    "options": [
+      {
+        "id": "civic-assemblies",
+        "title": "Asambleas ciudadanas consultivas",
+        "description": "Abrir procesos deliberativos accesibles por distrito con informes públicos y seguimiento de propuestas.",
+        "treasuryDelta": -180,
+        "policyTarget": 25,
+        "responseIntensity": 26,
+        "trustBaseDelta": 4
+      },
+      {
+        "id": "digital-consultation",
+        "title": "Consultas con garantía digital",
+        "description": "Crear una plataforma accesible de participación con auditoría externa y asistencia presencial.",
+        "treasuryDelta": -95,
+        "policyTarget": 75,
+        "responseIntensity": 23,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "existing-public-hearings",
+        "title": "Conservar audiencias tradicionales",
+        "description": "Reforzar la publicación de actas existentes sin crear nuevas estructuras deliberativas.",
+        "treasuryDelta": 80,
+        "policyTarget": 50,
+        "responseIntensity": 11,
+        "trustBaseDelta": -2
+      }
+    ]
+  },
+  {
+    "id": "drought-reserves",
+    "version": 1,
+    "title": "Sequía y reservas hídricas",
+    "context": "Tras varios meses ficticios de poca lluvia, la disponibilidad de agua para cultivos y hogares desciende. Las cuencas de Arcadia difieren y un reparto injusto amenaza la cohesión entre distritos.",
+    "category": "Medio ambiente",
+    "options": [
+      {
+        "id": "public-water-reserves",
+        "title": "Reserva pública de agua",
+        "description": "Invertir en reparación de redes y reservas para consumo esencial con apoyo a municipios rurales.",
+        "treasuryDelta": -490,
+        "policyTarget": 25,
+        "responseIntensity": 30,
+        "trustBaseDelta": 4
+      },
+      {
+        "id": "smart-irrigation",
+        "title": "Regadío eficiente y medición",
+        "description": "Cofinanciar sensores, almacenamiento y mejoras de eficiencia condicionadas a ahorro verificable.",
+        "treasuryDelta": -250,
+        "policyTarget": 75,
+        "responseIntensity": 28,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "voluntary-water-limits",
+        "title": "Racionamiento voluntario",
+        "description": "Coordinar campañas de ahorro y vigilancia del consumo con inversión pública mínima.",
+        "treasuryDelta": 170,
+        "policyTarget": 50,
+        "responseIntensity": 13,
+        "trustBaseDelta": -3
+      }
+    ]
+  },
+  {
+    "id": "epidemic-preparedness",
+    "version": 1,
+    "title": "Preparación sanitaria ante epidemias",
+    "context": "Un ejercicio ficticio de salud pública descubre demoras para compartir información clínica y suministros estratégicos. Las decisiones deben proteger libertades y capacidad de respuesta sin atribuir riesgos a grupos sociales.",
+    "category": "Sanidad",
+    "options": [
+      {
+        "id": "local-response-stock",
+        "title": "Red local de respuesta sanitaria",
+        "description": "Crear reservas sanitarias comarcales, formación y atención comunitaria de emergencia.",
+        "treasuryDelta": -480,
+        "policyTarget": 25,
+        "responseIntensity": 29,
+        "trustBaseDelta": 4
+      },
+      {
+        "id": "laboratory-coordination",
+        "title": "Red de laboratorios interoperables",
+        "description": "Financiar alertas clínicas, coordinación de datos anónimos y protocolos interhospitalarios.",
+        "treasuryDelta": -240,
+        "policyTarget": 75,
+        "responseIntensity": 27,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "existing-emergency-protocols",
+        "title": "Revisar protocolos vigentes",
+        "description": "Auditar reservas e instrucciones ya existentes antes de comprometer nuevas compras.",
+        "treasuryDelta": 100,
+        "policyTarget": 50,
+        "responseIntensity": 12,
+        "trustBaseDelta": -2
+      }
+    ]
+  },
+  {
+    "id": "critical-cyberdefense",
+    "version": 1,
+    "title": "Infraestructura digital bajo presión",
+    "context": "Un fallo ficticio afecta simultáneamente a redes de abastecimiento y servicios administrativos. Proteger la continuidad operativa exige inversiones y garantías de privacidad sin convertir el incidente en vigilancia indiscriminada.",
+    "category": "Tecnología",
+    "options": [
+      {
+        "id": "public-resilience-teams",
+        "title": "Equipos públicos de resiliencia",
+        "description": "Desplegar respuesta técnica para hospitales y servicios básicos, con control democrático y privacidad.",
+        "treasuryDelta": -390,
+        "policyTarget": 25,
+        "responseIntensity": 31,
+        "trustBaseDelta": 4
+      },
+      {
+        "id": "critical-private-security",
+        "title": "Acuerdos de seguridad sectorial",
+        "description": "Crear certificaciones y respuesta coordinada con operadores, auditoría independiente y costes compartidos.",
+        "treasuryDelta": -190,
+        "policyTarget": 75,
+        "responseIntensity": 26,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "limited-system-review",
+        "title": "Revisión mínima de continuidad",
+        "description": "Programar inspecciones y limitar la renovación técnica para conservar reservas fiscales.",
+        "treasuryDelta": 125,
+        "policyTarget": 50,
+        "responseIntensity": 11,
+        "trustBaseDelta": -3
+      }
+    ]
+  },
+  {
+    "id": "international-supply-shock",
+    "version": 1,
+    "title": "Dependencia de suministros exteriores",
+    "context": "Una interrupción comercial ficticia eleva precios industriales y retrasa entregas esenciales. El Gobierno debe elegir cuánto diversificar, cuánta producción asegurar y qué parte del riesgo asumir.",
+    "category": "Relaciones exteriores",
+    "options": [
+      {
+        "id": "strategic-stockpiles",
+        "title": "Reservas de suministro esenciales",
+        "description": "Financiar reservas rotativas de componentes críticos con criterios públicos y control del gasto.",
+        "treasuryDelta": -430,
+        "policyTarget": 25,
+        "responseIntensity": 28,
+        "trustBaseDelta": 3
+      },
+      {
+        "id": "trade-diversification",
+        "title": "Diversificar acuerdos comerciales",
+        "description": "Apoyar proveedores alternativos y facilitar cooperación logística con socios regionales.",
+        "treasuryDelta": -250,
+        "policyTarget": 75,
+        "responseIntensity": 27,
+        "trustBaseDelta": 1
+      },
+      {
+        "id": "market-adjustment",
+        "title": "Dejar actuar al mercado",
+        "description": "Evitar nuevos compromisos fiscales y revisar solo trámites aduaneros prioritarios.",
+        "treasuryDelta": 200,
+        "policyTarget": 50,
+        "responseIntensity": 12,
+        "trustBaseDelta": -3
+      }
+    ]
+  }
+]
+export const ALL_SOLO_CASES: readonly SimpleCase[] = [...INTRO_CASES, ...CONTINUATION_CASES]
+export const ELECTION_CHECKPOINTS = [12, 24, 28] as const
 export const MANDATE_SIZE = INTRO_CASES.length
 export const GUEST_STORAGE_KEY = 'aos:simple-guest:v1'
 export interface GuestDecision { caseId: string; optionId: string }
@@ -596,16 +1177,18 @@ export function consequences(scenario: SimpleCase, choice: SimpleChoice,
 }
 
 export function committedMandate(world: GovernmentWorld) {
-  const signed = INTRO_CASES.map(scenario =>
+  const signed = ALL_SOLO_CASES.map(scenario =>
     world.events.find(event =>
       event.dossier_id === scenario.id && event.dossier_version === scenario.version) ?? null)
   const nextIndex = signed.findIndex(event => event === null)
-  const completed = signed.filter(Boolean).length
+  const completed = nextIndex < 0 ? ALL_SOLO_CASES.length : nextIndex
+  const totalSigned = signed.filter(Boolean).length
   const finalEvent = signed.filter(event => event !== null)
     .sort((a, b) => a!.created_at.localeCompare(b!.created_at)).at(-1) ?? null
   return {
     completed,
-    nextIndex: nextIndex < 0 ? MANDATE_SIZE : nextIndex,
+    nextIndex: nextIndex < 0 ? ALL_SOLO_CASES.length : nextIndex,
+    totalSigned,
     finalState: finalEvent?.state_after ?? world.government as GovernmentState,
     finalEvent,
     signed
